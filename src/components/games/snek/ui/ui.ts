@@ -21,13 +21,13 @@ export class UiController {
 
         this.gameOverUI = new THREE.Group();
         this.gameOverUI.add(TextUtils.addText(scene, "Game Over", 0.5, 0.65, textWidth, true));
-        this.gameOverUI.add(TextUtils.addText(scene, "Press spacebar\nto restart", 0.5, 0.2, textWidth, true));
+        this.gameOverUI.add(TextUtils.addText(scene, "Press the (A) button\nto restart", 0.5, 0.2, textWidth, true));
         this.gameOverUI.position.z = ZDepthHelper.getMeshZDepth(GameLayer.UI, 0.9);
         scene.add(this.gameOverUI);
 
         this.victoryUI = new THREE.Group();
         this.victoryUI.add(TextUtils.addText(scene, "Victory!", 0.5, 0.65, textWidth, true));
-        this.victoryUI.add(TextUtils.addText(scene, "Press spacebar\nto restart", 0.5, 0.2, textWidth, true));
+        this.victoryUI.add(TextUtils.addText(scene, "Press the (A) button\nto restart", 0.5, 0.2, textWidth, true));
         this.victoryUI.position.z = ZDepthHelper.getMeshZDepth(GameLayer.UI, 0.9);
         scene.add(this.victoryUI);
 

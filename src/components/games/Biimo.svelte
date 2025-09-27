@@ -8,7 +8,7 @@
   import { Vector4 } from './snek/utils/utils.ts';
   import { DungeonGame } from './dungeon-game/lib/dungeon-game.ts';
   import type { BiimoGame } from './_base/biimo-game.ts';
-  import {CameraMaxZ, getBiimoButton, KnownGames} from './_utils/game-utils.ts';
+  import {BiimoButton, CameraMaxZ, getBiimoButton, KnownGames} from './_utils/game-utils.ts';
   import { ScreenTest } from './_screen-test/screen-test.ts';
 
   let gameToLoad: KnownGames = KnownGames.Snake;
@@ -220,6 +220,18 @@
     if (!buttonPressed) return;
     loadedGame.handleBiimoInput(buttonPressed);
   }
+
+  function handleAButtonClick(event: MouseEvent) {
+    var buttonPressed = BiimoButton.A;
+    if (!buttonPressed) return;
+    loadedGame.handleBiimoInput(buttonPressed);
+  }
+
+  function handleBButtonClick(event: MouseEvent) {
+    var buttonPressed = BiimoButton.B;
+    if (!buttonPressed) return;
+    loadedGame.handleBiimoInput(buttonPressed);
+  }
 </script>
 
 <div id="background"></div>
@@ -240,34 +252,32 @@
           </div>
           <div id="d-pad-main">
             <div class="d-pad-left-highlight" id="d-pad-vertical">
-                <div id="d-pad-up-button" class="d-pad-arrow-button" on:click={handleDPadClick}>
-                  <div class="d-pad-arrow-button-icon"></div>
-                </div>
-                <div id="d-pad-down-button" class="d-pad-arrow-button" on:click={handleDPadClick}>
-                  <div class="d-pad-arrow-button-icon"></div>
-                </div>
+                <button id="d-pad-up-button" type="button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Up">
+                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-up"></div>
+                </button>
+                <button id="d-pad-down-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Down">
+                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-down"></div>
+                </button>
             </div>
             <div class="d-pad-left-highlight" id="d-pad-horizontal">
-                <div id="d-pad-left-button" class="d-pad-arrow-button" on:click={handleDPadClick}>
-                  <div class="d-pad-arrow-button-icon"></div>
-                </div>
-                <div id="d-pad-right-button" class="d-pad-arrow-button" on:click={handleDPadClick}>
-                  <div class="d-pad-arrow-button-icon"></div>
-                </div>
+                <button id="d-pad-left-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Left">
+                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-left"></div>
+                </button>
+                <button id="d-pad-right-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Right">
+                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-right"></div>
+                </button>
             </div>
           </div>
         </div>
         <div id="abButtons">
-          <div id="aButton">
-            <div class="abButton">
-              <div class="abButtonShine"></div>
-            </div>
-          </div>
-          <div id="bButton">
-            <div class="abButton">
-              <div class="abButtonShine"></div>
-            </div>
-          </div>
+          <button id="bButton" class="abButton" on:click={handleBButtonClick} aria-label="B Button"> 
+            <div class="abButtonText">B</div>
+            <div class="abButtonShine"></div> 
+          </button>
+          <button id="aButton" class="abButton" on:click={handleAButtonClick} aria-label="A Button"> 
+            <div class="abButtonText">A</div>
+            <div class="abButtonShine"></div> 
+          </button>
         </div>
       </div>
     </div>
@@ -469,13 +479,34 @@
       aspect-ratio: 1;
       background-color: #2f3031;
       border-radius: 10px; 
+      box-shadow: 2px 2px 1px rgb(23, 23, 23);
+      border: #1c1c1c 1px solid;
+  }
+  .d-pad-arrow-button:active {
+      box-shadow: inset 3px 3px 1px rgb(23, 23, 23); 
+      background-color: #1c1c1c;
+      border: #1c1c1c 2px solid;
   }
   
   .d-pad-arrow-button-icon { 
-      aspect-ratio: 1;
-      background-color: #2f3031;
-      border-radius: 110px; 
-      margin: 15px;
+      width: 0; 
+      height: 0; 
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 15px solid rgb(101, 118, 135);
+      margin: auto;
+  }
+  .d-pad-arrow-button-icon-up {
+      transform: rotate(0deg);
+  }
+  .d-pad-arrow-button-icon-down {
+      transform: rotate(180deg);
+  }
+  .d-pad-arrow-button-icon-left {
+      transform: rotate(270deg);
+  }
+  .d-pad-arrow-button-icon-right {
+      transform: rotate(90deg);
   }
 
   #abButtons {
@@ -496,26 +527,45 @@
     transform: rotate(-30deg);
   }
 
+  .abButtonText {
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: calc(10px + 5vmin);
+    color: #8f1077;
+    font-family: 'Arial Black', Gadget, sans-serif;
+  }
+
   #aButton {
     flex-grow: 1;
     margin: 5%;
+    border-radius: 100px;
   }
 
   #bButton {
     flex-grow: 1;
     margin: 5%;
+    border-radius: 100px;
   }
 
   .abButton {
+    position: relative;
+    padding: 0;
     aspect-ratio: 1;
     background-color: #a41a8b;
-    border-radius: 50%;
+    border-radius: 100px;
     box-shadow: 2px 2px 1px rgb(101, 9, 85);
+    border: #61014e 2px solid;
+  }
+  .abButton:active {
+    box-shadow: inset 12px 12px 1px rgb(101, 9, 85); 
+    background-color: #7d1468;
   }
 
   .abButtonShine {
     position: relative;
-    top: 1%;
+    top: 0%;
     left: 2%;
     width: 95%;
     height: 95%;

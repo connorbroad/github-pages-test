@@ -11,7 +11,6 @@ export class SnakeGame implements BiimoGame {
     public player: Snake | undefined;
     public board: Board | undefined;
     readonly arrowKeys = [BiimoButton.Up, BiimoButton.Down, BiimoButton.Left, BiimoButton.Right];
-    readonly spaceCode = BiimoButton.Start;
     score: number = 0;
     startTime: number = 0;
     finalTimeStr: string = "";
@@ -138,7 +137,7 @@ export class SnakeGame implements BiimoGame {
                 break;
             case GameState.GameOver:
             case GameState.Victorious:
-                if (e == this.spaceCode) this.goToMainMenu();
+                if (e == BiimoButton.A) this.goToMainMenu();
                 break;
         }
     }
