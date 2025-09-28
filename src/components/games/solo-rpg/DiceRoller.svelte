@@ -29,12 +29,6 @@
                 break;
         }
     }
-
-    function closeDiceRoller() {
-        diceResults = [];
-        finalResult = null;
-        onClose && onClose();
-    }
 </script>
 
 {#if show}
@@ -75,7 +69,6 @@
                 </select>
             </label>
             {#if numDice > 1}
-                <label>Result:</label>
                 <div class="result-radio-group">
                     <label class="result-radio">
                         <input type="radio" name="resultOption" value="Sum" bind:group={resultOption}>
@@ -106,7 +99,9 @@
             <button on:click={rollDice}>Roll</button>
             {#if diceResults.length}
                 <div class="dice-results">
-                    <p>Dice: {diceResults.join(", ")}</p>
+                    {#if diceResults.length > 1}
+                        <p>Dice: {diceResults.join(", ")}</p>
+                    {/if}
                     <p>Result: {finalResult}</p>
                 </div>
             {/if}
