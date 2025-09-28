@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "allowImportingTsExtensions": true
+  },
   "extends": "astro/tsconfigs/base",
   "exclude": [
     "node_modules"

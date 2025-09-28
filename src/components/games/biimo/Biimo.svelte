@@ -1,15 +1,20 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { SnakeGame } from './snek/game/snake-game.ts';
-  import * as THREE from 'three';
-  import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-  import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-  import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-  import { Vector4 } from './snek/utils/utils.ts';
-  import { DungeonGame } from './dungeon-game/lib/dungeon-game.ts';
-  import type { BiimoGame } from './_base/biimo-game.ts';
-  import {BiimoButton, CameraMaxZ, getBiimoButton, KnownGames} from './_utils/game-utils.ts';
-  import { ScreenTest } from './_screen-test/screen-test.ts';
+  import { onMount } from "svelte";
+  import { SnakeGame } from "./snek/game/snake-game.ts";
+  import * as THREE from "three";
+  import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+  import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+  import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+  import { Vector4 } from "./snek/utils/utils.ts";
+  import { DungeonGame } from "./dungeon-game/lib/dungeon-game.ts";
+  import type { BiimoGame } from "./_base/biimo-game.ts";
+  import {
+    BiimoButton,
+    CameraMaxZ,
+    getBiimoButton,
+    KnownGames,
+  } from "./_utils/game-utils.ts";
+  import { ScreenTest } from "./_screen-test/screen-test.ts";
 
   let gameToLoad: KnownGames = KnownGames.Snake;
   let loadedGame: BiimoGame;
@@ -50,7 +55,7 @@
       case KnownGames.Dungeon:
         return new DungeonGame(scene);
       default:
-        return new DungeonGame(scene); 
+        return new DungeonGame(scene);
     }
   }
 
@@ -90,7 +95,9 @@
   function sceneAddBg(width: number, height: number) {
     let bgCol = Vector4.FromHexColor(`#ffffff`);
     const geometry = new THREE.PlaneGeometry(width, height);
-    const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(bgCol.x, bgCol.y, bgCol.z) });
+    const material = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(bgCol.x, bgCol.y, bgCol.z),
+    });
     const bg = new THREE.Mesh(geometry, material);
     bg.position.x = width / 2;
     bg.position.y = height / 2;
@@ -107,7 +114,9 @@
         }
     `;
 
-    const fragmentShader = await (await fetch('/github-pages-test/biimo/shaders/biimo-retro-shader.frag')).text();
+    const fragmentShader = await (
+      await fetch("/github-pages-test/biimo/shaders/biimo-retro-shader.frag")
+    ).text();
 
     const tintColor = Vector4.FromHexColor(`#b9fcc3`);
     const pixelationShader = {
@@ -153,35 +162,53 @@
       let heightPixels = biimoDiv.scrollWidth / desiredBiimoSizeRatio;
       heightPerc = (heightPixels / parentHeight) * 100;
     }
-    biimoDiv.style.setProperty('--biimo-width', `${widthPerc}%`);
-    biimoDiv.style.setProperty('--biimo-height', `${heightPerc}%`);
+    biimoDiv.style.setProperty("--biimo-width", `${widthPerc}%`);
+    biimoDiv.style.setProperty("--biimo-height", `${heightPerc}%`);
 
     const bigCornerAdjustment = 5;
     const smallCornerAdjustment = 50;
-    biimoDiv.style.setProperty('--biimo-corner-small', `${biimoDiv.scrollHeight / smallCornerAdjustment}px`);
-    biimoDiv.style.setProperty('--biimo-corner-big', `${biimoDiv.scrollHeight / bigCornerAdjustment}px`);
+    biimoDiv.style.setProperty(
+      "--biimo-corner-small",
+      `${biimoDiv.scrollHeight / smallCornerAdjustment}px`,
+    );
+    biimoDiv.style.setProperty(
+      "--biimo-corner-big",
+      `${biimoDiv.scrollHeight / bigCornerAdjustment}px`,
+    );
 
     const gameCanvasTop = 10;
     const gameCanvasLeft = 15;
     const gameCanvasWidth = 70;
     const gameCanvasHeight = 80;
-    gameCanvasShadow.style.setProperty('--game-canvas-top', `${gameCanvasTop}%`);
-    gameCanvasShadow.style.setProperty('--game-canvas-left', `${gameCanvasLeft}%`);
-    gameCanvasShadow.style.setProperty('--game-canvas-width', `${gameCanvasWidth}%`);
-    gameCanvasShadow.style.setProperty('--game-canvas-height', `${gameCanvasHeight}%`);
+    gameCanvasShadow.style.setProperty(
+      "--game-canvas-top",
+      `${gameCanvasTop}%`,
+    );
+    gameCanvasShadow.style.setProperty(
+      "--game-canvas-left",
+      `${gameCanvasLeft}%`,
+    );
+    gameCanvasShadow.style.setProperty(
+      "--game-canvas-width",
+      `${gameCanvasWidth}%`,
+    );
+    gameCanvasShadow.style.setProperty(
+      "--game-canvas-height",
+      `${gameCanvasHeight}%`,
+    );
 
     setCanvasLayerAttributes(
       canvas3,
       gameCanvasShadow.offsetWidth,
       gameCanvasShadow.offsetHeight,
       gameCanvasTop,
-      gameCanvasLeft
+      gameCanvasLeft,
     );
 
     let rotMagnitude = 1; // passive sway amount
     let rotSpeed = 0.0005;
     let rot = Math.sin(timestamp * rotSpeed) * rotMagnitude;
-    biimoDiv.style.setProperty('--biimo-rotation', `${rot}deg`);
+    biimoDiv.style.setProperty("--biimo-rotation", `${rot}deg`);
   }
 
   function setCanvasLayerAttributes(
@@ -189,12 +216,12 @@
     width: number,
     height: number,
     top: number,
-    left: number
+    left: number,
   ) {
     canvas.width = width;
     canvas.height = height;
-    canvas.style.setProperty('--game-canvas-top', `${top}%`);
-    canvas.style.setProperty('--game-canvas-left', `${left}%`);
+    canvas.style.setProperty("--game-canvas-top", `${top}%`);
+    canvas.style.setProperty("--game-canvas-left", `${left}%`);
   }
 
   function updateThreeJs(timestamp: number) {
@@ -213,7 +240,7 @@
   function setPixelizationLevel(pixelSize: number) {
     retroShaderPass.uniforms.pixelSize.value = pixelSize;
   }
-  
+
   function handleDPadClick(event: MouseEvent) {
     const buttonId = (event.currentTarget as HTMLElement).id;
     var buttonPressed = getBiimoButton(buttonId);
@@ -252,31 +279,70 @@
           </div>
           <div id="d-pad-main">
             <div class="d-pad-left-highlight" id="d-pad-vertical">
-                <button id="d-pad-up-button" type="button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Up">
-                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-up"></div>
-                </button>
-                <button id="d-pad-down-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Down">
-                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-down"></div>
-                </button>
+              <button
+                id="d-pad-up-button"
+                type="button"
+                class="d-pad-arrow-button"
+                on:click={handleDPadClick}
+                aria-label="Up"
+              >
+                <div
+                  class="d-pad-arrow-button-icon d-pad-arrow-button-icon-up"
+                ></div>
+              </button>
+              <button
+                id="d-pad-down-button"
+                class="d-pad-arrow-button"
+                on:click={handleDPadClick}
+                aria-label="Down"
+              >
+                <div
+                  class="d-pad-arrow-button-icon d-pad-arrow-button-icon-down"
+                ></div>
+              </button>
             </div>
             <div class="d-pad-left-highlight" id="d-pad-horizontal">
-                <button id="d-pad-left-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Left">
-                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-left"></div>
-                </button>
-                <button id="d-pad-right-button" class="d-pad-arrow-button" on:click={handleDPadClick} aria-label="Right">
-                  <div class="d-pad-arrow-button-icon d-pad-arrow-button-icon-right"></div>
-                </button>
+              <button
+                id="d-pad-left-button"
+                class="d-pad-arrow-button"
+                on:click={handleDPadClick}
+                aria-label="Left"
+              >
+                <div
+                  class="d-pad-arrow-button-icon d-pad-arrow-button-icon-left"
+                ></div>
+              </button>
+              <button
+                id="d-pad-right-button"
+                class="d-pad-arrow-button"
+                on:click={handleDPadClick}
+                aria-label="Right"
+              >
+                <div
+                  class="d-pad-arrow-button-icon d-pad-arrow-button-icon-right"
+                ></div>
+              </button>
             </div>
           </div>
         </div>
         <div id="abButtons">
-          <button id="bButton" class="abButton" on:click={handleBButtonClick} aria-label="B Button"> 
+          <button
+            id="bButton"
+            class="abButton"
+            on:click={handleBButtonClick}
+            aria-label="B Button"
+          >
             <div class="abButtonText">B</div>
-            <div class="abButtonShine"></div> 
+            <div class="abButtonShine"></div>
           </button>
-          <button id="aButton" class="abButton" on:click={handleAButtonClick} aria-label="A Button"> 
+          <button
+            id="aButton"
+            class="abButton"
+            on:click={handleAButtonClick}
+            aria-label="A Button"
+          >
             <div class="abButtonText">A</div>
-            <div class="abButtonShine"></div> 
+            <div class="abButtonShine"></div>
           </button>
         </div>
       </div>
@@ -330,7 +396,8 @@
     height: 98%;
     background: #bccfd2;
 
-    border-radius: var(--biimo-corner-small) var(--biimo-corner-small) var(--biimo-corner-big) var(--biimo-corner-small);
+    border-radius: var(--biimo-corner-small) var(--biimo-corner-small)
+      var(--biimo-corner-big) var(--biimo-corner-small);
     box-shadow: 0 30px 100px rgba(46, 42, 79, 0.51);
 
     z-index: -2;
@@ -344,7 +411,8 @@
     height: 99%;
     background: #bccfd2;
 
-    border-radius: var(--biimo-corner-small) var(--biimo-corner-small) var(--biimo-corner-big) var(--biimo-corner-small);
+    border-radius: var(--biimo-corner-small) var(--biimo-corner-small)
+      var(--biimo-corner-big) var(--biimo-corner-small);
 
     z-index: -1;
   }
@@ -358,7 +426,8 @@
     /*gradient from the top right*/
     background: linear-gradient(235deg, #cedbde 0%, #bccfd2 80%);
 
-    border-radius: var(--biimo-corner-small) var(--biimo-corner-small) var(--biimo-corner-big) var(--biimo-corner-small);
+    border-radius: var(--biimo-corner-small) var(--biimo-corner-small)
+      var(--biimo-corner-big) var(--biimo-corner-small);
     border-left: 5px solid rgb(216, 228, 231);
 
     overflow: hidden;
@@ -376,8 +445,8 @@
 
     border-right: 2px solid rgb(220, 232, 234);
     border-bottom: 2px solid rgb(220, 232, 234);
-    border-radius: var(--biimo-corner-small) var(--biimo-corner-small) calc(var(--biimo-corner-big) / 2)
-      var(--biimo-corner-small);
+    border-radius: var(--biimo-corner-small) var(--biimo-corner-small)
+      calc(var(--biimo-corner-big) / 2) var(--biimo-corner-small);
   }
 
   #canvas-webgl {
@@ -453,7 +522,7 @@
     background-color: #2f3031;
 
     border-radius: 10px;
-      
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -469,44 +538,44 @@
     background-color: #2f3031;
 
     border-radius: 10px;
-      
+
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
-  
-  .d-pad-arrow-button { 
-      aspect-ratio: 1;
-      background-color: #2f3031;
-      border-radius: 10px; 
-      box-shadow: 2px 2px 1px rgb(23, 23, 23);
-      border: #1c1c1c 1px solid;
+
+  .d-pad-arrow-button {
+    aspect-ratio: 1;
+    background-color: #2f3031;
+    border-radius: 10px;
+    box-shadow: 2px 2px 1px rgb(23, 23, 23);
+    border: #1c1c1c 1px solid;
   }
   .d-pad-arrow-button:active {
-      box-shadow: inset 3px 3px 1px rgb(23, 23, 23); 
-      background-color: #1c1c1c;
-      border: #1c1c1c 2px solid;
+    box-shadow: inset 3px 3px 1px rgb(23, 23, 23);
+    background-color: #1c1c1c;
+    border: #1c1c1c 2px solid;
   }
-  
-  .d-pad-arrow-button-icon { 
-      width: 0; 
-      height: 0; 
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 15px solid rgb(101, 118, 135);
-      margin: auto;
+
+  .d-pad-arrow-button-icon {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid rgb(101, 118, 135);
+    margin: auto;
   }
   .d-pad-arrow-button-icon-up {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   .d-pad-arrow-button-icon-down {
-      transform: rotate(180deg);
+    transform: rotate(180deg);
   }
   .d-pad-arrow-button-icon-left {
-      transform: rotate(270deg);
+    transform: rotate(270deg);
   }
   .d-pad-arrow-button-icon-right {
-      transform: rotate(90deg);
+    transform: rotate(90deg);
   }
 
   #abButtons {
@@ -529,12 +598,12 @@
 
   .abButtonText {
     position: absolute;
-    top: 50%; 
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: calc(10px + 5vmin);
     color: #8f1077;
-    font-family: 'Arial Black', Gadget, sans-serif;
+    font-family: "Arial Black", Gadget, sans-serif;
   }
 
   #aButton {
@@ -559,7 +628,7 @@
     border: #61014e 2px solid;
   }
   .abButton:active {
-    box-shadow: inset 12px 12px 1px rgb(101, 9, 85); 
+    box-shadow: inset 12px 12px 1px rgb(101, 9, 85);
     background-color: #7d1468;
   }
 

@@ -1,5 +1,4 @@
 import { BiimoButton } from "../../_utils/game-utils";
-import type { SnakeGame } from "../game/snake-game";
 import { Vector2 } from "../utils/utils";
 
 // The movement style this class enacts goes like this:
@@ -13,7 +12,7 @@ export class PlayerMovementProcessor {
   private directionRequests = new Vector2();
   private currentDirection = Vector2.zero;
 
-  constructor() {}
+  constructor() { }
 
   public onKeyDown(e: BiimoButton) {
     const dirRequest = this.keyToDirection(e);

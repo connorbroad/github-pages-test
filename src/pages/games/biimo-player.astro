@@ -1,0 +1,10 @@
+---
+import Biimo from "../../components/games/biimo/Biimo.svelte";
+import BiimoBaseLayout from "../../layouts/BiimoLayout.astro";
+
+const pageTitle = "ビーモ";
+---
+
+<BiimoBaseLayout pageTitle={pageTitle}>
+    <Biimo client:only="svelte" />
+</BiimoBaseLayout>

@@ -1,6 +1,6 @@
-import {Vector2} from "../utils/utils";
+import { Vector2 } from "../utils/utils";
 import * as THREE from "three";
-import {GameLayer, GameLayerPos, ZDepthHelper} from "../../_utils/game-utils.ts";
+import { GameLayer, GameLayerPos, ZDepthHelper } from "../../_utils/game-utils.ts";
 
 export class Board {
     private readonly numCellsWide: number;

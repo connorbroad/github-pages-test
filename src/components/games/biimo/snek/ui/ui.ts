@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import {TextUtils} from "../../_utils/text-utils.ts";
-import {GameLayer, ZDepthHelper} from "../../_utils/game-utils.ts";
-import {GameState} from "../utils/utils.ts";
+import { TextUtils } from "../../../biimo/_utils/text-utils.ts";
+import { GameLayer, ZDepthHelper } from "../../../biimo/_utils/game-utils.ts";
+import { GameState } from "../utils/utils.ts";
 
 export class UiController {
     private readonly gameReadyUI: THREE.Group | undefined;
@@ -38,7 +38,7 @@ export class UiController {
         this.gameStateToUI.set(GameState.Victorious, this.victoryUI);
     }
 
-    public showUI(state: GameState){
+    public showUI(state: GameState) {
         // hide all UI elements
         this.gameStateToUI.forEach((ui, _) => {
             if (ui) {

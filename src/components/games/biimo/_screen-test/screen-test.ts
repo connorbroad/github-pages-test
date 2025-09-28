@@ -1,7 +1,7 @@
 import type { Scene } from "three";
 import type { BiimoGame } from "../_base/biimo-game.ts";
 import * as THREE from "three";
-import {TextUtils} from "../_utils/text-utils.ts";
+import { TextUtils } from "../_utils/text-utils.ts";
 import { BiimoButton } from "../_utils/game-utils.ts";
 
 export class ScreenTest implements BiimoGame {
@@ -12,8 +12,8 @@ export class ScreenTest implements BiimoGame {
     canvasHeight: number;
 
     numCellsWide = 17;
-    cellWidth = 1 / this.numCellsWide;    
-    
+    cellWidth = 1 / this.numCellsWide;
+
     constructor(canvasWidth: number, canvasHeight: number) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;

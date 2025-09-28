@@ -1,8 +1,8 @@
-import {Prey} from "../prey/prey-controller";
-import {SnakeGame} from "../game/snake-game.ts";
+import { Prey } from "../prey/prey-controller";
+import { SnakeGame } from "../game/snake-game.ts";
 import { Vector2, Vector4 } from "../utils/utils";
-import {PlayerMovementProcessor} from "./player-movement";
-import {SnakeSegment} from "./snake-segment";
+import { PlayerMovementProcessor } from "./player-movement";
+import { SnakeSegment } from "./snake-segment";
 import * as THREE from "three";
 import { BiimoButton, GameLayer, GameLayerPos, ZDepthHelper } from "../../_utils/game-utils.ts";
 
@@ -123,7 +123,7 @@ export class Snake {
 
         // update the board's occupied cells list
         const snakeTailCellAfterMove = this.tail().cell;
-        if (!snakeTailCellBeforeMove.equals(snakeTailCellAfterMove)){
+        if (!snakeTailCellBeforeMove.equals(snakeTailCellAfterMove)) {
             this.g.board!.snakeTailLeftCell(snakeTailCellBeforeMove);
         }
 
@@ -171,15 +171,15 @@ export class Snake {
 
         // create mesh outline
         const geometry = new THREE.CircleGeometry(headWidth, 4); // circle with 4 sides = square
-        const outlineMaterial = new THREE.MeshBasicMaterial({color: new THREE.Color(0.1, 0.1, 0.1)});
+        const outlineMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.1, 0.1, 0.1) });
         const bgSquare = new THREE.Mesh(geometry, outlineMaterial);
 
         // colored mesh
         const headSize = headWidth * 0.7;
         const geometry2 = new THREE.CircleGeometry(headSize, 4); // circle with 4 sides = square
-        const bodyMaterial = new THREE.MeshBasicMaterial({color: new THREE.Color(snakeHeadColor.x, snakeHeadColor.y, snakeHeadColor.z)});
+        const bodyMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(snakeHeadColor.x, snakeHeadColor.y, snakeHeadColor.z) });
         const bodySquare = new THREE.Mesh(geometry2, bodyMaterial);
-        
+
         let group = new THREE.Group();
         group.add(bgSquare);
         group.add(bodySquare);
@@ -197,7 +197,7 @@ export class Snake {
         let length = this.g.board?.cellWidthPc();
 
         // create mesh
-        const material = new THREE.MeshBasicMaterial({color: new THREE.Color(this.snakeBodyColor.x, this.snakeBodyColor.y, this.snakeBodyColor.z)});
+        const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(this.snakeBodyColor.x, this.snakeBodyColor.y, this.snakeBodyColor.z) });
         const geometry = new THREE.CapsuleGeometry(width / 2, length, 1, 4);
         geometry.rotateZ(-Math.PI / 2);
         geometry.translate(length / 2, 0, 0); // so one end is at the origin

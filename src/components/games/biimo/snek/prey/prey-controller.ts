@@ -1,8 +1,8 @@
-import {SnakeGame} from "../game/snake-game.ts";
-import {MyUtils, Vector2, Vector4} from "../utils/utils";
+import { SnakeGame } from "../game/snake-game.ts";
+import { MyUtils, Vector2, Vector4 } from "../utils/utils";
 import * as THREE from "three";
-import type {Board} from "../board/board.ts";
-import {GameLayer, GameLayerPos, ZDepthHelper} from "../../_utils/game-utils.ts";
+import type { Board } from "../board/board.ts";
+import { GameLayer, GameLayerPos, ZDepthHelper } from "../../_utils/game-utils.ts";
 
 export class PreyController {
     private preyOnTheBoard: Prey[] = [];
@@ -39,7 +39,7 @@ export class PreyController {
     }
 
     public reset() {
-        for(let prey of this.preyOnTheBoard) {
+        for (let prey of this.preyOnTheBoard) {
             prey.disposeMesh(this.scene);
         }
         this.preyOnTheBoard = [];
@@ -79,7 +79,7 @@ export class Prey {
     }
 
     public update() {
-        if(!this.hasMesh) return;
+        if (!this.hasMesh) return;
 
         const animPerc = Math.sin(this.timeAlive() * this.bounceSpeed) / 2 + 0.5;
         let spawnModifier = this.getScalePerc();
@@ -101,14 +101,14 @@ export class Prey {
     }
 
     private createAndAddMesh(scene: THREE.Scene) {
-        if(this.hasMesh) return;
+        if (this.hasMesh) return;
 
         // scale
         let headWidth = this.board.cellWidthPc();
 
         // create mesh
         const geometry = new THREE.PlaneGeometry(headWidth, headWidth, 4);
-        const material = new THREE.MeshBasicMaterial({color: new THREE.Color(this.color.x, this.color.y, this.color.z)});
+        const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(this.color.x, this.color.y, this.color.z) });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = 2;
 
