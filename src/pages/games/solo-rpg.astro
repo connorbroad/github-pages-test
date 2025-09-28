@@ -1,11 +1,8 @@
 ---
 import FocusResponsiveLayout from "../../layouts/FocusResponsiveLayout.astro";
+import SoloRPG from "../../components/games/solo-rpg/SoloRPG.svelte";
 ---
 
 <FocusResponsiveLayout pageTitle="Solo RPG">
-    <h1>Solo RPG</h1>
-    <p>
-        Coming soon: A simple solo RPG game where you can explore, fight
-        monsters, and level up your character.
-    </p>
+    <SoloRPG client:only="svelte" />
 </FocusResponsiveLayout>
