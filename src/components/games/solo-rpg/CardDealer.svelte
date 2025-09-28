@@ -89,14 +89,6 @@
             <div class="card-drawer-content">
                 <h2>Card Dealer</h2>
                 <label>
-                    Number of Cards to Draw:
-                    <select bind:value={numToDraw}>
-                        {#each Array(5) as _, i}
-                            <option value={i + 1}>{i + 1}</option>
-                        {/each}
-                    </select>
-                </label>
-                <label>
                     <input
                         type="checkbox"
                         bind:checked={includeJoker}
@@ -116,9 +108,9 @@
                             <p>Drawn Cards:</p>
                             <div class="cards-list">
                                 {#each drawn as card}
-                                    <span class="card-chip"
-                                        >{card.rank} {card.suit}</span
-                                    >
+                                    <span class="card-chip" style="color: {card.suit === '♥' || card.suit === '♦' ? 'red' : 'inherit'}">
+                                        {card.rank} {card.suit}
+                                    </span>
                                 {/each}
                             </div>
                         </div>
@@ -162,17 +154,6 @@
         display: block;
         margin: 1rem 0;
         font-size: 1.1rem;
-    }
-    .card-drawer-content select {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        font-size: 1.25rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-        background: #f8f8f8;
-        appearance: none;
     }
     .card-drawer-actions {
         display: flex;
