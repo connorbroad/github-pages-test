@@ -38,9 +38,34 @@
 </script>
 
 {#if show}
-    <div class="dice-roller-modal">
-        <div class="dice-roller-content">
+    <div
+        class="dice-roller-modal"
+        role="button"
+        tabindex="0"
+        aria-label="Close dice roller"
+        on:click={() => onClose && onClose()}
+        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose && onClose()}
+    >
+        <div
+            class="dice-roller-content"
+            role="dialog"
+            aria-modal="true"
+            on:click|stopPropagation
+            tabindex="0"
+            on:keydown={(e) => {/* trap focus or allow esc to close if desired */}}
+        >
             <h2>Dice Roller</h2>
+            <label>
+                <select bind:value={numSides}>
+                    <option value={4}>D4</option>
+                    <option value={6} selected>D6</option>
+                    <option value={8}>D8</option>
+                    <option value={10}>D10</option>
+                    <option value={12}>D12</option>
+                    <option value={20}>D20</option>
+                    <option value={100}>D100</option>
+                </select>
+            </label>
             <label>
                 Number of Dice:
                 <select bind:value={numDice}>
@@ -49,18 +74,27 @@
                     {/each}
                 </select>
             </label>
-            <label>
-                Sides per Die:
-                <select bind:value={numSides}>
-                    <option value={4}>4</option>
-                    <option value={6} selected>6</option>
-                    <option value={8}>8</option>
-                    <option value={10}>10</option>
-                    <option value={12}>12</option>
-                    <option value={20}>20</option>
-                    <option value={100}>100</option>
-                </select>
-            </label>
+            {#if numDice > 1}
+                <label>Result:</label>
+                <div class="result-radio-group">
+                    <label class="result-radio">
+                        <input type="radio" name="resultOption" value="Sum" bind:group={resultOption}>
+                        <span class="result-icon">+</span> Sum
+                    </label>
+                    <label class="result-radio">
+                        <input type="radio" name="resultOption" value="Maximum" bind:group={resultOption}>
+                        <span class="result-icon">&#x25B2;</span> Maximum
+                    </label>
+                    <label class="result-radio">
+                        <input type="radio" name="resultOption" value="Minimum" bind:group={resultOption}>
+                        <span class="result-icon">&#x25BC;</span> Minimum
+                    </label>
+                    <label class="result-radio">
+                        <input type="radio" name="resultOption" value="Subtract" bind:group={resultOption}>
+                        <span class="result-icon">-</span> Subtract
+                    </label>
+                </div>
+            {/if}
             <label>
                 Modifier:
                 <select bind:value={modifier}>
@@ -69,23 +103,13 @@
                     {/each}
                 </select>
             </label>
-            <label>
-                Result Option:
-                <select bind:value={resultOption}>
-                    <option value="Sum">Sum</option>
-                    <option value="Maximum">Maximum</option>
-                    <option value="Minimum">Minimum</option>
-                    <option value="Subtract">Subtract</option>
-                </select>
-            </label>
+            <button on:click={rollDice}>Roll</button>
             {#if diceResults.length}
                 <div class="dice-results">
                     <p>Dice: {diceResults.join(", ")}</p>
                     <p>Result: {finalResult}</p>
                 </div>
             {/if}
-            <button on:click={rollDice}>Roll</button>
-            <button on:click={closeDiceRoller}>Close</button>
         </div>
     </div>
 {/if}
@@ -115,7 +139,62 @@
         display: block;
         margin: 1rem 0;
     }
+    .dice-roller-content select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1.25rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: #f8f8f8;
+        appearance: none;
+    }
+    .result-radio-group {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+        gap: 0.5rem;
+    }
+    .result-radio {
+        display: flex;
+        align-items: center;
+        background: #f8f8f8;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        flex: 1;
+        transition: background 0.2s;
+    }
+    .result-radio input[type="radio"] {
+        margin-right: 0.5rem;
+        accent-color: #1976d2;
+    }
+    .result-radio .result-icon {
+        margin-right: 0.5rem;
+        font-size: 1.3rem;
+    }
+    .result-radio input[type="radio"]:focus + .result-icon {
+        outline: 2px solid #1976d2;
+    }
     .dice-results {
         margin-top: 1rem;
+    }
+    .dice-roller-content button {
+        width: 48%;
+        padding: 0.75rem 0;
+        font-size: 1.25rem;
+        border-radius: 6px;
+        border: none;
+        margin: 0.5rem 1%;
+        background: #1976d2;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.2s;
+    } 
+    .dice-roller-content button:active {
+        background: #1565c0;
     }
 </style>
