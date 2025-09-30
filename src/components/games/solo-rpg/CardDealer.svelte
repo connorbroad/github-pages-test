@@ -87,6 +87,7 @@
             }}
         >
             <div class="card-drawer-content">
+                <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
                 <h2>Card Dealer</h2>
                 <label>
                     <input
@@ -160,7 +161,7 @@
         justify-content: space-between;
         margin: 1rem 0;
     }
-    .card-drawer-content button {
+    .card-drawer-actions button {
         width: 48%;
         padding: 0.75rem 0;
         font-size: 1.25rem;
@@ -172,10 +173,10 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    .card-drawer-content button:last-child {
+    .card-drawer-actions button:last-child {
         background: #9da3aa;
     }
-    .card-drawer-content button:active {
+    .card-drawer-actions button:active {
         background: #1565c0;
     }
     .card-drawer-info {
@@ -198,5 +199,21 @@
         font-size: 1.1rem;
         margin: 0.2rem;
         min-width: 48px;
+    }
+    .modal-close-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 3rem;
+        height: 3rem;
+        z-index: 10; 
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: x-large;
+        background: transparent;
+        border: none;
+        cursor: pointer;
     }
 </style>

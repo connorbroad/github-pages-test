@@ -48,6 +48,7 @@
             tabindex="0"
             on:keydown={(e) => {/* trap focus or allow esc to close if desired */}}
         >
+            <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
             <h2>Dice Roller</h2>
             <label>
                 <select bind:value={numSides}>
@@ -96,7 +97,7 @@
                     {/each}
                 </select>
             </label>
-            <button on:click={rollDice}>Roll</button>
+            <button id="roll-button" on:click={rollDice}>Roll</button>
             {#if diceResults.length}
                 <div class="dice-results">
                     {#if diceResults.length > 1}
@@ -129,6 +130,7 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         min-width: 300px;
         text-align: center;
+        position: relative;
     }
     .dice-roller-content label {
         display: block;
@@ -177,7 +179,7 @@
     .dice-results {
         margin-top: 1rem;
     }
-    .dice-roller-content button {
+    #roll-button {
         width: 48%;
         padding: 0.75rem 0;
         font-size: 1.25rem;
@@ -188,8 +190,24 @@
         color: #fff;
         cursor: pointer;
         transition: background 0.2s;
-    } 
-    .dice-roller-content button:active {
+    }
+    #roll-button:active {
         background: #1565c0;
+    }
+    .modal-close-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 3rem;
+        height: 3rem;
+        z-index: 10; 
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: x-large;
+        background: transparent;
+        border: none;
+        cursor: pointer;
     }
 </style>
