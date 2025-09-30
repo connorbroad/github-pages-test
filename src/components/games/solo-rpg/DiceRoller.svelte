@@ -9,11 +9,23 @@
     let diceResults: number[] = [];
     let finalResult: number | null = null;
 
-    function rollDice() {
+    function onRollButtonClick() {
+        rollNewDice();
+        recalculateResult();
+    }
+
+    function rollNewDice() {
         diceResults = Array.from(
             { length: numDice },
             () => Math.floor(Math.random() * numSides) + 1,
         );
+    }
+
+    function recalculateResult() {
+        if (diceResults.length === 0) {
+            finalResult = null;
+            return;
+        }
         switch (resultOption) {
             case "Sum":
                 finalResult = diceResults.reduce((a, b) => a + b, 0) + modifier;
@@ -50,62 +62,62 @@
         >
             <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
             <h2>Dice Roller</h2>
-            <label>
-                <select bind:value={numSides}>
-                    <option value={4}>D4</option>
-                    <option value={6} selected>D6</option>
-                    <option value={8}>D8</option>
-                    <option value={10}>D10</option>
-                    <option value={12}>D12</option>
-                    <option value={20}>D20</option>
-                    <option value={100}>D100</option>
-                </select>
-            </label>
-            <label>
-                Number of Dice:
-                <select bind:value={numDice}>
-                    {#each Array(10) as _, i}
-                        <option value={i + 1}>{i + 1}</option>
-                    {/each}
-                </select>
-            </label>
-            {#if numDice > 1}
-                <div class="result-radio-group">
-                    <label class="result-radio">
-                        <input type="radio" name="resultOption" value="Sum" bind:group={resultOption}>
-                        <span class="result-icon">+</span> Sum
-                    </label>
-                    <label class="result-radio">
-                        <input type="radio" name="resultOption" value="Maximum" bind:group={resultOption}>
-                        <span class="result-icon">&#x25B2;</span> Maximum
-                    </label>
-                    <label class="result-radio">
-                        <input type="radio" name="resultOption" value="Minimum" bind:group={resultOption}>
-                        <span class="result-icon">&#x25BC;</span> Minimum
-                    </label>
-                    <label class="result-radio">
-                        <input type="radio" name="resultOption" value="Subtract" bind:group={resultOption}>
-                        <span class="result-icon">-</span> Subtract
-                    </label>
+            <div class="dice-results">
+                <p>{diceResults.join(", ") || "?"}</p>
+                <p>Result: {finalResult || "?"}</p>
+            </div> 
+            <div class="result-radio-group">
+                <label class="result-radio" aria-label="Sum">
+                    <input type="radio" name="resultOption" value="Sum" bind:group={resultOption} on:change={recalculateResult}>
+                    <span class="result-icon">+</span>
+                </label>
+                <label class="result-radio" aria-label="Maximum">
+                    <input type="radio" name="resultOption" value="Maximum" bind:group={resultOption} on:change={recalculateResult}>
+                    <span class="result-icon">&#x25B2;</span>
+                </label>
+                <label class="result-radio" aria-label="Minimum">
+                    <input type="radio" name="resultOption" value="Minimum" bind:group={resultOption} on:change={recalculateResult}>
+                    <span class="result-icon">&#x25BC;</span>
+                </label>
+                <label class="result-radio" aria-label="Subtract">
+                    <input type="radio" name="resultOption" value="Subtract" bind:group={resultOption} on:change={recalculateResult}>
+                    <span class="result-icon">-</span>
+                </label>
+            </div>
+            <div id="dice-options">
+                <div>
+                    <select bind:value={numDice}>
+                        {#each Array(10) as _, i}
+                            <option value={i + 1}>{i + 1}x</option>
+                        {/each}
+                    </select>
                 </div>
-            {/if}
-            <label>
-                Modifier:
-                <select bind:value={modifier}>
-                    {#each Array(16) as _, i}
-                        <option value={i - 5}>{i - 5}</option>
-                    {/each}
-                </select>
-            </label>
-            <button id="roll-button" on:click={rollDice}>Roll</button>
-            {#if diceResults.length}
-                <div class="dice-results">
-                    {#if diceResults.length > 1}
-                        <p>Dice: {diceResults.join(", ")}</p>
-                    {/if}
-                    <p>Result: {finalResult}</p>
+                <div>
+                    <select bind:value={numSides}>
+                        <option value={4}>D4</option>
+                        <option value={6} selected>D6</option>
+                        <option value={8}>D8</option>
+                        <option value={10}>D10</option>
+                        <option value={12}>D12</option>
+                        <option value={20}>D20</option>
+                        <option value={100}>D100</option>
+                    </select>
                 </div>
-            {/if}
+                <div>
+                    <select bind:value={modifier}>
+                        {#each Array(16) as _, i}
+                            {#if i - 5 > -1}
+                                <option value={i - 5}>+{i - 5}</option> 
+                            {:else if i - 5 === 0}
+                                <option value={i - 5}>0</option>
+                            {:else}
+                                <option value={i - 5}>{i - 5}</option>
+                            {/if}
+                        {/each}
+                    </select>
+                </div>
+            </div>
+            <button id="roll-button" on:click={onRollButtonClick}>Roll</button> 
         </div>
     </div>
 {/if}
@@ -132,9 +144,10 @@
         text-align: center;
         position: relative;
     }
-    .dice-roller-content label {
-        display: block;
-        margin: 1rem 0;
+    #dice-options {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
     }
     .dice-roller-content select {
         width: 100%;
@@ -149,38 +162,67 @@
     }
     .result-radio-group {
         display: flex;
-        justify-content: space-between;
-        margin: 1rem 0;
-        gap: 0.5rem;
+        justify-content: space-between; 
+        gap: 0;
+        border-radius: 0 0 8px 8px;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        border-top: none;
     }
     .result-radio {
+        background: #ffffff;
+        color: #333;
+        box-shadow: none;
+        border-radius: 0;
+        border-left: none;
+        border-top: none;
+        border-bottom: none;
         display: flex;
         align-items: center;
-        background: #f8f8f8;
-        border-radius: 6px;
+        justify-content: center;
         padding: 0.5rem 1rem;
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         cursor: pointer;
-        border: 1px solid #ccc;
-        flex: 1;
+        margin: 0;
         transition: background 0.2s;
+        position: relative;
+        flex-grow: 1;
+    }
+    .result-radio:first-child {
+        border-left: none;
+    }
+    .result-radio:last-child {
+        border-right: none;
     }
     .result-radio input[type="radio"] {
-        margin-right: 0.5rem;
-        accent-color: #1976d2;
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
     }
     .result-radio .result-icon {
-        margin-right: 0.5rem;
-        font-size: 1.3rem;
+        margin: 0;
+        font-size: 1.5rem;
     }
-    .result-radio input[type="radio"]:focus + .result-icon {
-        outline: 2px solid #1976d2;
+    .result-radio:has(input[type="radio"]:checked) {
+        background: #1976d2;
+        color: #fff;
+        box-shadow: none;
+    }
+    .result-radio input[type="radio"]:disabled + .result-icon {
+        color: #aaa;
+        opacity: 0.6;
+    }
+    .result-radio:has(input[type="radio"]:disabled) {
+        background: #eee;
+        color: #aaa;
+        cursor: not-allowed;
     }
     .dice-results {
         margin-top: 1rem;
+        border: 1px solid #ccc;
     }
     #roll-button {
-        width: 48%;
+        width: 100%;
         padding: 0.75rem 0;
         font-size: 1.25rem;
         border-radius: 6px;
