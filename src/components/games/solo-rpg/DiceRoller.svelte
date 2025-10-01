@@ -8,8 +8,10 @@
     let resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract" = "Sum";
     let diceResults: number[] = [];
     let finalResult: number | null = null;
+    let rolledNumSides = numSides;
 
     function onRollButtonClick() {
+        rolledNumSides = numSides;
         rollNewDice();
         recalculateResult();
     }
@@ -50,7 +52,8 @@
         tabindex="0"
         aria-label="Close dice roller"
         on:click={() => onClose && onClose()}
-        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose && onClose()}
+        on:keydown={(e) =>
+            (e.key === "Enter" || e.key === " ") && onClose && onClose()}
     >
         <div
             class="dice-roller-content"
@@ -58,29 +61,204 @@
             aria-modal="true"
             on:click|stopPropagation
             tabindex="0"
-            on:keydown={(e) => {/* trap focus or allow esc to close if desired */}}
+            on:keydown={(e) => {
+                /* trap focus or allow esc to close if desired */
+            }}
         >
-            <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
+            <button
+                class="modal-close-btn"
+                aria-label="Close"
+                on:click={() => onClose && onClose()}>&times;</button
+            >
             <h2>Dice Roller</h2>
             <div class="dice-results">
-                <p>{diceResults.join(", ") || "?"}</p>
+                <div class="dice-result-list">
+                    {#if diceResults.length > 0}
+                        {#each diceResults as result, i}
+                            <span class="dice-result-item">
+                                <span class="dice-icon-wrap">
+                                    {#if rolledNumSides === 4}
+                                        <!-- D4: triangle -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,4 28,24 4,24"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 6}
+                                        <!-- D6: square -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,4 28,16 16,28 4,16"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 8}
+                                        <!-- D8: diamond -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,2 24,16 16,30 8,16"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 10}
+                                        <!-- D10: pentagon -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,4 28,14 28,18 16,28 4,18 4,14"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 12}
+                                        <!-- D12: hexagon -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,4 27.4,12.3 23.6,26.7 8.4,26.7 4.6,12.3"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 20}
+                                        <!-- D20: icosahedron (simplified as circle) -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,2 28,9 28,23 16,30 4,23 4,9"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else if rolledNumSides === 100}
+                                        <!-- D100: double circle -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <polygon
+                                                points="16,2.5 21.0,3.8 25.1,6.8 28.1,10.9 29.5,16 28.1,21.1 25.1,25.2 21.0,28.2 16,29.5 11.0,28.2 6.9,25.2 3.9,21.1 2.5,16 3.9,10.9 6.9,6.8 11.0,3.8"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {:else}
+                                        <!-- Default: square -->
+                                        <svg
+                                            class="dice-icon"
+                                            viewBox="0 0 32 32"
+                                            width="32"
+                                            height="32"
+                                            aria-hidden="true"
+                                        >
+                                            <rect
+                                                x="4"
+                                                y="4"
+                                                width="24"
+                                                height="24"
+                                                rx="6"
+                                                fill="#f8f8f8"
+                                                stroke="#ccc"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                    {/if}
+                                    <span class="dice-number">{result}</span>
+                                </span>
+                            </span>
+                        {/each}
+                    {:else}
+                        <span>?</span>
+                    {/if}
+                </div>
                 <p>Result: {finalResult || "?"}</p>
-            </div> 
+            </div>
             <div class="result-radio-group">
                 <label class="result-radio" aria-label="Sum">
-                    <input type="radio" name="resultOption" value="Sum" bind:group={resultOption} on:change={recalculateResult}>
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Sum"
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
                     <span class="result-icon">+</span>
                 </label>
                 <label class="result-radio" aria-label="Maximum">
-                    <input type="radio" name="resultOption" value="Maximum" bind:group={resultOption} on:change={recalculateResult}>
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Maximum"
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
                     <span class="result-icon">&#x25B2;</span>
                 </label>
                 <label class="result-radio" aria-label="Minimum">
-                    <input type="radio" name="resultOption" value="Minimum" bind:group={resultOption} on:change={recalculateResult}>
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Minimum"
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
                     <span class="result-icon">&#x25BC;</span>
                 </label>
                 <label class="result-radio" aria-label="Subtract">
-                    <input type="radio" name="resultOption" value="Subtract" bind:group={resultOption} on:change={recalculateResult}>
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Subtract"
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
                     <span class="result-icon">-</span>
                 </label>
             </div>
@@ -107,7 +285,7 @@
                     <select bind:value={modifier}>
                         {#each Array(16) as _, i}
                             {#if i - 5 > -1}
-                                <option value={i - 5}>+{i - 5}</option> 
+                                <option value={i - 5}>+{i - 5}</option>
                             {:else if i - 5 === 0}
                                 <option value={i - 5}>0</option>
                             {:else}
@@ -117,7 +295,7 @@
                     </select>
                 </div>
             </div>
-            <button id="roll-button" on:click={onRollButtonClick}>Roll</button> 
+            <button id="roll-button" on:click={onRollButtonClick}>Roll</button>
         </div>
     </div>
 {/if}
@@ -137,6 +315,7 @@
     }
     .dice-roller-content {
         background: #fff;
+        margin: 1rem;
         padding: 2rem;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -162,7 +341,7 @@
     }
     .result-radio-group {
         display: flex;
-        justify-content: space-between; 
+        justify-content: space-between;
         gap: 0;
         border-radius: 0 0 8px 8px;
         overflow: hidden;
@@ -219,7 +398,50 @@
     }
     .dice-results {
         margin-top: 1rem;
+    }
+    .dice-results > p {
+        margin: 0;
         border: 1px solid #ccc;
+        border-radius: 10px 10px 0 0;
+    }
+    .dice-result-list {
+        display: flex;
+        gap: 0.0rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    .dice-result-item {
+        display: flex;
+        align-items: center;
+        position: relative;
+        font-size: 1.3rem;
+    }
+    .dice-icon-wrap {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        display: inline-block;
+    }
+    .dice-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 64px;
+        height: 64px;
+        z-index: 0;
+        opacity: 0.3;
+    }
+    .dice-number {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        font-weight: bold;
+        color: #1976d2;
+        font-size: 1.2rem;
+        pointer-events: none;
     }
     #roll-button {
         width: 100%;
@@ -242,7 +464,7 @@
         right: 0.5rem;
         width: 3rem;
         height: 3rem;
-        z-index: 10; 
+        z-index: 10;
         box-sizing: border-box;
         display: flex;
         align-items: center;
