@@ -89,24 +89,10 @@
             <div class="card-drawer-content">
                 <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
                 <h2>Card Dealer</h2>
-                <label>
-                    <input
-                        type="checkbox"
-                        bind:checked={includeJoker}
-                        on:change={buildDeck}
-                    /> Include Jokers
-                </label>
-                <div class="card-drawer-actions">
-                    <button on:click={drawCards}>Draw</button>
-                    <button on:click={handleShuffleOrReset}
-                        >{isReset ? "Reset" : "Shuffle"}</button
-                    >
-                </div>
                 <div class="card-drawer-info">
                     <p>Cards Remaining: {cardsRemaining}</p>
                     {#if drawn.length}
                         <div class="drawn-cards">
-                            <p>Drawn Cards:</p>
                             <div class="cards-list">
                                 {#each drawn as card}
                                     <span class="card-chip" style="color: {card.suit === '♥' || card.suit === '♦' ? 'red' : 'inherit'}">
@@ -117,6 +103,19 @@
                         </div>
                     {/if}
                 </div>
+                <div class="card-drawer-actions">
+                    <button on:click={drawCards}>Draw</button>
+                    <button on:click={handleShuffleOrReset}
+                        >{isReset ? "Reset" : "Shuffle"}</button
+                    >
+                </div>
+                <label>
+                    <input
+                        type="checkbox"
+                        bind:checked={includeJoker}
+                        on:change={buildDeck}
+                    /> Include Jokers
+                </label>
             </div>
         </div>
     </div>
@@ -140,7 +139,8 @@
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: center; 
+        margin: 1rem;
     }
     .card-drawer-content {
         background: #fff;
