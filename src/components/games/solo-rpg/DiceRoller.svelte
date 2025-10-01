@@ -9,18 +9,58 @@
     let diceResults: number[] = [];
     let finalResult: number | null = null;
     let rolledNumSides = numSides;
+    let rolling = false;
+    let rollingInterval: number | null = null;
+    let diceOffsets: { x: number; y: number; r: number }[] = [];
+    let diceEndTimes: number[] = [];
+
+    // Animation config
+    const ROLL_DURATION = 1000; // ms
+    const INTERVAL_MIN = 20; // ms
+    const INTERVAL_MAX = 150; // ms
+    const DICE_MOVE_RANGE = 12; // px, total range (-range/2 to +range/2)
+    const DICE_ROTATE_RANGE = 40; // deg, total range (-range/2 to +range/2)
+    const DICE_END_MIN = 0.5; // fraction of duration
+    const DICE_END_MAX = 1.5; // fraction of duration
 
     function onRollButtonClick() {
         rolledNumSides = numSides;
-        rollNewDice();
-        recalculateResult();
+        rolling = true;
+        let elapsed = 0;
+        // Each dice gets a random end time between DICE_END_MIN and DICE_END_MAX of duration
+        diceEndTimes = Array.from({ length: numDice }, () => ROLL_DURATION * (DICE_END_MIN + Math.random() * (DICE_END_MAX - DICE_END_MIN)));
+
+        function animateRoll() {
+            const progress = Math.min(elapsed / ROLL_DURATION, 1);
+            const interval = INTERVAL_MIN + (INTERVAL_MAX - INTERVAL_MIN) * progress;
+            rollNewDice(elapsed);
+            elapsed += interval;
+            if (elapsed < ROLL_DURATION * DICE_END_MAX) { // allow for longest dice
+                setTimeout(animateRoll, interval);
+            } else {
+                rolling = false;
+                rollNewDice(ROLL_DURATION * DICE_END_MAX); // final roll
+                recalculateResult();
+            }
+        }
+        animateRoll();
     }
 
-    function rollNewDice() {
-        diceResults = Array.from(
-            { length: numDice },
-            () => Math.floor(Math.random() * numSides) + 1,
-        );
+    function rollNewDice(currentElapsed?: number) {
+        diceResults = diceResults.length === numDice ? [...diceResults] : Array(numDice).fill(0);
+        if (rolling) {
+            diceOffsets = diceOffsets.length === numDice ? [...diceOffsets] : Array(numDice).fill({ x: 0, y: 0, r: 0 });
+            for (let i = 0; i < numDice; i++) {
+                if (!currentElapsed || currentElapsed < diceEndTimes[i]) {
+                    diceResults[i] = Math.floor(Math.random() * numSides) + 1;
+                    diceOffsets[i] = {
+                        x: Math.random() * DICE_MOVE_RANGE - DICE_MOVE_RANGE / 2,
+                        y: Math.random() * DICE_MOVE_RANGE - DICE_MOVE_RANGE / 2,
+                        r: Math.random() * DICE_ROTATE_RANGE - DICE_ROTATE_RANGE / 2
+                    };
+                }
+            }
+        }
     }
 
     function recalculateResult() {
@@ -43,6 +83,8 @@
                 break;
         }
     }
+
+    $: recalculateResult(); // reactive statement to update result when dependencies change
 </script>
 
 {#if show}
@@ -77,140 +119,50 @@
                         {#each diceResults as result, i}
                             <span class="dice-result-item">
                                 <span class="dice-icon-wrap">
-                                    {#if rolledNumSides === 4}
-                                        <!-- D4: triangle -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,4 28,24 4,24"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 6}
-                                        <!-- D6: square -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,4 28,16 16,28 4,16"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 8}
-                                        <!-- D8: diamond -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,2 24,16 16,30 8,16"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 10}
-                                        <!-- D10: pentagon -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,4 28,14 28,18 16,28 4,18 4,14"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 12}
-                                        <!-- D12: hexagon -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,4 27.4,12.3 23.6,26.7 8.4,26.7 4.6,12.3"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 20}
-                                        <!-- D20: icosahedron (simplified as circle) -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,2 28,9 28,23 16,30 4,23 4,9"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else if rolledNumSides === 100}
-                                        <!-- D100: double circle -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <polygon
-                                                points="16,2.5 21.0,3.8 25.1,6.8 28.1,10.9 29.5,16 28.1,21.1 25.1,25.2 21.0,28.2 16,29.5 11.0,28.2 6.9,25.2 3.9,21.1 2.5,16 3.9,10.9 6.9,6.8 11.0,3.8"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {:else}
-                                        <!-- Default: square -->
-                                        <svg
-                                            class="dice-icon"
-                                            viewBox="0 0 32 32"
-                                            width="32"
-                                            height="32"
-                                            aria-hidden="true"
-                                        >
-                                            <rect
-                                                x="4"
-                                                y="4"
-                                                width="24"
-                                                height="24"
-                                                rx="6"
-                                                fill="#f8f8f8"
-                                                stroke="#ccc"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                    {/if}
-                                    <span class="dice-number">{result}</span>
+                                    <span style="display: inline-block; width: 64px; height: 64px; position: relative; transform: translate({diceOffsets[i]?.x || 0}px, {diceOffsets[i]?.y || 0}px) rotate({diceOffsets[i]?.r || 0}deg); transition: transform 0.1s;">
+                                        {#if rolledNumSides === 4}
+                                            <!-- D4: triangle -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,4 28,24 4,24" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 6}
+                                            <!-- D6: square -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,4 28,16 16,28 4,16" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 8}
+                                            <!-- D8: diamond -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,2 24,16 16,30 8,16" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 10}
+                                            <!-- D10: pentagon -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,4 28,14 28,18 16,28 4,18 4,14" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 12}
+                                            <!-- D12: hexagon -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,4 27.4,12.3 23.6,26.7 8.4,26.7 4.6,12.3" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 20}
+                                            <!-- D20: icosahedron (simplified as circle) -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else if rolledNumSides === 100}
+                                            <!-- D100: double circle -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <polygon points="16,2.5 21.0,3.8 25.1,6.8 28.1,10.9 29.5,16 28.1,21.1 25.1,25.2 21.0,28.2 16,29.5 11.0,28.2 6.9,25.2 3.9,21.1 2.5,16 3.9,10.9 6.9,6.8 11.0,3.8" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {:else}
+                                            <!-- Default: square -->
+                                            <svg class="dice-icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+                                                <rect x="4" y="4" width="24" height="24" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="2" />
+                                            </svg>
+                                        {/if}
+                                        <span class="dice-number">{result}</span>
+                                    </span>
                                 </span>
                             </span>
                         {/each}
@@ -282,7 +234,7 @@
                     </select>
                 </div>
                 <div>
-                    <select bind:value={modifier}>
+                    <select bind:value={modifier} on:change={recalculateResult}>
                         {#each Array(16) as _, i}
                             {#if i - 5 > -1}
                                 <option value={i - 5}>+{i - 5}</option>
