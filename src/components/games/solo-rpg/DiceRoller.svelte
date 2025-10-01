@@ -170,7 +170,7 @@
                         <span>?</span>
                     {/if}
                 </div>
-                <p>Result: {finalResult || "?"}</p>
+                <p>Result: {rolling ? "..." : finalResult || "?"}</p>
             </div>
             <div class="result-radio-group">
                 <label class="result-radio" aria-label="Sum">
