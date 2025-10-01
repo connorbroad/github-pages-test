@@ -18,7 +18,7 @@
     const ROLL_DURATION = 1000; // ms
     const INTERVAL_MIN = 20; // ms
     const INTERVAL_MAX = 150; // ms
-    const DICE_MOVE_RANGE = 12; // px, total range (-range/2 to +range/2)
+    const DICE_MOVE_RANGE = 6; // px
     const DICE_ROTATE_RANGE = 40; // deg, total range (-range/2 to +range/2)
     const DICE_END_MIN = 0.5; // fraction of duration
     const DICE_END_MAX = 1.5; // fraction of duration
@@ -27,7 +27,6 @@
         rolledNumSides = numSides;
         rolling = true;
         let elapsed = 0;
-        // Each dice gets a random end time between DICE_END_MIN and DICE_END_MAX of duration
         diceEndTimes = Array.from({ length: numDice }, () => ROLL_DURATION * (DICE_END_MIN + Math.random() * (DICE_END_MAX - DICE_END_MIN)));
 
         function animateRoll() {
@@ -52,7 +51,12 @@
             diceOffsets = diceOffsets.length === numDice ? [...diceOffsets] : Array(numDice).fill({ x: 0, y: 0, r: 0 });
             for (let i = 0; i < numDice; i++) {
                 if (!currentElapsed || currentElapsed < diceEndTimes[i]) {
-                    diceResults[i] = Math.floor(Math.random() * numSides) + 1;
+                    let newValue: number;
+                    do {
+                        newValue = Math.floor(Math.random() * numSides) + 1;
+                    } while (newValue === diceResults[i] && numSides > 1); // ensure value always changes during animation
+                    diceResults[i] = newValue;
+                    
                     diceOffsets[i] = {
                         x: Math.random() * DICE_MOVE_RANGE - DICE_MOVE_RANGE / 2,
                         y: Math.random() * DICE_MOVE_RANGE - DICE_MOVE_RANGE / 2,
@@ -82,6 +86,18 @@
                 finalResult = diceResults.reduce((a, b) => a - b) + modifier;
                 break;
         }
+    }
+
+    function resetDiceRoller() {
+        numDice = 1;
+        modifier = 0;
+        diceResults = [];
+        finalResult = null;
+        rolledNumSides = 6;
+        rolling = false;
+        rollingInterval = null;
+        diceOffsets = [];
+        diceEndTimes = [];
     }
 
     $: recalculateResult(); // reactive statement to update result when dependencies change
@@ -167,53 +183,11 @@
                             </span>
                         {/each}
                     {:else}
-                        <span>?</span>
+                        <span>...</span>
                     {/if}
                 </div>
-                <p>Result: {rolling ? "..." : finalResult || "?"}</p>
             </div>
-            <div class="result-radio-group">
-                <label class="result-radio" aria-label="Sum">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Sum"
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">+</span>
-                </label>
-                <label class="result-radio" aria-label="Maximum">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Maximum"
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">&#x25B2;</span>
-                </label>
-                <label class="result-radio" aria-label="Minimum">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Minimum"
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">&#x25BC;</span>
-                </label>
-                <label class="result-radio" aria-label="Subtract">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Subtract"
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">-</span>
-                </label>
-            </div>
+            <hr class="dice-roller-divider" />
             <div id="dice-options">
                 <div>
                     <select bind:value={numDice}>
@@ -247,7 +221,89 @@
                     </select>
                 </div>
             </div>
-            <button id="roll-button" on:click={onRollButtonClick}>Roll</button>
+            <div class="result-radio-group">
+                <label class="result-radio" aria-label="Sum">
+                    <input
+                        type="radio" 
+                        name="resultOption"
+                        value="Sum"
+                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
+                    <span class="result-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
+                    </span>
+                </label>
+                <label class="result-radio" aria-label="Maximum">
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Maximum"
+                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
+                    <span class="result-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
+                    </span>
+                </label>
+                <label class="result-radio" aria-label="Minimum">
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Minimum"
+                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
+                    <span class="result-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
+                    </span>
+                </label>
+                <label class="result-radio" aria-label="Subtract">
+                    <input
+                        type="radio"
+                        name="resultOption"
+                        value="Subtract"
+                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                        bind:group={resultOption}
+                        on:change={recalculateResult}
+                    />
+                    <span class="result-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
+                    </span>
+                </label>
+            </div>
+            <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
+            <hr class="dice-roller-divider" />
+            <button id="take-result-button" class="dice-roller-button" on:click={resetDiceRoller} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+                <p>
+                    Take result:
+                    {rolling ? "..." : finalResult || "..."}
+                </p>
+                {#if diceResults.length > 1 && !rolling} 
+                    <div id="result-option-indicator" aria-live="polite">
+                        {#if resultOption === "Sum"}
+                            <span class="result-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
+                            </span>
+                        {:else if resultOption === "Maximum"}
+                            <span class="result-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
+                            </span>
+                        {:else if resultOption === "Minimum"}
+                            <span class="result-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
+                            </span>
+                        {:else if resultOption === "Subtract"}
+                            <span class="result-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
+                            </span>
+                        {/if}
+                    </div>
+                {/if}
+            </button>
         </div>
     </div>
 {/if}
@@ -280,14 +336,13 @@
         justify-content: space-between;
         margin-top: 1rem;
     }
-    .dice-roller-content select {
+    #dice-options select {
         width: 100%;
         padding: 0.75rem 1rem;
         font-size: 1.25rem;
         border-radius: 6px;
         border: 1px solid #ccc;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin: 0;
         background: #f8f8f8;
         appearance: none;
     }
@@ -295,13 +350,14 @@
         display: flex;
         justify-content: space-between;
         gap: 0;
-        border-radius: 0 0 8px 8px;
+        border-radius: 8px 8px;
         overflow: hidden;
         border: 1px solid #ccc;
-        border-top: none;
+        flex-direction: row; /* restore horizontal layout */
+        margin-top: 0.5rem;
     }
     .result-radio {
-        background: #ffffff;
+        background: #f8f8f8;
         color: #333;
         box-shadow: none;
         border-radius: 0;
@@ -309,6 +365,7 @@
         border-top: none;
         border-bottom: none;
         display: flex;
+        flex-direction: column; /* stack icon and label vertically */
         align-items: center;
         justify-content: center;
         padding: 0.5rem 1rem;
@@ -319,23 +376,27 @@
         position: relative;
         flex-grow: 1;
     }
-    .result-radio:first-child {
-        border-left: none;
-    }
-    .result-radio:last-child {
-        border-right: none;
-    }
+    .result-label {
+        font-size: 0.85rem;
+        color: inherit;
+        margin-top: 0.1rem;
+        letter-spacing: 1px;
+        font-weight: 500;
+    } 
     .result-radio input[type="radio"] {
         position: absolute;
         opacity: 0;
         pointer-events: none;
     }
-    .result-radio .result-icon {
+    .result-icon {
         margin: 0;
+        height: 30px;
+    }
+    .result-radio .result-icon {
         font-size: 1.5rem;
     }
     .result-radio:has(input[type="radio"]:checked) {
-        background: #1976d2;
+        background: #3d5d82;
         color: #fff;
         box-shadow: none;
     }
@@ -351,10 +412,12 @@
     .dice-results {
         margin-top: 1rem;
     }
-    .dice-results > p {
-        margin: 0;
-        border: 1px solid #ccc;
-        border-radius: 10px 10px 0 0;
+    .dice-results-summary {
+        margin: 1rem 0;
+        margin-bottom: 0;
+        gap: 0.1rem;
+        display: flex;
+        flex-direction: column;
     }
     .dice-result-list {
         display: flex;
@@ -395,20 +458,32 @@
         font-size: 1.2rem;
         pointer-events: none;
     }
-    #roll-button {
+    .dice-roller-button {
         width: 100%;
         padding: 0.75rem 0;
         font-size: 1.25rem;
         border-radius: 6px;
         border: none;
-        margin: 0.5rem 1%;
+        margin: 0.5rem 0;
+        margin-bottom: 0;
         background: #1976d2;
         color: #fff;
         cursor: pointer;
         transition: background 0.2s;
+        overflow: hidden;
     }
-    #roll-button:active {
+    .dice-roller-button:active {
         background: #1565c0;
+    }
+    .dice-roller-button:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+    }
+    .result-arrow {
+        font-size: 1.3rem;
+        margin-left: 0.5rem;
+        color: inherit;
     }
     .modal-close-btn {
         position: absolute;
@@ -425,5 +500,47 @@
         background: transparent;
         border: none;
         cursor: pointer;
+    }
+    #take-result-button {
+        margin-bottom: 0;
+        padding: 0;
+        position: relative;
+    }
+    #take-result-button p {
+        margin: 0;
+        padding: 0.75rem 0;
+        font-size: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    #take-result-button .result-icon { 
+        font-size: 1.0rem;
+    }
+    #result-option-indicator {
+        position: absolute;
+        top: 25%;
+        height: 50%;
+        right: 0.5rem;
+        width: 1.0em;
+        display: flex;
+        align-items: center;
+        padding: 0.5em;
+        justify-content: center;
+        pointer-events: none; 
+        border-radius: 100px;
+        border: 1px solid #fff;
+    }
+    #result-option-indicator .result-icon {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .dice-roller-divider {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 1rem 0;
     }
 </style>
