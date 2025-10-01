@@ -88,8 +88,7 @@
         }
     }
 
-    function resetDiceRoller() {
-        numDice = 1;
+    function onClickTakeResult() {
         modifier = 0;
         diceResults = [];
         finalResult = null;
@@ -98,6 +97,8 @@
         rollingInterval = null;
         diceOffsets = [];
         diceEndTimes = [];
+
+        onClose();
     }
 
     $: recalculateResult(); // reactive statement to update result when dependencies change
@@ -277,7 +278,7 @@
             </div>
             <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
             <hr class="dice-roller-divider" />
-            <button id="take-result-button" class="dice-roller-button" on:click={resetDiceRoller} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+            <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
                 <p>
                     Take result:
                     {rolling ? "..." : finalResult || "..."}
