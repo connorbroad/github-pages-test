@@ -270,6 +270,8 @@
                     </select>
                 </div>
             </div>
+            <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
+            <hr class="dice-roller-divider" />
             <div class="result-radio-group">
                 <label class="result-radio" aria-label="Sum">
                     <input
@@ -324,11 +326,9 @@
                     </span>
                 </label>
             </div>
-            <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
-            <hr class="dice-roller-divider" />
             <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
                 <p>
-                    Take result:
+                    Result:
                     {rolling ? "..." : finalResult || "..."}
                 </p>
                 {#if diceResults.length > 1 && !rolling} 
