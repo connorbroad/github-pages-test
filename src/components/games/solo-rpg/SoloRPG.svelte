@@ -17,7 +17,7 @@
 
 <button on:click={() => showDiceRoller = true} style="margin-bottom: 1rem;">Dice Roller</button>
 <button on:click={() => showCardDealer = true} style="margin-bottom: 1rem;">Card Dealer</button>
-<button on:click={() => showGameOracle = true} style="margin-bottom: 1rem;">Game Oracle</button>
+<button on:click={() => showGameOracle = true} style="margin-bottom: 1rem;">Oracle</button>
 
 <DiceRoller show={showDiceRoller} onClose={() => showDiceRoller = false} />
 <CardDealer show={showCardDealer} onClose={() => showCardDealer = false} />

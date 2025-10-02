@@ -1,6 +1,9 @@
 <script lang="ts">
     import DiceRoller from "./DiceRoller.svelte";
+    import DiceRollerEmbed from "./DiceRollerEmbed.svelte";
     import CardDealer from "./CardDealer.svelte";
+    import { loadFortunes, saveFortunes, type Fortune } from "./storage-utils";
+    import { onMount } from "svelte";
 
     export let show = false;
     export let onClose: () => void;
@@ -24,14 +27,6 @@
         rankMapping?: { [key: string]: string };
     };
 
-    type Fortune = {
-        id: string;
-        campaign: string;
-        title: string;
-        description: string;
-        outcome: Outcome;
-    };
-
     let fortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
     let showFate = false;
@@ -53,6 +48,10 @@
     };
 
     let campaigns: string[] = [];
+
+    onMount(() => {
+        fortunes = loadFortunes();
+    });
 
     $: {
         campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(
@@ -84,12 +83,14 @@
         } else {
             fortunes = [...fortunes, { ...editingFortune }];
         }
+        saveFortunes(fortunes);
         showCreateFortune = false;
         showEditOutcome = false;
     }
 
     function deleteFortune(id: string) {
         fortunes = fortunes.filter((f) => f.id !== id);
+        saveFortunes(fortunes);
     }
 
     function openFate(fortune: Fortune) {
@@ -250,8 +251,18 @@
         tabindex="0"
         aria-label="Close oracle"
         on:click={() => onClose && onClose()}
-        on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClose && onClose()}
+        on:keydown={(e) => {
+            const tag = (e.target as HTMLElement).tagName;
+            const isEditable = (e.target as HTMLElement).isContentEditable;
+            if (
+                (e.key === "Enter" || e.key === " ") &&
+                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
+                !isEditable &&
+                onClose
+            ) {
+                onClose();
+            }
+        }}
     >
         <div
             class="oracle-content"
@@ -266,7 +277,7 @@
                 aria-label="Close"
                 on:click={() => onClose && onClose()}>&times;</button
             >
-            <h2>Game Oracle</h2>
+            <h2>Oracle</h2>
 
             <button
                 class="oracle-button create-button"
@@ -319,8 +330,17 @@
         tabindex="0"
         aria-label="Close create fortune modal"
         on:click={() => (showCreateFortune = false)}
-        on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") && (showCreateFortune = false)}
+        on:keydown={(e) => {
+            const tag = (e.target as HTMLElement).tagName;
+            const isEditable = (e.target as HTMLElement).isContentEditable;
+            if (
+                (e.key === "Enter" || e.key === " ") &&
+                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
+                !isEditable
+            ) {
+                showCreateFortune = false;
+            }
+        }}
     >
         <div
             class="oracle-content"
@@ -481,8 +501,17 @@
         tabindex="0"
         aria-label="Close outcome editor"
         on:click={() => (showEditOutcome = false)}
-        on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") && (showEditOutcome = false)}
+        on:keydown={(e) => {
+            const tag = (e.target as HTMLElement).tagName;
+            const isEditable = (e.target as HTMLElement).isContentEditable;
+            if (
+                (e.key === "Enter" || e.key === " ") &&
+                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
+                !isEditable
+            ) {
+                showEditOutcome = false;
+            }
+        }}
     >
         <div
             class="oracle-content outcome-editor"
@@ -596,7 +625,17 @@
         tabindex="0"
         aria-label="Close fate modal"
         on:click={closeFate}
-        on:keydown={(e) => (e.key === "Enter" || e.key === " ") && closeFate()}
+        on:keydown={(e) => {
+            const tag = (e.target as HTMLElement).tagName;
+            const isEditable = (e.target as HTMLElement).isContentEditable;
+            if (
+                (e.key === "Enter" || e.key === " ") &&
+                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
+                !isEditable
+            ) {
+                closeFate();
+            }
+        }}
     >
         <div
             class="oracle-content fate-content"
@@ -624,54 +663,20 @@
                         {/if}
                         ({selectedFortune.outcome.diceRoll.resultOption})
                     </div>
-                    {#if diceResult !== null}
+                    
+                    <DiceRollerEmbed
+                        numDice={selectedFortune.outcome.diceRoll.numDice}
+                        numSides={selectedFortune.outcome.diceRoll.numSides}
+                        modifier={selectedFortune.outcome.diceRoll.modifier}
+                        resultOption={selectedFortune.outcome.diceRoll.resultOption}
+                        readonly={true}
+                        onResult={(result) => handleDiceResult(result)}
+                    />
+
+                    {#if diceResult !== null && fateOutcome.dice}
                         <div class="result-display">
-                            <strong>Result: {diceResult}</strong>
-                            {#if fateOutcome.dice}
-                                <p class="outcome-text">{fateOutcome.dice}</p>
-                            {/if}
+                            <p class="outcome-text">{fateOutcome.dice}</p>
                         </div>
-                    {:else}
-                        <button
-                            class="oracle-button roll-button"
-                            on:click={() => {
-                                // Trigger a dice roll - we'll need to integrate with DiceRoller differently
-                                // For now, simulate a roll
-                                const dr = selectedFortune.outcome.diceRoll;
-                                if (dr) {
-                                    let result = 0;
-                                    const rolls = [];
-                                    for (let i = 0; i < dr.numDice; i++) {
-                                        rolls.push(
-                                            Math.floor(
-                                                Math.random() * dr.numSides,
-                                            ) + 1,
-                                        );
-                                    }
-                                    switch (dr.resultOption) {
-                                        case "Sum":
-                                            result = rolls.reduce(
-                                                (a, b) => a + b,
-                                                0,
-                                            );
-                                            break;
-                                        case "Maximum":
-                                            result = Math.max(...rolls);
-                                            break;
-                                        case "Minimum":
-                                            result = Math.min(...rolls);
-                                            break;
-                                        case "Subtract":
-                                            result = rolls.reduce(
-                                                (a, b) => a - b,
-                                            );
-                                            break;
-                                    }
-                                    result += dr.modifier;
-                                    handleDiceResult(result);
-                                }
-                            }}>Roll Dice</button
-                        >
                     {/if}
                 </div>
             {/if}
