@@ -50,8 +50,9 @@
         }
     }
 
-    function handleShuffleOrReset() {
-        buildDeck();
+    function handleUndo() {
+        deck = [...drawn, ...deck]; // Put drawn cards back in order
+        drawn = [];
     }
 
     function drawCards() {
@@ -70,7 +71,7 @@
     }
 
     $: cardsRemaining = deck.length;
-    $: isReset = drawn.length > 0;
+    $: deckIsNotFull = cardsRemaining < (includeJoker ? 54 : 52);
 </script>
 
 {#if show}
@@ -98,7 +99,7 @@
                 <h2>Card Dealer</h2>
                 <div class="card-drawer-info">
                     <p>Cards Remaining: {cardsRemaining}</p>
-                    {#if (drawn.length == 0)}
+                    {#if (!deckIsNotFull)}
                         <div class="options">
                             <label>
                                 <input
@@ -122,14 +123,18 @@
                     {/if}
                 </div>
                 <div class="card-drawer-actions">
-                    <button on:click={drawCards}>Draw</button>
-                    <button on:click={handleShuffleOrReset}
-                        >{isReset ? "Reset" : "Shuffle"}</button
-                    >
+                    <button class="card-drawer-button" on:click={drawCards} disabled={deck.length === 0}>Draw</button>
+                    <button class="card-drawer-button" on:click={handleUndo} disabled={drawn.length === 0}>
+                        Undo
+                    </button>
                 </div>
                 <hr class="divider" />
-                <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={drawn.length === 0}>
+                <button id="take-result-button" class="card-drawer-button" on:click={onClickTakeResult} disabled={drawn.length === 0}>
                     Take cards: {drawn.length}
+                </button>
+                <hr class="divider" />
+                <button id="reset-deck-button" class="card-drawer-button" on:click={buildDeck}>
+                    Shuffle Deck
                 </button>
             </div>
         </div>
@@ -151,7 +156,8 @@
     }
     .card-drawer-modal {
         position: relative;
-        width: 100%;
+        min-width: 300px;
+        max-width: 350px;
         display: flex;
         align-items: center;
         justify-content: center; 
@@ -175,26 +181,27 @@
         display: flex;
         justify-content: space-between;
         margin: 1rem 0;
+        gap: 1rem;
     }
-    button {
+    .card-drawer-button {
+        width: 100%; 
         padding: 0.75rem 0;
         font-size: 1.25rem;
         border-radius: 6px;
         border: none;
-        margin: 0.5rem 1%;
+        margin: 0.5rem 0;
         background: #1976d2;
         color: #fff;
         cursor: pointer;
         transition: background 0.2s;
+        flex-grow: 1;
     }
-    button:active {
+    .card-drawer-button:active {
         background: #1565c0;
-    }
-    .card-drawer-actions button {
-        width: 48%;
-    }
-    .card-drawer-actions button:last-child {
-        background: #9da3aa;
+    } 
+    .card-drawer-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
     }
     .card-drawer-info {
         margin-top: 1rem;
@@ -232,7 +239,7 @@
         right: 0.5rem;
         width: 3rem;
         height: 3rem;
-        z-index: 10; 
+        z-index: 10;
         box-sizing: border-box;
         display: flex;
         align-items: center;
@@ -253,12 +260,5 @@
         border: none;
         border-top: 1px solid #ccc;
         margin: 1rem 0;
-    }
-    #take-result-button {
-        width: 100%; 
-    }
-    #take-result-button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
     }
 </style>
