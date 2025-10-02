@@ -581,6 +581,8 @@
                             } else {
                                 delete editingFortune.outcome.diceRoll;
                                 delete editingFortune.outcome.diceMapping;
+                                // Force Svelte reactivity
+                                editingFortune = { ...editingFortune };
                             }
                         }}
                     />
@@ -609,16 +611,18 @@
                             <option value={20}>D20</option>
                             <option value={100}>D100</option>
                         </select>
-                        <select
-                            bind:value={
-                                editingFortune.outcome.diceRoll.resultOption
-                            }
-                        >
-                            <option value="Sum">Sum</option>
-                            <option value="Maximum">Max</option>
-                            <option value="Minimum">Min</option>
-                            <option value="Subtract">Sub</option>
-                        </select>
+                        {#if editingFortune.outcome.diceRoll.numDice > 1}
+                            <select
+                                bind:value={
+                                    editingFortune.outcome.diceRoll.resultOption
+                                }
+                            >
+                                <option value="Sum">Sum</option>
+                                <option value="Maximum">Max</option>
+                                <option value="Minimum">Min</option>
+                                <option value="Subtract">Sub</option>
+                            </select>
+                        {/if}
                     </div>
                 {/if}
 
@@ -1139,10 +1143,21 @@
 
     .dice-config select {
         flex: 1;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: #fff;
+        padding: 0.6rem 1rem;
+        border: 1.5px solid #1976d2;
+        border-radius: 8px;
+        background: #f8faff;
+        font-size: 1.05rem;
+        color: #333;
+        box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .dice-config select:focus {
+        outline: none;
+        border-color: #1565c0;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+        background: #e3f2fd;
     }
 
     .divider {
