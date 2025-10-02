@@ -4,7 +4,6 @@
     export let numSides = 20;
     export let modifier = 0;
     export let resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract" = "Sum";
-    export let readonly = false;
     export let onResult: ((result: number) => void) | null = null;
 
     let diceResults: number[] = [];

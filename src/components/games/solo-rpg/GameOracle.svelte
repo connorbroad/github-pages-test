@@ -840,7 +840,6 @@
                         numSides={selectedFortune.outcome.diceRoll.numSides}
                         modifier={fateDiceModifier}
                         resultOption={selectedFortune.outcome.diceRoll.resultOption}
-                        readonly={true}
                         onResult={(result) => handleDiceResult(result)}
                     />
                     {#if diceResult !== null && fateOutcome.dice}
