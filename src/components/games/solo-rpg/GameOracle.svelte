@@ -313,8 +313,23 @@
 
 <!-- Create/Edit Fortune Modal -->
 {#if showCreateFortune}
-    <div class="oracle-modal" on:click={() => (showCreateFortune = false)}>
-        <div class="oracle-content" on:click|stopPropagation>
+    <div
+        class="oracle-modal"
+        role="button"
+        tabindex="0"
+        aria-label="Close create fortune modal"
+        on:click={() => (showCreateFortune = false)}
+        on:keydown={(e) =>
+            (e.key === "Enter" || e.key === " ") && (showCreateFortune = false)}
+    >
+        <div
+            class="oracle-content"
+            role="dialog"
+            aria-modal="true"
+            on:click|stopPropagation
+            tabindex="0"
+            on:keydown={(e) => {}}
+        >
             <button
                 class="modal-close-btn"
                 on:click={() => (showCreateFortune = false)}>&times;</button
@@ -460,8 +475,23 @@
 
 <!-- Outcome Mapping Editor Modal -->
 {#if showEditOutcome}
-    <div class="oracle-modal" on:click={() => (showEditOutcome = false)}>
-        <div class="oracle-content outcome-editor" on:click|stopPropagation>
+    <div
+        class="oracle-modal"
+        role="button"
+        tabindex="0"
+        aria-label="Close outcome editor"
+        on:click={() => (showEditOutcome = false)}
+        on:keydown={(e) =>
+            (e.key === "Enter" || e.key === " ") && (showEditOutcome = false)}
+    >
+        <div
+            class="oracle-content outcome-editor"
+            role="dialog"
+            aria-modal="true"
+            on:click|stopPropagation
+            tabindex="0"
+            on:keydown={(e) => {}}
+        >
             <button
                 class="modal-close-btn"
                 on:click={() => (showEditOutcome = false)}>&times;</button
@@ -560,8 +590,22 @@
 
 <!-- Fate Consultation Modal -->
 {#if showFate && selectedFortune}
-    <div class="oracle-modal" on:click={closeFate}>
-        <div class="oracle-content fate-content" on:click|stopPropagation>
+    <div
+        class="oracle-modal"
+        role="button"
+        tabindex="0"
+        aria-label="Close fate modal"
+        on:click={closeFate}
+        on:keydown={(e) => (e.key === "Enter" || e.key === " ") && closeFate()}
+    >
+        <div
+            class="oracle-content fate-content"
+            role="dialog"
+            aria-modal="true"
+            on:click|stopPropagation
+            tabindex="0"
+            on:keydown={(e) => {}}
+        >
             <button class="modal-close-btn" on:click={closeFate}>&times;</button
             >
             <h2>Fate: {selectedFortune.title}</h2>
