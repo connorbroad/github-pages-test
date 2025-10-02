@@ -288,11 +288,8 @@
             // Remove the dragged fortune
             const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
             
-            // Adjust drop index if necessary (if we removed an item before the drop position)
-            const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
-            
-            // Insert at the new position
-            newFortunes.splice(adjustedDropIndex, 0, draggedFortune);
+            // Always insert at dropIndex (so dragged appears below target when dragging down)
+            newFortunes.splice(dropIndex, 0, draggedFortune);
             
             fortunes = newFortunes;
             saveFortunes(fortunes);
@@ -403,11 +400,8 @@
                 // Remove the dragged fortune
                 const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
                 
-                // Adjust drop index if necessary (if we removed an item before the drop position)
-                const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
-                
-                // Insert at the new position
-                newFortunes.splice(adjustedDropIndex, 0, draggedFortune);
+                // Always insert at dropIndex (so dragged appears below target when dragging down)
+                newFortunes.splice(dropIndex, 0, draggedFortune);
                 
                 fortunes = newFortunes;
                 saveFortunes(fortunes);
