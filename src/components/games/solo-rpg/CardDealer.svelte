@@ -62,6 +62,13 @@
         drawn = [...drawn, ...drawnCards];
     }
 
+    function onClickTakeResult() {
+        if (drawn.length === 0) return;
+        // Here you would typically pass the drawn cards to the parent component or game state
+        // For now, we'll just clear the drawn cards
+        drawn = [];
+    }
+
     $: cardsRemaining = deck.length;
     $: isReset = drawn.length > 0;
 </script>
@@ -91,6 +98,17 @@
                 <h2>Card Dealer</h2>
                 <div class="card-drawer-info">
                     <p>Cards Remaining: {cardsRemaining}</p>
+                    {#if (drawn.length == 0)}
+                        <div class="options">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    bind:checked={includeJoker}
+                                    on:change={buildDeck}
+                                /> Include Jokers
+                            </label>
+                        </div>
+                    {/if}
                     {#if drawn.length}
                         <div class="drawn-cards">
                             <div class="cards-list">
@@ -109,13 +127,10 @@
                         >{isReset ? "Reset" : "Shuffle"}</button
                     >
                 </div>
-                <label>
-                    <input
-                        type="checkbox"
-                        bind:checked={includeJoker}
-                        on:change={buildDeck}
-                    /> Include Jokers
-                </label>
+                <hr class="divider" />
+                <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={drawn.length === 0}>
+                    Take cards: {drawn.length}
+                </button>
             </div>
         </div>
     </div>
@@ -161,8 +176,7 @@
         justify-content: space-between;
         margin: 1rem 0;
     }
-    .card-drawer-actions button {
-        width: 48%;
+    button {
         padding: 0.75rem 0;
         font-size: 1.25rem;
         border-radius: 6px;
@@ -173,14 +187,26 @@
         cursor: pointer;
         transition: background 0.2s;
     }
+    button:active {
+        background: #1565c0;
+    }
+    .card-drawer-actions button {
+        width: 48%;
+    }
     .card-drawer-actions button:last-child {
         background: #9da3aa;
     }
-    .card-drawer-actions button:active {
-        background: #1565c0;
-    }
     .card-drawer-info {
         margin-top: 1rem;
+        font-size: 1.1rem;
+    }
+    .card-drawer-info p {
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+    .card-drawer-info label { 
+        font-size: 1.0rem;
+        margin: 0
     }
     .drawn-cards {
         margin-top: 0.5rem;
@@ -215,5 +241,24 @@
         background: transparent;
         border: none;
         cursor: pointer;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.1rem;
+        margin-bottom: 1rem; 
+    }
+    .divider {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 1rem 0;
+    }
+    #take-result-button {
+        width: 100%; 
+    }
+    #take-result-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
     }
 </style>
