@@ -4,6 +4,7 @@
     import CardDealer from "./CardDealer.svelte";
     import { loadFortunes, saveFortunes, type Fortune } from "./storage-utils";
     import { onMount } from "svelte";
+    import { afterUpdate } from "svelte";
 
     export let show = false;
     export let onClose: () => void;
@@ -37,13 +38,13 @@
     let diceResult: number | null = null;
     let drawnCard: { suit: string; rank: string } | null = null;
     let fateOutcome: { dice?: string; suit?: string; rank?: string } = {};
+    let fateDiceModifier: number = 0;
 
     // Create/Edit Fortune state
     let editingFortune: Fortune = {
         id: "",
         campaign: "",
         title: "",
-        description: "",
         outcome: {},
     };
 
@@ -68,7 +69,6 @@
             id: generateId(),
             campaign: "",
             title: "",
-            description: "",
             outcome: {},
         };
         showCreateFortune = true;
@@ -98,6 +98,7 @@
         diceResult = null;
         drawnCard = null;
         fateOutcome = {};
+        fateDiceModifier = 0;
         showFate = true;
     }
 
@@ -242,6 +243,80 @@
 
         showEditOutcome = false;
     }
+
+    let draggedFortuneIndex: number | null = null;
+    let draggedCampaign: string | null = null;
+    let dragOverFortuneIndex: number | null = null;
+    let dragOverCampaign: string | null = null;
+
+    function handleDragStart(campaign: string, index: number) {
+        draggedFortuneIndex = index;
+        draggedCampaign = campaign;
+    }
+
+    function handleDragOver(campaign: string, index: number, event: DragEvent) {
+        event.preventDefault();
+        dragOverFortuneIndex = index;
+        dragOverCampaign = campaign;
+    }
+
+    function handleDrop(campaign: string, index: number) {
+        if (
+            draggedFortuneIndex === null ||
+            draggedCampaign !== campaign ||
+            draggedFortuneIndex === index
+        ) return;
+        const campaignFortunes = fortunes.filter((f) => f.campaign === campaign);
+        const newOrder = [...campaignFortunes];
+        const [removed] = newOrder.splice(draggedFortuneIndex, 1);
+        newOrder.splice(index, 0, removed);
+        fortunes = [
+            ...fortunes.filter((f) => f.campaign !== campaign),
+            ...newOrder,
+        ];
+        saveFortunes(fortunes);
+        draggedFortuneIndex = null;
+        draggedCampaign = null;
+        dragOverFortuneIndex = null;
+        dragOverCampaign = null;
+    }
+
+    function handleDragEnd() {
+        draggedFortuneIndex = null;
+        draggedCampaign = null;
+        dragOverFortuneIndex = null;
+        dragOverCampaign = null;
+    }
+
+    // Add reactive dice roll when modifier changes
+    $: if (showFate && selectedFortune?.outcome.diceRoll && diceResult !== null) {
+        // Re-roll dice when modifier changes
+        rerollDice();
+    }
+
+    function rerollDice() {
+        // Use DiceRollerEmbed's logic to simulate a roll
+        const { numDice, numSides, resultOption } = selectedFortune!.outcome.diceRoll!;
+        let rolls = Array.from({ length: numDice }, () => Math.floor(Math.random() * numSides) + 1);
+        let result: number;
+        switch (resultOption) {
+            case "Sum":
+                result = rolls.reduce((a, b) => a + b, 0) + fateDiceModifier;
+                break;
+            case "Maximum":
+                result = Math.max(...rolls) + fateDiceModifier;
+                break;
+            case "Minimum":
+                result = Math.min(...rolls) + fateDiceModifier;
+                break;
+            case "Subtract":
+                result = rolls.reduce((a, b) => a - b) + fateDiceModifier;
+                break;
+            default:
+                result = rolls.reduce((a, b) => a + b, 0) + fateDiceModifier;
+        }
+        handleDiceResult(result);
+    }
 </script>
 
 {#if show}
@@ -293,20 +368,25 @@
                     {#each campaigns as campaign}
                         <div class="campaign-group">
                             <h3 class="campaign-title">{campaign}</h3>
-                            {#each fortunes.filter((f) => f.campaign === campaign) as fortune}
-                                <div class="fortune-card">
+                            {#each fortunes.filter((f) => f.campaign === campaign) as fortune, i}
+                                <div class="fortune-card"
+                                    role="listitem"
+                                    draggable="true"
+                                    on:dragstart={() => handleDragStart(campaign, i)}
+                                    on:dragover={(e) => handleDragOver(campaign, i, e)}
+                                    on:drop={() => handleDrop(campaign, i)}
+                                    on:dragend={handleDragEnd}
+                                    style="border: {draggedFortuneIndex === i && draggedCampaign === campaign ? '2px dashed #1976d2' : dragOverFortuneIndex === i && dragOverCampaign === campaign ? '2px solid #4caf50' : 'none'};"
+                                >
                                     <div class="fortune-header">
+                                        <span class="drag-handle" title="Drag to reorder" style="cursor: grab; font-size: 1.5rem; margin-right: 0.5rem;">☰</span>
                                         <h4>{fortune.title}</h4>
                                         <button
                                             class="delete-btn"
-                                            on:click={() =>
-                                                deleteFortune(fortune.id)}
+                                            on:click={() => deleteFortune(fortune.id)}
                                             >×</button
                                         >
                                     </div>
-                                    <p class="fortune-description">
-                                        {fortune.description}
-                                    </p>
                                     <button
                                         class="oracle-button fate-button"
                                         on:click={() => openFate(fortune)}
@@ -381,15 +461,6 @@
             </div>
 
             <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea
-                    id="description"
-                    bind:value={editingFortune.description}
-                    rows="3"
-                ></textarea>
-            </div>
-
-            <div class="form-group">
                 <h3>Outcome Options</h3>
                 <label>
                     <input
@@ -433,21 +504,6 @@
                             <option value={12}>D12</option>
                             <option value={20}>D20</option>
                             <option value={100}>D100</option>
-                        </select>
-                        <select
-                            bind:value={
-                                editingFortune.outcome.diceRoll.modifier
-                            }
-                        >
-                            {#each Array(16) as _, i}
-                                {#if i - 5 > 0}
-                                    <option value={i - 5}>+{i - 5}</option>
-                                {:else if i - 5 === 0}
-                                    <option value={i - 5}>0</option>
-                                {:else}
-                                    <option value={i - 5}>{i - 5}</option>
-                                {/if}
-                            {/each}
                         </select>
                         <select
                             bind:value={
@@ -648,31 +704,36 @@
             <button class="modal-close-btn" on:click={closeFate}>&times;</button
             >
             <h2>Fate: {selectedFortune.title}</h2>
-            <p class="fate-description">{selectedFortune.description}</p>
 
             {#if selectedFortune.outcome.diceRoll}
                 <div class="fate-section">
                     <h3>Dice Roll</h3>
                     <div class="dice-display">
-                        {selectedFortune.outcome.diceRoll.numDice}x D{selectedFortune
-                            .outcome.diceRoll.numSides}
-                        {#if selectedFortune.outcome.diceRoll.modifier !== 0}
-                            {selectedFortune.outcome.diceRoll.modifier > 0
-                                ? "+"
-                                : ""}{selectedFortune.outcome.diceRoll.modifier}
-                        {/if}
+                        {selectedFortune.outcome.diceRoll.numDice}x D{selectedFortune.outcome.diceRoll.numSides}
                         ({selectedFortune.outcome.diceRoll.resultOption})
                     </div>
-                    
+                    <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
+                        <label for="dice-modifier">Modifier:</label>
+                        <select id="dice-modifier" bind:value={fateDiceModifier} style="width: 70px; margin-left: 0.5rem;" on:change={rerollDice}>
+                            {#each Array(16) as _, i}
+                                {#if i - 5 > 0}
+                                    <option value={i - 5}>+{i - 5}</option>
+                                {:else if i - 5 === 0}
+                                    <option value={i - 5}>0</option>
+                                {:else}
+                                    <option value={i - 5}>{i - 5}</option>
+                                {/if}
+                            {/each}
+                        </select>
+                    </div>
                     <DiceRollerEmbed
                         numDice={selectedFortune.outcome.diceRoll.numDice}
                         numSides={selectedFortune.outcome.diceRoll.numSides}
-                        modifier={selectedFortune.outcome.diceRoll.modifier}
+                        modifier={fateDiceModifier}
                         resultOption={selectedFortune.outcome.diceRoll.resultOption}
                         readonly={true}
                         onResult={(result) => handleDiceResult(result)}
                     />
-
                     {#if diceResult !== null && fateOutcome.dice}
                         <div class="result-display">
                             <p class="outcome-text">{fateOutcome.dice}</p>
@@ -824,7 +885,7 @@
         font-size: 1.1rem;
         border-radius: 6px;
         border: none;
-        margin: 0.5rem 0;
+        margin: 0 0;
         background: #1976d2;
         color: #fff;
         cursor: pointer;
@@ -911,12 +972,6 @@
         color: #f44336;
     }
 
-    .fortune-description {
-        margin: 0 0 0.75rem 0;
-        color: #666;
-        font-size: 0.95rem;
-    }
-
     .fate-button {
         font-size: 1rem;
         padding: 0.5rem 0;
@@ -934,19 +989,13 @@
         color: #555;
     }
 
-    .form-group input[type="text"],
-    .form-group textarea {
+    .form-group input[type="text"] {
         width: 100%;
         padding: 0.5rem;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 1rem;
         box-sizing: border-box;
-    }
-
-    .form-group textarea {
-        resize: vertical;
-        font-family: inherit;
     }
 
     .dice-config {
@@ -967,13 +1016,6 @@
         border: none;
         border-top: 1px solid #ccc;
         margin: 1rem 0;
-    }
-
-    .fate-description {
-        text-align: left;
-        color: #666;
-        font-style: italic;
-        margin-bottom: 1.5rem;
     }
 
     .fate-section {
@@ -1012,12 +1054,10 @@
         text-align: left;
     }
 
-    .roll-button,
     .draw-button {
         background: #ff9800;
     }
 
-    .roll-button:active,
     .draw-button:active {
         background: #f57c00;
     }
@@ -1104,5 +1144,15 @@
 
     .mapping-col-outcome {
         text-align: left;
+    }
+
+    .drag-handle {
+        cursor: grab;
+        user-select: none;
+        color: #1976d2;
+        margin-right: 0.5rem;
+    }
+    .fortune-card[draggable="true"] {
+        transition: border 0.2s;
     }
 </style>

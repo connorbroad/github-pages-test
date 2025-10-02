@@ -17,7 +17,6 @@ export type Fortune = {
     id: string;
     campaign: string;
     title: string;
-    description: string;
     outcome: Outcome;
 };
 
