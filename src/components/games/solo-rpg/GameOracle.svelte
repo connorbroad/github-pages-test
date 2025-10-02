@@ -821,26 +821,13 @@
                             ({selectedFortune.outcome.diceRoll.resultOption})
                         {/if}
                     </div>
-                    <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
-                        <label for="dice-modifier">Modifier:</label>
-                        <select id="dice-modifier" class="modifier-select" bind:value={fateDiceModifier} on:change={rerollDice}>
-                            {#each Array(16) as _, i}
-                                {#if i - 5 > 0}
-                                    <option value={i - 5}>+{i - 5}</option>
-                                {:else if i - 5 === 0}
-                                    <option value={i - 5}>0</option>
-                                {:else}
-                                    <option value={i - 5}>{i - 5}</option>
-                                {/if}
-                            {/each}
-                        </select>
-                    </div>
                     <DiceRollerEmbed
                         numDice={selectedFortune.outcome.diceRoll.numDice}
                         numSides={selectedFortune.outcome.diceRoll.numSides}
                         modifier={fateDiceModifier}
                         resultOption={selectedFortune.outcome.diceRoll.resultOption}
-                        onResult={(result) => handleDiceResult(result)}
+                        on:result={(e) => handleDiceResult(e.detail)}
+                        on:modifierChange={(e) => { fateDiceModifier = e.detail; rerollDice(); }}
                     />
                     {#if diceResult !== null && fateOutcome.dice}
                         <div class="result-display">
@@ -1176,8 +1163,17 @@
     .card-display {
         font-size: 1.2rem;
         font-weight: bold;
-        margin: 0.5rem 0; 
         border-radius: 4px;
+    }
+
+    .dice-display {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    .card-display {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
     }
 
     .result-display {
