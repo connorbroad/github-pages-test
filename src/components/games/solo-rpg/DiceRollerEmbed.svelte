@@ -414,11 +414,15 @@
         </div>
     </div>
 
-    {#if finalResult !== null && !rolling}
         <div class="embed-result">
-            <strong>Result: {finalResult}</strong>
+            {#if finalResult !== null && !rolling}
+                <strong>Result: {finalResult}</strong> 
+            {:else if rolling}
+                <em>...</em>
+            {:else}
+                <em>Result: ...</em>
+            {/if}
         </div>
-    {/if}
 
     <button
         class="dice-roller-button"
@@ -507,8 +511,7 @@
     .embed-result {
         text-align: center;
         margin: 0.5rem 0;
-        padding: 0.75rem;
-        background: #e3f2fd;
+        padding: 0.75rem; 
         border-radius: 4px;
         font-size: 1.1rem;
     }

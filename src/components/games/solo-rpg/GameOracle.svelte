@@ -479,11 +479,10 @@
                                     on:drop={() => handleDrop(campaign, fortune.id)}
                                     style="border: {draggedFortuneId === fortune.id && draggedCampaign === campaign ? '2px dashed #1976d2' : dragOverFortuneId === fortune.id && dragOverCampaign === campaign ? '2px solid #4caf50' : touchDraggedId === fortune.id && touchDraggedCampaign === campaign ? '2px dashed #1976d2' : touchDragOverId === fortune.id && touchDragOverCampaign === campaign ? '2px solid #4caf50' : 'none'};"
                                 >
-                                    <div class="fortune-header">
+                                    <div class="fortune-action-row">
                                         <span 
                                             class="drag-handle" 
                                             title="Drag to reorder" 
-                                            style="cursor: grab; font-size: 1.5rem; margin-right: 0.5rem;"
                                             role="button"
                                             tabindex="0"
                                             aria-label="Drag to reorder fortune"
@@ -494,18 +493,15 @@
                                             on:touchmove={(e) => handleTouchMove(campaign, fortune.id, e)}
                                             on:touchend={(e) => handleTouchEnd(campaign, fortune.id, e)}
                                         >☰</span>
-                                        <h4>{fortune.title}</h4>
+                                        <button
+                                            class="oracle-button fate-button"
+                                            on:click={() => openFate(fortune)}
+                                        >{fortune.title}</button>
                                         <button
                                             class="delete-btn"
                                             on:click={() => deleteFortune(fortune.id)}
-                                            >×</button
-                                        >
+                                        >×</button>
                                     </div>
-                                    <button
-                                        class="oracle-button fate-button"
-                                        on:click={() => openFate(fortune)}
-                                        >Consult Fate</button
-                                    >
                                 </div>
                             {/each}
                         </div>
@@ -817,20 +813,19 @@
         >
             <button class="modal-close-btn" on:click={closeFate}>&times;</button
             >
-            <h2>Fate: {selectedFortune.title}</h2>
+            <h2>{selectedFortune.title}</h2>
 
             {#if selectedFortune.outcome.diceRoll}
-                <div class="fate-section">
-                    <h3>Dice Roll</h3>
+                <div class="fate-section"> 
                     <div class="dice-display">
-                        {selectedFortune.outcome.diceRoll.numDice}x D{selectedFortune.outcome.diceRoll.numSides}
+                        {#if selectedFortune.outcome.diceRoll.numDice > 1}{selectedFortune.outcome.diceRoll.numDice}x {/if} D{selectedFortune.outcome.diceRoll.numSides}
                         {#if selectedFortune.outcome.diceRoll.numDice > 1}
                             ({selectedFortune.outcome.diceRoll.resultOption})
                         {/if}
                     </div>
                     <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
                         <label for="dice-modifier">Modifier:</label>
-                        <select id="dice-modifier" bind:value={fateDiceModifier} style="width: 70px; margin-left: 0.5rem;" on:change={rerollDice}>
+                        <select id="dice-modifier" class="modifier-select" bind:value={fateDiceModifier} on:change={rerollDice}>
                             {#each Array(16) as _, i}
                                 {#if i - 5 > 0}
                                     <option value={i - 5}>+{i - 5}</option>
@@ -989,7 +984,7 @@
     }
 
     h3 {
-        margin-top: 1.5rem;
+        margin-top: 0;
         margin-bottom: 0.5rem;
         color: #555;
         font-size: 1.1rem;
@@ -1050,9 +1045,8 @@
         padding-bottom: 0.25rem;
     }
 
-    .fortune-card {
-        background: #f5f5f5;
-        padding: 1rem;
+    .fortune-card { 
+        padding: 0.5rem;
         border-radius: 6px;
         margin-bottom: 0.75rem;
         position: relative;
@@ -1064,19 +1058,42 @@
         transform: scale(0.98);
     }
 
-    .fortune-header {
+    .fortune-action-row {
         display: flex;
-        justify-content: space-between;
-        align-items: start;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
     }
 
-    .fortune-header h4 {
-        margin: 0 0 0.5rem 0;
-        color: #333;
-        flex-grow: 1;
+    .drag-handle {
+        position: static;
+        cursor: grab;
+        user-select: none;
+        color: #1976d2;
+        transition: color 0.2s, transform 0.1s;
+        padding: 0.25rem;
+        border-radius: 4px;
+        font-size: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .drag-handle:hover {
+        color: #1565c0;
+        background: rgba(25, 118, 210, 0.1);
+    }
+    
+    .drag-handle:active {
+        cursor: grabbing;
+        transform: scale(0.95);
     }
 
     .delete-btn {
+        position: static;
         background: transparent;
         border: none;
         font-size: 1.5rem;
@@ -1096,7 +1113,7 @@
 
     .fate-button {
         font-size: 1rem;
-        padding: 0.5rem 0;
+        padding: 0.5rem 1rem;
     }
 
     .form-group {
@@ -1142,18 +1159,16 @@
 
     .fate-section {
         margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: #f9f9f9;
+        padding: 1rem; 
         border-radius: 6px;
+        border: 1px solid #ddd;
     }
 
     .dice-display,
     .card-display {
         font-size: 1.2rem;
         font-weight: bold;
-        margin: 0.5rem 0;
-        padding: 0.75rem;
-        background: #fff;
+        margin: 0.5rem 0; 
         border-radius: 4px;
     }
 
@@ -1268,23 +1283,19 @@
         text-align: left;
     }
 
-    .drag-handle {
-        cursor: grab;
-        user-select: none;
-        color: #1976d2;
-        margin-right: 0.5rem;
-        transition: color 0.2s, transform 0.1s;
-        padding: 0.25rem;
+    .modifier-select {
+        width: 70px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
         border-radius: 4px;
+        background: #fff;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
-    .drag-handle:hover {
-        color: #1565c0;
-        background: rgba(25, 118, 210, 0.1);
-    }
-    
-    .drag-handle:active {
-        cursor: grabbing;
-        transform: scale(0.95);
+    .modifier-select:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
     }
 </style>
