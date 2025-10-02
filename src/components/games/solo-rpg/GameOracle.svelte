@@ -244,47 +244,70 @@
         showEditOutcome = false;
     }
 
-    let draggedFortuneIndex: number | null = null;
+    let draggedFortuneId: string | null = null;
     let draggedCampaign: string | null = null;
-    let dragOverFortuneIndex: number | null = null;
+    let dragOverFortuneId: string | null = null;
     let dragOverCampaign: string | null = null;
 
-    function handleDragStart(campaign: string, index: number) {
-        draggedFortuneIndex = index;
+    function handleDragStart(campaign: string, fortuneId: string) {
+        draggedFortuneId = fortuneId;
         draggedCampaign = campaign;
     }
 
-    function handleDragOver(campaign: string, index: number, event: DragEvent) {
+    function handleDragOver(campaign: string, fortuneId: string, event: DragEvent) {
         event.preventDefault();
-        dragOverFortuneIndex = index;
-        dragOverCampaign = campaign;
+        // Only allow drag over if within the same campaign
+        if (draggedCampaign === campaign) {
+            dragOverFortuneId = fortuneId;
+            dragOverCampaign = campaign;
+        }
     }
 
-    function handleDrop(campaign: string, index: number) {
+    function handleDrop(campaign: string, fortuneId: string) {
+        // Only reorder fortunes within the same campaign - never across campaigns
         if (
-            draggedFortuneIndex === null ||
+            draggedFortuneId === null ||
             draggedCampaign !== campaign ||
-            draggedFortuneIndex === index
-        ) return;
-        const campaignFortunes = fortunes.filter((f) => f.campaign === campaign);
-        const newOrder = [...campaignFortunes];
-        const [removed] = newOrder.splice(draggedFortuneIndex, 1);
-        newOrder.splice(index, 0, removed);
-        fortunes = [
-            ...fortunes.filter((f) => f.campaign !== campaign),
-            ...newOrder,
-        ];
-        saveFortunes(fortunes);
-        draggedFortuneIndex = null;
+            draggedFortuneId === fortuneId
+        ) {
+            draggedFortuneId = null;
+            draggedCampaign = null;
+            dragOverFortuneId = null;
+            dragOverCampaign = null;
+            return;
+        }
+
+        // Create a new array preserving all fortunes in their original positions
+        const newFortunes = [...fortunes];
+        
+        // Find the actual indices in the full fortunes array
+        const draggedIndex = newFortunes.findIndex(f => f.id === draggedFortuneId);
+        const dropIndex = newFortunes.findIndex(f => f.id === fortuneId);
+        
+        if (draggedIndex !== -1 && dropIndex !== -1) {
+            // Remove the dragged fortune
+            const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
+            
+            // Adjust drop index if necessary (if we removed an item before the drop position)
+            const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
+            
+            // Insert at the new position
+            newFortunes.splice(adjustedDropIndex, 0, draggedFortune);
+            
+            fortunes = newFortunes;
+            saveFortunes(fortunes);
+        }
+        
+        draggedFortuneId = null;
         draggedCampaign = null;
-        dragOverFortuneIndex = null;
+        dragOverFortuneId = null;
         dragOverCampaign = null;
     }
 
     function handleDragEnd() {
-        draggedFortuneIndex = null;
+        draggedFortuneId = null;
         draggedCampaign = null;
-        dragOverFortuneIndex = null;
+        dragOverFortuneId = null;
         dragOverCampaign = null;
     }
 
@@ -316,6 +339,85 @@
                 result = rolls.reduce((a, b) => a + b, 0) + fateDiceModifier;
         }
         handleDiceResult(result);
+    }
+
+    let touchStartY: number | null = null;
+    let touchDraggedId: string | null = null;
+    let touchDraggedCampaign: string | null = null;
+    let touchDragOverId: string | null = null;
+    let touchDragOverCampaign: string | null = null;
+
+    function handleTouchStart(campaign: string, fortuneId: string, event: TouchEvent) {
+        touchStartY = event.touches[0].clientY;
+        touchDraggedId = fortuneId;
+        touchDraggedCampaign = campaign;
+        touchDragOverId = fortuneId;
+        touchDragOverCampaign = campaign;
+        event.stopPropagation();
+    }
+
+    function handleTouchMove(campaign: string, fortuneId: string, event: TouchEvent) {
+        event.preventDefault();
+        
+        if (touchDraggedCampaign !== campaign) {
+            return; // Don't allow cross-campaign dragging
+        }
+        
+        const touchY = event.touches[0].clientY;
+        
+        // Find all fortune cards within the same campaign
+        const campaignFortunes = fortunes.filter((f) => f.campaign === campaign);
+        const allCards = Array.from(document.querySelectorAll('.fortune-card'));
+        
+        // Find which card we're hovering over
+        for (const card of allCards) {
+            const rect = card.getBoundingClientRect();
+            if (touchY >= rect.top && touchY <= rect.bottom) {
+                // Get the fortune ID from the card's data attribute
+                const cardFortuneId = card.getAttribute('data-fortune-id');
+                if (cardFortuneId && campaignFortunes.some(f => f.id === cardFortuneId)) {
+                    touchDragOverId = cardFortuneId;
+                    touchDragOverCampaign = campaign;
+                    break;
+                }
+            }
+        }
+    }
+
+    function handleTouchEnd(campaign: string, fortuneId: string, event: TouchEvent) {
+        // Only reorder fortunes within the same campaign - never across campaigns
+        if (
+            touchDraggedId !== null &&
+            touchDraggedCampaign === campaign &&
+            touchDragOverId !== null &&
+            touchDraggedId !== touchDragOverId
+        ) {
+            // Create a new array preserving all fortunes in their original positions
+            const newFortunes = [...fortunes];
+            
+            // Find the actual indices in the full fortunes array
+            const draggedIndex = newFortunes.findIndex(f => f.id === touchDraggedId);
+            const dropIndex = newFortunes.findIndex(f => f.id === touchDragOverId);
+            
+            if (draggedIndex !== -1 && dropIndex !== -1) {
+                // Remove the dragged fortune
+                const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
+                
+                // Adjust drop index if necessary (if we removed an item before the drop position)
+                const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
+                
+                // Insert at the new position
+                newFortunes.splice(adjustedDropIndex, 0, draggedFortune);
+                
+                fortunes = newFortunes;
+                saveFortunes(fortunes);
+            }
+        }
+        touchStartY = null;
+        touchDraggedId = null;
+        touchDraggedCampaign = null;
+        touchDragOverId = null;
+        touchDragOverCampaign = null;
     }
 </script>
 
@@ -371,15 +473,27 @@
                             {#each fortunes.filter((f) => f.campaign === campaign) as fortune, i}
                                 <div class="fortune-card"
                                     role="listitem"
-                                    draggable="true"
-                                    on:dragstart={() => handleDragStart(campaign, i)}
-                                    on:dragover={(e) => handleDragOver(campaign, i, e)}
-                                    on:drop={() => handleDrop(campaign, i)}
-                                    on:dragend={handleDragEnd}
-                                    style="border: {draggedFortuneIndex === i && draggedCampaign === campaign ? '2px dashed #1976d2' : dragOverFortuneIndex === i && dragOverCampaign === campaign ? '2px solid #4caf50' : 'none'};"
+                                    data-fortune-id={fortune.id}
+                                    data-dragging={(draggedFortuneId === fortune.id || touchDraggedId === fortune.id) ? "true" : "false"}
+                                    on:dragover={(e) => handleDragOver(campaign, fortune.id, e)}
+                                    on:drop={() => handleDrop(campaign, fortune.id)}
+                                    style="border: {draggedFortuneId === fortune.id && draggedCampaign === campaign ? '2px dashed #1976d2' : dragOverFortuneId === fortune.id && dragOverCampaign === campaign ? '2px solid #4caf50' : touchDraggedId === fortune.id && touchDraggedCampaign === campaign ? '2px dashed #1976d2' : touchDragOverId === fortune.id && touchDragOverCampaign === campaign ? '2px solid #4caf50' : 'none'};"
                                 >
                                     <div class="fortune-header">
-                                        <span class="drag-handle" title="Drag to reorder" style="cursor: grab; font-size: 1.5rem; margin-right: 0.5rem;">☰</span>
+                                        <span 
+                                            class="drag-handle" 
+                                            title="Drag to reorder" 
+                                            style="cursor: grab; font-size: 1.5rem; margin-right: 0.5rem;"
+                                            role="button"
+                                            tabindex="0"
+                                            aria-label="Drag to reorder fortune"
+                                            draggable="true"
+                                            on:dragstart={() => handleDragStart(campaign, fortune.id)}
+                                            on:dragend={handleDragEnd}
+                                            on:touchstart={(e) => handleTouchStart(campaign, fortune.id, e)}
+                                            on:touchmove={(e) => handleTouchMove(campaign, fortune.id, e)}
+                                            on:touchend={(e) => handleTouchEnd(campaign, fortune.id, e)}
+                                        >☰</span>
                                         <h4>{fortune.title}</h4>
                                         <button
                                             class="delete-btn"
@@ -710,7 +824,9 @@
                     <h3>Dice Roll</h3>
                     <div class="dice-display">
                         {selectedFortune.outcome.diceRoll.numDice}x D{selectedFortune.outcome.diceRoll.numSides}
-                        ({selectedFortune.outcome.diceRoll.resultOption})
+                        {#if selectedFortune.outcome.diceRoll.numDice > 1}
+                            ({selectedFortune.outcome.diceRoll.resultOption})
+                        {/if}
                     </div>
                     <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
                         <label for="dice-modifier">Modifier:</label>
@@ -940,6 +1056,12 @@
         border-radius: 6px;
         margin-bottom: 0.75rem;
         position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .fortune-card[data-dragging="true"] {
+        opacity: 0.5;
+        transform: scale(0.98);
     }
 
     .fortune-header {
@@ -1151,8 +1273,18 @@
         user-select: none;
         color: #1976d2;
         margin-right: 0.5rem;
+        transition: color 0.2s, transform 0.1s;
+        padding: 0.25rem;
+        border-radius: 4px;
     }
-    .fortune-card[draggable="true"] {
-        transition: border 0.2s;
+    
+    .drag-handle:hover {
+        color: #1565c0;
+        background: rgba(25, 118, 210, 0.1);
+    }
+    
+    .drag-handle:active {
+        cursor: grabbing;
+        transform: scale(0.95);
     }
 </style>
