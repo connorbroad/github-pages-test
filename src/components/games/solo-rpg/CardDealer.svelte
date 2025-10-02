@@ -23,7 +23,7 @@
     let deck: { suit: string; rank: string }[] = [];
     let drawn: { suit: string; rank: string }[] = [];
     let numToDraw = 1;
-    let includeJoker = false;
+    let includeJokers = false;
 
     export let show = false;
     export let onClose: () => void;
@@ -35,7 +35,7 @@
                 deck.push({ suit, rank });
             }
         }
-        if (includeJoker) {
+        if (includeJokers) {
             deck.push({ ...joker });
             deck.push({ ...joker });
         }
@@ -71,7 +71,7 @@
     }
 
     $: cardsRemaining = deck.length;
-    $: deckIsNotFull = cardsRemaining < (includeJoker ? 54 : 52);
+    $: deckIsNotFull = cardsRemaining < (includeJokers ? 54 : 52);
 </script>
 
 {#if show}
@@ -104,7 +104,7 @@
                             <label>
                                 <input
                                     type="checkbox"
-                                    bind:checked={includeJoker}
+                                    bind:checked={includeJokers}
                                     on:change={buildDeck}
                                 /> Include Jokers
                             </label>
