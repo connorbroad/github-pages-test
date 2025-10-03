@@ -3,7 +3,7 @@
      * Result option icon component
      * Displays the appropriate icon for each result calculation option
      */
-    import type { ResultOption } from "./diceRollerLogic";
+    import type { ResultOption } from "../scripts/diceRollerLogic";
 
     export let option: ResultOption;
     export let size: string = "1em";

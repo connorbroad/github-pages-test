@@ -3,7 +3,7 @@
      * Fortune List Component
      * Displays a list of fortunes organized by campaign with drag-and-drop reordering
      */
-    import type { Fortune } from "./oracleTypes";
+    import type { Fortune } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
 
     export let fortunes: Fortune[] = [];

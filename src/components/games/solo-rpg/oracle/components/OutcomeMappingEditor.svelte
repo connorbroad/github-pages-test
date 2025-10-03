@@ -3,13 +3,13 @@
      * Outcome Mapping Editor Component
      * Modal for editing dice/card outcome mappings
      */
-    import type { Fortune } from "./scripts/oracleTypes";
+    import type { Fortune } from "../scripts/oracleTypes";
     import {
         CARD_SUITS,
         CARD_RANKS,
         calculatePossibleDiceResults,
         isRedSuit,
-    } from "./scripts/oracleTypes";
+    } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
 
     export let show = false;

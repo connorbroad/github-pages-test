@@ -1,8 +1,8 @@
 <script lang="ts">
-    import DiceRoller from './DiceRoller.svelte';
-    import CardDealer from './CardDealer.svelte';
-    import GameOracle from './GameOracle.svelte';
-    import DataManager from './DataManager.svelte';
+    import DiceRoller from './dice-roller/DiceRoller.svelte';
+    import CardDealer from './card-dealer/CardDealer.svelte';
+    import GameOracle from './oracle/GameOracle.svelte';
+    import DataManager from './data-manager/DataManager.svelte';
     let showDiceRoller = false;
     let showCardDealer = false;
     let showGameOracle = false;

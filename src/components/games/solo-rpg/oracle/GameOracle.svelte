@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { loadFortunes, saveFortunes } from "./storage-utils";
+    import { loadFortunes, saveFortunes } from "../storage-utils";
     import { onMount } from "svelte";
-    import FortuneList from "./oracle/FortuneList.svelte";
-    import FortuneEditor from "./oracle/FortuneEditor.svelte";
-    import OutcomeMappingEditor from "./oracle/OutcomeMappingEditor.svelte";
-    import FateConsultation from "./oracle/FateConsultation.svelte";
-    import { generateId, type Fortune } from "./oracle/oracleTypes";
+    import FortuneList from "./components/FortuneList.svelte";
+    import FortuneEditor from "./components/FortuneEditor.svelte";
+    import OutcomeMappingEditor from "./components/OutcomeMappingEditor.svelte";
+    import FateConsultation from "./components/FateConsultation.svelte";
+    import { generateId, type Fortune } from "./scripts/oracleTypes";
 
     export let show = false;
     export let onClose: () => void;
@@ -31,7 +31,9 @@
     });
 
     $: {
-        campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(Boolean);
+        campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(
+            Boolean,
+        );
     }
 
     function openCreateFortune() {
@@ -45,7 +47,9 @@
     }
 
     function saveFortune() {
-        const existingIndex = fortunes.findIndex((f) => f.id === editingFortune.id);
+        const existingIndex = fortunes.findIndex(
+            (f) => f.id === editingFortune.id,
+        );
         if (existingIndex >= 0) {
             fortunes[existingIndex] = { ...editingFortune };
         } else {
@@ -66,12 +70,14 @@
         showFate = true;
     }
 
-    function handleReorder(event: CustomEvent<{ draggedId: string; targetId: string }>) {
+    function handleReorder(
+        event: CustomEvent<{ draggedId: string; targetId: string }>,
+    ) {
         const { draggedId, targetId } = event.detail;
         const newFortunes = [...fortunes];
-        const draggedIndex = newFortunes.findIndex(f => f.id === draggedId);
-        const dropIndex = newFortunes.findIndex(f => f.id === targetId);
-        
+        const draggedIndex = newFortunes.findIndex((f) => f.id === draggedId);
+        const dropIndex = newFortunes.findIndex((f) => f.id === targetId);
+
         if (draggedIndex !== -1 && dropIndex !== -1) {
             const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
             newFortunes.splice(dropIndex, 0, draggedFortune);
@@ -121,7 +127,7 @@
                 on:click={openCreateFortune}>Create Fortune</button
             >
 
-            <FortuneList 
+            <FortuneList
                 {fortunes}
                 {campaigns}
                 on:consultFate={(e) => openFate(e.detail)}
@@ -136,22 +142,22 @@
     show={showCreateFortune}
     fortune={editingFortune}
     {campaigns}
-    on:close={() => showCreateFortune = false}
+    on:close={() => (showCreateFortune = false)}
     on:save={saveFortune}
-    on:editOutcome={() => showEditOutcome = true}
+    on:editOutcome={() => (showEditOutcome = true)}
 />
 
 <OutcomeMappingEditor
     show={showEditOutcome}
     fortune={editingFortune}
-    on:close={() => showEditOutcome = false}
+    on:close={() => (showEditOutcome = false)}
     on:save={saveFortune}
 />
 
 <FateConsultation
     show={showFate}
     fortune={selectedFortune}
-    on:close={() => showFate = false}
+    on:close={() => (showFate = false)}
     on:accept={() => {
         showFate = false;
         selectedFortune = null;

@@ -95,11 +95,15 @@
             }}
         >
             <div class="card-drawer-content">
-                <button class="modal-close-btn" aria-label="Close" on:click={() => onClose && onClose()}>&times;</button>
+                <button
+                    class="modal-close-btn"
+                    aria-label="Close"
+                    on:click={() => onClose && onClose()}>&times;</button
+                >
                 <h2>Card Dealer</h2>
                 <div class="card-drawer-info">
                     <p>Cards Remaining: {cardsRemaining}</p>
-                    {#if (!deckIsNotFull)}
+                    {#if !deckIsNotFull}
                         <div class="options">
                             <label>
                                 <input
@@ -114,8 +118,15 @@
                         <div class="drawn-cards">
                             <div class="cards-list">
                                 {#each drawn as card}
-                                    <span class="card-chip" style="color: {card.suit === '♥' || card.suit === '♦' ? 'red' : 'inherit'}">
-                                        {card.rank} {card.suit}
+                                    <span
+                                        class="card-chip"
+                                        style="color: {card.suit === '♥' ||
+                                        card.suit === '♦'
+                                            ? 'red'
+                                            : 'inherit'}"
+                                    >
+                                        {card.rank}
+                                        {card.suit}
                                     </span>
                                 {/each}
                             </div>
@@ -123,17 +134,34 @@
                     {/if}
                 </div>
                 <div class="card-drawer-actions">
-                    <button class="card-drawer-button" on:click={drawCards} disabled={deck.length === 0}>Draw</button>
-                    <button class="card-drawer-button" on:click={handleUndo} disabled={drawn.length === 0}>
+                    <button
+                        class="card-drawer-button"
+                        on:click={drawCards}
+                        disabled={deck.length === 0}>Draw</button
+                    >
+                    <button
+                        class="card-drawer-button"
+                        on:click={handleUndo}
+                        disabled={drawn.length === 0}
+                    >
                         Undo
                     </button>
                 </div>
                 <hr class="divider" />
-                <button id="take-result-button" class="card-drawer-button" on:click={onClickTakeResult} disabled={drawn.length === 0}>
+                <button
+                    id="take-result-button"
+                    class="card-drawer-button"
+                    on:click={onClickTakeResult}
+                    disabled={drawn.length === 0}
+                >
                     Take cards: {drawn.length}
                 </button>
                 <hr class="divider" />
-                <button id="reset-deck-button" class="card-drawer-button" on:click={buildDeck}>
+                <button
+                    id="reset-deck-button"
+                    class="card-drawer-button"
+                    on:click={buildDeck}
+                >
                     Shuffle Deck
                 </button>
             </div>
@@ -160,7 +188,7 @@
         max-width: 350px;
         display: flex;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
         margin: 1rem;
     }
     .card-drawer-content {
@@ -184,7 +212,7 @@
         gap: 1rem;
     }
     .card-drawer-button {
-        width: 100%; 
+        width: 100%;
         padding: 0.75rem 0;
         font-size: 1.25rem;
         border-radius: 6px;
@@ -198,7 +226,7 @@
     }
     .card-drawer-button:active {
         background: #1565c0;
-    } 
+    }
     .card-drawer-button:disabled {
         background: #ccc;
         cursor: not-allowed;
@@ -211,9 +239,9 @@
         margin-bottom: 0;
         font-size: 1.1rem;
     }
-    .card-drawer-info label { 
-        font-size: 1.0rem;
-        margin: 0
+    .card-drawer-info label {
+        font-size: 1rem;
+        margin: 0;
     }
     .drawn-cards {
         margin-top: 0.5rem;
@@ -254,7 +282,7 @@
         flex-direction: column;
         justify-content: center;
         gap: 0.1rem;
-        margin-bottom: 1rem; 
+        margin-bottom: 1rem;
     }
     .divider {
         border: none;

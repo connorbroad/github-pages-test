@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { slide } from 'svelte/transition';
-    import DiceDisplay from './dice-roller/DiceDisplay.svelte';
-    import ResultOptionIcon from './dice-roller/ResultOptionIcon.svelte';
-    import { 
-        type ResultOption, 
-        calculateResult, 
-        createDiceRollerAnimation, 
-        DEFAULT_ANIMATION_CONFIG 
-    } from './dice-roller/diceRollerLogic';
+    import { slide } from "svelte/transition";
+    import DiceDisplay from "./components/DiceDisplay.svelte";
+    import ResultOptionIcon from "./components/ResultOptionIcon.svelte";
+    import {
+        type ResultOption,
+        calculateResult,
+        createDiceRollerAnimation,
+        DEFAULT_ANIMATION_CONFIG,
+    } from "./scripts/diceRollerLogic";
 
     export let show = false;
     export let onClose: () => void;
@@ -32,11 +32,12 @@
                 if (state.results !== undefined) diceResults = state.results;
                 if (state.offsets !== undefined) diceOffsets = state.offsets;
                 if (state.rolling !== undefined) rolling = state.rolling;
-                if (state.rolledNumSides !== undefined) rolledNumSides = state.rolledNumSides;
+                if (state.rolledNumSides !== undefined)
+                    rolledNumSides = state.rolledNumSides;
             },
             () => {
                 recalculateResult();
-            }
+            },
         );
         animation.start(diceResults);
     }
@@ -84,7 +85,7 @@
                 on:click={() => onClose && onClose()}>&times;</button
             >
             <h2>Dice Roller</h2>
-            <DiceDisplay 
+            <DiceDisplay
                 {numDice}
                 {numSides}
                 {diceResults}
@@ -112,7 +113,9 @@
                     </select>
                 </div>
             </div>
-            <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
+            <button class="dice-roller-button" on:click={onRollButtonClick}
+                >Roll</button
+            >
             {#if showResultCalculator}
                 <div class="result-calculator-container" transition:slide>
                     <hr class="dice-roller-divider" />
@@ -121,10 +124,13 @@
                         <div class="result-radio-group">
                             <label class="result-radio" aria-label="Sum">
                                 <input
-                                    type="radio" 
+                                    type="radio"
                                     name="resultOption"
                                     value="Sum"
-                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    disabled={(diceResults.length == 0 &&
+                                        numDice == 1) ||
+                                        (numDice == 1 &&
+                                            diceResults.length == 1)}
                                     bind:group={resultOption}
                                     on:change={recalculateResult}
                                 />
@@ -137,12 +143,18 @@
                                     type="radio"
                                     name="resultOption"
                                     value="Maximum"
-                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    disabled={(diceResults.length == 0 &&
+                                        numDice == 1) ||
+                                        (numDice == 1 &&
+                                            diceResults.length == 1)}
                                     bind:group={resultOption}
                                     on:change={recalculateResult}
                                 />
                                 <span class="result-icon">
-                                    <ResultOptionIcon option="Maximum" size="1em" />
+                                    <ResultOptionIcon
+                                        option="Maximum"
+                                        size="1em"
+                                    />
                                 </span>
                             </label>
                             <label class="result-radio" aria-label="Minimum">
@@ -150,12 +162,18 @@
                                     type="radio"
                                     name="resultOption"
                                     value="Minimum"
-                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    disabled={(diceResults.length == 0 &&
+                                        numDice == 1) ||
+                                        (numDice == 1 &&
+                                            diceResults.length == 1)}
                                     bind:group={resultOption}
                                     on:change={recalculateResult}
                                 />
                                 <span class="result-icon">
-                                    <ResultOptionIcon option="Minimum" size="1em" />
+                                    <ResultOptionIcon
+                                        option="Minimum"
+                                        size="1em"
+                                    />
                                 </span>
                             </label>
                             <label class="result-radio" aria-label="Subtract">
@@ -163,17 +181,26 @@
                                     type="radio"
                                     name="resultOption"
                                     value="Subtract"
-                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    disabled={(diceResults.length == 0 &&
+                                        numDice == 1) ||
+                                        (numDice == 1 &&
+                                            diceResults.length == 1)}
                                     bind:group={resultOption}
                                     on:change={recalculateResult}
                                 />
                                 <span class="result-icon">
-                                    <ResultOptionIcon option="Subtract" size="1em" />
+                                    <ResultOptionIcon
+                                        option="Subtract"
+                                        size="1em"
+                                    />
                                 </span>
                             </label>
                         </div>
                         <div class="dice-options-select">
-                            <select bind:value={modifier} on:change={recalculateResult}>
+                            <select
+                                bind:value={modifier}
+                                on:change={recalculateResult}
+                            >
                                 {#each Array(16) as _, i}
                                     {#if i - 5 > -1}
                                         <option value={i - 5}>+{i - 5}</option>
@@ -186,12 +213,26 @@
                             </select>
                         </div>
                     </div>
-                    
-                    <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+
+                    <button
+                        id="take-result-button"
+                        class="dice-roller-button"
+                        on:click={onClickTakeResult}
+                        disabled={diceResults.length === 0 ||
+                            finalResult === null ||
+                            rolling}
+                    >
                         {#if diceResults.length > 1 && !rolling}
-                            <div id="result-option-indicator" aria-live="polite" style="position: absolute; left: 0.5rem; right: auto;">
+                            <div
+                                id="result-option-indicator"
+                                aria-live="polite"
+                                style="position: absolute; left: 0.5rem; right: auto;"
+                            >
                                 <span class="result-icon">
-                                    <ResultOptionIcon option={resultOption} size="1em" />
+                                    <ResultOptionIcon
+                                        option={resultOption}
+                                        size="1em"
+                                    />
                                 </span>
                             </div>
                         {/if}
@@ -199,10 +240,17 @@
                             Result:
                             {rolling ? "..." : finalResult || "..."}
                         </p>
-                        {#if diceResults.length > 1 && !rolling} 
-                            <div id="result-option-indicator" aria-live="polite" style="position: absolute; right: 0.5rem; left: auto;">
+                        {#if diceResults.length > 1 && !rolling}
+                            <div
+                                id="result-option-indicator"
+                                aria-live="polite"
+                                style="position: absolute; right: 0.5rem; left: auto;"
+                            >
                                 <span class="result-icon">
-                                    <ResultOptionIcon option={resultOption} size="1em" />
+                                    <ResultOptionIcon
+                                        option={resultOption}
+                                        size="1em"
+                                    />
                                 </span>
                             </div>
                         {/if}
@@ -211,16 +259,41 @@
             {/if}
             <button
                 class="toggle-result-calculator-btn"
-                aria-label={showResultCalculator ? "Hide result calculator" : "Show result calculator"}
-                on:click={() => showResultCalculator = !showResultCalculator}
+                aria-label={showResultCalculator
+                    ? "Hide result calculator"
+                    : "Show result calculator"}
+                on:click={() => (showResultCalculator = !showResultCalculator)}
                 style="background: none; border: none; cursor: pointer; position: absolute; top: 0.6rem; left: 0.5rem; z-index: 11;"
             >
                 {#if !showResultCalculator}
                     <!-- Eye icon (visible) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"/><path fill="currentColor" d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="28px"
+                        height="28px"
+                        {...$$props}
+                        ><path
+                            fill="currentColor"
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"
+                        /><path
+                            fill="currentColor"
+                            d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"
+                        /></svg
+                    >
                 {:else}
                     <!-- Eye-off icon (hidden) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="28px"
+                        height="28px"
+                        {...$$props}
+                        ><path
+                            fill="currentColor"
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"
+                        /></svg
+                    >
                 {/if}
             </button>
         </div>
@@ -257,7 +330,7 @@
         gap: 0.5rem;
         margin-top: 1rem;
     }
-    .dice-options-select select { 
+    .dice-options-select select {
         padding: 0.75rem 1rem;
         font-size: 1.25rem;
         border-radius: 6px;
@@ -273,7 +346,7 @@
         border-radius: 8px 8px;
         overflow: hidden;
         border: 1px solid #ccc;
-        flex-direction: row; /* restore horizontal layout */ 
+        flex-direction: row; /* restore horizontal layout */
     }
     .result-radio {
         background: #f8f8f8;
@@ -305,7 +378,7 @@
         margin-top: 0.1rem;
         letter-spacing: 1px;
         font-weight: 500;
-    } 
+    }
     .result-radio input[type="radio"] {
         position: absolute;
         opacity: 0;
@@ -389,20 +462,20 @@
         justify-content: center;
         gap: 0.5rem;
     }
-    #take-result-button .result-icon { 
-        font-size: 1.0rem;
+    #take-result-button .result-icon {
+        font-size: 1rem;
     }
     #result-option-indicator {
         position: absolute;
         top: 25%;
         height: 50%;
         right: 0.5rem;
-        width: 1.0em;
+        width: 1em;
         display: flex;
         align-items: center;
         padding: 0.5em;
         justify-content: center;
-        pointer-events: none; 
+        pointer-events: none;
         border-radius: 100px;
         border: 1px solid #fff;
     }
@@ -438,7 +511,9 @@
     .result-calculator-container {
         overflow: hidden;
         max-height: 1000px;
-        transition: max-height 0.5s cubic-bezier(0.4, 0.0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        transition:
+            max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+            padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         will-change: max-height, padding;
     }
     .result-calculator-container:not(:has(*)) {

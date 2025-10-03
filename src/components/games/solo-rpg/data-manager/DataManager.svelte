@@ -1,12 +1,17 @@
 <script lang="ts">
-    import { exportData, importData, downloadDataFile, loadData } from './storage-utils';
-    
+    import {
+        exportData,
+        importData,
+        downloadDataFile,
+        loadData,
+    } from "../storage-utils";
+
     export let show = false;
     export let onClose: () => void;
     export let onDataImported: () => void;
 
     let fileInput: HTMLInputElement;
-    let importError = '';
+    let importError = "";
     let importSuccess = false;
 
     function handleExport() {
@@ -20,16 +25,16 @@
     function handleFileSelect(event: Event) {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0];
-        
+
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target?.result as string;
             const success = importData(content);
-            
+
             if (success) {
-                importError = '';
+                importError = "";
                 importSuccess = true;
                 setTimeout(() => {
                     importSuccess = false;
@@ -37,24 +42,25 @@
                     onClose();
                 }, 1500);
             } else {
-                importError = 'Failed to import file. Please ensure it is a valid Solo RPG data file.';
+                importError =
+                    "Failed to import file. Please ensure it is a valid Solo RPG data file.";
                 importSuccess = false;
             }
         };
-        
+
         reader.onerror = () => {
-            importError = 'Failed to read file.';
+            importError = "Failed to read file.";
             importSuccess = false;
         };
-        
+
         reader.readAsText(file);
-        
+
         // Reset the input so the same file can be selected again
-        target.value = '';
+        target.value = "";
     }
 
     function handleClose() {
-        importError = '';
+        importError = "";
         importSuccess = false;
         onClose();
     }
@@ -66,32 +72,46 @@
     }
 
     function handleBackdropKeydown(event: KeyboardEvent) {
-        if (event.key === 'Escape') {
+        if (event.key === "Escape") {
             handleClose();
         }
     }
 </script>
 
 {#if show}
-    <div class="modal-backdrop" on:click={handleBackdropClick} on:keydown={handleBackdropKeydown} role="button" tabindex="-1">
+    <div
+        class="modal-backdrop"
+        on:click={handleBackdropClick}
+        on:keydown={handleBackdropKeydown}
+        role="button"
+        tabindex="-1"
+    >
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Data Manager</h2>
-                <button class="close-button" on:click={handleClose}>&times;</button>
+                <button class="close-button" on:click={handleClose}
+                    >&times;</button
+                >
             </div>
-            
+
             <div class="modal-body">
                 <p class="description">
-                    Export your Solo RPG data to a file or import data from another device.
-                    Importing will overwrite your current data.
+                    Export your Solo RPG data to a file or import data from
+                    another device. Importing will overwrite your current data.
                 </p>
 
                 <div class="button-group">
-                    <button class="action-button export-button" on:click={handleExport}>
+                    <button
+                        class="action-button export-button"
+                        on:click={handleExport}
+                    >
                         📥 Export Data
                     </button>
-                    
-                    <button class="action-button import-button" on:click={handleImportClick}>
+
+                    <button
+                        class="action-button import-button"
+                        on:click={handleImportClick}
+                    >
                         📤 Import Data
                     </button>
                 </div>

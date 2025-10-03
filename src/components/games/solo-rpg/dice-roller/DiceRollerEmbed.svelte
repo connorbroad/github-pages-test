@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import DiceDisplay from './dice-roller/DiceDisplay.svelte';
-    import { 
-        type ResultOption, 
-        calculateResult, 
-        createDiceRollerAnimation, 
-        DEFAULT_ANIMATION_CONFIG 
-    } from './dice-roller/diceRollerLogic';
+    import { createEventDispatcher } from "svelte";
+    import DiceDisplay from "./components/DiceDisplay.svelte";
+    import {
+        type ResultOption,
+        calculateResult,
+        createDiceRollerAnimation,
+        DEFAULT_ANIMATION_CONFIG,
+    } from "./scripts/diceRollerLogic";
 
     // Props for embedded mode
     export let numDice = 1;
@@ -35,31 +35,36 @@
                 if (state.results !== undefined) diceResults = state.results;
                 if (state.offsets !== undefined) diceOffsets = state.offsets;
                 if (state.rolling !== undefined) rolling = state.rolling;
-                if (state.rolledNumSides !== undefined) rolledNumSides = state.rolledNumSides;
+                if (state.rolledNumSides !== undefined)
+                    rolledNumSides = state.rolledNumSides;
             },
             () => {
                 recalculateResult();
                 if (finalResult !== null) {
-                    dispatch('result', finalResult);
+                    dispatch("result", finalResult);
                     if (onResult) {
                         onResult(finalResult);
                     }
                 }
-            }
+            },
         );
         animation.start(diceResults);
     }
 
     function recalculateResult() {
         const effectiveModifier = showModifier ? modifier : 0;
-        finalResult = calculateResult(diceResults, resultOption, effectiveModifier);
+        finalResult = calculateResult(
+            diceResults,
+            resultOption,
+            effectiveModifier,
+        );
     }
 
     $: recalculateResult(); // reactive statement to update result when dependencies change
 </script>
 
 <div class="dice-roller-embed">
-    <DiceDisplay 
+    <DiceDisplay
         {numDice}
         {numSides}
         {diceResults}
@@ -70,7 +75,16 @@
     {#if showModifier}
         <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
             <label for="dice-modifier">Modifier:</label>
-            <select id="dice-modifier" class="modifier-select" bind:value={modifier} on:change={(e) => dispatch('modifierChange', +(e.target as HTMLSelectElement).value)}>
+            <select
+                id="dice-modifier"
+                class="modifier-select"
+                bind:value={modifier}
+                on:change={(e) =>
+                    dispatch(
+                        "modifierChange",
+                        +(e.target as HTMLSelectElement).value,
+                    )}
+            >
                 {#each Array(16) as _, i}
                     {#if i - 5 > 0}
                         <option value={i - 5}>+{i - 5}</option>
@@ -99,14 +113,15 @@
                 class="dice-roller-reroll"
                 on:click={onRollButtonClick}
                 disabled={rolling}
-                aria-label="Reroll dice"
-            >Re-roll</button>
+                aria-label="Reroll dice">Re-roll</button
+            >
         </div>
     {:else}
         <button
             class="dice-roller-button"
             on:click={onRollButtonClick}
-            disabled={rolling}>Roll</button>
+            disabled={rolling}>Roll</button
+        >
     {/if}
 </div>
 
@@ -140,7 +155,7 @@
     }
 
     .embed-result {
-        text-align: center; 
+        text-align: center;
         padding: 0.75rem;
         border-radius: 4px;
         font-size: 1.1rem;
@@ -153,7 +168,7 @@
     .embed-result-row {
         display: flex;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
     }
 
     .dice-roller-reroll {
@@ -181,7 +196,7 @@
         margin-bottom: 0.5rem;
     }
 
-    .modifier-select { 
+    .modifier-select {
         padding: 0.5rem;
         font-size: 1rem;
         border-radius: 4px;

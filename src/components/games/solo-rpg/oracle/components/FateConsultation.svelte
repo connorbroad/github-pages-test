@@ -3,9 +3,13 @@
      * Fate Consultation Component
      * Modal for rolling dice/drawing cards to consult a fortune
      */
-    import type { Fortune } from "./scripts/oracleTypes";
-    import { drawRandomCard, isRedSuit, simulateDiceRoll } from "./scripts/oracleTypes";
-    import DiceRollerEmbed from "../dice-roller/DiceRollerEmbed.svelte";
+    import type { Fortune } from "../scripts/oracleTypes";
+    import {
+        drawRandomCard,
+        isRedSuit,
+        simulateDiceRoll,
+    } from "../scripts/oracleTypes";
+    import DiceRollerEmbed from "../../dice-roller/DiceRollerEmbed.svelte";
     import { createEventDispatcher } from "svelte";
 
     export let show = false;

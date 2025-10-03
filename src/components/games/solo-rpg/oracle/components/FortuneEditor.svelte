@@ -3,7 +3,7 @@
      * Fortune Editor Component
      * Modal for creating/editing fortune configuration
      */
-    import type { Fortune } from "./oracleTypes";
+    import type { Fortune } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
 
     export let show = false;
