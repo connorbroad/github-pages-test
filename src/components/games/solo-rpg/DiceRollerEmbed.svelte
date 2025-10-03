@@ -424,7 +424,7 @@
 
     <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
         <label for="dice-modifier">Modifier:</label>
-        <select id="dice-modifier" class="modifier-select" bind:value={modifier} on:change={(e) => dispatch('modifierChange', +e.target.value)}>
+        <select id="dice-modifier" class="modifier-select" bind:value={modifier} on:change={(e) => dispatch('modifierChange', +(e.target as HTMLSelectElement).value)}>
             {#each Array(16) as _, i}
                 {#if i - 5 > 0}
                     <option value={i - 5}>+{i - 5}</option>
