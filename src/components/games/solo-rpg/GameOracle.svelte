@@ -14,6 +14,7 @@
         numSides: number;
         modifier: number;
         resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
+        showModifier?: boolean;
     };
 
     type CardDraw = {
@@ -98,7 +99,8 @@
         diceResult = null;
         drawnCard = null;
         fateOutcome = {};
-        fateDiceModifier = 0;
+        // Set modifier to 0 if showModifier is false, otherwise use stored modifier
+        fateDiceModifier = fortune.outcome.diceRoll?.showModifier ? 0 : 0;
         showFate = true;
     }
 
@@ -316,24 +318,26 @@
 
     function rerollDice() {
         // Use DiceRollerEmbed's logic to simulate a roll
-        const { numDice, numSides, resultOption } = selectedFortune!.outcome.diceRoll!;
+        const { numDice, numSides, resultOption, showModifier } = selectedFortune!.outcome.diceRoll!;
+        // Use modifier only if showModifier is true
+        const modifier = showModifier ? fateDiceModifier : 0;
         let rolls = Array.from({ length: numDice }, () => Math.floor(Math.random() * numSides) + 1);
         let result: number;
         switch (resultOption) {
             case "Sum":
-                result = rolls.reduce((a, b) => a + b, 0) + fateDiceModifier;
+                result = rolls.reduce((a, b) => a + b, 0) + modifier;
                 break;
             case "Maximum":
-                result = Math.max(...rolls) + fateDiceModifier;
+                result = Math.max(...rolls) + modifier;
                 break;
             case "Minimum":
-                result = Math.min(...rolls) + fateDiceModifier;
+                result = Math.min(...rolls) + modifier;
                 break;
             case "Subtract":
-                result = rolls.reduce((a, b) => a - b) + fateDiceModifier;
+                result = rolls.reduce((a, b) => a - b) + modifier;
                 break;
             default:
-                result = rolls.reduce((a, b) => a + b, 0) + fateDiceModifier;
+                result = rolls.reduce((a, b) => a + b, 0) + modifier;
         }
         handleDiceResult(result);
     }
@@ -577,6 +581,7 @@
                                     numSides: 20,
                                     modifier: 0,
                                     resultOption: "Sum",
+                                    showModifier: false,
                                 };
                             } else {
                                 delete editingFortune.outcome.diceRoll;
@@ -624,6 +629,13 @@
                             </select>
                         {/if}
                     </div>
+                    <label style="display: block; margin-top: 0.5rem;">
+                        <input
+                            type="checkbox"
+                            bind:checked={editingFortune.outcome.diceRoll.showModifier}
+                        />
+                        Show Modifier
+                    </label>
                 {/if}
 
                 <label>
@@ -826,6 +838,7 @@
                         numSides={selectedFortune.outcome.diceRoll.numSides}
                         modifier={fateDiceModifier}
                         resultOption={selectedFortune.outcome.diceRoll.resultOption}
+                        showModifier={selectedFortune.outcome.diceRoll.showModifier ?? false}
                         on:result={(e) => handleDiceResult(e.detail)}
                         on:modifierChange={(e) => { fateDiceModifier = e.detail; rerollDice(); }}
                     />
@@ -902,7 +915,7 @@
             {/if}
  
             <button class="oracle-button close-fate-button" on:click={closeFate}
-                >Close</button
+                >Accept fate</button
             >
         </div>
     </div>
@@ -1195,11 +1208,11 @@
     }
 
     .draw-button {
-        background: #ff9800;
+        background: #1976d2;
     }
 
     .draw-button:active {
-        background: #f57c00;
+        background: #1565c0;
     }
 
     .close-fate-button {

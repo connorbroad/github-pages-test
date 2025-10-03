@@ -7,6 +7,7 @@
     export let modifier = 0;
     export let resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract" = "Sum";
     export let onResult: ((result: number) => void) | null = null;
+    export let showModifier = true;
 
     const dispatch = createEventDispatcher();
 
@@ -102,18 +103,20 @@
             finalResult = null;
             return;
         }
+        // Use modifier only if showModifier is true
+        const effectiveModifier = showModifier ? modifier : 0;
         switch (resultOption) {
             case "Sum":
-                finalResult = diceResults.reduce((a, b) => a + b, 0) + modifier;
+                finalResult = diceResults.reduce((a, b) => a + b, 0) + effectiveModifier;
                 break;
             case "Maximum":
-                finalResult = Math.max(...diceResults) + modifier;
+                finalResult = Math.max(...diceResults) + effectiveModifier;
                 break;
             case "Minimum":
-                finalResult = Math.min(...diceResults) + modifier;
+                finalResult = Math.min(...diceResults) + effectiveModifier;
                 break;
             case "Subtract":
-                finalResult = diceResults.reduce((a, b) => a - b) + modifier;
+                finalResult = diceResults.reduce((a, b) => a - b) + effectiveModifier;
                 break;
         }
     }
@@ -422,20 +425,22 @@
         </div>
     </div>
 
-    <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
-        <label for="dice-modifier">Modifier:</label>
-        <select id="dice-modifier" class="modifier-select" bind:value={modifier} on:change={(e) => dispatch('modifierChange', +(e.target as HTMLSelectElement).value)}>
-            {#each Array(16) as _, i}
-                {#if i - 5 > 0}
-                    <option value={i - 5}>+{i - 5}</option>
-                {:else if i - 5 === 0}
-                    <option value={i - 5}>0</option>
-                {:else}
-                    <option value={i - 5}>{i - 5}</option>
-                {/if}
-            {/each}
-        </select>
-    </div>
+    {#if showModifier}
+        <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
+            <label for="dice-modifier">Modifier:</label>
+            <select id="dice-modifier" class="modifier-select" bind:value={modifier} on:change={(e) => dispatch('modifierChange', +(e.target as HTMLSelectElement).value)}>
+                {#each Array(16) as _, i}
+                    {#if i - 5 > 0}
+                        <option value={i - 5}>+{i - 5}</option>
+                    {:else if i - 5 === 0}
+                        <option value={i - 5}>0</option>
+                    {:else}
+                        <option value={i - 5}>{i - 5}</option>
+                    {/if}
+                {/each}
+            </select>
+        </div>
+    {/if}
 
     {#if hasRolled}
         <div class="embed-result-row">
@@ -524,14 +529,14 @@
         border: none;
         margin: 0.5rem 0;
         margin-bottom: 0;
-        background: #ff9800;
+        background: #1976d2;
         color: #fff;
         cursor: pointer;
         transition: background 0.2s;
     }
 
     .dice-roller-button:active {
-        background: #f57c00;
+        background: #115293;
     }
 
     .dice-roller-button:disabled {

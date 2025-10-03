@@ -20,20 +20,21 @@ export type Fortune = {
     outcome: Outcome;
 };
 
-type DiceRoll = {
+type FortuneDiceRoll = {
     numDice: number;
     numSides: number;
-    modifier: number;
     resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
+    showModifier?: boolean;
+    modifier: number;
 };
 
-type CardDraw = {
+type FortuneCardDraw = {
     enabled: boolean;
 };
 
 type Outcome = {
-    diceRoll?: DiceRoll;
-    cardDraw?: CardDraw;
+    diceRoll?: FortuneDiceRoll;
+    cardDraw?: FortuneCardDraw;
     diceMapping?: { [key: number]: string };
     suitMapping?: { [key: string]: string };
     rankMapping?: { [key: string]: string };
