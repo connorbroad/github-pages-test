@@ -13,7 +13,7 @@
     let rollingInterval: number | null = null;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
     let diceEndTimes: number[] = [];
-    let showResultCalculator = true;
+    let showResultCalculator = false;
 
     // Animation config
     const ROLL_DURATION = 1000; // ms
@@ -360,6 +360,20 @@
                     {/if}
                 </button>
             {/if}
+            <button
+                class="toggle-result-calculator-btn"
+                aria-label={showResultCalculator ? "Hide result calculator" : "Show result calculator"}
+                on:click={() => showResultCalculator = !showResultCalculator}
+                style="background: none; border: none; cursor: pointer; position: absolute; top: 0.6rem; left: 0.5rem; z-index: 11;"
+            >
+                {#if !showResultCalculator}
+                    <!-- Eye icon (visible) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"/><path fill="currentColor" d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"/></svg>                
+                {:else}
+                    <!-- Eye-off icon (hidden) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"/></svg>                
+                {/if}
+            </button>
         </div>
     </div>
 {/if}
@@ -608,5 +622,17 @@
         justify-content: center;
         gap: 0.5rem;
         align-items: center;
+    }
+    .toggle-result-calculator-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s;
+    }
+    .toggle-result-calculator-btn:hover {
+        background: #e3eaf5;
     }
 </style>
