@@ -13,6 +13,7 @@
     let rollingInterval: number | null = null;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
     let diceEndTimes: number[] = [];
+    let showResultCalculator = true;
 
     // Animation config
     const ROLL_DURATION = 1000; // ms
@@ -238,14 +239,14 @@
             </div>
             <hr class="dice-roller-divider" />
             <div id="dice-options">
-                <div>
+                <div class="dice-options-select">
                     <select bind:value={numDice}>
                         {#each Array(10) as _, i}
                             <option value={i + 1}>{i + 1}x</option>
                         {/each}
                     </select>
                 </div>
-                <div>
+                <div class="dice-options-select">
                     <select bind:value={numSides}>
                         <option value={4}>D4</option>
                         <option value={6} selected>D6</option>
@@ -256,103 +257,109 @@
                         <option value={100}>D100</option>
                     </select>
                 </div>
-                <div>
-                    <select bind:value={modifier} on:change={recalculateResult}>
-                        {#each Array(16) as _, i}
-                            {#if i - 5 > -1}
-                                <option value={i - 5}>+{i - 5}</option>
-                            {:else if i - 5 === 0}
-                                <option value={i - 5}>0</option>
-                            {:else}
-                                <option value={i - 5}>{i - 5}</option>
-                            {/if}
-                        {/each}
-                    </select>
-                </div>
             </div>
             <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
-            <hr class="dice-roller-divider" />
-            <div class="result-radio-group">
-                <label class="result-radio" aria-label="Sum">
-                    <input
-                        type="radio" 
-                        name="resultOption"
-                        value="Sum"
-                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
-                    </span>
-                </label>
-                <label class="result-radio" aria-label="Maximum">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Maximum"
-                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
-                    </span>
-                </label>
-                <label class="result-radio" aria-label="Minimum">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Minimum"
-                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
-                    </span>
-                </label>
-                <label class="result-radio" aria-label="Subtract">
-                    <input
-                        type="radio"
-                        name="resultOption"
-                        value="Subtract"
-                        disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                        bind:group={resultOption}
-                        on:change={recalculateResult}
-                    />
-                    <span class="result-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
-                    </span>
-                </label>
-            </div>
-            <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
-                <p>
-                    Result:
-                    {rolling ? "..." : finalResult || "..."}
-                </p>
-                {#if diceResults.length > 1 && !rolling} 
-                    <div id="result-option-indicator" aria-live="polite">
-                        {#if resultOption === "Sum"}
+            {#if showResultCalculator}
+                <hr class="dice-roller-divider" />
+
+                <div id="result-options">
+                    <div class="result-radio-group">
+                        <label class="result-radio" aria-label="Sum">
+                            <input
+                                type="radio" 
+                                name="resultOption"
+                                value="Sum"
+                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                bind:group={resultOption}
+                                on:change={recalculateResult}
+                            />
                             <span class="result-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
                             </span>
-                        {:else if resultOption === "Maximum"}
+                        </label>
+                        <label class="result-radio" aria-label="Maximum">
+                            <input
+                                type="radio"
+                                name="resultOption"
+                                value="Maximum"
+                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                bind:group={resultOption}
+                                on:change={recalculateResult}
+                            />
                             <span class="result-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
                             </span>
-                        {:else if resultOption === "Minimum"}
+                        </label>
+                        <label class="result-radio" aria-label="Minimum">
+                            <input
+                                type="radio"
+                                name="resultOption"
+                                value="Minimum"
+                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                bind:group={resultOption}
+                                on:change={recalculateResult}
+                            />
                             <span class="result-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
                             </span>
-                        {:else if resultOption === "Subtract"}
+                        </label>
+                        <label class="result-radio" aria-label="Subtract">
+                            <input
+                                type="radio"
+                                name="resultOption"
+                                value="Subtract"
+                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                bind:group={resultOption}
+                                on:change={recalculateResult}
+                            />
                             <span class="result-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
                             </span>
-                        {/if}
+                        </label>
                     </div>
-                {/if}
-            </button>
+                    <div class="dice-options-select">
+                        <select bind:value={modifier} on:change={recalculateResult}>
+                            {#each Array(16) as _, i}
+                                {#if i - 5 > -1}
+                                    <option value={i - 5}>+{i - 5}</option>
+                                {:else if i - 5 === 0}
+                                    <option value={i - 5}>0</option>
+                                {:else}
+                                    <option value={i - 5}>{i - 5}</option>
+                                {/if}
+                            {/each}
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+                    <p>
+                        Result:
+                        {rolling ? "..." : finalResult || "..."}
+                    </p>
+                    {#if diceResults.length > 1 && !rolling} 
+                        <div id="result-option-indicator" aria-live="polite">
+                            {#if resultOption === "Sum"}
+                                <span class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
+                                </span>
+                            {:else if resultOption === "Maximum"}
+                                <span class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
+                                </span>
+                            {:else if resultOption === "Minimum"}
+                                <span class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
+                                </span>
+                            {:else if resultOption === "Subtract"}
+                                <span class="result-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
+                                </span>
+                            {/if}
+                        </div>
+                    {/if}
+                </button>
+            {/if}
         </div>
     </div>
 {/if}
@@ -383,11 +390,11 @@
     }
     #dice-options {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        gap: 0.5rem;
         margin-top: 1rem;
     }
-    #dice-options select {
-        width: 100%;
+    .dice-options-select select { 
         padding: 0.75rem 1rem;
         font-size: 1.25rem;
         border-radius: 6px;
@@ -403,26 +410,29 @@
         border-radius: 8px 8px;
         overflow: hidden;
         border: 1px solid #ccc;
-        flex-direction: row; /* restore horizontal layout */
-        margin-top: 0.5rem;
+        flex-direction: row; /* restore horizontal layout */ 
     }
     .result-radio {
         background: #f8f8f8;
+        transition: background 0.2s;
         color: #333;
         box-shadow: none;
+
         border-radius: 0;
         border-left: none;
         border-top: none;
         border-bottom: none;
+
         display: flex;
         flex-direction: column; /* stack icon and label vertically */
         align-items: center;
         justify-content: center;
-        padding: 0.5rem 1rem;
+
+        margin: 0;
+        padding: 0.5rem 0.5rem;
+
         font-size: 1.3rem;
         cursor: pointer;
-        margin: 0;
-        transition: background 0.2s;
         position: relative;
         flex-grow: 1;
     }
@@ -592,5 +602,11 @@
         border: none;
         border-top: 1px solid #ccc;
         margin: 1rem 0;
+    }
+    #result-options {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        align-items: center;
     }
 </style>
