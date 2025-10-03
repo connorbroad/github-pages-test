@@ -1,45 +1,20 @@
 <script lang="ts">
-    import DiceRoller from "./DiceRoller.svelte";
-    import DiceRollerEmbed from "./DiceRollerEmbed.svelte";
-    import CardDealer from "./CardDealer.svelte";
-    import { loadFortunes, saveFortunes, type Fortune } from "./storage-utils";
+    import { loadFortunes, saveFortunes } from "./storage-utils";
     import { onMount } from "svelte";
-    import { afterUpdate } from "svelte";
+    import FortuneList from "./oracle/FortuneList.svelte";
+    import FortuneEditor from "./oracle/FortuneEditor.svelte";
+    import OutcomeMappingEditor from "./oracle/OutcomeMappingEditor.svelte";
+    import FateConsultation from "./oracle/FateConsultation.svelte";
+    import { generateId, type Fortune } from "./oracle/oracleTypes";
 
     export let show = false;
     export let onClose: () => void;
-
-    type DiceRoll = {
-        numDice: number;
-        numSides: number;
-        modifier: number;
-        resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
-        showModifier?: boolean;
-    };
-
-    type CardDraw = {
-        enabled: boolean;
-    };
-
-    type Outcome = {
-        diceRoll?: DiceRoll;
-        cardDraw?: CardDraw;
-        diceMapping?: { [key: number]: string };
-        suitMapping?: { [key: string]: string };
-        rankMapping?: { [key: string]: string };
-    };
 
     let fortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
     let showFate = false;
     let showCreateFortune = false;
     let showEditOutcome = false;
-
-    // Fate state
-    let diceResult: number | null = null;
-    let drawnCard: { suit: string; rank: string } | null = null;
-    let fateOutcome: { dice?: string; suit?: string; rank?: string } = {};
-    let fateDiceModifier: number = 0;
 
     // Create/Edit Fortune state
     let editingFortune: Fortune = {
@@ -56,13 +31,7 @@
     });
 
     $: {
-        campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(
-            Boolean,
-        );
-    }
-
-    function generateId(): string {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(Boolean);
     }
 
     function openCreateFortune() {
@@ -76,9 +45,7 @@
     }
 
     function saveFortune() {
-        const existingIndex = fortunes.findIndex(
-            (f) => f.id === editingFortune.id,
-        );
+        const existingIndex = fortunes.findIndex((f) => f.id === editingFortune.id);
         if (existingIndex >= 0) {
             fortunes[existingIndex] = { ...editingFortune };
         } else {
@@ -96,326 +63,21 @@
 
     function openFate(fortune: Fortune) {
         selectedFortune = fortune;
-        diceResult = null;
-        drawnCard = null;
-        fateOutcome = {};
-        // Set modifier to 0 if showModifier is false, otherwise use stored modifier
-        fateDiceModifier = fortune.outcome.diceRoll?.showModifier ? 0 : 0;
         showFate = true;
     }
 
-    function handleDiceResult(result: number) {
-        diceResult = result;
-        if (selectedFortune?.outcome.diceMapping) {
-            fateOutcome.dice =
-                selectedFortune.outcome.diceMapping[result] ||
-                "No mapping found";
-        }
-    }
-
-    function handleCardResult(card: { suit: string; rank: string }) {
-        drawnCard = card;
-        if (selectedFortune?.outcome.suitMapping) {
-            fateOutcome.suit =
-                selectedFortune.outcome.suitMapping[card.suit] ||
-                "No mapping found";
-        }
-        if (selectedFortune?.outcome.rankMapping) {
-            fateOutcome.rank =
-                selectedFortune.outcome.rankMapping[card.rank] ||
-                "No mapping found";
-        }
-    }
-
-    function closeFate() {
-        showFate = false;
-        selectedFortune = null;
-    }
-
-    // Outcome editing helpers
-    let diceMappingArray: { value: number; outcome: string }[] = [];
-    let suitMappingArray: { suit: string; outcome: string }[] = [];
-    let rankMappingArray: { rank: string; outcome: string }[] = [];
-
-    const suits = ["♠", "♥", "♦", "♣"];
-    const ranks = [
-        "A",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "J",
-        "Q",
-        "K",
-    ];
-
-    function calculatePossibleDiceResults(): number[] {
-        if (!editingFortune.outcome.diceRoll) return [];
-        const dr = editingFortune.outcome.diceRoll;
-        const minRoll = dr.numDice * 1;
-        const maxRoll = dr.numDice * dr.numSides;
-        const results: number[] = [];
-
-        for (let i = minRoll; i <= maxRoll; i++) {
-            let finalValue = i;
-            switch (dr.resultOption) {
-                case "Sum":
-                    finalValue = i + dr.modifier;
-                    break;
-                case "Maximum":
-                case "Minimum":
-                    // For max/min, possible results are 1 to numSides + modifier
-                    if (i === minRoll) {
-                        for (let j = 1; j <= dr.numSides; j++) {
-                            results.push(j + dr.modifier);
-                        }
-                        return results;
-                    }
-                    break;
-                case "Subtract":
-                    // More complex, for now just show range
-                    finalValue = i + dr.modifier;
-                    break;
-            }
-            results.push(finalValue);
-        }
-        return [...new Set(results)].sort((a, b) => a - b);
-    }
-
-    function openOutcomeEditor() {
-        // Initialize dice mapping array
-        if (editingFortune.outcome.diceRoll) {
-            const possibleResults = calculatePossibleDiceResults();
-            diceMappingArray = possibleResults.map((value) => ({
-                value,
-                outcome: editingFortune.outcome.diceMapping?.[value] || "",
-            }));
-        }
-
-        // Initialize suit mapping array
-        if (editingFortune.outcome.cardDraw?.enabled) {
-            suitMappingArray = suits.map((suit) => ({
-                suit,
-                outcome: editingFortune.outcome.suitMapping?.[suit] || "",
-            }));
-
-            rankMappingArray = ranks.map((rank) => ({
-                rank,
-                outcome: editingFortune.outcome.rankMapping?.[rank] || "",
-            }));
-        }
-
-        showEditOutcome = true;
-    }
-
-    function saveOutcome() {
-        // Convert arrays back to mappings
-        if (editingFortune.outcome.diceRoll) {
-            const diceMapping: { [key: number]: string } = {};
-            diceMappingArray.forEach(({ value, outcome }) => {
-                if (outcome.trim()) {
-                    diceMapping[value] = outcome.trim();
-                }
-            });
-            editingFortune.outcome.diceMapping = diceMapping;
-        }
-
-        if (editingFortune.outcome.cardDraw?.enabled) {
-            const suitMapping: { [key: string]: string } = {};
-            suitMappingArray.forEach(({ suit, outcome }) => {
-                if (outcome.trim()) {
-                    suitMapping[suit] = outcome.trim();
-                }
-            });
-            editingFortune.outcome.suitMapping = suitMapping;
-
-            const rankMapping: { [key: string]: string } = {};
-            rankMappingArray.forEach(({ rank, outcome }) => {
-                if (outcome.trim()) {
-                    rankMapping[rank] = outcome.trim();
-                }
-            });
-            editingFortune.outcome.rankMapping = rankMapping;
-        }
-
-        showEditOutcome = false;
-    }
-
-    let draggedFortuneId: string | null = null;
-    let draggedCampaign: string | null = null;
-    let dragOverFortuneId: string | null = null;
-    let dragOverCampaign: string | null = null;
-
-    function handleDragStart(campaign: string, fortuneId: string) {
-        draggedFortuneId = fortuneId;
-        draggedCampaign = campaign;
-    }
-
-    function handleDragOver(campaign: string, fortuneId: string, event: DragEvent) {
-        event.preventDefault();
-        // Only allow drag over if within the same campaign
-        if (draggedCampaign === campaign) {
-            dragOverFortuneId = fortuneId;
-            dragOverCampaign = campaign;
-        }
-    }
-
-    function handleDrop(campaign: string, fortuneId: string) {
-        // Only reorder fortunes within the same campaign - never across campaigns
-        if (
-            draggedFortuneId === null ||
-            draggedCampaign !== campaign ||
-            draggedFortuneId === fortuneId
-        ) {
-            draggedFortuneId = null;
-            draggedCampaign = null;
-            dragOverFortuneId = null;
-            dragOverCampaign = null;
-            return;
-        }
-
-        // Create a new array preserving all fortunes in their original positions
+    function handleReorder(event: CustomEvent<{ draggedId: string; targetId: string }>) {
+        const { draggedId, targetId } = event.detail;
         const newFortunes = [...fortunes];
-        
-        // Find the actual indices in the full fortunes array
-        const draggedIndex = newFortunes.findIndex(f => f.id === draggedFortuneId);
-        const dropIndex = newFortunes.findIndex(f => f.id === fortuneId);
+        const draggedIndex = newFortunes.findIndex(f => f.id === draggedId);
+        const dropIndex = newFortunes.findIndex(f => f.id === targetId);
         
         if (draggedIndex !== -1 && dropIndex !== -1) {
-            // Remove the dragged fortune
             const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
-            
-            // Always insert at dropIndex (so dragged appears below target when dragging down)
             newFortunes.splice(dropIndex, 0, draggedFortune);
-            
             fortunes = newFortunes;
             saveFortunes(fortunes);
         }
-        
-        draggedFortuneId = null;
-        draggedCampaign = null;
-        dragOverFortuneId = null;
-        dragOverCampaign = null;
-    }
-
-    function handleDragEnd() {
-        draggedFortuneId = null;
-        draggedCampaign = null;
-        dragOverFortuneId = null;
-        dragOverCampaign = null;
-    }
-
-    // Add reactive dice roll when modifier changes
-    $: if (showFate && selectedFortune?.outcome.diceRoll && diceResult !== null) {
-        // Re-roll dice when modifier changes
-        rerollDice();
-    }
-
-    function rerollDice() {
-        // Use DiceRollerEmbed's logic to simulate a roll
-        const { numDice, numSides, resultOption, showModifier } = selectedFortune!.outcome.diceRoll!;
-        // Use modifier only if showModifier is true
-        const modifier = showModifier ? fateDiceModifier : 0;
-        let rolls = Array.from({ length: numDice }, () => Math.floor(Math.random() * numSides) + 1);
-        let result: number;
-        switch (resultOption) {
-            case "Sum":
-                result = rolls.reduce((a, b) => a + b, 0) + modifier;
-                break;
-            case "Maximum":
-                result = Math.max(...rolls) + modifier;
-                break;
-            case "Minimum":
-                result = Math.min(...rolls) + modifier;
-                break;
-            case "Subtract":
-                result = rolls.reduce((a, b) => a - b) + modifier;
-                break;
-            default:
-                result = rolls.reduce((a, b) => a + b, 0) + modifier;
-        }
-        handleDiceResult(result);
-    }
-
-    let touchStartY: number | null = null;
-    let touchDraggedId: string | null = null;
-    let touchDraggedCampaign: string | null = null;
-    let touchDragOverId: string | null = null;
-    let touchDragOverCampaign: string | null = null;
-
-    function handleTouchStart(campaign: string, fortuneId: string, event: TouchEvent) {
-        touchStartY = event.touches[0].clientY;
-        touchDraggedId = fortuneId;
-        touchDraggedCampaign = campaign;
-        touchDragOverId = fortuneId;
-        touchDragOverCampaign = campaign;
-        event.stopPropagation();
-    }
-
-    function handleTouchMove(campaign: string, fortuneId: string, event: TouchEvent) {
-        event.preventDefault();
-        
-        if (touchDraggedCampaign !== campaign) {
-            return; // Don't allow cross-campaign dragging
-        }
-        
-        const touchY = event.touches[0].clientY;
-        
-        // Find all fortune cards within the same campaign
-        const campaignFortunes = fortunes.filter((f) => f.campaign === campaign);
-        const allCards = Array.from(document.querySelectorAll('.fortune-card'));
-        
-        // Find which card we're hovering over
-        for (const card of allCards) {
-            const rect = card.getBoundingClientRect();
-            if (touchY >= rect.top && touchY <= rect.bottom) {
-                // Get the fortune ID from the card's data attribute
-                const cardFortuneId = card.getAttribute('data-fortune-id');
-                if (cardFortuneId && campaignFortunes.some(f => f.id === cardFortuneId)) {
-                    touchDragOverId = cardFortuneId;
-                    touchDragOverCampaign = campaign;
-                    break;
-                }
-            }
-        }
-    }
-
-    function handleTouchEnd(campaign: string, fortuneId: string, event: TouchEvent) {
-        // Only reorder fortunes within the same campaign - never across campaigns
-        if (
-            touchDraggedId !== null &&
-            touchDraggedCampaign === campaign &&
-            touchDragOverId !== null &&
-            touchDraggedId !== touchDragOverId
-        ) {
-            // Create a new array preserving all fortunes in their original positions
-            const newFortunes = [...fortunes];
-            
-            // Find the actual indices in the full fortunes array
-            const draggedIndex = newFortunes.findIndex(f => f.id === touchDraggedId);
-            const dropIndex = newFortunes.findIndex(f => f.id === touchDragOverId);
-            
-            if (draggedIndex !== -1 && dropIndex !== -1) {
-                // Remove the dragged fortune
-                const [draggedFortune] = newFortunes.splice(draggedIndex, 1);
-                
-                // Always insert at dropIndex (so dragged appears below target when dragging down)
-                newFortunes.splice(dropIndex, 0, draggedFortune);
-                
-                fortunes = newFortunes;
-                saveFortunes(fortunes);
-            }
-        }
-        touchStartY = null;
-        touchDraggedId = null;
-        touchDraggedCampaign = null;
-        touchDragOverId = null;
-        touchDragOverCampaign = null;
     }
 </script>
 
@@ -459,467 +121,42 @@
                 on:click={openCreateFortune}>Create Fortune</button
             >
 
-            <div class="fortunes-list">
-                {#if campaigns.length === 0}
-                    <p class="empty-message">
-                        No fortunes yet. Create one to get started!
-                    </p>
-                {:else}
-                    {#each campaigns as campaign}
-                        <div class="campaign-group">
-                            <h3 class="campaign-title">{campaign}</h3>
-                            {#each fortunes.filter((f) => f.campaign === campaign) as fortune, i}
-                                <div class="fortune-card"
-                                    role="listitem"
-                                    data-fortune-id={fortune.id}
-                                    data-dragging={(draggedFortuneId === fortune.id || touchDraggedId === fortune.id) ? "true" : "false"}
-                                    on:dragover={(e) => handleDragOver(campaign, fortune.id, e)}
-                                    on:drop={() => handleDrop(campaign, fortune.id)}
-                                    style="border: {draggedFortuneId === fortune.id && draggedCampaign === campaign ? '2px dashed #1976d2' : dragOverFortuneId === fortune.id && dragOverCampaign === campaign ? '2px solid #4caf50' : touchDraggedId === fortune.id && touchDraggedCampaign === campaign ? '2px dashed #1976d2' : touchDragOverId === fortune.id && touchDragOverCampaign === campaign ? '2px solid #4caf50' : 'none'};"
-                                >
-                                    <div class="fortune-action-row">
-                                        <span 
-                                            class="drag-handle" 
-                                            title="Drag to reorder" 
-                                            role="button"
-                                            tabindex="0"
-                                            aria-label="Drag to reorder fortune"
-                                            draggable="true"
-                                            on:dragstart={() => handleDragStart(campaign, fortune.id)}
-                                            on:dragend={handleDragEnd}
-                                            on:touchstart={(e) => handleTouchStart(campaign, fortune.id, e)}
-                                            on:touchmove={(e) => handleTouchMove(campaign, fortune.id, e)}
-                                            on:touchend={(e) => handleTouchEnd(campaign, fortune.id, e)}
-                                        >☰</span>
-                                        <button
-                                            class="oracle-button fate-button"
-                                            on:click={() => openFate(fortune)}
-                                        >{fortune.title}</button>
-                                        <button
-                                            class="delete-btn"
-                                            on:click={() => deleteFortune(fortune.id)}
-                                        >×</button>
-                                    </div>
-                                </div>
-                            {/each}
-                        </div>
-                    {/each}
-                {/if}
-            </div>
+            <FortuneList 
+                {fortunes}
+                {campaigns}
+                on:consultFate={(e) => openFate(e.detail)}
+                on:delete={(e) => deleteFortune(e.detail)}
+                on:reorder={handleReorder}
+            />
         </div>
     </div>
 {/if}
 
-<!-- Create/Edit Fortune Modal -->
-{#if showCreateFortune}
-    <div
-        class="oracle-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close create fortune modal"
-        on:click={() => (showCreateFortune = false)}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable
-            ) {
-                showCreateFortune = false;
-            }
-        }}
-    >
-        <div
-            class="oracle-content"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="0"
-            on:keydown={(e) => {}}
-        >
-            <button
-                class="modal-close-btn"
-                on:click={() => (showCreateFortune = false)}>&times;</button
-            >
-            <h2>Create Fortune</h2>
+<FortuneEditor
+    show={showCreateFortune}
+    fortune={editingFortune}
+    {campaigns}
+    on:close={() => showCreateFortune = false}
+    on:save={saveFortune}
+    on:editOutcome={() => showEditOutcome = true}
+/>
 
-            <div class="form-group">
-                <label for="campaign">Campaign:</label>
-                <input
-                    id="campaign"
-                    type="text"
-                    bind:value={editingFortune.campaign}
-                    list="campaigns-list"
-                />
-                <datalist id="campaigns-list">
-                    {#each campaigns as campaign}
-                        <option value={campaign}></option>
-                    {/each}
-                </datalist>
-            </div>
+<OutcomeMappingEditor
+    show={showEditOutcome}
+    fortune={editingFortune}
+    on:close={() => showEditOutcome = false}
+    on:save={saveFortune}
+/>
 
-            <div class="form-group">
-                <label for="title">Title:</label>
-                <input
-                    id="title"
-                    type="text"
-                    bind:value={editingFortune.title}
-                />
-            </div>
-
-            <div class="form-group">
-                <h3>Outcome Options</h3>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={!!editingFortune.outcome.diceRoll}
-                        on:change={(e) => {
-                            if (e.currentTarget.checked) {
-                                editingFortune.outcome.diceRoll = {
-                                    numDice: 1,
-                                    numSides: 20,
-                                    modifier: 0,
-                                    resultOption: "Sum",
-                                    showModifier: false,
-                                };
-                            } else {
-                                delete editingFortune.outcome.diceRoll;
-                                delete editingFortune.outcome.diceMapping;
-                                // Force Svelte reactivity
-                                editingFortune = { ...editingFortune };
-                            }
-                        }}
-                    />
-                    Include Dice Roll
-                </label>
-
-                {#if editingFortune.outcome.diceRoll}
-                    <div class="dice-config">
-                        <select
-                            bind:value={editingFortune.outcome.diceRoll.numDice}
-                        >
-                            {#each Array(10) as _, i}
-                                <option value={i + 1}>{i + 1}x</option>
-                            {/each}
-                        </select>
-                        <select
-                            bind:value={
-                                editingFortune.outcome.diceRoll.numSides
-                            }
-                        >
-                            <option value={4}>D4</option>
-                            <option value={6}>D6</option>
-                            <option value={8}>D8</option>
-                            <option value={10}>D10</option>
-                            <option value={12}>D12</option>
-                            <option value={20}>D20</option>
-                            <option value={100}>D100</option>
-                        </select>
-                        {#if editingFortune.outcome.diceRoll.numDice > 1}
-                            <select
-                                bind:value={
-                                    editingFortune.outcome.diceRoll.resultOption
-                                }
-                            >
-                                <option value="Sum">Sum</option>
-                                <option value="Maximum">Max</option>
-                                <option value="Minimum">Min</option>
-                                <option value="Subtract">Sub</option>
-                            </select>
-                        {/if}
-                    </div>
-                    <label style="display: block; margin-top: 0.5rem;">
-                        <input
-                            type="checkbox"
-                            bind:checked={editingFortune.outcome.diceRoll.showModifier}
-                        />
-                        Show Modifier
-                    </label>
-                {/if}
-
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={!!editingFortune.outcome.cardDraw?.enabled}
-                        on:change={(e) => {
-                            if (e.currentTarget.checked) {
-                                editingFortune.outcome.cardDraw = {
-                                    enabled: true,
-                                };
-                            } else {
-                                delete editingFortune.outcome.cardDraw;
-                                delete editingFortune.outcome.suitMapping;
-                                delete editingFortune.outcome.rankMapping;
-                            }
-                        }}
-                    />
-                    Include Card Draw
-                </label>
-            </div>
-
-            <button class="oracle-button" on:click={openOutcomeEditor}
-                >Edit Outcome Mappings</button
-            >
-            <hr class="divider" />
-            <button class="oracle-button" on:click={saveFortune}
-                >Save Fortune</button
-            >
-        </div>
-    </div>
-{/if}
-
-<!-- Outcome Mapping Editor Modal -->
-{#if showEditOutcome}
-    <div
-        class="oracle-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close outcome editor"
-        on:click={() => (showEditOutcome = false)}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable
-            ) {
-                showEditOutcome = false;
-            }
-        }}
-    >
-        <div
-            class="oracle-content outcome-editor"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="0"
-            on:keydown={(e) => {}}
-        >
-            <button
-                class="modal-close-btn"
-                on:click={() => (showEditOutcome = false)}>&times;</button
-            >
-            <h2>Edit Outcome Mappings</h2>
-
-            {#if editingFortune.outcome.diceRoll}
-                <div class="mapping-section">
-                    <h3>Dice Result Mappings</h3>
-                    <div class="mapping-table">
-                        <div class="mapping-header">
-                            <span class="mapping-col-result">Result</span>
-                            <span class="mapping-col-outcome"
-                                >Outcome Description</span
-                            >
-                        </div>
-                        {#each diceMappingArray as mapping}
-                            <div class="mapping-row">
-                                <span class="mapping-result"
-                                    >{mapping.value}</span
-                                >
-                                <input
-                                    type="text"
-                                    class="mapping-input"
-                                    bind:value={mapping.outcome}
-                                    placeholder="Enter outcome..."
-                                />
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-            {/if}
-
-            {#if editingFortune.outcome.cardDraw?.enabled}
-                <div class="mapping-section">
-                    <h3>Suit Mappings</h3>
-                    <div class="mapping-table">
-                        <div class="mapping-header">
-                            <span class="mapping-col-result">Suit</span>
-                            <span class="mapping-col-outcome"
-                                >Outcome Description</span
-                            >
-                        </div>
-                        {#each suitMappingArray as mapping}
-                            <div class="mapping-row">
-                                <span
-                                    class="mapping-result suit-symbol"
-                                    style="color: {mapping.suit === '♥' ||
-                                    mapping.suit === '♦'
-                                        ? 'red'
-                                        : 'inherit'}">{mapping.suit}</span
-                                >
-                                <input
-                                    type="text"
-                                    class="mapping-input"
-                                    bind:value={mapping.outcome}
-                                    placeholder="Enter outcome..."
-                                />
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-
-                <div class="mapping-section">
-                    <h3>Rank Mappings</h3>
-                    <div class="mapping-table">
-                        <div class="mapping-header">
-                            <span class="mapping-col-result">Rank</span>
-                            <span class="mapping-col-outcome"
-                                >Outcome Description</span
-                            >
-                        </div>
-                        {#each rankMappingArray as mapping}
-                            <div class="mapping-row">
-                                <span class="mapping-result"
-                                    >{mapping.rank}</span
-                                >
-                                <input
-                                    type="text"
-                                    class="mapping-input"
-                                    bind:value={mapping.outcome}
-                                    placeholder="Enter outcome..."
-                                />
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-            {/if}
-
-            <button class="oracle-button" on:click={saveOutcome}
-                >Save Mappings</button
-            >
-        </div>
-    </div>
-{/if}
-
-<!-- Fate Consultation Modal -->
-{#if showFate && selectedFortune}
-    <div
-        class="oracle-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close fate modal"
-        on:click={closeFate}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable
-            ) {
-                closeFate();
-            }
-        }}
-    >
-        <div
-            class="oracle-content fate-content"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="0"
-            on:keydown={(e) => {}}
-        >
-            <button class="modal-close-btn" on:click={closeFate}>&times;</button
-            >
-            <h2>{selectedFortune.title}</h2>
-
-            {#if selectedFortune.outcome.diceRoll}
-                <div class="fate-section"> 
-                    <div class="dice-display">
-                        {#if selectedFortune.outcome.diceRoll.numDice > 1}{selectedFortune.outcome.diceRoll.numDice}x {/if} D{selectedFortune.outcome.diceRoll.numSides}
-                        {#if selectedFortune.outcome.diceRoll.numDice > 1}
-                            ({selectedFortune.outcome.diceRoll.resultOption})
-                        {/if}
-                    </div>
-                    <DiceRollerEmbed
-                        numDice={selectedFortune.outcome.diceRoll.numDice}
-                        numSides={selectedFortune.outcome.diceRoll.numSides}
-                        modifier={fateDiceModifier}
-                        resultOption={selectedFortune.outcome.diceRoll.resultOption}
-                        showModifier={selectedFortune.outcome.diceRoll.showModifier ?? false}
-                        on:result={(e) => handleDiceResult(e.detail)}
-                        on:modifierChange={(e) => { fateDiceModifier = e.detail; rerollDice(); }}
-                    />
-                    {#if diceResult !== null && fateOutcome.dice}
-                        <div class="result-display">
-                            <p class="outcome-text">{fateOutcome.dice}</p>
-                        </div>
-                    {/if}
-                </div>
-            {/if}
-
-            {#if selectedFortune.outcome.cardDraw?.enabled}
-                <div class="fate-section">
-                    <h3>Card Draw</h3>
-                    {#if drawnCard}
-                        <div class="result-display">
-                            <div
-                                class="card-display"
-                                style="color: {drawnCard.suit === '♥' ||
-                                drawnCard.suit === '♦'
-                                    ? 'red'
-                                    : 'inherit'}"
-                            >
-                                {drawnCard.rank}
-                                {drawnCard.suit}
-                            </div>
-                            {#if fateOutcome.suit}
-                                <p class="outcome-text">
-                                    <strong>Suit:</strong>
-                                    {fateOutcome.suit}
-                                </p>
-                            {/if}
-                            {#if fateOutcome.rank}
-                                <p class="outcome-text">
-                                    <strong>Rank:</strong>
-                                    {fateOutcome.rank}
-                                </p>
-                            {/if}
-                        </div>
-                    {:else}
-                        <button
-                            class="oracle-button draw-button"
-                            on:click={() => {
-                                // Draw a random card
-                                const suits = ["♠", "♥", "♦", "♣"];
-                                const ranks = [
-                                    "A",
-                                    "2",
-                                    "3",
-                                    "4",
-                                    "5",
-                                    "6",
-                                    "7",
-                                    "8",
-                                    "9",
-                                    "10",
-                                    "J",
-                                    "Q",
-                                    "K",
-                                ];
-                                const suit =
-                                    suits[
-                                        Math.floor(Math.random() * suits.length)
-                                    ];
-                                const rank =
-                                    ranks[
-                                        Math.floor(Math.random() * ranks.length)
-                                    ];
-                                handleCardResult({ suit, rank });
-                            }}>Draw Card</button
-                        >
-                    {/if}
-                </div>
-            {/if}
- 
-            <button class="oracle-button close-fate-button" on:click={closeFate}
-                >Accept fate</button
-            >
-        </div>
-    </div>
-{/if}
+<FateConsultation
+    show={showFate}
+    fortune={selectedFortune}
+    on:close={() => showFate = false}
+    on:accept={() => {
+        showFate = false;
+        selectedFortune = null;
+    }}
+/>
 
 <style>
     .oracle-modal {
@@ -949,14 +186,6 @@
         position: relative;
     }
 
-    .outcome-editor {
-        max-width: 600px;
-    }
-
-    .fate-content {
-        max-width: 450px;
-    }
-
     .modal-close-btn {
         position: absolute;
         top: 0.5rem;
@@ -979,13 +208,6 @@
         color: #333;
     }
 
-    h3 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: #555;
-        font-size: 1.1rem;
-    }
-
     .oracle-button {
         width: 100%;
         padding: 0.75rem 0;
@@ -1003,12 +225,6 @@
         background: #1565c0;
     }
 
-    .oracle-button:disabled {
-        background: #ccc;
-        color: #666;
-        cursor: not-allowed;
-    }
-
     .create-button {
         background: #4caf50;
         margin-bottom: 1.5rem;
@@ -1016,286 +232,5 @@
 
     .create-button:active {
         background: #45a049;
-    }
-
-    .fortunes-list {
-        text-align: left;
-        margin-top: 1rem;
-    }
-
-    .empty-message {
-        text-align: center;
-        color: #999;
-        font-style: italic;
-    }
-
-    .campaign-group {
-        margin-bottom: 2rem;
-    }
-
-    .campaign-title {
-        font-size: 1.3rem;
-        color: #1976d2;
-        margin-bottom: 0.5rem;
-        border-bottom: 2px solid #1976d2;
-        padding-bottom: 0.25rem;
-    }
-
-    .fortune-card { 
-        padding: 0.5rem;
-        border-radius: 6px;
-        margin-bottom: 0.75rem;
-        position: relative;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-    }
-
-    .fortune-card[data-dragging="true"] {
-        opacity: 0.5;
-        transform: scale(0.98);
-    }
-
-    .fortune-action-row {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .drag-handle {
-        position: static;
-        cursor: grab;
-        user-select: none;
-        color: #1976d2;
-        transition: color 0.2s, transform 0.1s;
-        padding: 0.25rem;
-        border-radius: 4px;
-        font-size: 1.5rem;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .drag-handle:hover {
-        color: #1565c0;
-        background: rgba(25, 118, 210, 0.1);
-    }
-    
-    .drag-handle:active {
-        cursor: grabbing;
-        transform: scale(0.95);
-    }
-
-    .delete-btn {
-        position: static;
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #999;
-        padding: 0;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .delete-btn:hover {
-        color: #f44336;
-    }
-
-    .fate-button {
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-        text-align: left;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-        color: #555;
-    }
-
-    .form-group input[type="text"] {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-sizing: border-box;
-    }
-
-    .dice-config {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    .dice-config select {
-        flex: 1;
-        padding: 0.6rem 1rem;
-        border: 1.5px solid #1976d2;
-        border-radius: 8px;
-        background: #f8faff;
-        font-size: 1.05rem;
-        color: #333;
-        box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .dice-config select:focus {
-        outline: none;
-        border-color: #1565c0;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
-        background: #e3f2fd;
-    }
-
-    .divider {
-        border: none;
-        border-top: 1px solid #ccc;
-        margin: 1rem 0;
-    }
-
-    .fate-section {
-        margin-bottom: 1.5rem;
-        padding: 1rem; 
-        border-radius: 6px;
-        border: 1px solid #ddd;
-    }
-
-    .dice-display,
-    .card-display {
-        font-size: 1.2rem;
-        font-weight: bold;
-        border-radius: 4px;
-    }
-
-    .dice-display {
-        margin-top: 0;
-        margin-bottom: 1rem;
-    }
-
-    .card-display {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-    }
-
-    .result-display {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: #e8f5e9;
-        border-radius: 6px;
-        border: 2px solid #4caf50;
-    }
-
-    .result-display strong {
-        font-size: 1.2rem;
-        color: #2e7d32;
-    }
-
-    .outcome-text {
-        margin: 0;
-        color: #333;
-        text-align: left;
-    }
-
-    .draw-button {
-        background: #1976d2;
-    }
-
-    .draw-button:active {
-        background: #1565c0;
-    }
-
-    .close-fate-button {
-        background: #666;
-    }
-
-    .close-fate-button:active {
-        background: #555;
-    }
-
-    .mapping-section {
-        margin-bottom: 2rem;
-        text-align: left;
-    }
-
-    .mapping-section h3 {
-        margin-top: 0;
-        margin-bottom: 0.75rem;
-        font-size: 1.2rem;
-        color: #1976d2;
-    }
-
-    .mapping-table {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .mapping-header {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        background: #f0f0f0;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #555;
-    }
-
-    .mapping-row {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 0.75rem;
-        align-items: center;
-        padding: 0.25rem;
-    }
-
-    .mapping-result {
-        font-weight: 600;
-        font-size: 1.1rem;
-        text-align: center;
-        padding: 0.5rem;
-        background: #f5f5f5;
-        border-radius: 4px;
-        color: #333;
-    }
-
-    .suit-symbol {
-        font-size: 1.5rem;
-    }
-
-    .mapping-input {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-sizing: border-box;
-    }
-
-    .mapping-input:focus {
-        outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
-    }
-
-    .mapping-col-result,
-    .mapping-col-outcome {
-        text-align: center;
-    }
-
-    .mapping-col-outcome {
-        text-align: left;
     }
 </style>
