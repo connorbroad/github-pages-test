@@ -74,37 +74,6 @@ export function calculatePossibleDiceResults(diceRoll: DiceRoll): number[] {
 }
 
 /**
- * Simulate a dice roll based on configuration
- */
-export function simulateDiceRoll(diceRoll: DiceRoll, modifier: number = 0): number {
-    const { numDice, numSides, resultOption, showModifier } = diceRoll;
-    const effectiveModifier = showModifier ? modifier : 0;
-
-    const rolls = Array.from({ length: numDice }, () =>
-        Math.floor(Math.random() * numSides) + 1
-    );
-
-    let result: number;
-    switch (resultOption) {
-        case "Sum":
-            result = rolls.reduce((a, b) => a + b, 0) + effectiveModifier;
-            break;
-        case "Maximum":
-            result = Math.max(...rolls) + effectiveModifier;
-            break;
-        case "Minimum":
-            result = Math.min(...rolls) + effectiveModifier;
-            break;
-        case "Subtract":
-            result = rolls.reduce((a, b) => a - b) + effectiveModifier;
-            break;
-        default:
-            result = rolls.reduce((a, b) => a + b, 0) + effectiveModifier;
-    }
-    return result;
-}
-
-/**
  * Draw a random card
  */
 export function drawRandomCard(): { suit: string; rank: string } {

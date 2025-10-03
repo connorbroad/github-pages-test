@@ -6,8 +6,7 @@
     import type { Fortune } from "../scripts/oracleTypes";
     import {
         drawRandomCard,
-        isRedSuit,
-        simulateDiceRoll,
+        isRedSuit
     } from "../scripts/oracleTypes";
     import DiceRollerEmbed from "../../dice-roller/DiceRollerEmbed.svelte";
     import { createEventDispatcher } from "svelte";
@@ -23,6 +22,7 @@
     let modifier: number = 0;
 
     let fateDecided: boolean = false;
+    let diceHasRolled: boolean = false;
     let diceRolling: boolean = false;
 
     // Reset state when show changes
@@ -36,6 +36,7 @@
         fateOutcome = {};
         modifier = fortune?.outcome.diceRoll?.showModifier ? 0 : 0;
         diceRolling = false;
+        diceHasRolled = false;
     }
 
     function handleDiceResult(result: number) {
@@ -60,19 +61,12 @@
         }
     }
 
-    function handleModifierChange(newModifier: number) {
-        modifier = newModifier;
-        rerollDice();
-    }
-
     function handleRollingChange(isRolling: boolean) {
         diceRolling = isRolling;
     }
 
-    function rerollDice() {
-        if (!fortune?.outcome.diceRoll) return;
-        const result = simulateDiceRoll(fortune.outcome.diceRoll, modifier);
-        handleDiceResult(result);
+    function handleHasRolledChange(hasRolled: boolean) {
+        diceHasRolled = hasRolled;
     }
 
     function handleClose() {
@@ -125,10 +119,10 @@
                         resultOption={fortune.outcome.diceRoll.resultOption}
                         showModifier={fortune.outcome.diceRoll.showModifier ?? false}
                         on:result={(e) => handleDiceResult(e.detail)}
-                        on:modifierChange={(e) =>
-                            handleModifierChange(e.detail)}
                         on:rollingChange={(e) =>
                             handleRollingChange(e.detail)}
+                        on:hasRolledChange={(e) =>
+                            handleHasRolledChange(e.detail)}
                     />
                     {#if diceResult !== null && fateOutcome.dice}
                         <div class="result-display">
@@ -180,7 +174,7 @@
             <button
                 class="oracle-button accept-fate-button"
                 disabled={
-                    (fortune.outcome.diceRoll && diceResult === null) ||
+                    (fortune.outcome.diceRoll && (!diceHasRolled || diceResult === null)) ||
                     (fortune.outcome.cardDraw?.enabled && drawnCard === null) ||
                     fateDecided ||
                     diceRolling

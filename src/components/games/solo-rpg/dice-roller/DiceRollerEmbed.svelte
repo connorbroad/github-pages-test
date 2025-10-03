@@ -18,6 +18,7 @@
 
     const dispatch = createEventDispatcher();
     $: dispatch("rollingChange", rolling);
+    $: dispatch("hasRolledChange", hasRolled);
 
     let diceResults: number[] = [];
     let finalResult: number | null = null;
@@ -25,6 +26,7 @@
     let rolling = false;
     let hasRolled = false;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
+ 
 
 
     function onRollButtonClick() {
