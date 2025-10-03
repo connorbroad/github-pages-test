@@ -52,8 +52,11 @@
                 rolling = false;
                 rollNewDice(ROLL_DURATION * DICE_END_MAX); // final roll
                 recalculateResult();
-                if (onResult && finalResult !== null) {
-                    onResult(finalResult);
+                if (finalResult !== null) {
+                    dispatch('result', finalResult);
+                    if (onResult) {
+                        onResult(finalResult);
+                    }
                 }
             }
         }

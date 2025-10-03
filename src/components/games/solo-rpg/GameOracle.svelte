@@ -900,8 +900,7 @@
                     {/if}
                 </div>
             {/if}
-
-            <hr class="divider" />
+ 
             <button class="oracle-button close-fate-button" on:click={closeFate}
                 >Close</button
             >
@@ -1190,7 +1189,7 @@
     }
 
     .outcome-text {
-        margin: 0.5rem 0 0 0;
+        margin: 0;
         color: #333;
         text-align: left;
     }
@@ -1285,21 +1284,5 @@
 
     .mapping-col-outcome {
         text-align: left;
-    }
-
-    .modifier-select {
-        width: 70px;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: #fff;
-        font-size: 1rem;
-        box-sizing: border-box;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .modifier-select:focus {
-        outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
     }
 </style>
