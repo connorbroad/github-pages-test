@@ -93,3 +93,41 @@ export function clearData(): void {
         console.error('Failed to clear Solo RPG data:', error);
     }
 }
+
+/**
+ * Export all data as a JSON string
+ */
+export function exportData(): string {
+    const data = loadData();
+    return JSON.stringify(data, null, 2);
+}
+
+/**
+ * Import data from a JSON string, overwriting existing data
+ */
+export function importData(jsonString: string): boolean {
+    try {
+        const data = JSON.parse(jsonString);
+        saveData(data);
+        return true;
+    } catch (error) {
+        console.error('Failed to import Solo RPG data:', error);
+        return false;
+    }
+}
+
+/**
+ * Download data as a file
+ */
+export function downloadDataFile(): void {
+    const data = exportData();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `solo-rpg-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
