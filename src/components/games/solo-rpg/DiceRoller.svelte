@@ -335,12 +335,33 @@
                     </div>
                     
                     <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+                        {#if diceResults.length > 1 && !rolling}
+                            <div id="result-option-indicator" aria-live="polite" style="position: absolute; left: 0.5rem; right: auto;">
+                                {#if resultOption === "Sum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
+                                    </span>
+                                {:else if resultOption === "Maximum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
+                                    </span>
+                                {:else if resultOption === "Minimum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
+                                    </span>
+                                {:else if resultOption === "Subtract"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
+                                    </span>
+                                {/if}
+                            </div>
+                        {/if}
                         <p>
                             Result:
                             {rolling ? "..." : finalResult || "..."}
                         </p>
                         {#if diceResults.length > 1 && !rolling} 
-                            <div id="result-option-indicator" aria-live="polite">
+                            <div id="result-option-indicator" aria-live="polite" style="position: absolute; right: 0.5rem; left: auto;">
                                 {#if resultOption === "Sum"}
                                     <span class="result-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
