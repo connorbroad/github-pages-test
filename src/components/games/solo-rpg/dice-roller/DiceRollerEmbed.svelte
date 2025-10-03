@@ -71,7 +71,6 @@
         {diceOffsets}
         {rolledNumSides}
     />
-
     {#if showModifier}
         <div class="modifier-input-group" style="margin-bottom: 0.5rem;">
             <label for="dice-modifier">Modifier:</label>
@@ -79,11 +78,10 @@
                 id="dice-modifier"
                 class="modifier-select"
                 bind:value={modifier}
-                on:change={(e) =>
-                    dispatch(
-                        "modifierChange",
-                        +(e.target as HTMLSelectElement).value,
-                    )}
+                on:change={() => {
+                    recalculateResult();
+                    dispatch("modifierChange", modifier);
+                }}
             >
                 {#each Array(16) as _, i}
                     {#if i - 5 > 0}
