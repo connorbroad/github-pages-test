@@ -14,7 +14,7 @@
 
 <span
     class="dice-icon-wrap"
-    style="display: inline-block; width: 64px; height: 64px; position: relative; transform: translate({offset.x}px, {offset.y}px) rotate({offset.r}deg); transition: {animated
+    style="transform: translate({offset.x}px, {offset.y}px) rotate({offset.r}deg); transition: {animated
         ? 'transform 0.1s'
         : 'none'};"
 >

@@ -73,13 +73,14 @@ export function createDiceRollerAnimation(
     );
 
     let elapsed = 0;
+    let lastOffsets = Array(numDice).fill(null).map(() => ({ x: 0, y: 0, r: 0 }));
 
     function rollNewDice(currentElapsed: number, diceResults: number[]): {
         results: number[];
         offsets: { x: number; y: number; r: number }[];
     } {
         const results = diceResults.length === numDice ? [...diceResults] : Array(numDice).fill(0);
-        const offsets = Array(numDice).fill({ x: 0, y: 0, r: 0 }).map(() => ({ x: 0, y: 0, r: 0 }));
+        const offsets = [...lastOffsets];
 
         for (let i = 0; i < numDice; i++) {
             if (currentElapsed < endTimes[i]) {
@@ -94,6 +95,7 @@ export function createDiceRollerAnimation(
                     y: Math.random() * config.DICE_MOVE_RANGE - config.DICE_MOVE_RANGE / 2,
                     r: Math.random() * config.DICE_ROTATE_RANGE - config.DICE_ROTATE_RANGE / 2,
                 };
+                lastOffsets[i] = offsets[i];
             }
         }
 
