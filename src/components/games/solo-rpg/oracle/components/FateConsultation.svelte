@@ -22,6 +22,9 @@
     let fateOutcome: { dice?: string; suit?: string; rank?: string } = {};
     let modifier: number = 0;
 
+    let fateDecided: boolean = false;
+    let diceRolling: boolean = false;
+
     // Reset state when show changes
     $: if (show && fortune) {
         resetState();
@@ -32,6 +35,7 @@
         drawnCard = null;
         fateOutcome = {};
         modifier = fortune?.outcome.diceRoll?.showModifier ? 0 : 0;
+        diceRolling = false;
     }
 
     function handleDiceResult(result: number) {
@@ -59,6 +63,10 @@
     function handleModifierChange(newModifier: number) {
         modifier = newModifier;
         rerollDice();
+    }
+
+    function handleRollingChange(isRolling: boolean) {
+        diceRolling = isRolling;
     }
 
     function rerollDice() {
@@ -119,6 +127,8 @@
                         on:result={(e) => handleDiceResult(e.detail)}
                         on:modifierChange={(e) =>
                             handleModifierChange(e.detail)}
+                        on:rollingChange={(e) =>
+                            handleRollingChange(e.detail)}
                     />
                     {#if diceResult !== null && fateOutcome.dice}
                         <div class="result-display">
@@ -132,16 +142,16 @@
                 <div class="fate-section">
                     <h3>Card Draw</h3>
                     {#if drawnCard}
-                            <div class="card-draw-result">
-                                <div
-                                    class="card-display"
-                                    style="color: {isRedSuit(drawnCard.suit)
-                                        ? 'red'
-                                        : 'inherit'}"
-                                >
-                                    {drawnCard.rank} {drawnCard.suit}
-                                </div>
+                        <div class="card-draw-result">
+                            <div
+                                class="card-display"
+                                style="color: {isRedSuit(drawnCard.suit)
+                                    ? 'red'
+                                    : 'inherit'}"
+                            >
+                                {drawnCard.rank} {drawnCard.suit}
                             </div>
+                        </div>
                         <div class="result-display">
                             {#if fateOutcome.suit}
                                 <p class="outcome-text">
@@ -168,7 +178,13 @@
             {/if}
 
             <button
-                class="oracle-button close-fate-button"
+                class="oracle-button accept-fate-button"
+                disabled={
+                    (fortune.outcome.diceRoll && diceResult === null) ||
+                    (fortune.outcome.cardDraw?.enabled && drawnCard === null) ||
+                    fateDecided ||
+                    diceRolling
+                }
                 on:click={handleAcceptFate}
             >
                 Accept fate
@@ -307,11 +323,17 @@
         background: #1565c0;
     }
 
-    .close-fate-button {
-        background: #666;
+    .accept-fate-button {
+        background: #1976d2;
     }
 
-    .close-fate-button:active {
-        background: #555;
+    .accept-fate-button:active {
+        background: #1565c0;
+    }
+
+    .accept-fate-button:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
     }
 </style>
