@@ -142,15 +142,17 @@
                 <div class="fate-section">
                     <h3>Card Draw</h3>
                     {#if drawnCard}
-                        <div class="result-display">
-                            <div
-                                class="card-display"
-                                style="color: {isRedSuit(drawnCard.suit)
-                                    ? 'red'
-                                    : 'inherit'}"
-                            >
-                                {drawnCard.rank}{drawnCard.suit}
+                            <div class="card-draw-result">
+                                <div
+                                    class="card-display"
+                                    style="color: {isRedSuit(drawnCard.suit)
+                                        ? 'red'
+                                        : 'inherit'}"
+                                >
+                                    {drawnCard.rank} {drawnCard.suit}
+                                </div>
                             </div>
+                        <div class="result-display">
                             {#if fateOutcome.suit}
                                 <p class="outcome-text">
                                     <strong>Suit:</strong>
@@ -270,11 +272,18 @@
         border: 1px solid #ddd;
     }
 
+    .card-draw-result {
+        display: flex;
+        justify-content: center;
+    }
+
     .dice-display,
     .card-display {
         font-size: 1.2rem;
         font-weight: bold;
         border-radius: 4px;
+        background: #f0f0f0;
+        padding: 0.5rem 1rem;
     }
 
     .dice-display {
