@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { slide } from 'svelte/transition';
     export let show = false;
     export let onClose: () => void;
 
@@ -260,105 +261,107 @@
             </div>
             <button class="dice-roller-button" on:click={onRollButtonClick}>Roll</button>
             {#if showResultCalculator}
-                <hr class="dice-roller-divider" />
+                <div class="result-calculator-container" transition:slide>
+                    <hr class="dice-roller-divider" />
 
-                <div id="result-options">
-                    <div class="result-radio-group">
-                        <label class="result-radio" aria-label="Sum">
-                            <input
-                                type="radio" 
-                                name="resultOption"
-                                value="Sum"
-                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                                bind:group={resultOption}
-                                on:change={recalculateResult}
-                            />
-                            <span class="result-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
-                            </span>
-                        </label>
-                        <label class="result-radio" aria-label="Maximum">
-                            <input
-                                type="radio"
-                                name="resultOption"
-                                value="Maximum"
-                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                                bind:group={resultOption}
-                                on:change={recalculateResult}
-                            />
-                            <span class="result-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
-                            </span>
-                        </label>
-                        <label class="result-radio" aria-label="Minimum">
-                            <input
-                                type="radio"
-                                name="resultOption"
-                                value="Minimum"
-                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                                bind:group={resultOption}
-                                on:change={recalculateResult}
-                            />
-                            <span class="result-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
-                            </span>
-                        </label>
-                        <label class="result-radio" aria-label="Subtract">
-                            <input
-                                type="radio"
-                                name="resultOption"
-                                value="Subtract"
-                                disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
-                                bind:group={resultOption}
-                                on:change={recalculateResult}
-                            />
-                            <span class="result-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
-                            </span>
-                        </label>
-                    </div>
-                    <div class="dice-options-select">
-                        <select bind:value={modifier} on:change={recalculateResult}>
-                            {#each Array(16) as _, i}
-                                {#if i - 5 > -1}
-                                    <option value={i - 5}>+{i - 5}</option>
-                                {:else if i - 5 === 0}
-                                    <option value={i - 5}>0</option>
-                                {:else}
-                                    <option value={i - 5}>{i - 5}</option>
-                                {/if}
-                            {/each}
-                        </select>
-                    </div>
-                </div>
-                
-                <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
-                    <p>
-                        Result:
-                        {rolling ? "..." : finalResult || "..."}
-                    </p>
-                    {#if diceResults.length > 1 && !rolling} 
-                        <div id="result-option-indicator" aria-live="polite">
-                            {#if resultOption === "Sum"}
+                    <div id="result-options">
+                        <div class="result-radio-group">
+                            <label class="result-radio" aria-label="Sum">
+                                <input
+                                    type="radio" 
+                                    name="resultOption"
+                                    value="Sum"
+                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    bind:group={resultOption}
+                                    on:change={recalculateResult}
+                                />
                                 <span class="result-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
                                 </span>
-                            {:else if resultOption === "Maximum"}
+                            </label>
+                            <label class="result-radio" aria-label="Maximum">
+                                <input
+                                    type="radio"
+                                    name="resultOption"
+                                    value="Maximum"
+                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    bind:group={resultOption}
+                                    on:change={recalculateResult}
+                                />
                                 <span class="result-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
                                 </span>
-                            {:else if resultOption === "Minimum"}
+                            </label>
+                            <label class="result-radio" aria-label="Minimum">
+                                <input
+                                    type="radio"
+                                    name="resultOption"
+                                    value="Minimum"
+                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    bind:group={resultOption}
+                                    on:change={recalculateResult}
+                                />
                                 <span class="result-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
                                 </span>
-                            {:else if resultOption === "Subtract"}
+                            </label>
+                            <label class="result-radio" aria-label="Subtract">
+                                <input
+                                    type="radio"
+                                    name="resultOption"
+                                    value="Subtract"
+                                    disabled={diceResults.length == 0 && numDice == 1 || numDice == 1 && diceResults.length == 1}
+                                    bind:group={resultOption}
+                                    on:change={recalculateResult}
+                                />
                                 <span class="result-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
                                 </span>
-                            {/if}
+                            </label>
                         </div>
-                    {/if}
-                </button>
+                        <div class="dice-options-select">
+                            <select bind:value={modifier} on:change={recalculateResult}>
+                                {#each Array(16) as _, i}
+                                    {#if i - 5 > -1}
+                                        <option value={i - 5}>+{i - 5}</option>
+                                    {:else if i - 5 === 0}
+                                        <option value={i - 5}>0</option>
+                                    {:else}
+                                        <option value={i - 5}>{i - 5}</option>
+                                    {/if}
+                                {/each}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="take-result-button" class="dice-roller-button" on:click={onClickTakeResult} disabled={diceResults.length === 0 || finalResult === null || rolling}>
+                        <p>
+                            Result:
+                            {rolling ? "..." : finalResult || "..."}
+                        </p>
+                        {#if diceResults.length > 1 && !rolling} 
+                            <div id="result-option-indicator" aria-live="polite">
+                                {#if resultOption === "Sum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/></svg>
+                                    </span>
+                                {:else if resultOption === "Maximum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41"/><path fill="currentColor" d="M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41"/></svg>                            
+                                    </span>
+                                {:else if resultOption === "Minimum"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 6.41L16.59 5L12 9.58L7.41 5L6 6.41l6 6z"/><path fill="currentColor" d="m18 13l-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z"/></svg>
+                                    </span>
+                                {:else if resultOption === "Subtract"}
+                                    <span class="result-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2"/></svg>
+                                    </span>
+                                {/if}
+                            </div>
+                        {/if}
+                    </button>
+                </div>
             {/if}
             <button
                 class="toggle-result-calculator-btn"
@@ -368,10 +371,10 @@
             >
                 {#if !showResultCalculator}
                     <!-- Eye icon (visible) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"/><path fill="currentColor" d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"/></svg>                
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"/><path fill="currentColor" d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"/></svg>
                 {:else}
                     <!-- Eye-off icon (hidden) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"/></svg>                
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='28px' height='28px' {...$$props}><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"/></svg>
                 {/if}
             </button>
         </div>
@@ -634,5 +637,15 @@
     }
     .toggle-result-calculator-btn:hover {
         background: #e3eaf5;
+    }
+    .result-calculator-container {
+        overflow: hidden;
+        max-height: 1000px;
+        transition: max-height 0.5s cubic-bezier(0.4, 0.0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        will-change: max-height, padding;
+    }
+    .result-calculator-container:not(:has(*)) {
+        max-height: 0;
+        padding: 0;
     }
 </style>
