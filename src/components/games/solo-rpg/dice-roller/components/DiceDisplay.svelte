@@ -40,7 +40,7 @@
 
 <style>
     .dice-results {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
     }
 
     .dice-result-list {

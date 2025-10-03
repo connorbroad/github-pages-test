@@ -110,22 +110,12 @@
 
             {#if fortune.outcome.diceRoll}
                 <div class="fate-section">
-                    <div class="dice-display">
-                        {#if fortune.outcome.diceRoll.numDice > 1}{fortune
-                                .outcome.diceRoll.numDice}x
-                        {/if}
-                        D{fortune.outcome.diceRoll.numSides}
-                        {#if fortune.outcome.diceRoll.numDice > 1}
-                            ({fortune.outcome.diceRoll.resultOption})
-                        {/if}
-                    </div>
                     <DiceRollerEmbed
                         numDice={fortune.outcome.diceRoll.numDice}
                         numSides={fortune.outcome.diceRoll.numSides}
                         {modifier}
                         resultOption={fortune.outcome.diceRoll.resultOption}
-                        showModifier={fortune.outcome.diceRoll.showModifier ??
-                            false}
+                        showModifier={fortune.outcome.diceRoll.showModifier ?? false}
                         on:result={(e) => handleDiceResult(e.detail)}
                         on:modifierChange={(e) =>
                             handleModifierChange(e.detail)}
@@ -267,7 +257,7 @@
 
     .fate-section {
         margin-bottom: 1.5rem;
-        padding: 1rem;
+        padding: 0.5rem;
         border-radius: 6px;
         border: 1px solid #ddd;
     }
@@ -277,7 +267,6 @@
         justify-content: center;
     }
 
-    .dice-display,
     .card-display {
         font-size: 1.2rem;
         font-weight: bold;
@@ -286,18 +275,13 @@
         padding: 0.5rem 1rem;
     }
 
-    .dice-display {
-        margin-top: 0;
-        margin-bottom: 1rem;
-    }
-
     .card-display {
         margin-top: 0;
         margin-bottom: 0.5rem;
     }
 
     .result-display {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         padding: 1rem;
         background: #e8f5e9;
         border-radius: 6px;
