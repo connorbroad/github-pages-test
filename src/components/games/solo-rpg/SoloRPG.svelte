@@ -5,7 +5,7 @@
     import DataManager from './data-manager/DataManager.svelte';
     import Sidebar from './Sidebar.svelte';
     
-    type View = 'home' | 'tools' | 'oracle' | 'settings';
+    type View = 'home' | 'tools' | 'oracle' | 'settings' | 'map' | 'story';
     let currentView: View = 'home';
     let showDiceRoller = false;
     let showCardDealer = false;
@@ -27,26 +27,13 @@
     {#if currentView === 'home'}
         <div class="home-view">
             <h1>Solo RPG</h1>
-            <p>Welcome to your Solo RPG companion! Use the sidebar to navigate to different tools and features.</p>
-            <div class="quick-links">
-                <h2>Quick Links</h2>
-                <button on:click={() => handleNavigate('tools')}>Go to Tools</button>
-                <button on:click={() => handleNavigate('oracle')}>Open Oracle</button>
-                <button on:click={() => handleNavigate('settings')}>View Settings</button>
-            </div>
+            <p>Welcome to your Solo RPG companion!</p>
+            
         </div>
     {:else if currentView === 'oracle'}
         <div class="oracle-view">
             <h1>Oracle</h1>
             <GameOracle />
-        </div>
-    {:else if currentView === 'tools'}
-        <div class="tools-view">
-            <h1>Tools</h1>
-            <div class="tool-buttons">
-                <button on:click={() => showDiceRoller = true}>Dice Roller</button>
-                <button on:click={() => showCardDealer = true}>Card Dealer</button>
-            </div>
         </div>
     {:else if currentView === 'settings'}
         <div class="settings-view">
@@ -55,6 +42,21 @@
                 <p>Manage your Solo RPG data and application settings.</p>
             </div>
             <DataManager onDataImported={handleDataImported} />
+        </div>
+    {:else if currentView === 'map'}
+        <div class="map-view">
+            <h1>Map</h1>
+            <em>Coming Soon!</em>
+        </div>
+    {:else if currentView === 'story'}
+        <div class="story-view">
+            <h1>Story</h1>
+            <div class="tool-buttons">
+                <button on:click={() => showDiceRoller = true}>Dice Roller</button>
+                <button on:click={() => showCardDealer = true}>Card Dealer</button>
+            </div>
+            <br />
+            <em>Coming Soon!</em>
         </div>
     {/if}
 </main>
@@ -196,4 +198,13 @@
         font-size: 1.1rem;
     }
 
+    .map-view {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .story-view {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
-    export let currentView: "home" | "tools" | "oracle" | "settings" = "home";
+    export let currentView: "home" | "tools" | "oracle" | "settings" | "map" | "story" = "home";
     export let onNavigate: (
-        view: "home" | "tools" | "oracle" | "settings",
+        view: "home" | "tools" | "oracle" | "settings" | "map" | "story",
     ) => void = () => {};
 </script>
 
@@ -43,28 +43,31 @@
 
             <button
                 class="nav-item"
+                class:active={currentView === "story"}
+                on:click={() => onNavigate("story")}
+                aria-label="Story"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4M2 6h4m-4 4h4m-4 4h4m-4 4h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></g></svg>
+                <span class="label">Story</span>
+            </button>
+
+            <button
+                class="nav-item"
                 class:active={currentView === "oracle"}
                 on:click={() => onNavigate("oracle")}
                 aria-label="Oracle"
             >
-                <svg
-                    class="icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 6v6l4 2"></path>
+                <svg viewBox="0 0 512 512" width='1.5em' height='1.5em'>
+                    <path fill="currentColor" d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z"/>
                 </svg>
                 <span class="label">Oracle</span>
             </button>
 
             <button
                 class="nav-item"
-                class:active={currentView === "tools"}
-                on:click={() => onNavigate("tools")}
-                aria-label="Tools"
+                class:active={currentView === "map"}
+                on:click={() => onNavigate("map")}
+                aria-label="Map"
             >
                 <svg
                     class="icon"
@@ -73,11 +76,9 @@
                     stroke="currentColor"
                     stroke-width="2"
                 >
-                    <path
-                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-                    ></path>
+                    <path fill="currentColor" d="m20.5 3l-.16.03L15 5.1L9 3L3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1l5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5M15 19l-6-2.11V5l6 2.11z"/>
                 </svg>
-                <span class="label">Tools</span>
+                <span class="label">Map</span>
             </button>
         </div>
 
@@ -88,18 +89,12 @@
                 on:click={() => onNavigate("settings")}
                 aria-label="Settings"
             >
-                <svg
+                <svg 
                     class="icon"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                        d="M12 1v6m0 6v6m8.66-15.66l-4.24 4.24m-4.24 4.24l-4.24 4.24m15.08-1.42l-6-1.73m-6-1.73l-6-1.73m1.42-6.92l1.73 6m1.73 6l1.73 6"
-                    ></path>
-                </svg>
+                    stroke-width="0"><path fill="currentColor" d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.6.6 0 0 0-.18-.03c-.17 0-.34.09-.43.25l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46a.5.5 0 0 0 .61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1q.09.03.18.03c.17 0 .34-.09.43-.25l2-3.46c.12-.22.07-.49-.12-.64zm-1.98-1.71c.04.31.05.52.05.73s-.02.43-.05.73l-.14 1.13l.89.7l1.08.84l-.7 1.21l-1.27-.51l-1.04-.42l-.9.68c-.43.32-.84.56-1.25.73l-1.06.43l-.16 1.13l-.2 1.35h-1.4l-.19-1.35l-.16-1.13l-1.06-.43c-.43-.18-.83-.41-1.23-.71l-.91-.7l-1.06.43l-1.27.51l-.7-1.21l1.08-.84l.89-.7l-.14-1.13c-.03-.31-.05-.54-.05-.74s.02-.43.05-.73l.14-1.13l-.89-.7l-1.08-.84l.7-1.21l1.27.51l1.04.42l.9-.68c.43-.32.84-.56 1.25-.73l1.06-.43l.16-1.13l.2-1.35h1.39l.19 1.35l.16 1.13l1.06.43c.43.18.83.41 1.23.71l.91.7l1.06-.43l1.27-.51l.7 1.21l-1.07.85l-.89.7zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4s-1.79-4-4-4m0 6c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2"/></svg>
                 <span class="label">Settings</span>
             </button>
         </div>
@@ -248,7 +243,7 @@
 
         .nav-main {
             flex-direction: row;
-            flex: 3;
+            flex: 4;
         }
 
         .nav-bottom {
