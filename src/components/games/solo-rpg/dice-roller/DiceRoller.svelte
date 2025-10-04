@@ -81,7 +81,7 @@
             }}
         >
             <button
-                class="solo-rpg-modal-close"
+                class="srpg-modal-close"
                 aria-label="Close"
                 on:click={() => onClose && onClose()}>&times;</button
             >
@@ -114,7 +114,7 @@
                     </select>
                 </div>
             </div>
-            <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full" on:click={onRollButtonClick}
+            <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={onRollButtonClick}
                 >Roll</button
             >
             {#if showResultCalculator}
@@ -217,7 +217,7 @@
 
                     <button
                         id="take-result-button"
-                        class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full"
+                        class="srpg-b srpg-b-create srpg-b-w-full"
                         on:click={onClickTakeResult}
                         disabled={diceResults.length === 0 ||
                             finalResult === null ||
@@ -329,7 +329,7 @@
         display: flex;
         justify-content: center;
         gap: 0.5rem;
-        margin-top: 1rem;
+        margin: 1rem;
     }
     .dice-options-select select {
         padding: 0.75rem 1rem;
@@ -442,7 +442,6 @@
         justify-content: center;
         pointer-events: none;
         border-radius: 100px;
-        border: 1px solid #fff;
     }
     #result-option-indicator .result-icon {
         font-size: 1.5rem;
@@ -460,6 +459,7 @@
         justify-content: center;
         gap: 0.5rem;
         align-items: center;
+        margin-bottom: 1rem;
     }
     .toggle-result-calculator-btn {
         width: 2.5rem;

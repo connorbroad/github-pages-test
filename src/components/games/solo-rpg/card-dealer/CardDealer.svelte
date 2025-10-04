@@ -97,7 +97,7 @@
         >
             <div class="card-drawer-content">
                 <button
-                    class="solo-rpg-modal-close"
+                    class="srpg-modal-close"
                     aria-label="Close"
                     on:click={() => onClose && onClose()}>&times;</button
                 >
@@ -136,12 +136,12 @@
                 </div>
                 <div class="card-drawer-actions">
                     <button
-                        class="solo-rpg-button solo-rpg-button-normal"
+                        class="srpg-b srpg-b-normal"
                         on:click={drawCards}
                         disabled={deck.length === 0}>Draw</button
                     >
                     <button
-                        class="solo-rpg-button solo-rpg-button-normal"
+                        class="srpg-b srpg-b-normal"
                         on:click={handleUndo}
                         disabled={drawn.length === 0}
                     >
@@ -151,7 +151,7 @@
                 <hr class="divider" />
                 <button
                     id="take-result-button"
-                    class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full"
+                    class="srpg-b srpg-b-create srpg-b-w-full"
                     on:click={onClickTakeResult}
                     disabled={drawn.length === 0}
                 >
@@ -160,7 +160,7 @@
                 <hr class="divider" />
                 <button
                     id="reset-deck-button"
-                    class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full"
+                    class="srpg-b srpg-b-normal srpg-b-w-full"
                     on:click={buildDeck}
                 >
                     Shuffle Deck

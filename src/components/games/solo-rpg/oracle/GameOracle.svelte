@@ -89,7 +89,7 @@
 
 <div class="oracle-page">
     <button
-        class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full solo-rpg-button-margin-bottom"
+        class="srpg-b srpg-b-create srpg-b-w-full srpg-b-margin-bottom"
         on:click={openCreateFortune}>Create Fortune</button
     >
 

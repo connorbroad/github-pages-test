@@ -52,9 +52,9 @@
     {:else if currentView === 'story'}
         <div class="story-view">
             <h1>Story</h1>
-            <div class="solo-rpg-tool-grid">
-                <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-xl" on:click={() => showDiceRoller = true}>Dice Roller</button>
-                <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-xl" on:click={() => showCardDealer = true}>Card Dealer</button>
+            <div class="srpg-tool-grid">
+                <button class="srpg-b srpg-b-normal srpg-b-normal" on:click={() => showDiceRoller = true}>Dice Roller</button>
+                <button class="srpg-b srpg-b-normal srpg-b-normal" on:click={() => showCardDealer = true}>Card Dealer</button>
             </div>
             <br />
             <em>Coming Soon!</em>

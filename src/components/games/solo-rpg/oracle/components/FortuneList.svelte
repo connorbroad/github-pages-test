@@ -194,13 +194,13 @@
                                 >☰</span
                             >
                             <button
-                                class="solo-rpg-button solo-rpg-button-normal fate-button"
+                                class="srpg-b srpg-b-normal fate-button"
                                 on:click={() =>
                                     dispatch("consultFate", fortune)}
                                 >{fortune.title}</button
                             >
                             <button
-                                class="solo-rpg-icon-button delete-icon"
+                                class="srpg-icon-button delete-icon"
                                 on:click={() => dispatch("delete", fortune.id)}
                                 >×</button
                             >

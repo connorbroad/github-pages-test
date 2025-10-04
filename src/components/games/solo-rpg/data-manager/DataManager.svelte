@@ -71,16 +71,16 @@
                 another device. Importing will overwrite your current data.
             </p>
 
-            <div class="solo-rpg-button-group-vertical">
+            <div class="srpg-b-group-vertical">
                 <button
-                    class="solo-rpg-button solo-rpg-button-normal"
+                    class="srpg-b srpg-b-normal"
                     on:click={handleExport}
                 >
                     📥 Export Data
                 </button>
 
                 <button
-                    class="solo-rpg-button solo-rpg-button-create"
+                    class="srpg-b srpg-b-create"
                     on:click={handleImportClick}
                 >
                     📤 Import Data

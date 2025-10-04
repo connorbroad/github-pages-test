@@ -118,7 +118,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="solo-rpg-modal-close" on:click={handleClose}
+            <button class="srpg-modal-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>Edit Outcome Mappings</h2>
@@ -205,7 +205,7 @@
                 </div>
             {/if}
 
-            <button class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full" on:click={handleSave}
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={handleSave}
                 >Save Mappings</button
             >
         </div>
