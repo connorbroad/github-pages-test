@@ -81,8 +81,8 @@
     /* Mobile - account for bottom bar */
     @media (max-width: 768px) {
         .content {
-            padding-bottom: 90px;
-            padding: 1rem 1rem 90px 1rem;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            padding: 1rem 1rem calc(90px + env(safe-area-inset-bottom)) 1rem;
         }
     }
 

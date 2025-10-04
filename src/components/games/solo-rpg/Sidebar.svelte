@@ -233,16 +233,17 @@
             left: 0;
             right: 0;
             width: 100%;
-            height: 70px;
+            height: calc(70px + env(safe-area-inset-bottom));
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             flex-direction: row;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         nav {
             flex-direction: row;
             padding: 0;
             width: 100%;
-            height: 100%;
+            height: 70px;
         }
 
         .nav-main {
