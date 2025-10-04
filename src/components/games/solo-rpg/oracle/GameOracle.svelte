@@ -7,8 +7,7 @@
     import FateConsultation from "./components/FateConsultation.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
 
-    export let show = false;
-    export let onClose: () => void;
+    // Props kept for backwards compatibility but not used in page mode
 
     let fortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
@@ -87,56 +86,20 @@
     }
 </script>
 
-{#if show}
-    <div
-        class="oracle-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close oracle"
-        on:click={() => onClose && onClose()}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable &&
-                onClose
-            ) {
-                onClose();
-            }
-        }}
+<div class="oracle-page">
+    <button
+        class="oracle-button create-button"
+        on:click={openCreateFortune}>Create Fortune</button
     >
-        <div
-            class="oracle-content"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="0"
-            on:keydown={(e) => {}}
-        >
-            <button
-                class="modal-close-btn"
-                aria-label="Close"
-                on:click={() => onClose && onClose()}>&times;</button
-            >
-            <h2>Oracle</h2>
 
-            <button
-                class="oracle-button create-button"
-                on:click={openCreateFortune}>Create Fortune</button
-            >
-
-            <FortuneList
-                {fortunes}
-                {campaigns}
-                on:consultFate={(e) => openFate(e.detail)}
-                on:delete={(e) => deleteFortune(e.detail)}
-                on:reorder={handleReorder}
-            />
-        </div>
-    </div>
-{/if}
+    <FortuneList
+        {fortunes}
+        {campaigns}
+        on:consultFate={(e) => openFate(e.detail)}
+        on:delete={(e) => deleteFortune(e.detail)}
+        on:reorder={handleReorder}
+    />
+</div>
 
 <FortuneEditor
     show={showCreateFortune}
@@ -165,53 +128,9 @@
 />
 
 <style>
-    .oracle-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .oracle-content {
-        background: #fff;
-        margin: 1rem;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        min-width: 300px;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
+    .oracle-page {
+        width: 100%;
         text-align: center;
-        position: relative;
-    }
-
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
-
-    h2 {
-        margin-top: 0;
-        color: #333;
     }
 
     .oracle-button {

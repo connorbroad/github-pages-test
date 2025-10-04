@@ -6,9 +6,8 @@
         loadData,
     } from "../storage-utils";
 
-    export let show = false;
-    export let onClose: () => void;
     export let onDataImported: () => void;
+    // Props kept for backwards compatibility but not used in page mode
 
     let fileInput: HTMLInputElement;
     let importError = "";
@@ -39,7 +38,6 @@
                 setTimeout(() => {
                     importSuccess = false;
                     onDataImported();
-                    onClose();
                 }, 1500);
             } else {
                 importError =
@@ -58,114 +56,74 @@
         // Reset the input so the same file can be selected again
         target.value = "";
     }
-
-    function handleClose() {
-        importError = "";
-        importSuccess = false;
-        onClose();
-    }
-
-    function handleBackdropClick(event: MouseEvent) {
-        if (event.target === event.currentTarget) {
-            handleClose();
-        }
-    }
-
-    function handleBackdropKeydown(event: KeyboardEvent) {
-        if (event.key === "Escape") {
-            handleClose();
-        }
-    }
 </script>
 
-{#if show}
-    <div
-        class="modal-backdrop"
-        on:click={handleBackdropClick}
-        on:keydown={handleBackdropKeydown}
-        role="button"
-        tabindex="-1"
-    >
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Data Manager</h2>
-                <button class="close-button" on:click={handleClose}
-                    >&times;</button
+<div class="data-manager-page">
+    <div class="content">
+        <div class="header">
+            <h2>Data Manager</h2>
+        </div>
+
+        <div class="body">
+            <p class="description">
+                Export your Solo RPG data to a file or import data from
+                another device. Importing will overwrite your current data.
+            </p>
+
+            <div class="button-group">
+                <button
+                    class="action-button export-button"
+                    on:click={handleExport}
                 >
+                    📥 Export Data
+                </button>
+
+                <button
+                    class="action-button import-button"
+                    on:click={handleImportClick}
+                >
+                    📤 Import Data
+                </button>
             </div>
 
-            <div class="modal-body">
-                <p class="description">
-                    Export your Solo RPG data to a file or import data from
-                    another device. Importing will overwrite your current data.
-                </p>
+            <input
+                type="file"
+                accept=".json"
+                bind:this={fileInput}
+                on:change={handleFileSelect}
+                style="display: none;"
+            />
 
-                <div class="button-group">
-                    <button
-                        class="action-button export-button"
-                        on:click={handleExport}
-                    >
-                        📥 Export Data
-                    </button>
-
-                    <button
-                        class="action-button import-button"
-                        on:click={handleImportClick}
-                    >
-                        📤 Import Data
-                    </button>
+            {#if importError}
+                <div class="error-message">
+                    {importError}
                 </div>
+            {/if}
 
-                <input
-                    type="file"
-                    accept=".json"
-                    bind:this={fileInput}
-                    on:change={handleFileSelect}
-                    style="display: none;"
-                />
-
-                {#if importError}
-                    <div class="error-message">
-                        {importError}
-                    </div>
-                {/if}
-
-                {#if importSuccess}
-                    <div class="success-message">
-                        ✓ Data imported successfully!
-                    </div>
-                {/if}
-            </div>
+            {#if importSuccess}
+                <div class="success-message">
+                    ✓ Data imported successfully!
+                </div>
+            {/if}
         </div>
     </div>
-{/if}
+</div>
 
 <style>
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
+    .data-manager-page {
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        padding: 1rem;
     }
 
-    .modal-content {
+    .content {
         background-color: white;
         border-radius: 8px;
         max-width: 500px;
         width: 100%;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        max-height: 90vh;
-        overflow-y: auto;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
     }
 
-    .modal-header {
+    .header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -173,32 +131,13 @@
         border-bottom: 1px solid #e5e7eb;
     }
 
-    .modal-header h2 {
+    .header h2 {
         margin: 0;
         font-size: 1.5rem;
         color: #1f2937;
     }
 
-    .close-button {
-        background: none;
-        border: none;
-        font-size: 2rem;
-        cursor: pointer;
-        color: #6b7280;
-        line-height: 1;
-        padding: 0;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .close-button:hover {
-        color: #1f2937;
-    }
-
-    .modal-body {
+    .body {
         padding: 1.5rem;
     }
 
