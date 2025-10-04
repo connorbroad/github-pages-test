@@ -7,6 +7,8 @@
     import GameBlueprintEditor from './GameBlueprintEditor.svelte';
     import CampaignCreator from './CampaignCreator.svelte';
     import CampaignLoadConfirm from './CampaignLoadConfirm.svelte';
+    import StoryView from './story/StoryView.svelte';
+    import MapView from './map/MapView.svelte';
     import { loadGameBlueprints, saveGameBlueprints, loadCampaigns, saveCampaigns } from './storage-utils';
     import { generateId } from './oracle/scripts/oracleTypes';
     import { type GameBlueprint, type Campaign } from './storage-utils';
@@ -237,20 +239,12 @@
             <DataManager onDataImported={handleDataImported} />
         </div>
     {:else if currentView === 'map'}
-        <div class="map-view">
-            <h1>Map</h1>
-            <em>Coming Soon!</em>
-        </div>
+        <MapView />
     {:else if currentView === 'story'}
-        <div class="story-view">
-            <h1>Story</h1>
-            <div class="srpg-tool-grid">
-                <button class="srpg-b srpg-b-normal srpg-b-normal" on:click={() => showDiceRoller = true}>Dice Roller</button>
-                <button class="srpg-b srpg-b-normal srpg-b-normal" on:click={() => showCardDealer = true}>Card Dealer</button>
-            </div>
-            <br />
-            <em>Coming Soon!</em>
-        </div>
+        <StoryView 
+            on:openDiceRoller={() => showDiceRoller = true}
+            on:openCardDealer={() => showCardDealer = true}
+        />
     {/if}
 </main>
 
@@ -548,15 +542,5 @@
     .settings-description p {
         color: #666;
         font-size: 1.1rem;
-    }
-
-    .map-view {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .story-view {
-        max-width: 900px;
-        margin: 0 auto;
     }
 </style>
