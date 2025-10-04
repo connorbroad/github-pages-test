@@ -489,15 +489,12 @@
         transition: all 0.2s ease;
     }
 
-    .campaign-card.active {
-        background-color: #10b981;
-        border-color: #059669;
-    }
-
-    .campaign-card.active:hover:not(:disabled) {
-        background-color: #059669;
-        border-color: #047857;
-    }
+    .campaign-card.active {   
+        background: #fdfeff;
+        border: 1px solid #0d48a151; 
+        box-shadow: 0 0 10px #0d48a13d; 
+        color: #222;
+    } 
 
     .campaign-card.active::after {
         content: "✓ Active";
