@@ -6,12 +6,19 @@
 const STORAGE_KEY = 'solo-rpg-data';
 
 export interface SoloRPGData {
+    gameBlueprints?: GameBlueprint[];
     fortunes?: Fortune[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
     // characters?: CharacterAttribute[];
 }
+
+export type GameBlueprint = {
+    id: string;
+    title: string;
+    defaultFortunes: Fortune[];
+};
 
 export type Fortune = {
     id: string;
@@ -80,6 +87,23 @@ export function loadFortunes(): Fortune[] {
 export function saveFortunes(fortunes: Fortune[]): void {
     const data = loadData();
     data.fortunes = fortunes;
+    saveData(data);
+}
+
+/**
+ * Load game blueprints from storage
+ */
+export function loadGameBlueprints(): GameBlueprint[] {
+    const data = loadData();
+    return data.gameBlueprints || [];
+}
+
+/**
+ * Save game blueprints to storage
+ */
+export function saveGameBlueprints(blueprints: GameBlueprint[]): void {
+    const data = loadData();
+    data.gameBlueprints = blueprints;
     saveData(data);
 }
 

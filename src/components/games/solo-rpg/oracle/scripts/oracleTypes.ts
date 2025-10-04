@@ -24,9 +24,15 @@ export type Outcome = {
 
 export type Fortune = {
     id: string;
-    campaign: string;
+    campaign?: string;
     title: string;
     outcome: Outcome;
+};
+
+export type GameBlueprint = {
+    id: string;
+    title: string;
+    defaultFortunes: Fortune[];
 };
 
 export const CARD_SUITS = ["♠", "♥", "♦", "♣"] as const;

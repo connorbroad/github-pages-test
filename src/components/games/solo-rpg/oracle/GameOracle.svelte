@@ -46,14 +46,15 @@
         showCreateFortune = true;
     }
 
-    function saveFortune() {
+    function saveFortune(event: CustomEvent<Fortune>) {
+        const fortune = event.detail;
         const existingIndex = fortunes.findIndex(
-            (f) => f.id === editingFortune.id,
+            (f) => f.id === fortune.id,
         );
         if (existingIndex >= 0) {
-            fortunes[existingIndex] = { ...editingFortune };
+            fortunes[existingIndex] = { ...fortune };
         } else {
-            fortunes = [...fortunes, { ...editingFortune }];
+            fortunes = [...fortunes, { ...fortune }];
         }
         saveFortunes(fortunes);
         showCreateFortune = false;
@@ -115,7 +116,10 @@
     show={showEditOutcome}
     fortune={editingFortune}
     on:close={() => (showEditOutcome = false)}
-    on:save={saveFortune}
+    on:save={(e) => {
+        editingFortune = e.detail;
+        saveFortune(e);
+    }}
 />
 
 <FateConsultation

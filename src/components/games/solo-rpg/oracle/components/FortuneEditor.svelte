@@ -10,8 +10,13 @@
     export let show = false;
     export let fortune: Fortune;
     export let campaigns: string[] = [];
+    export let showCampaignField = true;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<{
+        close: void;
+        save: Fortune;
+        editOutcome: void;
+    }>();
 
     function handleClose() {
         dispatch("close");
@@ -58,20 +63,22 @@
             >
             <h2>Create Fortune</h2>
 
-            <div class="form-group">
-                <label for="campaign">Campaign:</label>
-                <input
-                    id="campaign"
-                    type="text"
-                    bind:value={fortune.campaign}
-                    list="campaigns-list"
-                />
-                <datalist id="campaigns-list">
-                    {#each campaigns as campaign}
-                        <option value={campaign}></option>
-                    {/each}
-                </datalist>
-            </div>
+            {#if showCampaignField}
+                <div class="form-group">
+                    <label for="campaign">Campaign:</label>
+                    <input
+                        id="campaign"
+                        type="text"
+                        bind:value={fortune.campaign}
+                        list="campaigns-list"
+                    />
+                    <datalist id="campaigns-list">
+                        {#each campaigns as campaign}
+                            <option value={campaign}></option>
+                        {/each}
+                    </datalist>
+                </div>
+            {/if}
 
             <div class="form-group">
                 <label for="title">Title:</label>
