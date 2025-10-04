@@ -4,7 +4,7 @@
      * Modal for rolling dice/drawing cards to consult a fortune
      */
     import type { Fortune } from "./scripts/oracleTypes";
-    import { drawRandomCard, isRedSuit, simulateDiceRoll } from "./scripts/oracleTypes";
+    import { drawRandomCard, isRedSuit } from "./scripts/oracleTypes";
     import DiceRollerEmbed from "../dice-roller/DiceRollerEmbed.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -54,13 +54,6 @@
 
     function handleModifierChange(newModifier: number) {
         modifier = newModifier;
-        rerollDice();
-    }
-
-    function rerollDice() {
-        if (!fortune?.outcome.diceRoll) return;
-        const result = simulateDiceRoll(fortune.outcome.diceRoll, modifier);
-        handleDiceResult(result);
     }
 
     function handleClose() {
