@@ -4,15 +4,25 @@
  */
 
 const STORAGE_KEY = 'solo-rpg-data';
+const ACTIVE_CAMPAIGN_KEY = 'solo-rpg-active-campaign';
 
 export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
+    campaigns?: Campaign[];
     fortunes?: Fortune[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
     // characters?: CharacterAttribute[];
 }
+
+export type Campaign = {
+    id: string;
+    title: string;
+    blueprintId: string;
+    blueprintTitle: string;
+    createdAt: number;
+};
 
 export type GameBlueprint = {
     id: string;
@@ -22,7 +32,7 @@ export type GameBlueprint = {
 
 export type Fortune = {
     id: string;
-    campaign: string;
+    campaign?: string;
     title: string;
     outcome: Outcome;
 };
@@ -108,13 +118,58 @@ export function saveGameBlueprints(blueprints: GameBlueprint[]): void {
 }
 
 /**
+ * Load campaigns from storage
+ */
+export function loadCampaigns(): Campaign[] {
+    const data = loadData();
+    return data.campaigns || [];
+}
+
+/**
+ * Save campaigns to storage
+ */
+export function saveCampaigns(campaigns: Campaign[]): void {
+    const data = loadData();
+    data.campaigns = campaigns;
+    saveData(data);
+}
+
+/**
  * Clear all Solo RPG data from localStorage
  */
 export function clearData(): void {
     try {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ACTIVE_CAMPAIGN_KEY);
     } catch (error) {
         console.error('Failed to clear Solo RPG data:', error);
+    }
+}
+
+/**
+ * Load the active campaign ID from localStorage
+ */
+export function loadActiveCampaignId(): string | null {
+    try {
+        return localStorage.getItem(ACTIVE_CAMPAIGN_KEY);
+    } catch (error) {
+        console.error('Failed to load active campaign:', error);
+        return null;
+    }
+}
+
+/**
+ * Save the active campaign ID to localStorage
+ */
+export function saveActiveCampaignId(campaignId: string | null): void {
+    try {
+        if (campaignId) {
+            localStorage.setItem(ACTIVE_CAMPAIGN_KEY, campaignId);
+        } else {
+            localStorage.removeItem(ACTIVE_CAMPAIGN_KEY);
+        }
+    } catch (error) {
+        console.error('Failed to save active campaign:', error);
     }
 }
 

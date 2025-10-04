@@ -1,5 +1,6 @@
 <script lang="ts">
     import { loadFortunes, saveFortunes } from "../storage-utils";
+    import { activeCampaign } from "../campaign-store";
     import { onMount } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
@@ -8,7 +9,7 @@
     import { generateId, type Fortune } from "./scripts/oracleTypes";
     import "../solo-rpg-styles.css";
 
-    // Props kept for backwards compatibility but not used in page mode
+    // To access active campaign: $activeCampaign (will be Campaign | null)
 
     let fortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
