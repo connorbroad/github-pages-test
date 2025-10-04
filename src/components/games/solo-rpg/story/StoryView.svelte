@@ -1,13 +1,23 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, createEventDispatcher } from "svelte";
+    import { activeCampaign } from "../campaign-store";
+    import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import "../solo-rpg-styles.css";
+
+    const dispatch = createEventDispatcher();
 
     let selectedTool: "draw" | "marker" | "note" | "erase" | null = null;
 
     function selectTool(tool: "draw" | "marker" | "note" | "erase") {
         selectedTool = tool;
     }
+
+    function handleNavigateHome() {
+        dispatch('navigateHome');
+    }
 </script>
+
+<NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="story-view">
     <h1>Story</h1>

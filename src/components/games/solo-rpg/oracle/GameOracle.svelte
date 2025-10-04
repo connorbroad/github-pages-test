@@ -1,15 +1,16 @@
 <script lang="ts">
     import { loadFortunes, saveFortunes } from "../storage-utils";
     import { activeCampaign } from "../campaign-store";
-    import { onMount } from "svelte";
+    import { onMount, createEventDispatcher } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
     import OutcomeMappingEditor from "./components/OutcomeMappingEditor.svelte";
     import FateConsultation from "./components/FateConsultation.svelte";
+    import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
     import "../solo-rpg-styles.css";
 
-    // To access active campaign: $activeCampaign (will be Campaign | null)
+    const dispatch = createEventDispatcher();
 
     let fortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
@@ -87,7 +88,13 @@
             saveFortunes(fortunes);
         }
     }
+
+    function handleNavigateHome() {
+        dispatch('navigateHome');
+    }
 </script>
+
+<NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="oracle-page">
     <button

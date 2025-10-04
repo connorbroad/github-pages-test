@@ -135,6 +135,10 @@
         showCampaignLoadConfirm = false;
         selectedCampaignForLoad = null;
     }
+
+    function unloadCampaign() {
+        activeCampaign.unload();
+    }
 </script>
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
@@ -153,6 +157,13 @@
                             <span class="banner-title">{$activeCampaign.title}</span>
                             <span class="banner-meta">{$activeCampaign.blueprintTitle}</span>
                         </div>
+                        <button 
+                            class="srpg-b srpg-b-sm srpg-b-normal"
+                            on:click={unloadCampaign}
+                            title="Unload campaign"
+                        >
+                            Unload
+                        </button>
                     </div>
                 </div>
             {/if}
@@ -228,7 +239,7 @@
     {:else if currentView === 'oracle'}
         <div class="oracle-view">
             <h1>Oracle</h1>
-            <GameOracle />
+            <GameOracle on:navigateHome={() => handleNavigate('home')} />
         </div>
     {:else if currentView === 'settings'}
         <div class="settings-view">
@@ -239,11 +250,12 @@
             <DataManager onDataImported={handleDataImported} />
         </div>
     {:else if currentView === 'map'}
-        <MapView />
+        <MapView on:navigateHome={() => handleNavigate('home')} />
     {:else if currentView === 'story'}
         <StoryView 
             on:openDiceRoller={() => showDiceRoller = true}
             on:openCardDealer={() => showCardDealer = true}
+            on:navigateHome={() => handleNavigate('home')}
         />
     {/if}
 </main>
@@ -355,7 +367,7 @@
     .banner-meta {
         font-size: 0.9rem;
         opacity: 0.85;
-    }
+    } 
 
     @media (max-width: 600px) {
         .banner-content {
