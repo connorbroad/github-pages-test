@@ -143,6 +143,7 @@
 
     .description {
         color: #4b5563;
+        margin-top: 0;
         margin-bottom: 1.5rem;
         line-height: 1.6;
     }
@@ -202,15 +203,5 @@
         border-left: 4px solid #10b981;
         color: #065f46;
         border-radius: 4px;
-    }
-
-    @media (min-width: 640px) {
-        .button-group {
-            flex-direction: row;
-        }
-
-        .action-button {
-            flex: 1;
-        }
     }
 </style>
