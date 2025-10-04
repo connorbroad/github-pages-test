@@ -8,7 +8,8 @@
     import "../../solo-rpg-styles.css";
 
     export let fortunes: Fortune[] = [];
-    export let campaigns: string[] = [];
+    export let allowReorder: boolean = true;
+    export let allowDelete: boolean = true;
 
     const dispatch = createEventDispatcher();
 
@@ -142,71 +143,66 @@
 </script>
 
 <div class="fortunes-list">
-    {#if campaigns.length === 0}
+    {#if fortunes.length === 0}
         <p class="empty-message">No fortunes yet. Create one to get started!</p>
     {:else}
-        {#each campaigns as campaign}
-            <div class="campaign-group">
-                <h3 class="campaign-title">{campaign}</h3>
-                {#each fortunes.filter((f) => f.campaign === campaign) as fortune}
-                    <div
-                        class="fortune-card"
-                        role="listitem"
-                        data-fortune-id={fortune.id}
-                        data-dragging={draggedFortuneId === fortune.id ||
-                        touchDraggedId === fortune.id
-                            ? "true"
-                            : "false"}
-                        on:dragover={(e) =>
-                            handleDragOver(campaign, fortune.id, e)}
-                        on:drop={() => handleDrop(campaign, fortune.id)}
-                        style="border: {draggedFortuneId === fortune.id &&
-                        draggedCampaign === campaign
-                            ? '2px dashed #1976d2'
-                            : dragOverFortuneId === fortune.id &&
-                                dragOverCampaign === campaign
-                              ? '2px solid #4caf50'
-                              : touchDraggedId === fortune.id &&
-                                  touchDraggedCampaign === campaign
-                                ? '2px dashed #1976d2'
-                                : touchDragOverId === fortune.id &&
-                                    touchDragOverCampaign === campaign
-                                  ? '2px solid #4caf50'
-                                  : 'none'};"
+        {#each fortunes as fortune}
+            <div
+                class="fortune-card"
+                role="listitem"
+                data-fortune-id={fortune.id}
+                data-dragging={draggedFortuneId === fortune.id ||
+                touchDraggedId === fortune.id
+                    ? "true"
+                    : "false"}
+                on:dragover={(e) =>
+                    handleDragOver(fortune.campaign || '', fortune.id, e)}
+                on:drop={() => handleDrop(fortune.campaign || '', fortune.id)}
+                style="border: {draggedFortuneId === fortune.id
+                    ? '2px dashed #1976d2'
+                    : dragOverFortuneId === fortune.id
+                      ? '2px solid #4caf50'
+                      : touchDraggedId === fortune.id
+                        ? '2px dashed #1976d2'
+                        : touchDragOverId === fortune.id
+                          ? '2px solid #4caf50'
+                          : 'none'};"
+            >
+                <div class="fortune-action-row">
+                    {#if allowReorder}
+                        <span
+                            class="drag-handle"
+                            title="Drag to reorder"
+                            role="button"
+                            tabindex="0"
+                            aria-label="Drag to reorder fortune"
+                            draggable="true"
+                            on:dragstart={() =>
+                                handleDragStart(fortune.campaign || '', fortune.id)}
+                            on:dragend={handleDragEnd}
+                            on:touchstart={(e) =>
+                                handleTouchStart(fortune.campaign || '', fortune.id, e)}
+                            on:touchmove={(e) =>
+                                handleTouchMove(fortune.campaign || '', fortune.id, e)}
+                            on:touchend={(e) =>
+                                handleTouchEnd(fortune.campaign || '', fortune.id, e)}
+                            >☰</span
+                        >
+                    {/if}
+                    <button
+                        class="srpg-b srpg-b-normal fate-button"
+                        on:click={() =>
+                            dispatch("consultFate", fortune)}
+                        >{fortune.title}</button
                     >
-                        <div class="fortune-action-row">
-                            <span
-                                class="drag-handle"
-                                title="Drag to reorder"
-                                role="button"
-                                tabindex="0"
-                                aria-label="Drag to reorder fortune"
-                                draggable="true"
-                                on:dragstart={() =>
-                                    handleDragStart(campaign, fortune.id)}
-                                on:dragend={handleDragEnd}
-                                on:touchstart={(e) =>
-                                    handleTouchStart(campaign, fortune.id, e)}
-                                on:touchmove={(e) =>
-                                    handleTouchMove(campaign, fortune.id, e)}
-                                on:touchend={(e) =>
-                                    handleTouchEnd(campaign, fortune.id, e)}
-                                >☰</span
-                            >
-                            <button
-                                class="srpg-b srpg-b-normal fate-button"
-                                on:click={() =>
-                                    dispatch("consultFate", fortune)}
-                                >{fortune.title}</button
-                            >
-                            <button
-                                class="srpg-icon-button delete-icon"
-                                on:click={() => dispatch("delete", fortune.id)}
-                                >×</button
-                            >
-                        </div>
-                    </div>
-                {/each}
+                    {#if allowDelete}
+                        <button
+                            class="srpg-icon-button delete-icon"
+                            on:click={() => dispatch("delete", fortune.id)}
+                            >×</button
+                        >
+                    {/if}
+                </div>
             </div>
         {/each}
     {/if}
@@ -222,18 +218,6 @@
         text-align: center;
         color: #999;
         font-style: italic;
-    }
-
-    .campaign-group {
-        margin-bottom: 2rem;
-    }
-
-    .campaign-title {
-        font-size: 1.3rem;
-        color: #1976d2;
-        margin-bottom: 0.5rem;
-        border-bottom: 2px solid #1976d2;
-        padding-bottom: 0.25rem;
     }
 
     .fortune-card {

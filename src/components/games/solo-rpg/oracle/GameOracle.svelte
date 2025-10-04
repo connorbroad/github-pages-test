@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { loadFortunes, saveFortunes } from "../storage-utils";
+    import { loadFortunes, saveFortunes, loadGameBlueprints } from "../storage-utils";
     import { activeCampaign } from "../campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
@@ -13,6 +13,8 @@
     const dispatch = createEventDispatcher();
 
     let fortunes: Fortune[] = [];
+    let defaultFortunes: Fortune[] = [];
+    let customFortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
     let showFate = false;
     let showCreateFortune = false;
@@ -26,22 +28,36 @@
         outcome: {},
     };
 
-    let campaigns: string[] = [];
-
     onMount(() => {
         fortunes = loadFortunes();
     });
 
+    // Separate default fortunes from the active blueprint and user fortunes
     $: {
-        campaigns = [...new Set(fortunes.map((f) => f.campaign))].filter(
-            Boolean,
-        );
+        if ($activeCampaign) {
+            const blueprints = loadGameBlueprints();
+            const activeBlueprint = blueprints.find(
+                (b) => b.id === $activeCampaign.blueprintId
+            );
+            
+            if (activeBlueprint && activeBlueprint.defaultFortunes) {
+                defaultFortunes = activeBlueprint.defaultFortunes;
+            } else {
+                defaultFortunes = [];
+            }
+            
+            // Filter custom fortunes to only show ones for the active campaign
+            customFortunes = fortunes.filter(f => f.campaign === $activeCampaign.id);
+        } else {
+            defaultFortunes = [];
+            customFortunes = [];
+        }
     }
 
     function openCreateFortune() {
         editingFortune = {
             id: generateId(),
-            campaign: "",
+            campaign: $activeCampaign?.id || "",
             title: "",
             outcome: {},
         };
@@ -97,24 +113,44 @@
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="oracle-page">
+
+    {#if defaultFortunes.length > 0}
+        <div class="fortune-section">
+            <h2 class="section-title">Game Fortunes</h2>
+            <FortuneList
+                fortunes={defaultFortunes}
+                allowReorder={false}
+                allowDelete={false}
+                on:consultFate={(e) => openFate(e.detail)}
+                on:delete={(e) => deleteFortune(e.detail)}
+                on:reorder={handleReorder}
+            />
+        </div>
+    {/if}
+
+    <div class="fortune-section">
+        <h2 class="section-title">Custom Fortunes</h2>
     <button
         class="srpg-b srpg-b-create srpg-b-w-full srpg-b-margin-bottom"
-        on:click={openCreateFortune}>Create Fortune</button
+        on:click={openCreateFortune}>+ Create Custom Fortune</button
     >
-
-    <FortuneList
-        {fortunes}
-        {campaigns}
-        on:consultFate={(e) => openFate(e.detail)}
-        on:delete={(e) => deleteFortune(e.detail)}
-        on:reorder={handleReorder}
-    />
+        {#if customFortunes.length > 0}
+            <FortuneList
+                fortunes={customFortunes}
+                on:consultFate={(e) => openFate(e.detail)}
+                on:delete={(e) => deleteFortune(e.detail)}
+                on:reorder={handleReorder}
+            />
+        {:else}
+            <p class="no-fortunes">No custom fortunes yet. Click the button above to create one.</p>
+        {/if}
+    </div>
 </div>
 
 <FortuneEditor
     show={showCreateFortune}
     fortune={editingFortune}
-    {campaigns}
+    showCampaignField={false}
     on:close={() => (showCreateFortune = false)}
     on:save={saveFortune}
     on:editOutcome={() => (showEditOutcome = true)}
@@ -144,5 +180,27 @@
     .oracle-page {
         width: 100%;
         text-align: center;
+    }
+
+    .fortune-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .no-fortunes {
+        color: #999;
+        font-style: italic;
+        padding: 2rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin: 0;
     }
 </style>
