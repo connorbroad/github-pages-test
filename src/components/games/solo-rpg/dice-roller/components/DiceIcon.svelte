@@ -43,8 +43,12 @@
             height="32"
             aria-hidden="true"
         >
-            <polygon
-                points="16,4 28,16 16,28 4,16"
+            <rect
+                x="8"
+                y="8"
+                width="16"
+                height="16"
+                rx="2"
                 fill="#f8f8f8"
                 stroke="#ccc"
                 stroke-width="2"
@@ -60,7 +64,7 @@
             aria-hidden="true"
         >
             <polygon
-                points="16,2 24,16 16,30 8,16"
+                points="16,4 28,16 16,28 4,16"
                 fill="#f8f8f8"
                 stroke="#ccc"
                 stroke-width="2"
