@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import "../solo-rpg-styles.css";
     onMount(() => buildDeck());
 
     const suits = ["♠", "♥", "♦", "♣"];
@@ -96,7 +97,7 @@
         >
             <div class="card-drawer-content">
                 <button
-                    class="modal-close-btn"
+                    class="solo-rpg-modal-close"
                     aria-label="Close"
                     on:click={() => onClose && onClose()}>&times;</button
                 >
@@ -135,12 +136,12 @@
                 </div>
                 <div class="card-drawer-actions">
                     <button
-                        class="card-drawer-button"
+                        class="solo-rpg-button solo-rpg-button-normal"
                         on:click={drawCards}
                         disabled={deck.length === 0}>Draw</button
                     >
                     <button
-                        class="card-drawer-button"
+                        class="solo-rpg-button solo-rpg-button-normal"
                         on:click={handleUndo}
                         disabled={drawn.length === 0}
                     >
@@ -150,7 +151,7 @@
                 <hr class="divider" />
                 <button
                     id="take-result-button"
-                    class="card-drawer-button"
+                    class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full"
                     on:click={onClickTakeResult}
                     disabled={drawn.length === 0}
                 >
@@ -159,7 +160,7 @@
                 <hr class="divider" />
                 <button
                     id="reset-deck-button"
-                    class="card-drawer-button"
+                    class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full"
                     on:click={buildDeck}
                 >
                     Shuffle Deck
@@ -211,26 +212,7 @@
         margin: 1rem 0;
         gap: 1rem;
     }
-    .card-drawer-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.25rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0.5rem 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-        flex-grow: 1;
-    }
-    .card-drawer-button:active {
-        background: #1565c0;
-    }
-    .card-drawer-button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-    }
+    
     .card-drawer-info {
         margin-top: 1rem;
         font-size: 1.1rem;
@@ -261,22 +243,7 @@
         margin: 0.2rem;
         min-width: 48px;
     }
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
+    
     .options {
         display: flex;
         flex-direction: column;

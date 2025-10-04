@@ -5,6 +5,7 @@
         downloadDataFile,
         loadData,
     } from "../storage-utils";
+    import "../solo-rpg-styles.css";
 
     export let onDataImported: () => void;
     // Props kept for backwards compatibility but not used in page mode
@@ -70,16 +71,16 @@
                 another device. Importing will overwrite your current data.
             </p>
 
-            <div class="button-group">
+            <div class="solo-rpg-button-group-vertical">
                 <button
-                    class="action-button export-button"
+                    class="solo-rpg-button solo-rpg-button-normal"
                     on:click={handleExport}
                 >
                     📥 Export Data
                 </button>
 
                 <button
-                    class="action-button import-button"
+                    class="solo-rpg-button solo-rpg-button-create"
                     on:click={handleImportClick}
                 >
                     📤 Import Data
@@ -146,45 +147,6 @@
         margin-top: 0;
         margin-bottom: 1.5rem;
         line-height: 1.6;
-    }
-
-    .button-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .action-button {
-        padding: 1rem;
-        font-size: 1rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-    .export-button {
-        background-color: #3b82f6;
-        color: white;
-    }
-
-    .export-button:hover {
-        background-color: #2563eb;
-    }
-
-    .import-button {
-        background-color: #10b981;
-        color: white;
-    }
-
-    .import-button:hover {
-        background-color: #059669;
     }
 
     .error-message {

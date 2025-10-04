@@ -4,6 +4,7 @@
     import GameOracle from './oracle/GameOracle.svelte';
     import DataManager from './data-manager/DataManager.svelte';
     import Sidebar from './Sidebar.svelte';
+    import './solo-rpg-styles.css';
     
     type View = 'home' | 'tools' | 'oracle' | 'settings' | 'map' | 'story';
     let currentView: View = 'home';
@@ -51,9 +52,9 @@
     {:else if currentView === 'story'}
         <div class="story-view">
             <h1>Story</h1>
-            <div class="tool-buttons">
-                <button on:click={() => showDiceRoller = true}>Dice Roller</button>
-                <button on:click={() => showCardDealer = true}>Card Dealer</button>
+            <div class="solo-rpg-tool-grid">
+                <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-xl" on:click={() => showDiceRoller = true}>Dice Roller</button>
+                <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-xl" on:click={() => showCardDealer = true}>Card Dealer</button>
             </div>
             <br />
             <em>Coming Soon!</em>
@@ -94,11 +95,6 @@
         margin-bottom: 1.5rem;
     }
 
-    h2 {
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
     .home-view {
         max-width: 800px;
         margin: 0 auto;
@@ -109,65 +105,6 @@
         font-size: 1.1rem;
         margin-bottom: 2rem;
         color: #666;
-    }
-
-    .quick-links {
-        background: #f5f5f5;
-        padding: 2rem;
-        border-radius: 8px;
-        margin-top: 2rem;
-    }
-
-    .quick-links h2 {
-        margin-top: 0;
-    }
-
-    .quick-links button {
-        display: block;
-        width: 100%;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        font-size: 1rem;
-        background-color: #4a9eff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .quick-links button:hover {
-        background-color: #3a8eef;
-    }
-
-    .tools-view, .settings-view {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
-    .tool-buttons {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .tool-buttons button {
-        padding: 2rem;
-        font-size: 1.1rem;
-        background-color: #4a9eff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .tool-buttons button:hover {
-        background-color: #3a8eef;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .oracle-view {

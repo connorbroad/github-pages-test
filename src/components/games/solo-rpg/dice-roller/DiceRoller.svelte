@@ -8,6 +8,7 @@
         createDiceRollerAnimation,
         DEFAULT_ANIMATION_CONFIG,
     } from "./scripts/diceRollerLogic";
+    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let onClose: () => void;
@@ -80,7 +81,7 @@
             }}
         >
             <button
-                class="modal-close-btn"
+                class="solo-rpg-modal-close"
                 aria-label="Close"
                 on:click={() => onClose && onClose()}>&times;</button
             >
@@ -113,7 +114,7 @@
                     </select>
                 </div>
             </div>
-            <button class="dice-roller-button" on:click={onRollButtonClick}
+            <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full" on:click={onRollButtonClick}
                 >Roll</button
             >
             {#if showResultCalculator}
@@ -216,7 +217,7 @@
 
                     <button
                         id="take-result-button"
-                        class="dice-roller-button"
+                        class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full"
                         on:click={onClickTakeResult}
                         disabled={diceResults.length === 0 ||
                             finalResult === null ||
@@ -405,49 +406,13 @@
         color: #aaa;
         cursor: not-allowed;
     }
-    .dice-roller-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.25rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0.5rem 0;
-        margin-bottom: 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-        overflow: hidden;
-    }
-    .dice-roller-button:active {
-        background: #1565c0;
-    }
-    .dice-roller-button:disabled {
-        background: #ccc;
-        color: #666;
-        cursor: not-allowed;
-    }
+    
     .result-arrow {
         font-size: 1.3rem;
         margin-left: 0.5rem;
         color: inherit;
     }
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
+    
     #take-result-button {
         margin-bottom: 0;
         padding: 0;

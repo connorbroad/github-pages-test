@@ -6,6 +6,7 @@
     import OutcomeMappingEditor from "./components/OutcomeMappingEditor.svelte";
     import FateConsultation from "./components/FateConsultation.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
+    import "../solo-rpg-styles.css";
 
     // Props kept for backwards compatibility but not used in page mode
 
@@ -88,7 +89,7 @@
 
 <div class="oracle-page">
     <button
-        class="oracle-button create-button"
+        class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full solo-rpg-button-margin-bottom"
         on:click={openCreateFortune}>Create Fortune</button
     >
 
@@ -131,31 +132,5 @@
     .oracle-page {
         width: 100%;
         text-align: center;
-    }
-
-    .oracle-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .oracle-button:active {
-        background: #1565c0;
-    }
-
-    .create-button {
-        background: #4caf50;
-        margin-bottom: 1.5rem;
-    }
-
-    .create-button:active {
-        background: #45a049;
     }
 </style>

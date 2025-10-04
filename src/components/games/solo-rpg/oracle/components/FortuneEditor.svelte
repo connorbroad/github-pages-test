@@ -5,6 +5,7 @@
      */
     import type { Fortune } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
+    import "../../solo-rpg-styles.css";
 
     export let show = false;
     export let fortune: Fortune;
@@ -52,7 +53,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="modal-close-btn" on:click={handleClose}
+            <button class="solo-rpg-modal-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>Create Fortune</h2>
@@ -158,11 +159,11 @@
                 </label>
             </div>
 
-            <button class="oracle-button" on:click={handleEditOutcome}>
+            <button class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full" on:click={handleEditOutcome}>
                 Edit Outcome Mappings
             </button>
             <hr class="divider" />
-            <button class="oracle-button" on:click={handleSave}>
+            <button class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full" on:click={handleSave}>
                 Save Fortune
             </button>
         </div>
@@ -197,23 +198,6 @@
         position: relative;
     }
 
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
-
     h2 {
         margin-top: 0;
         color: #333;
@@ -224,23 +208,6 @@
         margin-bottom: 0.5rem;
         color: #555;
         font-size: 1.1rem;
-    }
-
-    .oracle-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .oracle-button:active {
-        background: #1565c0;
     }
 
     .form-group {

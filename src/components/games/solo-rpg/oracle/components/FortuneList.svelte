@@ -5,6 +5,7 @@
      */
     import type { Fortune } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
+    import "../../solo-rpg-styles.css";
 
     export let fortunes: Fortune[] = [];
     export let campaigns: string[] = [];
@@ -193,13 +194,13 @@
                                 >☰</span
                             >
                             <button
-                                class="oracle-button fate-button"
+                                class="solo-rpg-button solo-rpg-button-normal fate-button"
                                 on:click={() =>
                                     dispatch("consultFate", fortune)}
                                 >{fortune.title}</button
                             >
                             <button
-                                class="delete-btn"
+                                class="solo-rpg-icon-button delete-icon"
                                 on:click={() => dispatch("delete", fortune.id)}
                                 >×</button
                             >
@@ -287,43 +288,8 @@
         transform: scale(0.95);
     }
 
-    .delete-btn {
-        position: static;
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #999;
-        padding: 0;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .delete-btn:hover {
-        color: #f44336;
-    }
-
-    .oracle-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .oracle-button:active {
-        background: #1565c0;
-    }
-
     .fate-button {
+        width: 100%;
         font-size: 1rem;
         padding: 0.5rem 1rem;
     }

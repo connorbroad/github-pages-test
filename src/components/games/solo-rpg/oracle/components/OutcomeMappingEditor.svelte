@@ -11,6 +11,7 @@
         isRedSuit,
     } from "../scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
+    import "../../solo-rpg-styles.css";
 
     export let show = false;
     export let fortune: Fortune;
@@ -117,7 +118,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="modal-close-btn" on:click={handleClose}
+            <button class="solo-rpg-modal-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>Edit Outcome Mappings</h2>
@@ -204,7 +205,7 @@
                 </div>
             {/if}
 
-            <button class="oracle-button" on:click={handleSave}
+            <button class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full" on:click={handleSave}
                 >Save Mappings</button
             >
         </div>
@@ -243,23 +244,6 @@
         max-width: 600px;
     }
 
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
-
     h2 {
         margin-top: 0;
         color: #333;
@@ -270,23 +254,6 @@
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
         color: #1976d2;
-    }
-
-    .oracle-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .oracle-button:active {
-        background: #1565c0;
     }
 
     .mapping-section {

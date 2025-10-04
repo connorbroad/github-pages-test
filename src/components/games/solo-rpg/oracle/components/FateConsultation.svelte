@@ -10,6 +10,7 @@
     } from "../scripts/oracleTypes";
     import DiceRollerEmbed from "../../dice-roller/DiceRollerEmbed.svelte";
     import { createEventDispatcher } from "svelte";
+    import "../../solo-rpg-styles.css";
 
     export let show = false;
     export let fortune: Fortune | null = null;
@@ -105,7 +106,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="modal-close-btn" on:click={handleClose}
+            <button class="solo-rpg-modal-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>{fortune.title}</h2>
@@ -162,7 +163,7 @@
                         </div>
                     {:else}
                         <button
-                            class="oracle-button draw-button"
+                            class="solo-rpg-button solo-rpg-button-normal solo-rpg-button-full"
                             on:click={handleCardDraw}
                         >
                             Draw Card
@@ -172,7 +173,7 @@
             {/if}
 
             <button
-                class="oracle-button accept-fate-button"
+                class="solo-rpg-button solo-rpg-button-create solo-rpg-button-full"
                 disabled={
                     (fortune.outcome.diceRoll && (!diceHasRolled || diceResult === null)) ||
                     (fortune.outcome.cardDraw?.enabled && drawnCard === null) ||
@@ -219,23 +220,6 @@
         max-width: 450px;
     }
 
-    .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 3rem;
-        height: 3rem;
-        z-index: 10;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: x-large;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
-
     h2 {
         margin-top: 0;
         color: #333;
@@ -246,23 +230,6 @@
         margin-bottom: 0.5rem;
         color: #555;
         font-size: 1.1rem;
-    }
-
-    .oracle-button {
-        width: 100%;
-        padding: 0.75rem 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        border: none;
-        margin: 0 0;
-        background: #1976d2;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .oracle-button:active {
-        background: #1565c0;
     }
 
     .fate-section {
@@ -307,27 +274,5 @@
         margin: 0;
         color: #333;
         text-align: left;
-    }
-
-    .draw-button {
-        background: #1976d2;
-    }
-
-    .draw-button:active {
-        background: #1565c0;
-    }
-
-    .accept-fate-button {
-        background: #1976d2;
-    }
-
-    .accept-fate-button:active {
-        background: #1565c0;
-    }
-
-    .accept-fate-button:disabled {
-        background: #ccc;
-        color: #666;
-        cursor: not-allowed;
     }
 </style>
