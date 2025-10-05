@@ -10,6 +10,7 @@ export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
     campaigns?: Campaign[];
     fortunes?: Fortune[];
+    chronicleEntries?: ChronicleEntry[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -22,6 +23,15 @@ export type Campaign = {
     blueprintId: string;
     blueprintTitle: string;
     createdAt: number;
+};
+
+export type ChronicleEntry = {
+    id: string;
+    campaignId: string;
+    timestamp: number;
+    type: "manual" | "fortune";
+    content: string;
+    fortuneId?: string; // Optional reference to fortune if type is "fortune"
 };
 
 export type GameBlueprint = {
@@ -132,6 +142,23 @@ export function loadCampaigns(): Campaign[] {
 export function saveCampaigns(campaigns: Campaign[]): void {
     const data = loadData();
     data.campaigns = campaigns;
+    saveData(data);
+}
+
+/**
+ * Load chronicle entries from storage
+ */
+export function loadChronicleEntries(): ChronicleEntry[] {
+    const data = loadData();
+    return data.chronicleEntries || [];
+}
+
+/**
+ * Save chronicle entries to storage
+ */
+export function saveChronicleEntries(entries: ChronicleEntry[]): void {
+    const data = loadData();
+    data.chronicleEntries = entries;
     saveData(data);
 }
 

@@ -2,6 +2,7 @@
     import { onMount, createEventDispatcher } from "svelte";
     import { activeCampaign } from "../campaign-store";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
+    import Chronicle from "./Chronicle.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -23,7 +24,11 @@
         </p>
     </div>
 
-    <em>Coming soon!</em>
+    {#if $activeCampaign}
+        <Chronicle />
+    {:else}
+        <em>Select or create a campaign to start recording your adventure.</em>
+    {/if}
 </div>
 
 <style>
