@@ -11,6 +11,7 @@ export interface SoloRPGData {
     campaigns?: Campaign[];
     fortunes?: Fortune[];
     chronicleEntries?: ChronicleEntry[];
+    chapters?: Chapter[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -25,9 +26,19 @@ export type Campaign = {
     createdAt: number;
 };
 
+export type Chapter = {
+    id: string;
+    campaignId: string;
+    chapterNumber: number;
+    customName?: string; // Optional custom name
+    createdAt: number;
+    closedAt: number; // When the chapter was closed/saved
+};
+
 export type ChronicleEntry = {
     id: string;
     campaignId: string;
+    chapterId?: string; // Optional reference to chapter (undefined = current/active entries)
     timestamp: number;
     type: "manual" | "fortune";
     content: string;
@@ -181,6 +192,23 @@ export function loadChronicleEntries(): ChronicleEntry[] {
 export function saveChronicleEntries(entries: ChronicleEntry[]): void {
     const data = loadData();
     data.chronicleEntries = entries;
+    saveData(data);
+}
+
+/**
+ * Load chapters from storage
+ */
+export function loadChapters(): Chapter[] {
+    const data = loadData();
+    return data.chapters || [];
+}
+
+/**
+ * Save chapters to storage
+ */
+export function saveChapters(chapters: Chapter[]): void {
+    const data = loadData();
+    data.chapters = chapters;
     saveData(data);
 }
 

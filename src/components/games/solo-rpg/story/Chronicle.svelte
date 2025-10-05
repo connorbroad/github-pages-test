@@ -1,21 +1,27 @@
 <script lang="ts">
     import { activeCampaign } from "../campaign-store";
-    import { loadChronicleEntries, saveChronicleEntries } from "../storage-utils";
-    import type { ChronicleEntry } from "../storage-utils";
+    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters } from "../storage-utils";
+    import type { ChronicleEntry, Chapter } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
 
     let entries: ChronicleEntry[] = [];
+    let chapters: Chapter[] = [];
     let showAddEntry = false;
     let newEntryText = "";
     let editingEntryId: string | null = null;
     let addingNoteToEntry: string | null = null;
     let noteText = "";
+    let showCreateChapter = false;
+    let chapterCustomName = "";
+    let viewingChapterId: string | null = null; // null means viewing current entries
+    let showChaptersList = false;
 
     $: if ($activeCampaign) {
         loadEntries();
+        loadCampaignChapters();
     }
 
     function loadEntries() {
@@ -23,8 +29,32 @@
         
         const allEntries = loadChronicleEntries();
         entries = allEntries
-            .filter(e => e.campaignId === $activeCampaign.id)
+            .filter(e => {
+                if (e.campaignId !== $activeCampaign.id) return false;
+                // When viewing current chapter (viewingChapterId is null), show entries without a chapterId
+                if (viewingChapterId === null) {
+                    return !e.chapterId;
+                }
+                // When viewing a specific chapter, match that chapterId
+                return e.chapterId === viewingChapterId;
+            })
             .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
+    }
+
+    function loadCampaignChapters() {
+        if (!$activeCampaign) return;
+        
+        const allChapters = loadChapters();
+        chapters = allChapters
+            .filter(c => c.campaignId === $activeCampaign.id)
+            .sort((a, b) => b.chapterNumber - a.chapterNumber); // Most recent first
+    }
+
+    function getChapterDisplayName(chapter: Chapter): string {
+        if (chapter.customName) {
+            return `Chapter ${chapter.chapterNumber} - ${chapter.customName}`;
+        }
+        return `Chapter ${chapter.chapterNumber}`;
     }
 
     function openAddEntry() {
@@ -82,6 +112,97 @@
         const filtered = allEntries.filter(e => e.id !== entryId);
         saveChronicleEntries(filtered);
         
+        loadEntries();
+    }
+
+    function openCreateChapter() {
+        chapterCustomName = "";
+        showCreateChapter = true;
+    }
+
+    function cancelCreateChapter() {
+        showCreateChapter = false;
+        chapterCustomName = "";
+    }
+
+    function createChapter() {
+        if (!$activeCampaign) return;
+
+        const currentEntries = loadChronicleEntries().filter(
+            e => e.campaignId === $activeCampaign.id && !e.chapterId
+        );
+
+        if (currentEntries.length === 0) {
+            alert("No entries to save into a chapter!");
+            return;
+        }
+
+        // Determine next chapter number
+        const nextChapterNumber = chapters.length > 0 
+            ? Math.max(...chapters.map(c => c.chapterNumber)) + 1 
+            : 1;
+
+        // Create new chapter
+        const newChapter: Chapter = {
+            id: generateEntryId(),
+            campaignId: $activeCampaign.id,
+            chapterNumber: nextChapterNumber,
+            customName: chapterCustomName.trim() || undefined,
+            createdAt: currentEntries.length > 0 
+                ? Math.min(...currentEntries.map(e => e.timestamp)) 
+                : Date.now(),
+            closedAt: Date.now()
+        };
+
+        // Save chapter
+        const allChapters = loadChapters();
+        allChapters.push(newChapter);
+        saveChapters(allChapters);
+
+        // Update all current entries to belong to this chapter
+        const allEntries = loadChronicleEntries();
+        allEntries.forEach(entry => {
+            if (entry.campaignId === $activeCampaign.id && !entry.chapterId) {
+                entry.chapterId = newChapter.id;
+            }
+        });
+        saveChronicleEntries(allEntries);
+
+        // Reload data
+        loadCampaignChapters();
+        loadEntries();
+        cancelCreateChapter();
+    }
+
+    function viewChapter(chapterId: string | null) {
+        viewingChapterId = chapterId;
+        showChaptersList = false;
+        loadEntries();
+    }
+
+    function toggleChaptersList() {
+        showChaptersList = !showChaptersList;
+    }
+
+    function deleteChapter(chapterId: string) {
+        if (!confirm("Are you sure you want to delete this chapter? All entries in this chapter will also be deleted.")) return;
+
+        // Delete all entries in this chapter
+        const allEntries = loadChronicleEntries();
+        const filtered = allEntries.filter(e => e.chapterId !== chapterId);
+        saveChronicleEntries(filtered);
+
+        // Delete the chapter
+        const allChapters = loadChapters();
+        const filteredChapters = allChapters.filter(c => c.id !== chapterId);
+        saveChapters(filteredChapters);
+
+        // If we were viewing this chapter, go back to current
+        if (viewingChapterId === chapterId) {
+            viewingChapterId = null;
+        }
+
+        loadCampaignChapters();
         loadEntries();
     }
 
@@ -148,10 +269,108 @@
 <div class="chronicle">
     <div class="chronicle-header">
         <h2>Chronicle</h2>
-        <button class="srpg-b srpg-b-create" on:click={openAddEntry}>
-            + Add Entry
-        </button>
+        <div class="header-actions">
+            <button class="srpg-b" on:click={toggleChaptersList}>
+                📚 Chapters
+            </button>
+            {#if !viewingChapterId}
+                <button class="srpg-b srpg-b-create" on:click={openAddEntry}>
+                    + Add Entry
+                </button>
+            {/if}
+        </div>
     </div>
+
+    {#if showChaptersList}
+        <div class="chapters-list-panel">
+            <div class="chapters-header">
+                <h3>Chapters</h3>
+                <button class="close-btn" on:click={toggleChaptersList}>✕</button>
+            </div>
+            <div class="chapters-content">
+                <button 
+                    class="chapter-item {viewingChapterId === null ? 'active' : ''}"
+                    on:click={() => viewChapter(null)}
+                >
+                    <div class="chapter-name">📖 Current Chapter</div>
+                    <div class="chapter-meta">{loadChronicleEntries().filter(e => e.campaignId === $activeCampaign?.id && !e.chapterId).length} entries</div>
+                </button>
+                {#each chapters as chapter (chapter.id)}
+                    <div class="chapter-item-wrapper">
+                        <button 
+                            class="chapter-item {viewingChapterId === chapter.id ? 'active' : ''}"
+                            on:click={() => viewChapter(chapter.id)}
+                        >
+                            <div class="chapter-name">📜 {getChapterDisplayName(chapter)}</div>
+                            <div class="chapter-meta">
+                                {loadChronicleEntries().filter(e => e.chapterId === chapter.id).length} entries
+                            </div>
+                        </button>
+                        <button 
+                            class="chapter-delete-btn"
+                            on:click|stopPropagation={() => deleteChapter(chapter.id)}
+                            title="Delete chapter"
+                        >
+                            🗑️
+                        </button>
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {/if}
+
+    {#if viewingChapterId === null}
+        <!-- Current Chapter View -->
+        <div class="current-chapter-banner">
+            <div class="banner-content">
+                <span class="banner-icon">📖</span>
+                <span class="banner-text">Current Chapter</span>
+            </div>
+            {#if entries.length > 0}
+                <button class="srpg-b srpg-b-create srpg-b-sm" on:click={openCreateChapter}>
+                    💾 Save as Chapter
+                </button>
+            {/if}
+        </div>
+
+        {#if showCreateChapter}
+            <div class="chapter-editor">
+                <h3>Create New Chapter</h3>
+                <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
+                <input
+                    type="text"
+                    bind:value={chapterCustomName}
+                    placeholder="Chapter name (optional)"
+                    class="chapter-name-input"
+                />
+                <div class="chapter-preview">
+                    {#if chapterCustomName.trim()}
+                        Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
+                    {:else}
+                        Preview: Chapter {chapters.length + 1}
+                    {/if}
+                </div>
+                <div class="editor-actions">
+                    <button class="srpg-b srpg-b-create" on:click={createChapter}>
+                        Create Chapter
+                    </button>
+                    <button class="srpg-b" on:click={cancelCreateChapter}>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        {/if}
+    {:else}
+        <!-- Viewing a Saved Chapter -->
+        <div class="chapter-view-banner">
+            <button class="back-btn" on:click={() => viewChapter(null)}>
+                ← Back to Current
+            </button>
+            <span class="viewing-chapter-name">
+                📜 Viewing: {getChapterDisplayName(chapters.find(c => c.id === viewingChapterId))}
+            </span>
+        </div>
+    {/if}
 
     {#if showAddEntry}
         <div class="entry-editor">
@@ -201,7 +420,7 @@
                                 
                                 {#if entry.fortuneData.cardDraw}
                                     <span class="card-badge" style="color: {isRedSuit(entry.fortuneData.cardDraw.suit) ? '#dc2626' : '#334155'}">
-                                        {entry.fortuneData.cardDraw.rank}{entry.fortuneData.cardDraw.suit}
+                                        {entry.fortuneData.cardDraw.rank} {entry.fortuneData.cardDraw.suit}
                                     </span>
                                     {#if entry.fortuneData.cardDraw.suitMapped || entry.fortuneData.cardDraw.rankMapped}
                                         <span class="result-text">
@@ -268,22 +487,22 @@
                         </div>
                         <div class="entry-actions">
                             <button 
-                                class="entry-action-btn srpg-b srpg-b-normal srpg-b-small" 
+                                class="entry-action-btn" 
                                 on:click={() => openEditEntry(entry)}
                                 title="Edit entry"
                                 aria-label="Edit entry"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                                     <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                 </svg>
                             </button>
                             <button 
-                                class="entry-action-btn srpg-b srpg-b-danger srpg-b-small" 
+                                class="entry-action-btn srpg-b-danger" 
                                 on:click={() => deleteEntry(entry.id)}
                                 title="Delete entry"
                                 aria-label="Delete entry"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                                     <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                 </svg>
                             </button>
@@ -315,6 +534,225 @@
         margin: 0;
         font-size: 1.75rem;
         color: #333;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .chapters-list-panel {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .chapters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .chapters-header h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        color: #333;
+    }
+
+    .close-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.25rem;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0.25rem;
+        line-height: 1;
+        transition: color 0.15s;
+    }
+
+    .close-btn:hover {
+        color: #333;
+    }
+
+    .chapters-content {
+        padding: 0.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .chapter-item-wrapper {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .chapter-item {
+        flex: 1;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+    }
+
+    .chapter-item:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+    }
+
+    .chapter-item.active {
+        background: #6366f1;
+        color: white;
+        border-color: #6366f1;
+    }
+
+    .chapter-item.active .chapter-name,
+    .chapter-item.active .chapter-meta {
+        color: white;
+    }
+
+    .chapter-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .chapter-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .chapter-delete-btn {
+        background: transparent;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .chapter-delete-btn:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+    }
+
+    .current-chapter-banner {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .banner-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .banner-icon {
+        font-size: 1.5rem;
+    }
+
+    .banner-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .chapter-view-banner {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-btn {
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #525252;
+        transition: all 0.15s;
+    }
+
+    .back-btn:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+    }
+
+    .viewing-chapter-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .chapter-editor {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chapter-editor h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        color: #333;
+    }
+
+    .chapter-help {
+        margin: 0 0 1rem 0;
+        font-size: 0.9rem;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    .chapter-name-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .chapter-name-input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .chapter-preview {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #525252;
+        font-size: 0.95rem;
     }
 
     .entry-editor {
@@ -379,16 +817,17 @@
 
     .entry-card {
         background: white;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e5e5e5;
         border-radius: 8px;
         padding: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        transition: box-shadow 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: all 0.15s ease;
     }
 
     .entry-card:hover {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-    }
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        border-color: #d4d4d4;
+    } 
 
     .fortune-card {
         background: #fafafa;
@@ -460,9 +899,14 @@
     }
 
     .card-badge {
-        font-size: 1.1rem;
+        background: #ffffff;
+        color: white;
         font-weight: 700;
-        line-height: 1;
+        font-size: 0.875rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #d1d5db;
+        line-height: 1.4;
     }
 
     .result-text {
@@ -562,54 +1006,69 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #f3f4f6;
+        margin-bottom: 0.85rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid #e5e5e5;
     }
 
     .entry-type {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #4b5563;
+        color: #525252;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .entry-timestamp {
-        font-size: 0.875rem;
-        color: #9ca3af;
+        font-size: 0.8rem;
+        color: #a3a3a3;
+        font-weight: 400;
     }
 
     .entry-content {
-        color: #374151;
-        line-height: 1.6;
+        color: #262626;
+        line-height: 1.65;
         white-space: pre-wrap;
         word-wrap: break-word;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.95rem;
     }
 
     .entry-actions {
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid #e5e5e5;
     }
 
     .entry-action-btn {
-        padding: 0.4rem 0.75rem;
+        background: transparent;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 0.35rem;
         line-height: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
-        min-width: 36px;
-        min-height: 36px;
-        font-size: 1.2rem;
-        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.15s;
+        color: #737373;
+        min-width: auto;
+        min-height: auto;
     }
 
-    .entry-action-btn svg {
-        width: 1em;
-        height: 1em;
-        font-size: 1rem;
+    .entry-action-btn:hover {
+        background: #f5f5f5;
+        border-color: #d4d4d4;
+        color: #525252;
+    }
+
+    .entry-action-btn.srpg-b-danger:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #dc2626;
     }
 
     @media (max-width: 640px) {
@@ -619,12 +1078,37 @@
             gap: 1rem;
         }
 
+        .header-actions {
+            flex-direction: row;
+            justify-content: stretch;
+        }
+
+        .header-actions button {
+            flex: 1;
+        }
+
         .editor-actions {
             flex-direction: column;
         }
 
         .note-editor-actions {
             flex-direction: column;
+        }
+
+        .current-chapter-banner {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .chapter-view-banner {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .viewing-chapter-name {
+            text-align: center;
         }
     }
 </style>
