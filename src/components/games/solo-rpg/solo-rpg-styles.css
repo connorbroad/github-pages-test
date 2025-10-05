@@ -194,3 +194,14 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
+.info-card {
+    background: white;
+    color: rgb(47, 48, 50);
+
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

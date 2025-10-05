@@ -60,7 +60,7 @@
 </script>
 
 <div class="data-manager-page">
-    <div class="content">
+    <div class="info-card content">
         <div class="header">
             <h2>Data Manager</h2>
         </div>
@@ -115,13 +115,10 @@
         width: 100%;
     }
 
-    .content {
-        background-color: white;
-        border-radius: 8px;
+    .content { 
+        padding: 0;
         max-width: 500px;
-        width: 100%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
+        width: 100%;  
     }
 
     .header {

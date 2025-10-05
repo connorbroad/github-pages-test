@@ -150,7 +150,7 @@
             <p>Welcome to your Solo RPG companion!</p>
             
             {#if $activeCampaign}
-                <div class="active-campaign-banner">
+                <div class="info-card">
                     <div class="banner-content">
                         <div class="banner-info">
                             <span class="banner-label">Active Campaign:</span>
@@ -211,16 +211,27 @@
                                         {#if blueprintCampaigns.length > 0}
                                             <div class="campaigns-grid">
                                                 {#each blueprintCampaigns as campaign}
-                                                    <button 
-                                                        class="campaign-card srpg-b srpg-b-normal"
-                                                        class:active={$activeCampaign?.id === campaign.id}
-                                                        on:click={() => openCampaignLoadConfirm(campaign)}
-                                                    >
-                                                        <strong class="campaign-name">{campaign.title}</strong>
-                                                        <span class="campaign-date">
-                                                            {formatDate(campaign.createdAt)}
-                                                        </span>
-                                                    </button>
+                                                    <div class="info-card campaign-card">
+                                                        <div class="campaign-info">
+                                                            <strong class="campaign-name">{campaign.title}</strong>
+                                                            <span class="campaign-date">
+                                                                {formatDate(campaign.createdAt)}
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            class="srpg-b srpg-b-normal campaign-play-button"
+                                                            class:active={$activeCampaign?.id === campaign.id}
+                                                            on:click={() => openCampaignLoadConfirm(campaign)}
+                                                            disabled={$activeCampaign?.id === campaign.id}
+                                                            aria-label="Load campaign"
+                                                        >
+                                                            {#if $activeCampaign?.id === campaign.id}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196"/></svg>
+                                                            {:else}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"/></svg>
+                                                            {/if}
+                                                        </button>
+                                                    </div>
                                                 {/each}
                                             </div>
                                         {:else}
@@ -327,17 +338,6 @@
         font-size: 1.1rem;
         margin-bottom: 2rem;
         color: #666;
-    }
-
-    .active-campaign-banner { 
-        background: white;
-        color: rgb(47, 48, 50);
-        padding: 1rem 1.5rem; 
-        margin-bottom: 2rem; 
- 
-        border-radius: 8px;  
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
     }
 
     .banner-content {
@@ -477,27 +477,24 @@
         gap: 0.75rem;
     }
 
-    .campaign-card {
+    .campaign-card { 
         display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         justify-content: center;
         padding: 1rem;
         min-height: 80px;
-        text-align: left;
-        gap: 0.5rem;
+        text-align: left; 
         position: relative;
         transition: all 0.2s ease;
+        width: 100%;
     } 
 
-    .campaign-card.active::after {
-        content: "✓ Active";
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        font-size: 0.7rem;
-        font-weight: 600;
-        opacity: 0.9;
+    .campaign-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem; 
+        flex-grow: 1;
     }
 
     .campaign-name {
@@ -509,6 +506,12 @@
         font-size: 0.75rem;
         opacity: 0.7;
         font-weight: normal;
+    }
+
+    .campaign-play-button { 
+        padding: 12px;
+        border-radius: 100px;
+        aspect-ratio: 1 / 1;
     }
 
     .no-campaigns {
