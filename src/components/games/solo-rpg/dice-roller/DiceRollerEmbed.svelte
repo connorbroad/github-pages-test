@@ -19,6 +19,7 @@
     const dispatch = createEventDispatcher();
     $: dispatch("rollingChange", rolling);
     $: dispatch("hasRolledChange", hasRolled);
+    $: dispatch("diceResults", diceResults);
 
     let diceResults: number[] = [];
     let finalResult: number | null = null;

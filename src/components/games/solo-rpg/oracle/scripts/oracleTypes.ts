@@ -8,6 +8,7 @@ export type DiceRoll = {
     modifier: number;
     resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
     showModifier?: boolean;
+    diceSignificance?: { [key: number]: string };
 };
 
 export type CardDraw = {

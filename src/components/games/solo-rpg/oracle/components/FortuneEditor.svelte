@@ -28,6 +28,7 @@
     let diceMappingArray: { value: number; outcome: string }[] = [];
     let suitMappingArray: { suit: string; outcome: string }[] = [];
     let rankMappingArray: { rank: string; outcome: string }[] = [];
+    let diceSignificanceArray: { index: number; label: string }[] = [];
 
     // Initialize mappings when entering mapping view
     $: if (viewMode === 'mappings') {
@@ -48,6 +49,14 @@
                 value,
                 outcome: fortune.outcome.diceMapping?.[value] || "",
             }));
+
+            // Initialize dice significance array
+            if (fortune.outcome.diceRoll.numDice > 1) {
+                diceSignificanceArray = Array.from({ length: fortune.outcome.diceRoll.numDice }, (_, i) => ({
+                    index: i + 1,
+                    label: fortune.outcome.diceRoll?.diceSignificance?.[i + 1] || ""
+                }));
+            }
         }
 
         if (fortune.outcome.cardDraw?.enabled) {
@@ -89,6 +98,17 @@
                 }
             });
             fortune.outcome.diceMapping = diceMapping;
+
+            // Save dice significance
+            if (fortune.outcome.diceRoll.numDice > 1) {
+                const diceSignificance: { [key: number]: string } = {};
+                diceSignificanceArray.forEach(({ index, label }) => {
+                    if (label.trim()) {
+                        diceSignificance[index] = label.trim();
+                    }
+                });
+                fortune.outcome.diceRoll.diceSignificance = diceSignificance;
+            }
         }
 
         if (fortune.outcome.cardDraw?.enabled) {
@@ -265,6 +285,31 @@
                 <h2>Edit Outcome Mappings</h2>
 
                 {#if fortune.outcome.diceRoll}
+                    <!-- Dice Significance Section (only if multiple dice) -->
+                    {#if fortune.outcome.diceRoll.numDice > 1}
+                        <div class="mapping-section">
+                            <h3>Dice Significance</h3>
+                            <p class="section-description">Assign labels to individual dice (optional)</p>
+                            <div class="mapping-table">
+                                <div class="mapping-header">
+                                    <span class="mapping-col-result">Die #</span>
+                                    <span class="mapping-col-outcome">Label</span>
+                                </div>
+                                {#each diceSignificanceArray as significance}
+                                    <div class="mapping-row">
+                                        <span class="mapping-result">Die {significance.index}</span>
+                                        <input
+                                            type="text"
+                                            class="mapping-input"
+                                            bind:value={significance.label}
+                                            placeholder="e.g., Action, Detail..."
+                                        />
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
                     <div class="mapping-section">
                         <h3>Dice Result Mappings</h3>
                         <div class="mapping-table">
@@ -458,6 +503,13 @@
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
         color: #1976d2;
+    }
+
+    .section-description {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0 0 0.5rem 0;
+        font-style: italic;
     }
 
     .mapping-table {

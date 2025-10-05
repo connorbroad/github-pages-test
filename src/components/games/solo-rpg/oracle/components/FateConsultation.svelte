@@ -18,6 +18,7 @@
     const dispatch = createEventDispatcher();
 
     let diceResult: number | null = null;
+    let individualDiceResults: number[] = [];
     let drawnCard: { suit: string; rank: string } | null = null;
     let fateOutcome: { dice?: string; suit?: string; rank?: string } = {};
     let modifier: number = 0;
@@ -33,6 +34,7 @@
 
     function resetState() {
         diceResult = null;
+        individualDiceResults = [];
         drawnCard = null;
         fateOutcome = {};
         modifier = fortune?.outcome.diceRoll?.showModifier ? 0 : 0;
@@ -42,9 +44,8 @@
 
     function handleDiceResult(result: number) {
         diceResult = result;
-        if (fortune?.outcome.diceMapping) {
-            fateOutcome.dice =
-                fortune.outcome.diceMapping[result] || "No mapping found";
+        if (fortune?.outcome.diceMapping && fortune.outcome.diceMapping[result]) {
+            fateOutcome.dice = fortune.outcome.diceMapping[result];
         }
     }
 
@@ -52,13 +53,11 @@
         const card = drawRandomCard();
         drawnCard = card;
 
-        if (fortune?.outcome.suitMapping) {
-            fateOutcome.suit =
-                fortune.outcome.suitMapping[card.suit] || "No mapping found";
+        if (fortune?.outcome.suitMapping && fortune.outcome.suitMapping[card.suit]) {
+            fateOutcome.suit = fortune.outcome.suitMapping[card.suit];
         }
-        if (fortune?.outcome.rankMapping) {
-            fateOutcome.rank =
-                fortune.outcome.rankMapping[card.rank] || "No mapping found";
+        if (fortune?.outcome.rankMapping && fortune.outcome.rankMapping[card.rank]) {
+            fateOutcome.rank = fortune.outcome.rankMapping[card.rank];
         }
     }
 
@@ -68,6 +67,10 @@
 
     function handleHasRolledChange(hasRolled: boolean) {
         diceHasRolled = hasRolled;
+    }
+
+    function handleDiceResultsChange(results: number[]) {
+        individualDiceResults = results;
     }
 
     function handleClose() {
@@ -124,11 +127,49 @@
                             handleRollingChange(e.detail)}
                         on:hasRolledChange={(e) =>
                             handleHasRolledChange(e.detail)}
+                        on:diceResults={(e) =>
+                            handleDiceResultsChange(e.detail)}
                     />
-                    {#if diceResult !== null && fateOutcome.dice}
-                        <div class="result-display">
-                            <p class="outcome-text">{fateOutcome.dice}</p>
-                        </div>
+                    {#if diceResult !== null}
+                        {#if fateOutcome.dice || (fortune.outcome.diceRoll.diceSignificance && Object.keys(fortune.outcome.diceRoll.diceSignificance).length > 0 && individualDiceResults.length > 0)}
+                            <div class="result-display">
+                                {#if fateOutcome.dice}
+                                    <p class="outcome-text">{fateOutcome.dice}</p>
+                                {/if}
+                                {#if fortune.outcome.diceRoll.diceSignificance && Object.keys(fortune.outcome.diceRoll.diceSignificance).length > 0 && individualDiceResults.length > 0}
+                                    <div class="dice-significance">
+                                        {#if fortune.outcome.diceRoll.resultOption === "Sum" || fortune.outcome.diceRoll.resultOption === "Subtract"}
+                                            <!-- Show all dice with significance for Sum and Subtract -->
+                                            {#each individualDiceResults as diceValue, index}
+                                                {#if fortune.outcome.diceRoll.diceSignificance[index + 1]}
+                                                    <p class="significance-item">
+                                                        <strong>{fortune.outcome.diceRoll.diceSignificance[index + 1]}:</strong> {diceValue}
+                                                    </p>
+                                                {/if}
+                                            {/each}
+                                        {:else if fortune.outcome.diceRoll.resultOption === "Maximum"}
+                                            <!-- Show only the highest die with significance -->
+                                            {@const maxValue = Math.max(...individualDiceResults)}
+                                            {@const maxIndex = individualDiceResults.findIndex(v => v === maxValue)}
+                                            {#if fortune.outcome.diceRoll.diceSignificance[maxIndex + 1]}
+                                                <p class="significance-item">
+                                                    <strong>{fortune.outcome.diceRoll.diceSignificance[maxIndex + 1]}:</strong> {maxValue}
+                                                </p>
+                                            {/if}
+                                        {:else if fortune.outcome.diceRoll.resultOption === "Minimum"}
+                                            <!-- Show only the lowest die with significance -->
+                                            {@const minValue = Math.min(...individualDiceResults)}
+                                            {@const minIndex = individualDiceResults.findIndex(v => v === minValue)}
+                                            {#if fortune.outcome.diceRoll.diceSignificance[minIndex + 1]}
+                                                <p class="significance-item">
+                                                    <strong>{fortune.outcome.diceRoll.diceSignificance[minIndex + 1]}:</strong> {minValue}
+                                                </p>
+                                            {/if}
+                                        {/if}
+                                    </div>
+                                {/if}
+                            </div>
+                        {/if}
                     {/if}
                 </div>
             {/if}
@@ -147,20 +188,22 @@
                                 {drawnCard.rank} {drawnCard.suit}
                             </div>
                         </div>
-                        <div class="result-display">
-                            {#if fateOutcome.suit}
-                                <p class="outcome-text">
-                                    <strong>Suit:</strong>
-                                    {fateOutcome.suit}
-                                </p>
-                            {/if}
-                            {#if fateOutcome.rank}
-                                <p class="outcome-text">
-                                    <strong>Rank:</strong>
-                                    {fateOutcome.rank}
-                                </p>
-                            {/if}
-                        </div>
+                        {#if fateOutcome.suit || fateOutcome.rank}
+                            <div class="result-display">
+                                {#if fateOutcome.suit}
+                                    <p class="outcome-text">
+                                        <strong>Suit:</strong>
+                                        {fateOutcome.suit}
+                                    </p>
+                                {/if}
+                                {#if fateOutcome.rank}
+                                    <p class="outcome-text">
+                                        <strong>Rank:</strong>
+                                        {fateOutcome.rank}
+                                    </p>
+                                {/if}
+                            </div>
+                        {/if}
                     {:else}
                         <button
                             class="srpg-b srpg-b-normal srpg-b-w-full"
@@ -274,5 +317,29 @@
         margin: 0;
         color: #333;
         text-align: left;
+    }
+
+    .dice-significance {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #4caf50;
+    }
+
+    .dice-significance:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .significance-item {
+        margin: 0.25rem 0;
+        color: #555;
+        font-size: 0.95rem;
+        text-align: left;
+    }
+
+    .significance-item strong {
+        color: #1976d2;
+        font-size: 1rem;
     }
 </style>

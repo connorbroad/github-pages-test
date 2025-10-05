@@ -43,6 +43,7 @@ type FortuneDiceRoll = {
     resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
     showModifier?: boolean;
     modifier: number;
+    diceSignificance?: { [key: number]: string };
 };
 
 type FortuneCardDraw = {
