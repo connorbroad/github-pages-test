@@ -110,6 +110,11 @@
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="oracle-page">
+    <button
+        class="srpg-b srpg-b-create srpg-b-w-full srpg-b-margin-bottom"
+        on:click={openCreateFortune}>
+        + Create Custom Fortune
+    </button>
 
     {#if defaultFortunes.length > 0}
         <div class="fortune-section">
@@ -127,10 +132,6 @@
 
     <div class="fortune-section">
         <h2 class="section-title">Custom Fortunes</h2>
-    <button
-        class="srpg-b srpg-b-create srpg-b-w-full srpg-b-margin-bottom"
-        on:click={openCreateFortune}>+ Create Custom Fortune</button
-    >
         {#if customFortunes.length > 0}
             <FortuneList
                 fortunes={customFortunes}
@@ -169,7 +170,7 @@
     }
 
     .fortune-section {
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
     }
 
     .section-title {
