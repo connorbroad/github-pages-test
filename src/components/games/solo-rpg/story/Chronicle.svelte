@@ -11,6 +11,8 @@
     let showAddEntry = false;
     let newEntryText = "";
     let editingEntryId: string | null = null;
+    let addingNoteToEntry: string | null = null;
+    let noteText = "";
 
     $: if ($activeCampaign) {
         loadEntries();
@@ -49,13 +51,11 @@
         const allEntries = loadChronicleEntries();
 
         if (editingEntryId) {
-            // Update existing entry
             const entryIndex = allEntries.findIndex(e => e.id === editingEntryId);
             if (entryIndex !== -1) {
                 allEntries[entryIndex] = {
                     ...allEntries[entryIndex],
-                    content: newEntryText.trim(),
-                    timestamp: Date.now() // Update timestamp on edit
+                    content: newEntryText.trim()
                 };
             }
         } else {
@@ -85,6 +85,34 @@
         loadEntries();
     }
 
+    function openAddNote(entryId: string, currentNotes?: string) {
+        addingNoteToEntry = entryId;
+        noteText = currentNotes || "";
+    }
+
+    function cancelAddNote() {
+        addingNoteToEntry = null;
+        noteText = "";
+    }
+
+    function saveNote(entryId: string) {
+        if (!noteText.trim()) return;
+
+        const allEntries = loadChronicleEntries();
+        const entryIndex = allEntries.findIndex(e => e.id === entryId);
+        
+        if (entryIndex !== -1) {
+            allEntries[entryIndex] = {
+                ...allEntries[entryIndex],
+                userNotes: noteText.trim()
+            };
+            saveChronicleEntries(allEntries);
+            loadEntries();
+        }
+
+        cancelAddNote();
+    }
+
     function generateEntryId(): string {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
@@ -110,6 +138,11 @@
             minute: '2-digit'
         });
     }
+
+    function isRedSuit(suit: string): boolean {
+        return suit === '♥' || suit === '♦';
+    }
+
 </script>
 
 <div class="chronicle">
@@ -152,25 +185,121 @@
                         <span class="entry-type">{entry.type === 'manual' ? '📝 Manual Entry' : '🎲 Fortune'}</span>
                         <span class="entry-timestamp">{formatTimestamp(entry.timestamp)}</span>
                     </div>
-                    <div class="entry-content">
-                        {entry.content}
-                    </div>
-                    <div class="entry-actions">
-                        <button 
-                            class="srpg-icon-button" 
-                            on:click={() => openEditEntry(entry)}
-                            title="Edit entry"
-                        >
-                            ✏️
-                        </button>
-                        <button 
-                            class="srpg-icon-button delete-icon" 
-                            on:click={() => deleteEntry(entry.id)}
-                            title="Delete entry"
-                        >
-                            🗑️
-                        </button>
-                    </div>
+                    
+                    {#if entry.type === 'fortune' && entry.fortuneData}
+                        <!-- Fortune Result Display -->
+                        <div class="fortune-result">
+                            <div class="fortune-title-line">
+                                <strong>{entry.fortuneData.fortuneTitle}</strong>
+                                {#if entry.fortuneData.diceRoll}
+                                    <span class="result-badge">
+                                        {entry.fortuneData.diceRoll.result}
+                                    </span>
+                                {/if}
+                                {#if entry.fortuneData.cardDraw}
+                                    <span class="card-badge" style="color: {isRedSuit(entry.fortuneData.cardDraw.suit) ? '#ef4444' : '#1f2937'}">
+                                        {entry.fortuneData.cardDraw.rank}{entry.fortuneData.cardDraw.suit}
+                                    </span>
+                                {/if}
+                            </div>
+
+                            {#if entry.fortuneData.diceRoll?.mappedOutcome}
+                                <div class="fortune-outcome">
+                                    {entry.fortuneData.diceRoll.mappedOutcome}
+                                </div>
+                            {/if}
+
+                            {#if entry.fortuneData.cardDraw && (entry.fortuneData.cardDraw.suitMapped || entry.fortuneData.cardDraw.rankMapped)}
+                                <div class="fortune-outcome">
+                                    {#if entry.fortuneData.cardDraw.suitMapped}
+                                        {entry.fortuneData.cardDraw.suitMapped}
+                                    {/if}
+                                    {#if entry.fortuneData.cardDraw.suitMapped && entry.fortuneData.cardDraw.rankMapped}
+                                        •
+                                    {/if}
+                                    {#if entry.fortuneData.cardDraw.rankMapped}
+                                        {entry.fortuneData.cardDraw.rankMapped}
+                                    {/if}
+                                </div>
+                            {/if}
+
+                            {#if entry.userNotes}
+                                <div class="user-notes">
+                                    <div class="notes-content">{entry.userNotes}</div>
+                                </div>
+                            {/if}
+
+                            {#if addingNoteToEntry === entry.id}
+                                <div class="note-editor">
+                                    <textarea
+                                        bind:value={noteText}
+                                        placeholder="Add your notes about this fortune result..."
+                                        rows="3"
+                                    ></textarea>
+                                    <div class="note-actions">
+                                        <button class="srpg-b srpg-b-create srpg-b-sm" on:click={() => saveNote(entry.id)} disabled={!noteText.trim()}>
+                                            Save Notes
+                                        </button>
+                                        <button class="srpg-b srpg-b-sm" on:click={cancelAddNote}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+
+                        <div class="entry-actions">
+                            {#if !addingNoteToEntry}
+                                <button 
+                                    class="entry-action-btn srpg-b srpg-b-normal srpg-b-small" 
+                                    on:click={() => openAddNote(entry.id, entry.userNotes)}
+                                    title={entry.userNotes ? "Edit notes" : "Add notes"}
+                                    aria-label={entry.userNotes ? "Edit notes" : "Add notes"}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                </button>
+                            {/if}
+                            <button 
+                                class="entry-action-btn srpg-b srpg-b-danger srpg-b-small" 
+                                on:click={() => deleteEntry(entry.id)}
+                                title="Delete entry"
+                                aria-label="Delete entry"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                    <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    {:else}
+                        <!-- Manual Entry Display -->
+                        <div class="entry-content">
+                            {entry.content}
+                        </div>
+                        <div class="entry-actions">
+                            <button 
+                                class="entry-action-btn srpg-b srpg-b-normal srpg-b-small" 
+                                on:click={() => openEditEntry(entry)}
+                                title="Edit entry"
+                                aria-label="Edit entry"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                    <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </button>
+                            <button 
+                                class="entry-action-btn srpg-b srpg-b-danger srpg-b-small" 
+                                on:click={() => deleteEntry(entry.id)}
+                                title="Delete entry"
+                                aria-label="Delete entry"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                    <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    {/if}
                 </div>
             {/each}
         {/if}
@@ -304,7 +433,113 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.5rem;
+    }
+
+    .entry-action-btn {
+        padding: 0.4rem 0.75rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .entry-action-btn svg {
+        width: 1em;
+        height: 1em;
+        font-size: 1rem;
+    }
+
+    .fortune-result {
+        width: 100%;
+    }
+
+    .fortune-title-line {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .fortune-title-line strong {
+        color: #374151;
+        font-size: 1rem;
+    }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #3b82f6;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        min-width: 2rem;
+    }
+
+    .card-badge {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .fortune-outcome {
+        color: #374151;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+    }
+
+    .user-notes {
+        background: #fffbeb;
+        border-left: 3px solid #fcd34d;
+        border-radius: 4px;
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+        color: #78350f;
+    }
+
+    .notes-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 1.6;
+    }
+
+    .note-editor {
+        margin-top: 1rem;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 1rem;
+    }
+
+    .note-editor textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 0.875rem;
+        resize: vertical;
+        margin-bottom: 0.75rem;
+    }
+
+    .note-editor textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
     @media (max-width: 640px) {
@@ -316,6 +551,15 @@
 
         .editor-actions {
             flex-direction: column;
+        }
+
+        .note-actions {
+            flex-direction: column;
+        }
+
+        .fortune-title-line {
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
 </style>

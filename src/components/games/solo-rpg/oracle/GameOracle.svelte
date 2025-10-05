@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { loadFortunes, saveFortunes, loadGameBlueprints } from "../storage-utils";
+    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries } from "../storage-utils";
+    import type { FortuneResultData } from "../storage-utils";
     import { activeCampaign } from "../campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
@@ -105,6 +106,33 @@
     function handleNavigateHome() {
         dispatch('navigateHome');
     }
+
+    function handleAcceptFate(event: CustomEvent<FortuneResultData>) {
+        const resultData = event.detail;
+        
+        if (!$activeCampaign) return;
+
+        // Create a chronicle entry for this fortune result
+        const chronicleEntries = loadChronicleEntries();
+        const newEntry = {
+            id: generateId(),
+            campaignId: $activeCampaign.id,
+            timestamp: Date.now(),
+            type: "fortune" as const,
+            content: "", // Empty content, fortune data is stored separately
+            fortuneId: selectedFortune?.id,
+            fortuneData: resultData
+        };
+
+        chronicleEntries.push(newEntry);
+        saveChronicleEntries(chronicleEntries);
+
+        showFate = false;
+        selectedFortune = null;
+
+        // Navigate to story page
+        dispatch('navigateToStory');
+    }
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -157,10 +185,7 @@
     show={showFate}
     fortune={selectedFortune}
     on:close={() => (showFate = false)}
-    on:accept={() => {
-        showFate = false;
-        selectedFortune = null;
-    }}
+    on:accept={handleAcceptFate}
 />
 
 <style>

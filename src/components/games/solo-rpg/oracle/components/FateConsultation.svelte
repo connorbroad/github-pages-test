@@ -78,7 +78,34 @@
     }
 
     function handleAcceptFate() {
-        dispatch("accept");
+        // Prepare the fortune result data
+        const resultData: any = {
+            fortuneTitle: fortune!.title
+        };
+
+        if (fortune?.outcome.diceRoll && diceResult !== null) {
+            resultData.diceRoll = {
+                numDice: fortune.outcome.diceRoll.numDice,
+                numSides: fortune.outcome.diceRoll.numSides,
+                modifier: modifier,
+                resultOption: fortune.outcome.diceRoll.resultOption,
+                result: diceResult,
+                individualDiceResults: individualDiceResults,
+                diceSignificance: fortune.outcome.diceRoll.diceSignificance,
+                mappedOutcome: fateOutcome.dice
+            };
+        }
+
+        if (fortune?.outcome.cardDraw?.enabled && drawnCard) {
+            resultData.cardDraw = {
+                suit: drawnCard.suit,
+                rank: drawnCard.rank,
+                suitMapped: fateOutcome.suit,
+                rankMapped: fateOutcome.rank
+            };
+        }
+
+        dispatch("accept", resultData);
     }
 </script>
 

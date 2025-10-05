@@ -275,7 +275,10 @@
     {:else if currentView === 'oracle'}
         <div class="oracle-view">
             <h1>Oracle</h1>
-            <GameOracle on:navigateHome={() => handleNavigate('home')} />
+            <GameOracle 
+                on:navigateHome={() => handleNavigate('home')}
+                on:navigateToStory={() => handleNavigate('story')}
+            />
         </div>
     {:else if currentView === 'settings'}
         <div class="settings-view">

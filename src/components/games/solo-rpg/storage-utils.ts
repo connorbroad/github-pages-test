@@ -32,6 +32,28 @@ export type ChronicleEntry = {
     type: "manual" | "fortune";
     content: string;
     fortuneId?: string; // Optional reference to fortune if type is "fortune"
+    fortuneData?: FortuneResultData; // Fortune roll/draw results
+    userNotes?: string; // User-added notes to fortune results
+};
+
+export type FortuneResultData = {
+    fortuneTitle: string;
+    diceRoll?: {
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
+        result: number;
+        individualDiceResults: number[];
+        diceSignificance?: { [key: number]: string };
+        mappedOutcome?: string;
+    };
+    cardDraw?: {
+        suit: string;
+        rank: string;
+        suitMapped?: string;
+        rankMapped?: string;
+    };
 };
 
 export type GameBlueprint = {
