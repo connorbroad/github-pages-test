@@ -144,10 +144,8 @@
     background: rgba(239, 68, 68, 0.1);
 }
 
-.srpg-modal-close {
+.srpg-b-modal-nav {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
     background: transparent;
     border: none;
     font-size: 2rem;
@@ -163,11 +161,20 @@
     z-index: 10;
 }
 
-.srpg-modal-close:hover {
+.srpg-b-modal-nav:hover {
     background: rgba(0, 0, 0, 0.05);
     color: #666;
 }
 
+.srpg-b-modal-nav-close {
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.srpg-b-modal-nav-back {
+    top: 0.5rem;
+    left: 0.5rem;
+}
 /* Button Groups */
 .srpg-b-group {
     display: flex;

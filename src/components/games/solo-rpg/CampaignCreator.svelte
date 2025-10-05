@@ -57,7 +57,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="srpg-modal-close" on:click={handleClose}
+            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>Create New Campaign</h2>

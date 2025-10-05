@@ -81,7 +81,7 @@
             }}
         >
             <button
-                class="srpg-modal-close"
+                class="srpg-b-modal-nav srpg-b-modal-nav-close"
                 aria-label="Close"
                 on:click={() => onClose && onClose()}>&times;</button
             >

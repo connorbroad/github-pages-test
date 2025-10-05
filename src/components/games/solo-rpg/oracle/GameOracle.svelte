@@ -4,7 +4,6 @@
     import { onMount, createEventDispatcher } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
-    import OutcomeMappingEditor from "./components/OutcomeMappingEditor.svelte";
     import FateConsultation from "./components/FateConsultation.svelte";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
@@ -18,7 +17,6 @@
     let selectedFortune: Fortune | null = null;
     let showFate = false;
     let showCreateFortune = false;
-    let showEditOutcome = false;
 
     // Create/Edit Fortune state
     let editingFortune: Fortune = {
@@ -76,7 +74,6 @@
         }
         saveFortunes(fortunes);
         showCreateFortune = false;
-        showEditOutcome = false;
     }
 
     function deleteFortune(id: string) {
@@ -153,17 +150,6 @@
     showCampaignField={false}
     on:close={() => (showCreateFortune = false)}
     on:save={saveFortune}
-    on:editOutcome={() => (showEditOutcome = true)}
-/>
-
-<OutcomeMappingEditor
-    show={showEditOutcome}
-    fortune={editingFortune}
-    on:close={() => (showEditOutcome = false)}
-    on:save={(e) => {
-        editingFortune = e.detail;
-        saveFortune(e);
-    }}
 />
 
 <FateConsultation

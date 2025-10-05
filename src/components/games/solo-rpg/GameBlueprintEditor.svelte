@@ -22,7 +22,6 @@
         outcome: {},
     };
     let editingFortuneIndex: number = -1;
-    let showOutcomeMappingEditor = false;
 
     function handleClose() {
         dispatch("close");
@@ -65,17 +64,6 @@
             );
         }
     }
-
-    function handleEditOutcome() {
-        showFortuneEditor = false;
-        showOutcomeMappingEditor = true;
-    }
-
-    function handleOutcomeMappingSave(event: CustomEvent<Fortune>) {
-        editingFortune = event.detail;
-        showOutcomeMappingEditor = false;
-        showFortuneEditor = true;
-    }
 </script>
 
 {#if show}
@@ -105,7 +93,7 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="srpg-modal-close" on:click={handleClose}
+            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
                 >&times;</button
             >
             <h2>Create Game Blueprint</h2>
@@ -181,20 +169,7 @@
     showCampaignField={false}
     on:close={() => (showFortuneEditor = false)}
     on:save={saveFortune}
-    on:editOutcome={handleEditOutcome}
 />
-
-{#if showOutcomeMappingEditor}
-    {#await import("./oracle/components/OutcomeMappingEditor.svelte") then module}
-        <svelte:component
-            this={module.default}
-            show={showOutcomeMappingEditor}
-            fortune={editingFortune}
-            on:close={() => (showOutcomeMappingEditor = false)}
-            on:save={handleOutcomeMappingSave}
-        />
-    {/await}
-{/if}
 
 <style>
     .oracle-modal {
