@@ -467,6 +467,7 @@
 
     .campaigns-container {
         padding: 1rem 1.25rem;
+        padding-top: 0;
         background: #fafbfc;
     }
 
@@ -487,13 +488,6 @@
         gap: 0.5rem;
         position: relative;
         transition: all 0.2s ease;
-    }
-
-    .campaign-card.active {   
-        background: #fdfeff;
-        border: 1px solid #0d48a151; 
-        box-shadow: 0 0 10px #0d48a13d; 
-        color: #222;
     } 
 
     .campaign-card.active::after {

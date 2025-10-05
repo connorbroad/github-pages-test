@@ -34,7 +34,7 @@
 
 {#if show && campaign}
     <div
-        class="oracle-modal"
+        class="campaign-modal"
         role="button"
         tabindex="0"
         aria-label="Close campaign load dialog"
@@ -50,7 +50,7 @@
         }}
     >
         <div
-            class="oracle-content"
+            class="campaign-content"
             role="dialog"
             aria-modal="true"
             on:click|stopPropagation
@@ -60,7 +60,7 @@
             <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
                 >&times;</button
             >
-            <h2>Load Campaign?</h2>
+            <h2>Campaign Info</h2>
 
             <div class="campaign-details">
                 <p class="campaign-title">{campaign.title}</p>
@@ -74,18 +74,7 @@
                 </p>
             </div>
 
-            <p class="confirmation-message">
-                Load this campaign? This will make it the active campaign for
-                all tools.
-            </p>
-
             <div class="button-group">
-                <button
-                    class="srpg-b srpg-b-normal srpg-b-w-full"
-                    on:click={handleClose}
-                >
-                    Cancel
-                </button>
                 <button
                     class="srpg-b srpg-b-create srpg-b-w-full"
                     on:click={handleLoad}
@@ -93,12 +82,16 @@
                     Load Campaign
                 </button>
             </div>
+
+            <p class="confirmation-message"> 
+                <em>Loading a campaign makes it the active campaign for all tools.</em>
+            </p>
         </div>
     </div>
 {/if}
 
 <style>
-    .oracle-modal {
+    .campaign-modal {
         position: fixed;
         top: 0;
         left: 0;
@@ -111,7 +104,7 @@
         z-index: 1000;
     }
 
-    .oracle-content {
+    .campaign-content {
         background: #fff;
         margin: 1rem;
         padding: 2rem;
@@ -124,8 +117,7 @@
     }
 
     h2 {
-        margin-top: 0;
-        margin-bottom: 1.5rem;
+        margin-top: 0; 
         color: #333;
     }
 
@@ -154,11 +146,12 @@
         color: #333;
     }
 
-    .confirmation-message {
-        margin-bottom: 1.5rem;
+    .confirmation-message { 
         color: #666;
         font-size: 0.95rem;
         line-height: 1.5;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
     }
 
     .button-group {
