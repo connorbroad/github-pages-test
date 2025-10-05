@@ -6,12 +6,6 @@
 
     const dispatch = createEventDispatcher();
 
-    let selectedTool: "draw" | "marker" | "note" | "erase" | null = null;
-
-    function selectTool(tool: "draw" | "marker" | "note" | "erase") {
-        selectedTool = tool;
-    }
-
     function handleNavigateHome() {
         dispatch('navigateHome');
     }
