@@ -185,7 +185,7 @@
 />
 
 {#if showOutcomeMappingEditor}
-    {#await import("./oracle/OutcomeMappingEditor.svelte") then module}
+    {#await import("./oracle/components/OutcomeMappingEditor.svelte") then module}
         <svelte:component
             this={module.default}
             show={showOutcomeMappingEditor}
