@@ -34,6 +34,11 @@
     let selectedCampaignForLoad: Campaign | null = null;
     let expandedBlueprints: Set<string> = new Set();
 
+    $: campaignsByBlueprint = gameBlueprints.reduce((acc, blueprint) => {
+        acc[blueprint.id] = campaigns.filter(c => c.blueprintId === blueprint.id);
+        return acc;
+    }, {} as Record<string, Campaign[]>);
+
     onMount(() => {
         gameBlueprints = loadGameBlueprints();
         campaigns = loadCampaigns();
@@ -177,8 +182,8 @@
                     <h2>Your Games</h2>
                     
                     <div class="blueprints-list">
-                        {#each gameBlueprints as blueprint}
-                            {@const blueprintCampaigns = getCampaignsForBlueprint(blueprint.id)}
+                        {#each gameBlueprints as blueprint (blueprint.id)}
+                            {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
                             {@const isExpanded = expandedBlueprints.has(blueprint.id)}
                             
                             <div class="blueprint-section">
