@@ -117,9 +117,9 @@
             tabindex="0"
             on:keydown={(e) => {}}
         >
-            <button class="modal-close-btn" on:click={handleClose}
-                >&times;</button
-            >
+            <button class="modal-close-btn" on:click={handleClose}>
+                &times;
+            </button>
             <h2>Edit Outcome Mappings</h2>
 
             {#if fortune.outcome.diceRoll}

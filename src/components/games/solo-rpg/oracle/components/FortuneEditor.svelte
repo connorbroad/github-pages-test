@@ -161,6 +161,7 @@
                                 delete fortune.outcome.cardDraw;
                                 delete fortune.outcome.suitMapping;
                                 delete fortune.outcome.rankMapping;
+                                fortune = { ...fortune }; // Force Svelte reactivity
                             }
                         }}
                     />
@@ -168,11 +169,11 @@
                 </label>
             </div>
 
-            <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={handleEditOutcome}>
+            <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={handleEditOutcome} disabled={!fortune.outcome.diceRoll && !fortune.outcome.cardDraw}>
                 Edit Outcome Mappings
             </button>
             <hr class="divider" />
-            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={handleSave}>
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={handleSave} disabled={fortune.title.length === 0 || (!fortune.outcome.diceRoll && !fortune.outcome.cardDraw)}>
                 Save Fortune
             </button>
         </div>
