@@ -180,65 +180,54 @@
             </div>
         {:else}
             {#each entries as entry (entry.id)}
-                <div class="entry-card">
+                <div class="entry-card {entry.type === 'fortune' ? 'fortune-card' : 'manual-card'}">
                     <div class="entry-header">
                         <span class="entry-type">{entry.type === 'manual' ? '📝 Manual Entry' : '🎲 Fortune'}</span>
                         <span class="entry-timestamp">{formatTimestamp(entry.timestamp)}</span>
                     </div>
                     
                     {#if entry.type === 'fortune' && entry.fortuneData}
-                        <!-- Fortune Result Display -->
-                        <div class="fortune-result">
-                            <div class="fortune-title-line">
-                                <strong>{entry.fortuneData.fortuneTitle}</strong>
+                        <!-- Fortune Result Display - Compact -->
+                        <div class="fortune-content">
+                            <div class="fortune-inline">
+                                <span class="fortune-label">{entry.fortuneData.fortuneTitle}:</span>
+                                
                                 {#if entry.fortuneData.diceRoll}
-                                    <span class="result-badge">
-                                        {entry.fortuneData.diceRoll.result}
-                                    </span>
+                                    <span class="result-badge">{entry.fortuneData.diceRoll.result}</span>
+                                    {#if entry.fortuneData.diceRoll.mappedOutcome}
+                                        <span class="result-text">{entry.fortuneData.diceRoll.mappedOutcome}</span>
+                                    {/if}
                                 {/if}
+                                
                                 {#if entry.fortuneData.cardDraw}
-                                    <span class="card-badge" style="color: {isRedSuit(entry.fortuneData.cardDraw.suit) ? '#ef4444' : '#1f2937'}">
+                                    <span class="card-badge" style="color: {isRedSuit(entry.fortuneData.cardDraw.suit) ? '#dc2626' : '#334155'}">
                                         {entry.fortuneData.cardDraw.rank}{entry.fortuneData.cardDraw.suit}
                                     </span>
+                                    {#if entry.fortuneData.cardDraw.suitMapped || entry.fortuneData.cardDraw.rankMapped}
+                                        <span class="result-text">
+                                            {entry.fortuneData.cardDraw.suitMapped || ''}{#if entry.fortuneData.cardDraw.suitMapped && entry.fortuneData.cardDraw.rankMapped} • {/if}{entry.fortuneData.cardDraw.rankMapped || ''}
+                                        </span>
+                                    {/if}
                                 {/if}
                             </div>
 
-                            {#if entry.fortuneData.diceRoll?.mappedOutcome}
-                                <div class="fortune-outcome">
-                                    {entry.fortuneData.diceRoll.mappedOutcome}
-                                </div>
-                            {/if}
-
-                            {#if entry.fortuneData.cardDraw && (entry.fortuneData.cardDraw.suitMapped || entry.fortuneData.cardDraw.rankMapped)}
-                                <div class="fortune-outcome">
-                                    {#if entry.fortuneData.cardDraw.suitMapped}
-                                        {entry.fortuneData.cardDraw.suitMapped}
-                                    {/if}
-                                    {#if entry.fortuneData.cardDraw.suitMapped && entry.fortuneData.cardDraw.rankMapped}
-                                        •
-                                    {/if}
-                                    {#if entry.fortuneData.cardDraw.rankMapped}
-                                        {entry.fortuneData.cardDraw.rankMapped}
-                                    {/if}
-                                </div>
-                            {/if}
-
                             {#if entry.userNotes}
-                                <div class="user-notes">
-                                    <div class="notes-content">{entry.userNotes}</div>
+                                <div class="fortune-notes-compact">
+                                    <span class="notes-label">Note:</span>
+                                    <span class="notes-text-compact">{entry.userNotes}</span>
                                 </div>
                             {/if}
 
                             {#if addingNoteToEntry === entry.id}
-                                <div class="note-editor">
+                                <div class="fortune-note-editor">
                                     <textarea
                                         bind:value={noteText}
-                                        placeholder="Add your notes about this fortune result..."
-                                        rows="3"
+                                        placeholder="Add your interpretation..."
+                                        rows="2"
                                     ></textarea>
-                                    <div class="note-actions">
+                                    <div class="note-editor-actions">
                                         <button class="srpg-b srpg-b-create srpg-b-sm" on:click={() => saveNote(entry.id)} disabled={!noteText.trim()}>
-                                            Save Notes
+                                            Save
                                         </button>
                                         <button class="srpg-b srpg-b-sm" on:click={cancelAddNote}>
                                             Cancel
@@ -248,26 +237,26 @@
                             {/if}
                         </div>
 
-                        <div class="entry-actions">
+                        <div class="fortune-actions">
                             {#if !addingNoteToEntry}
                                 <button 
-                                    class="entry-action-btn srpg-b srpg-b-normal srpg-b-small" 
+                                    class="fortune-action-btn" 
                                     on:click={() => openAddNote(entry.id, entry.userNotes)}
                                     title={entry.userNotes ? "Edit notes" : "Add notes"}
                                     aria-label={entry.userNotes ? "Edit notes" : "Add notes"}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14">
                                         <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                     </svg>
                                 </button>
                             {/if}
                             <button 
-                                class="entry-action-btn srpg-b srpg-b-danger srpg-b-small" 
+                                class="fortune-action-btn delete-btn" 
                                 on:click={() => deleteEntry(entry.id)}
                                 title="Delete entry"
                                 aria-label="Delete entry"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14">
                                     <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                 </svg>
                             </button>
@@ -401,6 +390,174 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
     }
 
+    .fortune-card {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-left: 3px solid #6366f1;
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        box-shadow: none;
+        position: relative;
+        transition: all 0.15s ease;
+    }
+
+    .fortune-card:hover {
+        background: #f5f5f5;
+        border-left-color: #4f46e5;
+    }
+
+    .fortune-card .entry-header {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .fortune-card .entry-type {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #737373;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .fortune-card .entry-timestamp {
+        font-size: 0.7rem;
+        color: #a3a3a3;
+        font-weight: 400;
+    }
+
+    .fortune-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .fortune-inline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .fortune-label {
+        font-weight: 600;
+        color: #525252;
+    }
+
+    .result-badge {
+        background: #6366f1;
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        line-height: 1.4;
+    }
+
+    .card-badge {
+        font-size: 1.1rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .result-text {
+        color: #525252;
+        font-style: italic;
+        font-size: 0.875rem;
+    }
+
+    .fortune-notes-compact {
+        background: #fef9c3;
+        border-left: 2px solid #facc15;
+        border-radius: 3px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        display: flex;
+        gap: 0.4rem;
+        align-items: baseline;
+    }
+
+    .notes-label {
+        font-weight: 600;
+        color: #713f12;
+        flex-shrink: 0;
+    }
+
+    .notes-text-compact {
+        color: #854d0e;
+        flex: 1;
+    }
+
+    .fortune-note-editor {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 0.6rem;
+    }
+
+    .fortune-note-editor textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d4d4d4;
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        resize: vertical;
+        margin-bottom: 0.5rem;
+    }
+
+    .fortune-note-editor textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+
+    .note-editor-actions {
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .fortune-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.4rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .fortune-action-btn {
+        background: transparent;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 0.3rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #737373;
+    }
+
+    .fortune-action-btn:hover {
+        background: #f5f5f5;
+        border-color: #d4d4d4;
+        color: #525252;
+    }
+
+    .fortune-action-btn.delete-btn:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #dc2626;
+    }
+
     .entry-header {
         display: flex;
         justify-content: space-between;
@@ -455,93 +612,6 @@
         font-size: 1rem;
     }
 
-    .fortune-result {
-        width: 100%;
-    }
-
-    .fortune-title-line {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .fortune-title-line strong {
-        color: #374151;
-        font-size: 1rem;
-    }
-
-    .result-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #3b82f6;
-        color: white;
-        font-weight: 700;
-        font-size: 1rem;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        min-width: 2rem;
-    }
-
-    .card-badge {
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .fortune-outcome {
-        color: #374151;
-        line-height: 1.6;
-        margin-bottom: 0.5rem;
-    }
-
-    .user-notes {
-        background: #fffbeb;
-        border-left: 3px solid #fcd34d;
-        border-radius: 4px;
-        padding: 0.75rem;
-        margin-top: 0.75rem;
-        color: #78350f;
-    }
-
-    .notes-content {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        line-height: 1.6;
-    }
-
-    .note-editor {
-        margin-top: 1rem;
-        background: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 6px;
-        padding: 1rem;
-    }
-
-    .note-editor textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        font-family: inherit;
-        font-size: 0.875rem;
-        resize: vertical;
-        margin-bottom: 0.75rem;
-    }
-
-    .note-editor textarea:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .note-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
     @media (max-width: 640px) {
         .chronicle-header {
             flex-direction: column;
@@ -553,13 +623,8 @@
             flex-direction: column;
         }
 
-        .note-actions {
+        .note-editor-actions {
             flex-direction: column;
-        }
-
-        .fortune-title-line {
-            flex-direction: column;
-            align-items: flex-start;
         }
     }
 </style>
