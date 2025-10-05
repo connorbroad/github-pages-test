@@ -448,34 +448,6 @@
         margin: 1rem 0;
     }
 
-    /* Back button styles */
-    .back-button {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        background: transparent;
-        border: none;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1976d2;
-        cursor: pointer;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        transition: color 0.2s;
-    }
-
-    .back-button:hover {
-        color: #1565c0;
-    }
-
-    .back-button:focus {
-        outline: 2px solid #1976d2;
-        outline-offset: 2px;
-        border-radius: 4px;
-    }
-
     /* Mapping editor styles */
     .mapping-section {
         margin-bottom: 2rem;
@@ -557,11 +529,6 @@
             max-width: 95vw;
             margin: 0.5rem;
             padding: 1.5rem;
-        }
-
-        .back-button {
-            top: 0.75rem;
-            left: 0.75rem;
         }
     }
 </style>
