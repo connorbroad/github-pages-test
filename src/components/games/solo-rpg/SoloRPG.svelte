@@ -218,19 +218,21 @@
                                                                 {formatDate(campaign.createdAt)}
                                                             </span>
                                                         </div>
-                                                        <button
-                                                            class="srpg-b srpg-b-normal campaign-play-button"
-                                                            class:active={$activeCampaign?.id === campaign.id}
-                                                            on:click={() => openCampaignLoadConfirm(campaign)}
-                                                            disabled={$activeCampaign?.id === campaign.id}
-                                                            aria-label="Load campaign"
-                                                        >
-                                                            {#if $activeCampaign?.id === campaign.id}
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196"/></svg>
-                                                            {:else}
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"/></svg>
-                                                            {/if}
-                                                        </button>
+                                                        <div class="campaign-actions">
+                                                            <button
+                                                                class="srpg-b srpg-b-normal campaign-play-button"
+                                                                class:active={$activeCampaign?.id === campaign.id}
+                                                                on:click={() => openCampaignLoadConfirm(campaign)}
+                                                                disabled={$activeCampaign?.id === campaign.id}
+                                                                aria-label="Load campaign"
+                                                            >
+                                                                {#if $activeCampaign?.id === campaign.id}
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196"/></svg>
+                                                                {:else}
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"/></svg>
+                                                                {/if}
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 {/each}
                                             </div>
@@ -469,6 +471,14 @@
         padding: 1rem 1.25rem;
         padding-top: 0;
         background: #fafbfc;
+    }
+
+    .campaign-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center; 
+        min-width: 50px;
     }
 
     .campaigns-grid {
