@@ -521,7 +521,7 @@
         text-align: center;
         color: #999;
         font-style: italic;
-        padding: 1.5rem;
+        padding: 1rem;
         margin: 0;
     }
 

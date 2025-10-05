@@ -111,41 +111,43 @@
                 </label>
 
                 {#if fortune.outcome.diceRoll}
-                    <div class="dice-config">
-                        <select bind:value={fortune.outcome.diceRoll.numDice}>
-                            {#each Array(10) as _, i}
-                                <option value={i + 1}>{i + 1}x</option>
-                            {/each}
-                        </select>
-                        <select bind:value={fortune.outcome.diceRoll.numSides}>
-                            <option value={4}>D4</option>
-                            <option value={6}>D6</option>
-                            <option value={8}>D8</option>
-                            <option value={10}>D10</option>
-                            <option value={12}>D12</option>
-                            <option value={20}>D20</option>
-                            <option value={100}>D100</option>
-                        </select>
-                        {#if fortune.outcome.diceRoll.numDice > 1}
-                            <select
-                                bind:value={
-                                    fortune.outcome.diceRoll.resultOption
-                                }
-                            >
-                                <option value="Sum">Sum</option>
-                                <option value="Maximum">Max</option>
-                                <option value="Minimum">Min</option>
-                                <option value="Subtract">Sub</option>
+                    <div class="fortune-outcome-options">
+                        <div class="dice-config">
+                            <select bind:value={fortune.outcome.diceRoll.numDice}>
+                                {#each Array(10) as _, i}
+                                    <option value={i + 1}>{i + 1}x</option>
+                                {/each}
                             </select>
-                        {/if}
+                            <select bind:value={fortune.outcome.diceRoll.numSides}>
+                                <option value={4}>D4</option>
+                                <option value={6}>D6</option>
+                                <option value={8}>D8</option>
+                                <option value={10}>D10</option>
+                                <option value={12}>D12</option>
+                                <option value={20}>D20</option>
+                                <option value={100}>D100</option>
+                            </select>
+                            {#if fortune.outcome.diceRoll.numDice > 1}
+                                <select
+                                    bind:value={
+                                        fortune.outcome.diceRoll.resultOption
+                                    }
+                                >
+                                    <option value="Sum">Sum</option>
+                                    <option value="Maximum">Max</option>
+                                    <option value="Minimum">Min</option>
+                                    <option value="Subtract">Sub</option>
+                                </select>
+                            {/if}
+                        </div>
+                        <label style="display: block; margin-top: 0.5rem;">
+                            <input
+                                type="checkbox"
+                                bind:checked={fortune.outcome.diceRoll.showModifier}
+                            />
+                            Include Modifier
+                        </label>
                     </div>
-                    <label style="display: block; margin-top: 0.5rem;">
-                        <input
-                            type="checkbox"
-                            bind:checked={fortune.outcome.diceRoll.showModifier}
-                        />
-                        Show Modifier
-                    </label>
                 {/if}
 
                 <label>
@@ -236,6 +238,10 @@
         border-radius: 4px;
         font-size: 1rem;
         box-sizing: border-box;
+    }
+
+    .fortune-outcome-options { 
+        padding: 0 0.5rem;
     }
 
     .dice-config {
