@@ -488,6 +488,7 @@
         position: relative;
         transition: all 0.2s ease;
         width: 100%;
+        gap: 0.5rem;
     } 
 
     .campaign-info {
