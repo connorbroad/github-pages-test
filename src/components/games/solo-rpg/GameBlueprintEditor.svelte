@@ -13,6 +13,8 @@
     export let blueprint: GameBlueprint;
 
     const dispatch = createEventDispatcher();
+    
+    $: isEditing = blueprint.id && blueprint.title !== '';
 
     // Fortune editing state
     let showFortuneEditor = false;
@@ -68,7 +70,7 @@
 
 {#if show}
     <div
-        class="oracle-modal"
+        class="blueprint-modal"
         role="button"
         tabindex="0"
         aria-label="Close game blueprint modal"
@@ -86,7 +88,7 @@
         }}
     >
         <div
-            class="oracle-content blueprint-editor"
+            class="blueprint-content blueprint-editor"
             role="dialog"
             aria-modal="true"
             on:click|stopPropagation
@@ -96,7 +98,7 @@
             <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
                 >&times;</button
             >
-            <h2>Create Game Blueprint</h2>
+            <h2>{isEditing ? 'Edit Game Blueprint' : 'Create Game Blueprint'}</h2>
 
             <div class="form-group">
                 <label for="blueprint-title">Game Title:</label>
@@ -172,7 +174,7 @@
 />
 
 <style>
-    .oracle-modal {
+    .blueprint-modal {
         position: fixed;
         top: 0;
         left: 0;
@@ -185,7 +187,7 @@
         z-index: 1000;
     }
 
-    .oracle-content {
+    .blueprint-content {
         background: #fff;
         margin: 1rem;
         padding: 2rem;
@@ -287,7 +289,7 @@
     }
 
     @media (max-width: 600px) {
-        .oracle-content {
+        .blueprint-content {
             max-width: 95vw;
             margin: 0.5rem;
             padding: 1.5rem;

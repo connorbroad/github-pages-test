@@ -65,6 +65,15 @@
         showBlueprintEditor = true;
     }
 
+    function openEditBlueprint(blueprint: GameBlueprint) {
+        editingBlueprint = {
+            id: blueprint.id,
+            title: blueprint.title,
+            defaultFortunes: [...blueprint.defaultFortunes]
+        };
+        showBlueprintEditor = true;
+    }
+
     function saveBlueprint(event: CustomEvent<GameBlueprint>) {
         const blueprint = event.detail;
         const existingIndex = gameBlueprints.findIndex(b => b.id === blueprint.id);
@@ -198,17 +207,26 @@
                                         <span class="blueprint-title">
                                             {blueprint.title}
                                         </span>
-                                        <span class="blueprint-meta">
-                                            ({blueprintCampaigns.length} campaign{blueprintCampaigns.length !== 1 ? 's' : ''})
-                                        </span>
                                     </button>
-                                    <button 
-                                        class="add-campaign-btn srpg-b srpg-b-create srpg-b-small"
-                                        on:click={() => openCampaignCreator(blueprint)}
-                                        title="Create new campaign"
-                                    >
-                                        +
-                                    </button>
+                                    <div class="blueprint-actions">
+                                        <button 
+                                            class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-small"
+                                            on:click={() => openEditBlueprint(blueprint)}
+                                            title="Edit blueprint"
+                                            aria-label="Edit blueprint"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                                <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            class="add-campaign-btn srpg-b srpg-b-create srpg-b-small"
+                                            on:click={() => openCampaignCreator(blueprint)}
+                                            title="Create new campaign"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {#if isExpanded}
@@ -470,6 +488,30 @@
         line-height: 1;
         font-weight: bold;
         flex-shrink: 0;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .blueprint-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .edit-blueprint-btn {
+        padding: 0.4rem 0.75rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .edit-blueprint-btn svg {
+        width: 1em;
+        height: 1em;
     }
 
     .campaigns-container {
