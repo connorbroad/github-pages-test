@@ -17,6 +17,9 @@
 <div class="story-view"> 
     {#if $activeCampaign}
         <h1>{$activeCampaign.title}</h1>
+        <div class="subheading">
+            <p>{$activeCampaign.blueprintTitle}</p>
+        </div>
         <Chronicle />
     {:else}
         <h1>No Active Campaign</h1>
@@ -32,17 +35,15 @@
 
     h1 {
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
     }
 
-    .story-description {
-        text-align: center;
+    .subheading p {
+        margin-top: 0;
         margin-bottom: 2rem;
-    }
-
-    .story-description p {
-        color: #666;
-        font-size: 1rem;
-        line-height: 1.6;
+        text-align: center;
+        color: #6b7280;
+        /* italics */
+        font-style: italic;
     }
 </style>
