@@ -442,7 +442,7 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+        padding: 0.5rem;
         background: #f8f9fa;
     }
 
@@ -523,8 +523,8 @@
     }
 
     .campaigns-container {
-        padding: 1rem 1.25rem;
-        padding-top: 0;
+        padding: 1rem 1rem;
+        padding-top: 0.5rem;
         background: #fafbfc;
     }
 
