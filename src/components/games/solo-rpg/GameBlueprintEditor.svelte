@@ -70,7 +70,7 @@
 
 {#if show}
     <div
-        class="blueprint-modal"
+        class="srpg-modal"
         role="button"
         tabindex="0"
         aria-label="Close game blueprint modal"
@@ -88,7 +88,7 @@
         }}
     >
         <div
-            class="blueprint-content blueprint-editor"
+            class="srpg-modal-content"
             role="dialog"
             aria-modal="true"
             on:click|stopPropagation
@@ -173,38 +173,7 @@
     on:save={saveFortune}
 />
 
-<style>
-    .blueprint-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .blueprint-content {
-        background: #fff;
-        margin: 1rem;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        min-width: 300px;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        text-align: center;
-        position: relative;
-    }
-
-    .blueprint-editor {
-        max-width: 700px;
-    }
-
+<style> 
     h2 {
         margin-top: 0;
         color: #333;
@@ -288,13 +257,7 @@
         margin: 1.5rem 0;
     }
 
-    @media (max-width: 600px) {
-        .blueprint-content {
-            max-width: 95vw;
-            margin: 0.5rem;
-            padding: 1.5rem;
-        }
-
+    @media (max-width: 600px) { 
         .fortune-item {
             flex-direction: column;
             align-items: stretch;

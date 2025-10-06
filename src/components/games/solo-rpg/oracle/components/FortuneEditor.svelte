@@ -135,7 +135,7 @@
 
 {#if show}
     <div
-        class="oracle-modal"
+        class="srpg-modal"
         role="button"
         tabindex="0"
         aria-label="Close create fortune modal"
@@ -153,11 +153,11 @@
         }}
     >
         <div
-            class="oracle-content"
+            class="srpg-modal-content"
             role="dialog"
             aria-modal="true"
-            on:click|stopPropagation
             tabindex="0"
+            on:click|stopPropagation
             on:keydown={(e) => {}}
         >
             {#if viewMode === 'main'}
@@ -396,33 +396,6 @@
 {/if}
 
 <style>
-    .oracle-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .oracle-content {
-        background: #fff;
-        margin: 1rem;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        min-width: 300px;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-        text-align: center;
-        position: relative;
-    }
-
     h2 {
         margin-top: 0;
         color: #333;
@@ -574,13 +547,5 @@
 
     .mapping-col-outcome {
         text-align: left;
-    }
-
-    @media (max-width: 600px) {
-        .oracle-content {
-            max-width: 95vw;
-            margin: 0.5rem;
-            padding: 1.5rem;
-        }
     }
 </style>

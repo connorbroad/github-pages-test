@@ -12,8 +12,8 @@
 </script>
 
 {#if show}
-    <div class="no-campaign-overlay">
-        <div class="overlay-content">
+    <div class="srpg-modal">
+        <div class="srpg-modal-content">
             <div class="body">
                 <p class="description">
                     This tool requires an active campaign.
@@ -34,26 +34,13 @@
 {/if}
 
 <style>
-    .no-campaign-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+    .srpg-modal { 
         background-color: #666;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
         padding: 1rem;
     }
 
-    .overlay-content {
-        background-color: white;
-        border-radius: 8px;
-        max-width: 500px;
-        width: 100%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .srpg-modal-content {
+        padding: 0;    
     }
 
     .body {

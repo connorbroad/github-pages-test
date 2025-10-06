@@ -62,7 +62,7 @@
 
 {#if show}
     <div
-        class="dice-roller-modal"
+        class="srpg-modal"
         role="button"
         tabindex="0"
         aria-label="Close dice roller"
@@ -71,11 +71,11 @@
             (e.key === "Enter" || e.key === " ") && onClose && onClose()}
     >
         <div
-            class="dice-roller-content"
+            class="srpg-modal-content"
             role="dialog"
             aria-modal="true"
-            on:click|stopPropagation
             tabindex="0"
+            on:click|stopPropagation
             on:keydown={(e) => {
                 /* trap focus or allow esc to close if desired */
             }}
@@ -301,30 +301,7 @@
     </div>
 {/if}
 
-<style>
-    .dice-roller-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-    .dice-roller-content {
-        background: #fff;
-        margin: 1rem;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        min-width: 300px;
-        max-width: 350px;
-        text-align: center;
-        position: relative;
-    }
+<style> 
     #dice-options {
         display: flex;
         justify-content: center;

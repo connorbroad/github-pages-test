@@ -34,7 +34,7 @@
 
 {#if show && blueprint}
     <div
-        class="oracle-modal"
+        class="srpg-modal"
         role="button"
         tabindex="0"
         aria-label="Close campaign creator"
@@ -50,11 +50,11 @@
         }}
     >
         <div
-            class="oracle-content"
+            class="srpg-modal-content"
             role="dialog"
             aria-modal="true"
-            on:click|stopPropagation
             tabindex="0"
+            on:click|stopPropagation
             on:keydown={(e) => {}}
         >
             <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
@@ -87,32 +87,7 @@
     </div>
 {/if}
 
-<style>
-    .oracle-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .oracle-content {
-        background: #fff;
-        margin: 1rem;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        min-width: 300px;
-        max-width: 500px;
-        text-align: center;
-        position: relative;
-    }
-
+<style>  
     h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
