@@ -8,6 +8,7 @@
         createDiceRollerAnimation,
         DEFAULT_ANIMATION_CONFIG,
     } from "./scripts/diceRollerLogic";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
     import "../solo-rpg-styles.css";
 
     export let show = false;
@@ -61,40 +62,17 @@
 </script>
 
 {#if show}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close dice roller"
-        on:click={() => onClose && onClose()}
-        on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClose && onClose()}
-    >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {
-                /* trap focus or allow esc to close if desired */
-            }}
-        >
-            <button
-                class="srpg-b-modal-nav srpg-b-modal-nav-close"
-                aria-label="Close"
-                on:click={() => onClose && onClose()}>&times;</button
-            >
-            <h2>Dice Roller</h2>
-            <DiceDisplay
-                {numDice}
-                {numSides}
-                {diceResults}
-                {diceOffsets}
-                {rolledNumSides}
-            />
-            <hr class="dice-roller-divider" />
-            <div id="dice-options">
+    <SrpgModal {show} ariaLabel="Close dice roller" on:close={onClose}>
+        <h2>Dice Roller</h2>
+        <DiceDisplay
+            {numDice}
+            {numSides}
+            {diceResults}
+            {diceOffsets}
+            {rolledNumSides}
+        />
+        <hr class="dice-roller-divider" />
+        <div id="dice-options">
                 <div class="dice-options-select">
                     <select bind:value={numDice}>
                         {#each Array(10) as _, i}
@@ -297,8 +275,7 @@
                     >
                 {/if}
             </button>
-        </div>
-    </div>
+    </SrpgModal>
 {/if}
 
 <style> 

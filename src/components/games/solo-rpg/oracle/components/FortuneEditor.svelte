@@ -10,6 +10,7 @@
         calculatePossibleDiceResults,
         isRedSuit,
     } from "../scripts/oracleTypes";
+    import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import { createEventDispatcher } from "svelte";
     import "../../solo-rpg-styles.css";
 
@@ -134,37 +135,17 @@
 </script>
 
 {#if show}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close create fortune modal"
-        on:click={handleClose}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable
-            ) {
-                handleClose();
-            }
-        }}
+    <SrpgModal 
+        {show} 
+        showBackButton={viewMode === 'mappings'}
+        ariaLabel="Close fortune editor" 
+        on:close={handleClose}
+        on:back={handleBackToMain}
     >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {}}
-        >
-            {#if viewMode === 'main'}
-                <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}>&times;</button>
-                <h2>Create Fortune</h2>
+        {#if viewMode === 'main'}
+            <h2>Create Fortune</h2>
 
-                {#if showCampaignField}
+            {#if showCampaignField}
                     <div class="form-group">
                         <label for="campaign">Campaign:</label>
                         <input
@@ -279,9 +260,6 @@
                 </button>
 
             {:else if viewMode === 'mappings'}
-                <button class="srpg-b-modal-nav srpg-b-modal-nav-back" on:click={handleBackToMain} aria-label="Go back">
-                    ←
-                </button>
                 <h2>Edit Outcome Mappings</h2>
 
                 {#if fortune.outcome.diceRoll}
@@ -391,8 +369,7 @@
                     Save Mappings
                 </button>
             {/if}
-        </div>
-    </div>
+    </SrpgModal>
 {/if}
 
 <style>

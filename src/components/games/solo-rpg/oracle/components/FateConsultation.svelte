@@ -9,6 +9,7 @@
         isRedSuit
     } from "../scripts/oracleTypes";
     import DiceRollerEmbed from "../../dice-roller/DiceRollerEmbed.svelte";
+    import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import { createEventDispatcher } from "svelte";
     import "../../solo-rpg-styles.css";
 
@@ -110,38 +111,10 @@
 </script>
 
 {#if show && fortune}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close fate modal"
-        on:click={handleClose}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT"].includes(tag) &&
-                !isEditable
-            ) {
-                handleClose();
-            }
-        }}
-    >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {}}
-        >
-            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
-                >&times;</button
-            >
-            <h2>{fortune.title}</h2>
+    <SrpgModal {show} ariaLabel="Close fate modal" on:close={handleClose}>
+        <h2>{fortune.title}</h2>
 
-            {#if fortune.outcome.diceRoll}
+        {#if fortune.outcome.diceRoll}
                 <div class="fate-section">
                     <DiceRollerEmbed
                         numDice={fortune.outcome.diceRoll.numDice}
@@ -254,8 +227,7 @@
             >
                 Accept fate
             </button>
-        </div>
-    </div>
+    </SrpgModal>
 {/if}
 
 <style>  
