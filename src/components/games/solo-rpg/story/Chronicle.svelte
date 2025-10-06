@@ -272,7 +272,7 @@
         <h2>Chronicle</h2>
         <div class="header-actions">
             <button class="srpg-b" on:click={toggleChaptersList}>
-                📚 Chapters
+                📚 View Chapters
             </button>
         </div>
     </div>
