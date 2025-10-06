@@ -148,6 +148,7 @@
         activeCampaign.load(campaign);
         showCampaignLoadConfirm = false;
         selectedCampaignForLoad = null;
+        currentView = 'story';
     }
 
     function unloadCampaign() {
@@ -570,8 +571,7 @@
     }
 
     .campaign-play-button { 
-        padding: 12px;
-        border-radius: 100px;
+        padding: 12px; 
         aspect-ratio: 1 / 1;
     }
 
