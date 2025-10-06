@@ -4,6 +4,7 @@
     import type { ChronicleEntry, Chapter } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -314,46 +315,45 @@
         </div>
     {/if}
 
-    {#if viewingChapterId === null}
-        <!-- Current Chapter View -->
-        <div class="current-chapter-banner">
+    {#if viewingChapterId === null} 
+         <div class="current-chapter-banner">
             <div class="banner-content">
                 <span class="banner-icon">📖</span>
-                <span class="banner-text">Current Chapter</span>
+                <span class="banner-text">Chapter {(chapters?.length || 0) + 1}</span>
             </div>
             {#if entries.length > 0}
                 <button class="srpg-b srpg-b-create srpg-b-sm" on:click={openCreateChapter}>
-                    💾 Finish chapter
+                    💾 Next chapter
                 </button>
             {/if}
         </div>
 
         {#if showCreateChapter}
-            <div class="chapter-editor">
-                <h3>Create New Chapter</h3>
-                <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
-                <input
-                    type="text"
-                    bind:value={chapterCustomName}
-                    placeholder="Chapter name (optional)"
-                    class="chapter-name-input"
-                />
-                <div class="chapter-preview">
-                    {#if chapterCustomName.trim()}
-                        Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
-                    {:else}
-                        Preview: Chapter {chapters.length + 1}
-                    {/if}
-                </div>
-                <div class="editor-actions">
-                    <button class="srpg-b srpg-b-create" on:click={createChapter}>
-                        Create Chapter
-                    </button>
-                    <button class="srpg-b" on:click={cancelCreateChapter}>
-                        Cancel
-                    </button>
-                </div>
-            </div>
+            <SrpgModal show={showCreateChapter} ariaLabel="Close create chapter dialog" on:close={cancelCreateChapter}>
+                    <h3>Finish Chapter</h3>
+                    <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
+                    <input
+                        type="text"
+                        bind:value={chapterCustomName}
+                        placeholder="Chapter name (optional)"
+                        class="chapter-name-input"
+                    />
+                    <div class="chapter-preview">
+                        {#if chapterCustomName.trim()}
+                            Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
+                        {:else}
+                            Preview: Chapter {chapters.length + 1}
+                        {/if}
+                    </div>
+                    <div class="editor-actions">
+                        <button class="srpg-b srpg-b-create" on:click={createChapter}>
+                            Finish Chapter
+                        </button>
+                        <button class="srpg-b" on:click={cancelCreateChapter}>
+                            Cancel
+                        </button>
+                    </div>
+            </SrpgModal>
         {/if}
     {:else}
         <!-- Viewing a Saved Chapter -->
@@ -370,7 +370,7 @@
     {#if !viewingChapterId}
         <div style="margin-bottom: 1rem; text-align: center;">
             <button class="srpg-b srpg-b-create srpg-b-w-lg" on:click={openAddEntry}>
-                + Add Chapter Entry
+                + Add entry
             </button>
         </div>
     {/if}
@@ -397,8 +397,8 @@
     <div class="entries-list">
         {#if entries.length === 0}
             <div class="no-entries">
-                <p>No chronicle entries yet.</p>
-                <p>Click "Add Entry" to record your first adventure log!</p>
+                <p>No chapter entries yet.</p>
+                <p>Click "Add entry" to record your first adventure log!</p>
             </div>
         {:else}
             {#each entries as entry (entry.id)}
@@ -648,8 +648,8 @@
     .chapter-delete-btn:hover {
         background: #fef2f2;
         border-color: #fca5a5;
-    }
-
+    } 
+    
     .current-chapter-banner {
         background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         color: white;
@@ -1096,13 +1096,7 @@
 
         .note-editor-actions {
             flex-direction: column;
-        }
-
-        .current-chapter-banner {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.75rem;
-        }
+        } 
 
         .chapter-view-banner {
             flex-direction: column;
