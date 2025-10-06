@@ -146,9 +146,13 @@
     function handleLoadCampaign(event: CustomEvent<Campaign>) {
         const campaign = event.detail;
         activeCampaign.load(campaign);
+
         showCampaignLoadConfirm = false;
         selectedCampaignForLoad = null;
-        currentView = 'story';
+
+        // Switch to story view
+        currentView = 'story'; 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function unloadCampaign() {
