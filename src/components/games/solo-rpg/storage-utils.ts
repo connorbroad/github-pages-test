@@ -12,10 +12,10 @@ export interface SoloRPGData {
     fortunes?: Fortune[];
     chronicleEntries?: ChronicleEntry[];
     chapters?: Chapter[];
+    characters?: Character[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
-    // characters?: CharacterAttribute[];
 }
 
 export type Campaign = {
@@ -33,6 +33,52 @@ export type Chapter = {
     customName?: string; // Optional custom name
     createdAt: number;
     closedAt: number; // When the chapter was closed/saved
+};
+
+export type Ability = {
+    id: string;
+    name: string;
+    score: number;
+    modifier: number;
+    proficient: boolean;
+};
+
+export type Skill = {
+    id: string;
+    name: string;
+    abilityId: string; // Reference to the associated ability
+    proficient: boolean;
+    bonus: number;
+};
+
+export type Character = {
+    id: string;
+    campaignId: string;
+    name: string;
+    // Core Info
+    class?: string;
+    level?: number;
+    background?: string;
+    playerName?: string;
+    race?: string;
+    alignment?: string;
+    experiencePoints?: number;
+    // Abilities
+    abilities: Ability[];
+    skills: Skill[];
+    // Combat Stats
+    armorClass?: number;
+    initiative?: number;
+    speed?: number;
+    hitPointMaximum?: number;
+    currentHitPoints?: number;
+    temporaryHitPoints?: number;
+    hitDice?: string;
+    deathSaveSuccesses?: number;
+    deathSaveFailures?: number;
+    // Metadata
+    createdAt: number;
+    updatedAt: number;
 };
 
 export type ChronicleEntry = {
@@ -287,4 +333,21 @@ export function downloadDataFile(): void {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+/**
+ * Load characters from storage
+ */
+export function loadCharacters(): Character[] {
+    const data = loadData();
+    return data.characters || [];
+}
+
+/**
+ * Save characters to storage
+ */
+export function saveCharacters(characters: Character[]): void {
+    const data = loadData();
+    data.characters = characters;
+    saveData(data);
 }
