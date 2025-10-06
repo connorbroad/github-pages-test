@@ -5,6 +5,7 @@
      */
     import type { Campaign } from "./storage-utils";
     import { createEventDispatcher } from "svelte";
+    import SrpgModal from "./shared/modal/SrpgModal.svelte";
     import "./solo-rpg-styles.css";
 
     export let show = false;
@@ -33,61 +34,34 @@
 </script>
 
 {#if show && campaign}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close campaign load dialog"
-        on:click={handleClose}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["BUTTON"].includes(tag)
-            ) {
-                handleClose();
-            }
-        }}
-    >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {}}
-        >
-            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
-                >&times;</button
-            >
-            <h2>Campaign Info</h2>
+    <SrpgModal {show} ariaLabel="Close campaign load dialog" on:close={handleClose}>
+        <h2>Campaign Info</h2>
 
-            <div class="campaign-details">
-                <p class="campaign-title">{campaign.title}</p>
-                <p class="campaign-info">
-                    <strong>Game:</strong>
-                    {campaign.blueprintTitle}
-                </p>
-                <p class="campaign-info">
-                    <strong>Created:</strong>
-                    {formatDate(campaign.createdAt)}
-                </p>
-            </div>
-
-            <div class="button-group">
-                <button
-                    class="srpg-b srpg-b-create srpg-b-w-full"
-                    on:click={handleLoad}
-                >
-                    Load Campaign
-                </button>
-            </div>
-
-            <p class="confirmation-message"> 
-                <em>Loading a campaign makes it the active campaign for all tools.</em>
+        <div class="campaign-details">
+            <p class="campaign-title">{campaign.title}</p>
+            <p class="campaign-info">
+                <strong>Game:</strong>
+                {campaign.blueprintTitle}
+            </p>
+            <p class="campaign-info">
+                <strong>Created:</strong>
+                {formatDate(campaign.createdAt)}
             </p>
         </div>
-    </div>
+
+        <div class="button-group">
+            <button
+                class="srpg-b srpg-b-create srpg-b-w-full"
+                on:click={handleLoad}
+            >
+                Load Campaign
+            </button>
+        </div>
+
+        <p class="confirmation-message"> 
+            <em>Loading a campaign makes it the active campaign for all tools.</em>
+        </p>
+    </SrpgModal>
 {/if}
 
 <style>

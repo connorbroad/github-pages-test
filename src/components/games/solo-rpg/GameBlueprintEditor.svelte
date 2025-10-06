@@ -6,6 +6,7 @@
     import type { GameBlueprint, Fortune } from "./oracle/scripts/oracleTypes";
     import { generateId } from "./oracle/scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
+    import SrpgModal from "./shared/modal/SrpgModal.svelte";
     import FortuneEditor from "./oracle/components/FortuneEditor.svelte";
     import "./solo-rpg-styles.css";
 
@@ -69,99 +70,70 @@
 </script>
 
 {#if show}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close game blueprint modal"
-        on:click={handleClose}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            const isEditable = (e.target as HTMLElement).isContentEditable;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(tag) &&
-                !isEditable
-            ) {
-                handleClose();
-            }
-        }}
-    >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="0"
-            on:keydown={(e) => {}}
-        >
-            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
-                >&times;</button
-            >
-            <h2>{isEditing ? 'Edit Game Blueprint' : 'Create Game Blueprint'}</h2>
+    <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
+        <h2>{isEditing ? 'Edit Game Blueprint' : 'Create Game Blueprint'}</h2>
 
-            <div class="form-group">
-                <label for="blueprint-title">Game Title:</label>
-                <input
-                    id="blueprint-title"
-                    type="text"
-                    bind:value={blueprint.title}
-                    placeholder="Enter game title..."
-                />
-            </div>
+        <div class="form-group">
+            <label for="blueprint-title">Game Title:</label>
+            <input
+                id="blueprint-title"
+                type="text"
+                bind:value={blueprint.title}
+                placeholder="Enter game title..."
+            />
+        </div>
 
-            <div class="form-group">
-                <h3>Default Fortunes</h3>
-                <button
-                    class="srpg-b srpg-b-create srpg-b-w-full"
-                    on:click={openCreateFortune}
-                >
-                    + Add Fortune
-                </button>
-
-                {#if blueprint.defaultFortunes.length > 0}
-                    <div class="fortunes-list">
-                        {#each blueprint.defaultFortunes as fortune, index}
-                            <div class="fortune-item">
-                                <div class="fortune-info">
-                                    <strong
-                                        >{fortune.title || "Untitled"}</strong
-                                    >
-                                </div>
-                                <div class="fortune-actions">
-                                    <button
-                                        class="srpg-b srpg-b-small srpg-b-normal"
-                                        on:click={() => openEditFortune(index)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        class="srpg-b srpg-b-small srpg-b-delete"
-                                        on:click={() => deleteFortune(index)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-                {:else}
-                    <p class="empty-state">
-                        No fortunes added yet. Click "Add Fortune" to create
-                        one.
-                    </p>
-                {/if}
-            </div>
-
-            <hr class="divider" />
+        <div class="form-group">
+            <h3>Default Fortunes</h3>
             <button
                 class="srpg-b srpg-b-create srpg-b-w-full"
-                on:click={handleSave}
+                on:click={openCreateFortune}
             >
-                Save Game Blueprint
+                + Add Fortune
             </button>
+
+            {#if blueprint.defaultFortunes.length > 0}
+                <div class="fortunes-list">
+                    {#each blueprint.defaultFortunes as fortune, index}
+                        <div class="fortune-item">
+                            <div class="fortune-info">
+                                <strong
+                                    >{fortune.title || "Untitled"}</strong
+                                >
+                            </div>
+                            <div class="fortune-actions">
+                                <button
+                                    class="srpg-b srpg-b-small srpg-b-normal"
+                                    on:click={() => openEditFortune(index)}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    class="srpg-b srpg-b-small srpg-b-delete"
+                                    on:click={() => deleteFortune(index)}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            {:else}
+                <p class="empty-state">
+                    No fortunes added yet. Click "Add Fortune" to create
+                    one.
+                </p>
+            {/if}
         </div>
-    </div>
+
+        <hr class="divider" />
+        <button
+            class="srpg-b srpg-b-create srpg-b-w-full"
+            on:click={handleSave}
+        >
+            Save Game Blueprint
+        </button>
+    </SrpgModal>
 {/if}
 
 <FortuneEditor

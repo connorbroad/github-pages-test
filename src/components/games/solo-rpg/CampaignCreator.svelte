@@ -5,6 +5,7 @@
      */
     import type { Campaign, GameBlueprint } from "./storage-utils";
     import { createEventDispatcher } from "svelte";
+    import SrpgModal from "./shared/modal/SrpgModal.svelte";
     import "./solo-rpg-styles.css";
 
     export let show = false;
@@ -33,58 +34,31 @@
 </script>
 
 {#if show && blueprint}
-    <div
-        class="srpg-modal"
-        role="button"
-        tabindex="0"
-        aria-label="Close campaign creator"
-        on:click={handleClose}
-        on:keydown={(e) => {
-            const tag = (e.target as HTMLElement).tagName;
-            if (
-                (e.key === "Enter" || e.key === " ") &&
-                !["INPUT", "TEXTAREA", "BUTTON"].includes(tag)
-            ) {
-                handleClose();
-            }
-        }}
-    >
-        <div
-            class="srpg-modal-content"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {}}
-        >
-            <button class="srpg-b-modal-nav srpg-b-modal-nav-close" on:click={handleClose}
-                >&times;</button
-            >
-            <h2>Create New Campaign</h2>
-            <p class="blueprint-subtitle">
-                Using: <strong>{blueprint.title}</strong>
-            </p>
+    <SrpgModal {show} ariaLabel="Close campaign creator" on:close={handleClose}>
+        <h2>Create New Campaign</h2>
+        <p class="blueprint-subtitle">
+            Using: <strong>{blueprint.title}</strong>
+        </p>
 
-            <div class="form-group">
-                <label for="campaign-title">Campaign Title:</label>
-                <input
-                    id="campaign-title"
-                    type="text"
-                    bind:value={campaignTitle}
-                    placeholder="Enter campaign title..."
-                    on:keydown={handleKeyDown}
-                />
-            </div>
-
-            <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
-                on:click={handleCreate}
-                disabled={!campaignTitle.trim()}
-            >
-                Create Campaign
-            </button>
+        <div class="form-group">
+            <label for="campaign-title">Campaign Title:</label>
+            <input
+                id="campaign-title"
+                type="text"
+                bind:value={campaignTitle}
+                placeholder="Enter campaign title..."
+                on:keydown={handleKeyDown}
+            />
         </div>
-    </div>
+
+        <button
+            class="srpg-b srpg-b-create srpg-b-w-full"
+            on:click={handleCreate}
+            disabled={!campaignTitle.trim()}
+        >
+            Create Campaign
+        </button>
+    </SrpgModal>
 {/if}
 
 <style>  

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+    import SrpgModal from "./shared/modal/SrpgModal.svelte";
     import "./solo-rpg-styles.css";
 
     export let show: boolean = false;
@@ -12,39 +13,33 @@
 </script>
 
 {#if show}
-    <div class="srpg-modal">
-        <div class="srpg-modal-content">
-            <div class="body">
-                <p class="description">
-                    This tool requires an active campaign.
-                </p>
-                <p class="description">
-                    Please load or create a campaign from the home page to
-                    continue.
-                </p>
-                <button
-                    class="srpg-b srpg-b-create srpg-b-w-full"
-                    on:click={navigateHome}
-                >
-                    Go to Home Page
-                </button>
-            </div>
+    <SrpgModal 
+        {show} 
+        showCloseButton={false} 
+        closeOnOverlayClick={false}
+        ariaLabel="No campaign loaded"
+    >
+        <div class="body">
+            <p class="description">
+                This tool requires an active campaign.
+            </p>
+            <p class="description">
+                Please load or create a campaign from the home page to
+                continue.
+            </p>
+            <button
+                class="srpg-b srpg-b-create srpg-b-w-full"
+                on:click={navigateHome}
+            >
+                Go to Home Page
+            </button>
         </div>
-    </div>
+    </SrpgModal>
 {/if}
 
 <style>
-    .srpg-modal { 
-        background-color: #666;
-        padding: 1rem;
-    }
-
-    .srpg-modal-content {
-        padding: 0;    
-    }
-
-    .body {
-        padding: 1.5rem;
+    .body { 
+        padding: 0rem;
         text-align: center;
     }
 
