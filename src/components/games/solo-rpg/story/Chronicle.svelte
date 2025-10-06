@@ -527,10 +527,8 @@
     .chronicle-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #e5e7eb;
+        align-items: center; 
+        padding-bottom: 1rem; 
     }
 
     .chronicle-header h2 {
