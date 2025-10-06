@@ -139,3 +139,15 @@ Use this pattern when you want to force user interaction:
 The Modal component automatically uses styles from `solo-rpg-styles.css`. No additional styling is needed unless you want to customize the content inside the modal.
 
 Content-specific styles should be added to the component using the Modal, not to the Modal component itself.
+
+### Mobile Safe Area Handling
+
+The modal automatically handles mobile safe areas and bottom navigation bars:
+
+- **Mobile devices (≤768px)**: 
+  - Modal content has a bottom margin of `calc(70px + env(safe-area-inset-bottom) + 0.5rem)` to clear the bottom navbar
+  - Maximum height is adjusted to `calc(90vh - 70px - env(safe-area-inset-bottom))` to prevent content from being cut off
+  - The modal overlay reserves space for the bottom navbar
+  
+- **Desktop devices (>768px)**: 
+  - Standard modal positioning without bottom navbar considerations

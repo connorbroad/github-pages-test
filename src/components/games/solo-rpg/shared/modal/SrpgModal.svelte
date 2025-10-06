@@ -4,7 +4,7 @@
      * Provides a consistent modal wrapper with customizable navigation buttons
      */
     import { createEventDispatcher } from "svelte";
-    import "./solo-rpg-styles.css";
+    import "../../solo-rpg-styles.css";
 
     export let show = false;
     export let showCloseButton = true;

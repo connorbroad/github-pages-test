@@ -153,11 +153,22 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    /* On mobile, account for bottom navbar */
+        height: 100dvh;
+        /* Use dynamic viewport height when available */
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 50;
+    padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    @media (max-width: 768px) {
+        .srpg-modal {
+            /* Reserve space for bottom navbar on mobile */
+            padding-bottom: calc(env(safe-area-inset-bottom));
+        }
 }
 
 .srpg-modal-content {
@@ -174,7 +185,18 @@
     position: relative;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+    .srpg-modal-content {
+        max-width: 95vw;
+        margin: 0.5rem;
+        margin-bottom: calc(70px + env(safe-area-inset-bottom) + 0.5rem);
+        padding: 1.5rem;
+        /* Adjust max-height to account for bottom navbar */
+        max-height: calc(90vh - 70px - env(safe-area-inset-bottom));
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
     .srpg-modal-content {
         max-width: 95vw;
         margin: 0.5rem;
