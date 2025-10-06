@@ -23,7 +23,7 @@
     let rolledNumSides = numSides;
     let rolling = false;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
-    let showResultCalculator = false;
+    let showResultCalculator = true;
 
     function onRollButtonClick() {
         const animation = createDiceRollerAnimation(
@@ -73,28 +73,28 @@
         />
         <hr class="dice-roller-divider" />
         <div id="dice-options">
-                <div class="dice-options-select">
-                    <select bind:value={numDice}>
-                        {#each Array(10) as _, i}
-                            <option value={i + 1}>{i + 1}x</option>
-                        {/each}
-                    </select>
-                </div>
-                <div class="dice-options-select">
-                    <select bind:value={numSides}>
-                        <option value={4}>D4</option>
-                        <option value={6} selected>D6</option>
-                        <option value={8}>D8</option>
-                        <option value={10}>D10</option>
-                        <option value={12}>D12</option>
-                        <option value={20}>D20</option>
-                        <option value={100}>D100</option>
-                    </select>
-                </div>
+            <div class="dice-options-select">
+                <select bind:value={numDice}>
+                    {#each Array(10) as _, i}
+                        <option value={i + 1}>{i + 1}x</option>
+                    {/each}
+                </select>
             </div>
-            <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={onRollButtonClick}
-                >Roll</button
-            >
+            <div class="dice-options-select">
+                <select bind:value={numSides}>
+                    <option value={4}>D4</option>
+                    <option value={6} selected>D6</option>
+                    <option value={8}>D8</option>
+                    <option value={10}>D10</option>
+                    <option value={12}>D12</option>
+                    <option value={20}>D20</option>
+                    <option value={100}>D100</option>
+                </select>
+            </div>
+        </div>
+        <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={onRollButtonClick}
+            >Roll</button
+        >
             {#if showResultCalculator}
                 <div class="result-calculator-container" transition:slide>
                     <hr class="dice-roller-divider" />
@@ -216,7 +216,7 @@
                             </div>
                         {/if}
                         <p>
-                            Result:
+                            Accept fate:
                             {rolling ? "..." : finalResult || "..."}
                         </p>
                         {#if diceResults.length > 1 && !rolling}
@@ -235,46 +235,7 @@
                         {/if}
                     </button>
                 </div>
-            {/if}
-            <button
-                class="toggle-result-calculator-btn"
-                aria-label={showResultCalculator
-                    ? "Hide result calculator"
-                    : "Show result calculator"}
-                on:click={() => (showResultCalculator = !showResultCalculator)}
-                style="background: none; border: none; cursor: pointer; position: absolute; top: 0.6rem; left: 0.5rem; z-index: 11;"
-            >
-                {#if !showResultCalculator}
-                    <!-- Eye icon (visible) -->
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="28px"
-                        height="28px"
-                        {...$$props}
-                        ><path
-                            fill="currentColor"
-                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V5h14z"
-                        /><path
-                            fill="currentColor"
-                            d="M6.25 7.72h5v1.5h-5zM13 15.75h5v1.5h-5zm0-2.5h5v1.5h-5zM8 18h1.5v-2h2v-1.5h-2v-2H8v2H6V16h2zm6.09-7.05l1.41-1.41l1.41 1.41l1.06-1.06l-1.41-1.42l1.41-1.41L16.91 6L15.5 7.41L14.09 6l-1.06 1.06l1.41 1.41l-1.41 1.42z"
-                        /></svg
-                    >
-                {:else}
-                    <!-- Eye-off icon (hidden) -->
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="28px"
-                        height="28px"
-                        {...$$props}
-                        ><path
-                            fill="currentColor"
-                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5.97 4.06L14.09 6l1.41 1.41L16.91 6l1.06 1.06l-1.41 1.41l1.41 1.41l-1.06 1.06l-1.41-1.4l-1.41 1.41l-1.06-1.06l1.41-1.41zm-6.78.66h5v1.5h-5zM11.5 16h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.25h-5v-1.5h5zm0-2.5h-5v-1.5h5z"
-                        /></svg
-                    >
-                {/if}
-            </button>
+            {/if} 
     </SrpgModal>
 {/if}
 
