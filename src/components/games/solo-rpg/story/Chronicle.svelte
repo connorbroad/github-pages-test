@@ -330,29 +330,29 @@
 
         {#if showCreateChapter}
             <SrpgModal show={showCreateChapter} ariaLabel="Close create chapter dialog" on:close={cancelCreateChapter}>
-                    <h3>Finish Chapter</h3>
-                    <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
-                    <input
-                        type="text"
-                        bind:value={chapterCustomName}
-                        placeholder="Chapter name (optional)"
-                        class="chapter-name-input"
-                    />
-                    <div class="chapter-preview">
-                        {#if chapterCustomName.trim()}
-                            Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
-                        {:else}
-                            Preview: Chapter {chapters.length + 1}
-                        {/if}
-                    </div>
-                    <div class="editor-actions">
-                        <button class="srpg-b srpg-b-create" on:click={createChapter}>
-                            Finish Chapter
-                        </button>
-                        <button class="srpg-b" on:click={cancelCreateChapter}>
-                            Cancel
-                        </button>
-                    </div>
+                <h3>Finish Chapter</h3>
+                <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
+                <input
+                    type="text"
+                    bind:value={chapterCustomName}
+                    placeholder="Chapter name (optional)"
+                    class="chapter-name-input"
+                />
+                <div class="chapter-preview">
+                    {#if chapterCustomName.trim()}
+                        Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
+                    {:else}
+                        Preview: Chapter {chapters.length + 1}
+                    {/if}
+                </div>
+                <div class="editor-actions">
+                    <button class="srpg-b srpg-b-create" on:click={createChapter}>
+                        Finish Chapter
+                    </button>
+                    <button class="srpg-b" on:click={cancelCreateChapter}>
+                        Cancel
+                    </button>
+                </div>
             </SrpgModal>
         {/if}
     {:else}
@@ -708,21 +708,7 @@
         font-size: 1rem;
         font-weight: 600;
         color: #333;
-    }
-
-    .chapter-editor {
-        background: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .chapter-editor h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-        color: #333;
-    }
+    } 
 
     .chapter-help {
         margin: 0 0 1rem 0;
