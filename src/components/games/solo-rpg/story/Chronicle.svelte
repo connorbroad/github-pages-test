@@ -273,11 +273,6 @@
             <button class="srpg-b" on:click={toggleChaptersList}>
                 📚 Chapters
             </button>
-            {#if !viewingChapterId}
-                <button class="srpg-b srpg-b-create" on:click={openAddEntry}>
-                    + Add Entry
-                </button>
-            {/if}
         </div>
     </div>
 
@@ -328,7 +323,7 @@
             </div>
             {#if entries.length > 0}
                 <button class="srpg-b srpg-b-create srpg-b-sm" on:click={openCreateChapter}>
-                    💾 Save as Chapter
+                    💾 Finish chapter
                 </button>
             {/if}
         </div>
@@ -369,6 +364,14 @@
             <span class="viewing-chapter-name">
                 📜 Viewing: {getChapterDisplayName(chapters.find(c => c.id === viewingChapterId))}
             </span>
+        </div>
+    {/if}
+
+    {#if !viewingChapterId}
+        <div style="margin-bottom: 1rem; text-align: center;">
+            <button class="srpg-b srpg-b-create srpg-b-w-lg" on:click={openAddEntry}>
+                + Add Chapter Entry
+            </button>
         </div>
     {/if}
 

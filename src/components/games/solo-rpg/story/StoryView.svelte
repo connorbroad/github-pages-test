@@ -14,19 +14,12 @@
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
-<div class="story-view">
-    <h1>Story</h1>
-
-    <div class="story-description">
-        <p>
-            Note taking, action tracking and story management for your solo RPG
-            adventures.
-        </p>
-    </div>
-
+<div class="story-view"> 
     {#if $activeCampaign}
+        <h1>{$activeCampaign.title}</h1>
         <Chronicle />
     {:else}
+        <h1>No Active Campaign</h1>
         <em>Select or create a campaign to start recording your adventure.</em>
     {/if}
 </div>
