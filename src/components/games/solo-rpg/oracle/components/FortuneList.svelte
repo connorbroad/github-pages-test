@@ -197,7 +197,7 @@
                     >
                     {#if allowDelete}
                         <button
-                            class="srpg-icon-button delete-icon"
+                            class="srpg-b-icon delete-icon"
                             on:click={() => dispatch("delete", fortune.id)}
                             >×</button
                         >

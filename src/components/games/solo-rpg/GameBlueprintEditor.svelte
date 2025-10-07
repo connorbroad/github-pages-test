@@ -103,13 +103,13 @@
                             </div>
                             <div class="fortune-actions">
                                 <button
-                                    class="srpg-b srpg-b-small srpg-b-normal"
+                                    class="srpg-b srpg-b-sm srpg-b-normal"
                                     on:click={() => openEditFortune(index)}
                                 >
                                     Edit
                                 </button>
                                 <button
-                                    class="srpg-b srpg-b-small srpg-b-delete"
+                                    class="srpg-b srpg-b-sm srpg-b-delete"
                                     on:click={() => deleteFortune(index)}
                                 >
                                     Delete

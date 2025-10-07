@@ -121,20 +121,14 @@
     {#if selectedCharacter}
         <div class="character-view">
             <div class="view-header">
-                <button class="btn btn-secondary" on:click={backToList}>
-                    ← Back to Characters
-                </button>
-                <div class="header-actions">
-                    {#if !isEditing}
-                        <button class="btn btn-primary" on:click={editCharacter}
-                            >Edit Character</button
-                        >
-                        <button
-                            class="btn btn-danger"
-                            on:click={deleteCharacter}>Delete Character</button
-                        >
-                    {/if}
-                </div>
+                <button class="srpg-b srpg-b-normal" on:click={backToList}>
+                    ← Back
+                </button> 
+                {#if !isEditing}
+                    <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
+                        Edit
+                    </button>
+                {/if} 
             </div>
 
             <CharacterSheet
@@ -143,11 +137,20 @@
                 on:save={saveCharacter}
                 on:cancel={cancelEdit}
             />
+            
+            <br />
+
+            <button
+                class="srpg-b srpg-b-sm srpg-b-w-full srpg-b-danger"
+                on:click={deleteCharacter}
+                aria-label="Delete Character">
+                    Delete character
+            </button>
         </div>
     {:else}
         <div class="character-list-view">
             <div class="list-header">
-                <button class="btn btn-primary" on:click={openCreateModal}>
+                <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
                     + Create Character
                 </button>
             </div>
@@ -156,10 +159,10 @@
                 <div class="character-list">
                     {#each characters as character}
                         <button
-                            class="character-card"
+                            class="srpg-b srpg-b-overview"
                             on:click={() => selectCharacter(character)}
                         >
-                            <h3>{character.name}</h3>
+                            <h3 class="character-title">{character.name}</h3>
                             <div class="character-summary">
                                 {#if character.race || character.class}
                                     <p>
@@ -240,26 +243,18 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
-    }
-
-    .list-header h2 {
-        margin: 0;
-        color: #111827;
-    }
+    } 
 
     .view-header {
         display: flex;
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
         flex-wrap: wrap;
         gap: 1rem;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
+        width: 100%;
+    } 
 
     .character-list {
         display: grid;
@@ -267,25 +262,7 @@
         gap: 1rem;
     }
 
-    .character-card {
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 1.5rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-align: left;
-        width: 100%;
-        font-family: inherit;
-    }
-
-    .character-card:hover {
-        border-color: #3b82f6;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .character-card h3 {
+    .character-title {
         margin: 0 0 0.75rem 0;
         color: #111827;
         font-size: 1.25rem;
@@ -353,47 +330,5 @@
         display: flex;
         gap: 0.5rem;
         justify-content: flex-end;
-    }
-
-    .btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-
-    .btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .btn-primary {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-        background: #2563eb;
-    }
-
-    .btn-secondary {
-        background: #6b7280;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background: #4b5563;
-    }
-
-    .btn-danger {
-        background: #ef4444;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #dc2626;
     }
 </style>

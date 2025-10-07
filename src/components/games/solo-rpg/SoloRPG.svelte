@@ -215,7 +215,7 @@
                                     </button>
                                     <div class="blueprint-actions">
                                         <button 
-                                            class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-small"
+                                            class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-sm"
                                             on:click={() => openEditBlueprint(blueprint)}
                                             title="Edit blueprint"
                                             aria-label="Edit blueprint"
@@ -225,7 +225,7 @@
                                             </svg>
                                         </button>
                                         <button 
-                                            class="add-campaign-btn srpg-b srpg-b-create srpg-b-small"
+                                            class="add-campaign-btn srpg-b srpg-b-create srpg-b-sm"
                                             on:click={() => openCampaignCreator(blueprint)}
                                             title="Create new campaign"
                                         >

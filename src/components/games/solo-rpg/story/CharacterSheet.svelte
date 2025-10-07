@@ -208,12 +208,12 @@
 <div class="character-sheet">
     {#if isEditing}
         <div class="edit-actions">
-            <button class="btn btn-primary" on:click={saveChanges}
-                >Save Changes</button
-            >
-            <button class="btn btn-secondary" on:click={cancelEdit}
-                >Cancel</button
-            >
+            <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
+                Save Changes
+            </button>
+            <button class="srpg-b" on:click={cancelEdit}>
+                Cancel
+            </button>
         </div>
     {/if}
 
@@ -352,13 +352,14 @@
         <h2>Abilities</h2>
         {#if isEditing}
             <div class="section-actions">
-                <button class="btn btn-small" on:click={addAbility}
-                    >+ Add Ability</button
-                >
+                <button class="srpg-b srpg-b-sm" on:click={addAbility}>
+                    + Add Ability
+                </button>
                 <button
-                    class="btn btn-small btn-secondary"
-                    on:click={openTemplateModal}>📋 Use Template</button
-                >
+                    class="srpg-b srpg-b-normal srpg-b-sm"
+                    on:click={openTemplateModal}>
+                    📋 Use Template
+                </button>
             </div>
         {/if}
 
@@ -417,10 +418,10 @@
                                 </label>
                             </div>
                             <button
-                                class="btn btn-danger btn-small abilities-remove-btn"
-                                on:click={() => removeAbility(ability.id)}
-                                >Remove</button
-                            >
+                                class="srpg-b srpg-b-danger srpg-b-sm abilities-remove-btn"
+                                on:click={() => removeAbility(ability.id)}>
+                                Remove
+                            </button>
                         {:else}
                             <h3>{ability.name}</h3>
                             <div class="ability-stats">
@@ -450,9 +451,9 @@
     <section class="section">
         <h2>Skills</h2>
         {#if isEditing}
-            <button class="btn btn-small" on:click={addSkill}
-                >+ Add Skill</button
-            >
+            <button class="srpg-b srpg-b-sm" on:click={addSkill}>
+                + Add Skill
+            </button>
         {/if}
 
         {#if editedCharacter.skills.length > 0}
@@ -505,22 +506,24 @@
                                             skill.id,
                                             Number(e.currentTarget.value),
                                         )}
-                                /></label
-                            >
+                                />
+                            </label>
                             <button
-                                class="btn btn-danger btn-small"
-                                on:click={() => removeSkill(skill.id)}
-                                >Remove</button
-                            >
+                                class="srpg-b srpg-b-danger srpg-b-sm"
+                                on:click={() => removeSkill(skill.id)}>
+                                Remove
+                            </button>
                         {:else}
                             <div class="skill-info">
                                 <strong>{skill.name}</strong>
                                 <span>({getAbilityName(skill.abilityId)})</span>
-                                {#if skill.proficient}<span class="badge"
-                                        >Proficient</span
-                                    >{/if}
-                                <span
-                                    >Bonus: {skill.bonus >= 0
+                                {#if skill.proficient}
+                                    <span class="badge">
+                                        Proficient
+                                    </span>
+                                {/if}
+                                <span>
+                                    Bonus: {skill.bonus >= 0
                                         ? "+"
                                         : ""}{skill.bonus}</span
                                 >
@@ -681,10 +684,10 @@
 
         <div class="template-options">
             <button
-                class="template-option"
+                class="srpg-b-overview"
                 on:click={() => applyTemplate("dnd5e")}
             >
-                <h3>D&D 5e</h3>
+                <h3 class="template-option-title">D&D 5e</h3>
                 <p class="template-abilities">
                     Strength, Dexterity, Constitution, Intelligence, Wisdom,
                     Charisma
@@ -693,10 +696,10 @@
             </button>
 
             <button
-                class="template-option"
+                class="srpg-b-overview"
                 on:click={() => applyTemplate("daggerheart")}
             >
-                <h3>Daggerheart</h3>
+                <h3 class="template-option-title">Daggerheart</h3>
                 <p class="template-abilities">
                     Agility, Strength, Finesse, Instinct, Presence, Knowledge
                 </p>
@@ -706,7 +709,7 @@
 
         <div class="template-footer">
             <button
-                class="btn btn-secondary"
+                class="srpg-b"
                 on:click={() => (showTemplateModal = false)}
             >
                 Cancel
@@ -731,6 +734,7 @@
 
     .edit-actions {
         display: flex;
+        flex-direction: row;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
         justify-content: flex-end;
@@ -911,48 +915,6 @@
         margin: 1rem 0;
     }
 
-    .btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-
-    .btn-primary {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background: #2563eb;
-    }
-
-    .btn-secondary {
-        background: #6b7280;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background: #4b5563;
-    }
-
-    .btn-small {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-    }
-
-    .btn-danger {
-        background: #ef4444;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #dc2626;
-    }
-
     /* Template Modal Styles */
     .template-modal-content {
         padding: 1.5rem;
@@ -977,26 +939,7 @@
         margin-bottom: 1.5rem;
     }
 
-    .template-option {
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 1.25rem;
-        cursor: pointer;
-        text-align: left;
-        transition: all 0.2s;
-        width: 100%;
-        font-family: inherit;
-    }
-
-    .template-option:hover {
-        border-color: #3b82f6;
-        background: #f9fafb;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .template-option h3 {
+    .template-option-title {
         margin: 0 0 0.5rem 0;
         color: #111827;
         font-size: 1.25rem;
