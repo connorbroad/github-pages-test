@@ -267,3 +267,208 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+/* Common Form Styles */
+.srpg-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .srpg-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .srpg-form-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+.srpg-form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.srpg-form-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.srpg-form-field input,
+.srpg-form-field select,
+.srpg-form-field textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.srpg-form-field input:focus,
+.srpg-form-field select:focus,
+.srpg-form-field textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.srpg-form-field input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.srpg-form-field input[type="number"]::-webkit-outer-spin-button,
+.srpg-form-field input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.srpg-form-field p {
+    margin: 0;
+    padding: 0.5rem 0;
+    color: #111827;
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Mobile-specific form enhancements */
+@media (max-width: 767px) {
+
+    .srpg-form-field input,
+    .srpg-form-field select,
+    .srpg-form-field textarea {
+        min-height: 44px;
+        /* iOS minimum touch target */
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+
+    .srpg-form-field input[type="number"] {
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .srpg-form-field input[type="checkbox"] {
+        min-width: 20px;
+        min-height: 20px;
+        transform: scale(1.2);
+    }
+
+    .srpg-b-sm {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+    }
+}
+
+/* Form field spacing for mobile */
+@media (max-width: 767px) {
+    .srpg-form-field {
+        margin-bottom: 0.75rem;
+    }
+
+    .srpg-form-field:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Section Styles */
+.srpg-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+@media (min-width: 768px) {
+    .srpg-section {
+        margin-bottom: 2rem;
+    }
+}
+
+.srpg-section:last-child {
+    border-bottom: none;
+}
+
+.srpg-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #111827;
+    font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .srpg-section h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Badge Styles */
+.srpg-badge {
+    display: inline-block;
+    background: #10b981;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.srpg-badge-info {
+    background: #3b82f6;
+}
+
+.srpg-badge-warning {
+    background: #f59e0b;
+}
+
+.srpg-badge-danger {
+    background: #ef4444;
+}
+
+/* Card Styles */
+.srpg-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.srpg-card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Empty State */
+.srpg-empty-message {
+    color: #6b7280;
+    font-style: italic;
+    margin: 1rem 0;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+/* Icon Styles */
+.srpg-icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    vertical-align: middle;
+}
+
+.srpg-icon-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.srpg-icon-lg {
+    width: 1.5rem;
+    height: 1.5rem;
+}

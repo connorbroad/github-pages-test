@@ -342,19 +342,25 @@
 {#if isEditing}
     <div class="edit-actions">
         <button class="srpg-b" on:click={cancelEdit}>
+            <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
             Cancel
         </button>
         <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
+            <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7" />
+            </svg>
             Save Changes
         </button>
     </div>
 {/if}
 <div class="character-sheet">
     <!-- Core Info Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Information</h2>
-        <div class="form-grid">
-            <div class="form-field">
+        <div class="srpg-form-grid">
+            <div class="srpg-form-field">
                 <label for="name">Character Name</label>
                 {#if isEditing}
                     <input
@@ -368,7 +374,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="race">Race</label>
                 {#if isEditing}
                     <input
@@ -381,7 +387,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="alignment">Alignment</label>
                 {#if isEditing}
                     <select
@@ -398,7 +404,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="background">Background</label>
                 {#if isEditing}
                     <input
@@ -414,10 +420,10 @@
     </section>
 
     <!-- Experience Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Experience</h2>
-        <div class="form-grid">
-            <div class="form-field">
+        <div class="srpg-form-grid">
+            <div class="srpg-form-field">
                 <label for="class">Class</label>
                 {#if isEditing}
                     <input
@@ -430,7 +436,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="level">Level</label>
                 {#if isEditing}
                     <input
@@ -444,7 +450,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="xp">Experience Points</label>
                 {#if isEditing}
                     <input
@@ -458,7 +464,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="proficiencyBonus">Proficiency Bonus</label>
                 {#if isEditing}
                     <input
@@ -474,11 +480,11 @@
     </section>
 
     <!-- Health Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Health</h2>
-        <div class="form-grid">
+        <div class="srpg-form-grid">
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="hpCurrent">Current Hit Points</label>
                 {#if isEditing}
                     <input
@@ -495,7 +501,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="hpMax">Hit Point Maximum</label>
                 {#if isEditing}
                     <input
@@ -508,7 +514,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="hpTemp">Temporary Hit Points</label>
                 {#if isEditing}
                     <input
@@ -521,7 +527,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="hitDice">Hit Dice</label>
                 {#if isEditing}
                     <input
@@ -535,7 +541,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="deathSaveSuccesses">Death Save Successes</label>
                 {#if isEditing}
                     <input
@@ -550,7 +556,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="deathSaveFailures">Death Save Failures</label>
                 {#if isEditing}
                     <input
@@ -568,17 +574,24 @@
     </section>
 
     <!-- Abilities Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Abilities</h2>
         {#if isEditing}
             <div class="section-actions">
                 <button class="srpg-b srpg-b-sm" on:click={addAbility}>
-                    + Add Ability
+                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Add Ability
                 </button>
                 <button
                     class="srpg-b srpg-b-normal srpg-b-sm"
                     on:click={openTemplateModal}>
-                    📋 Use Template
+                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    Use Template
                 </button>
             </div>
         {/if}
@@ -588,60 +601,78 @@
                 {#each editedCharacter.abilities as ability}
                     <div class="ability-card">
                         {#if isEditing}
-                            <input
-                                type="text"
-                                value={ability.name}
-                                on:input={(e) =>
-                                    updateAbilityName(
-                                        ability.id,
-                                        e.currentTarget.value,
-                                    )}
-                                placeholder="Ability Name"
-                                class="ability-name-input"
-                            />
-                            <div class="ability-stats">
-                                <label
-                                    >Score: <input
-                                        type="number"
-                                        value={ability.score}
-                                        on:input={(e) =>
-                                            updateAbilityScore(
-                                                ability.id,
-                                                Number(e.currentTarget.value),
-                                            )}
-                                        min="1"
-                                        max="30"
-                                    /></label
-                                >
-                                <label
-                                    >Modifier: <input
-                                        type="number"
-                                        value={ability.modifier}
-                                        on:input={(e) =>
-                                            updateAbilityModifier(
-                                                ability.id,
-                                                Number(e.currentTarget.value),
-                                            )}
-                                    /></label
-                                >
-                                <label class="proficiency-label">
+                            <div class="ability-edit-form">
+                                <div class="srpg-form-field">
+                                    <label for="ability-name-{ability.id}">Name</label>
                                     <input
-                                        type="checkbox"
-                                        checked={ability.proficient}
-                                        on:change={(e) =>
-                                            updateAbilityProficient(
+                                        type="text"
+                                        id="ability-name-{ability.id}"
+                                        value={ability.name}
+                                        on:input={(e) =>
+                                            updateAbilityName(
                                                 ability.id,
-                                                e.currentTarget.checked,
+                                                e.currentTarget.value,
                                             )}
+                                        placeholder="Ability Name"
                                     />
-                                    Proficient
-                                </label>
+                                </div>
+                                
+                                <div class="ability-stats-grid">
+                                    <div class="srpg-form-field">
+                                        <label for="ability-score-{ability.id}">Score</label>
+                                        <input
+                                            type="number"
+                                            id="ability-score-{ability.id}"
+                                            value={ability.score}
+                                            on:input={(e) =>
+                                                updateAbilityScore(
+                                                    ability.id,
+                                                    Number(e.currentTarget.value),
+                                                )}
+                                            min="1"
+                                            max="30"
+                                        />
+                                    </div>
+                                    
+                                    <div class="srpg-form-field">
+                                        <label for="ability-modifier-{ability.id}">Modifier</label>
+                                        <input
+                                            type="number"
+                                            id="ability-modifier-{ability.id}"
+                                            value={ability.modifier}
+                                            on:input={(e) =>
+                                                updateAbilityModifier(
+                                                    ability.id,
+                                                    Number(e.currentTarget.value),
+                                                )}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div class="ability-proficiency">
+                                    <label class="proficiency-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={ability.proficient}
+                                            on:change={(e) =>
+                                                updateAbilityProficient(
+                                                    ability.id,
+                                                    e.currentTarget.checked,
+                                                )}
+                                        />
+                                        <span>Proficient</span>
+                                    </label>
+                                </div>
+                                
+                                <button
+                                    class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
+                                    on:click={() => removeAbility(ability.id)}>
+                                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    Remove
+                                </button>
                             </div>
-                            <button
-                                class="srpg-b srpg-b-danger srpg-b-sm abilities-remove-btn"
-                                on:click={() => removeAbility(ability.id)}>
-                                Remove
-                            </button>
                         {:else}
                             <h3>{ability.name}</h3>
                             <div class="ability-stats">
@@ -653,9 +684,7 @@
                                         : ""}{ability.modifier}
                                 </p>
                                 {#if ability.proficient}
-                                    <span class="badge ability-proficient-badge"
-                                        >Proficient</span
-                                    >
+                                    <span class="srpg-badge">Proficient</span>
                                 {/if}
                             </div>
                         {/if}
@@ -663,22 +692,29 @@
                 {/each}
             </div>
         {:else}
-            <p class="empty-message">No abilities added yet.</p>
+            <p class="srpg-empty-message">No abilities added yet.</p>
         {/if}
     </section>
 
     <!-- Skills Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Skills</h2>
         {#if isEditing}
             <div class="section-actions">
                 <button class="srpg-b srpg-b-sm" on:click={addSkill}>
-                    + Add Skill
+                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Add Skill
                 </button>
                 <button
                     class="srpg-b srpg-b-normal srpg-b-sm"
                     on:click={openSkillTemplateModal}>
-                    📋 Use Template
+                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    Use Template
                 </button>
             </div>
         {/if}
@@ -688,66 +724,85 @@
                 {#each editedCharacter.skills as skill}
                     <div class="skill-item">
                         {#if isEditing}
-                            <input
-                                type="text"
-                                value={skill.name}
-                                on:input={(e) =>
-                                    updateSkillName(
-                                        skill.id,
-                                        e.currentTarget.value,
-                                    )}
-                                placeholder="Skill Name"
-                            />
-                            <select
-                                value={skill.abilityId}
-                                on:change={(e) =>
-                                    updateSkillAbility(
-                                        skill.id,
-                                        e.currentTarget.value,
-                                    )}
-                            >
-                                {#each editedCharacter.abilities as ability}
-                                    <option value={ability.id}
-                                        >{ability.name}</option
+                            <div class="skill-edit-form">
+                                <div class="srpg-form-field">
+                                    <label for="skill-name-{skill.id}">Skill Name</label>
+                                    <input
+                                        type="text"
+                                        id="skill-name-{skill.id}"
+                                        value={skill.name}
+                                        on:input={(e) =>
+                                            updateSkillName(
+                                                skill.id,
+                                                e.currentTarget.value,
+                                            )}
+                                        placeholder="Skill Name"
+                                    />
+                                </div>
+                                
+                                <div class="srpg-form-field">
+                                    <label for="skill-ability-{skill.id}">Linked Ability</label>
+                                    <select
+                                        id="skill-ability-{skill.id}"
+                                        value={skill.abilityId}
+                                        on:change={(e) =>
+                                            updateSkillAbility(
+                                                skill.id,
+                                                e.currentTarget.value,
+                                            )}
                                     >
-                                {/each}
-                            </select>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={skill.proficient}
-                                    on:change={(e) =>
-                                        updateSkillProficient(
-                                            skill.id,
-                                            e.currentTarget.checked,
-                                        )}
-                                />
-                                Proficient
-                            </label>
-                            <label
-                                >Bonus: <input
-                                    type="number"
-                                    value={skill.bonus}
-                                    on:input={(e) =>
-                                        updateSkillBonus(
-                                            skill.id,
-                                            Number(e.currentTarget.value),
-                                        )}
-                                />
-                            </label>
-                            <button
-                                class="srpg-b srpg-b-danger srpg-b-sm"
-                                on:click={() => removeSkill(skill.id)}>
-                                Remove
-                            </button>
+                                        {#each editedCharacter.abilities as ability}
+                                            <option value={ability.id}>{ability.name}</option>
+                                        {/each}
+                                    </select>
+                                </div>
+                                
+                                <div class="skill-stats-grid">
+                                    <div class="srpg-form-field">
+                                        <label for="skill-bonus-{skill.id}">Bonus</label>
+                                        <input
+                                            type="number"
+                                            id="skill-bonus-{skill.id}"
+                                            value={skill.bonus}
+                                            on:input={(e) =>
+                                                updateSkillBonus(
+                                                    skill.id,
+                                                    Number(e.currentTarget.value),
+                                                )}
+                                        />
+                                    </div>
+                                    
+                                    <div class="skill-proficiency">
+                                        <label class="proficiency-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                checked={skill.proficient}
+                                                on:change={(e) =>
+                                                    updateSkillProficient(
+                                                        skill.id,
+                                                        e.currentTarget.checked,
+                                                    )}
+                                            />
+                                            <span>Proficient</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button
+                                    class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
+                                    on:click={() => removeSkill(skill.id)}>
+                                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    Remove
+                                </button>
+                            </div>
                         {:else}
                             <div class="skill-info">
                                 <strong>{skill.name}</strong>
                                 <span>({getAbilityName(skill.abilityId)})</span>
                                 {#if skill.proficient}
-                                    <span class="badge">
-                                        Proficient
-                                    </span>
+                                    <span class="srpg-badge">Proficient</span>
                                 {/if}
                                 <span>
                                     Bonus: {skill.bonus >= 0
@@ -760,15 +815,15 @@
                 {/each}
             </div>
         {:else}
-            <p class="empty-message">No skills added yet.</p>
+            <p class="srpg-empty-message">No skills added yet.</p>
         {/if}
     </section>
 
     <!-- Combat Stats Section -->
-    <section class="section">
+    <section class="srpg-section">
         <h2>Combat Stats</h2>
-        <div class="form-grid">
-            <div class="form-field">
+        <div class="srpg-form-grid">
+            <div class="srpg-form-field">
                 <label for="ac">Armor Class</label>
                 {#if isEditing}
                     <input
@@ -781,7 +836,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="initiative">Initiative</label>
                 {#if isEditing}
                     <input
@@ -799,7 +854,7 @@
                 {/if}
             </div>
 
-            <div class="form-field">
+            <div class="srpg-form-field">
                 <label for="speed">Speed</label>
                 {#if isEditing}
                     <input
@@ -832,44 +887,45 @@
 />
 
 <style>
-    .abilities-remove-btn {
-        margin-top: 1rem;
-        background: #ef4444;
-        color: white;
-    }
-
+    /* Character Sheet Container */
     .character-sheet {
         background: white;
         border-radius: 8px;
-        padding: 1.5rem;
+        padding: 1rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
     }
 
+    @media (min-width: 768px) {
+        .character-sheet {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Edit Actions */
     .edit-actions {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        justify-content: space-between;
-    }
-
-    .section {
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .section:last-child {
-        border-bottom: none;
-    }
-
-    .section h2 {
-        margin-top: 0;
         margin-bottom: 1rem;
-        color: #111827;
-        font-size: 1.5rem;
     }
 
+    @media (min-width: 640px) {
+        .edit-actions {
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .edit-actions button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Section Actions */
     .section-actions {
         display: flex;
         gap: 0.5rem;
@@ -877,154 +933,177 @@
         flex-wrap: wrap;
     }
 
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+    .section-actions button {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
     }
 
-    .form-field label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: #374151;
-    }
-
-    .form-field input,
-    .form-field select {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-
-    .form-field p {
-        margin: 0;
-        padding: 0.5rem 0;
-        color: #111827;
-    }
-
+    /* Abilities Grid */
     .abilities-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1rem;
         margin-top: 1rem;
     }
 
+    @media (min-width: 640px) {
+        .abilities-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .abilities-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Ability Card */
     .ability-card {
         background: #f9fafb;
         border: 1px solid #e5e7eb;
         border-radius: 6px;
         padding: 1rem;
-        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .ability-card:hover {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .ability-card h3 {
         margin: 0 0 0.5rem 0;
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: #111827;
-    }
-
-    .ability-name-input {
-        width: 100%;
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
         text-align: center;
-        font-weight: 600;
     }
 
+    @media (min-width: 768px) {
+        .ability-card h3 {
+            font-size: 1.1rem;
+        }
+    }
+
+    /* Ability Edit Form */
+    .ability-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .ability-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .ability-proficiency {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.5rem;
+    }
+
+    .proficiency-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .proficiency-checkbox input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+        transform: scale(1.1);
+    }
+
+    .remove-btn {
+        margin-top: 0.5rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+    }
+
+    /* Ability Stats (Read-only) */
     .ability-stats {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-    }
-
-    .ability-stats label {
-        font-size: 0.875rem;
-    }
-
-    .ability-stats input[type="number"] {
-        width: 60px;
-        padding: 0.25rem;
-        margin-left: 0.25rem;
+        text-align: center;
     }
 
     .ability-stats p {
         margin: 0;
         font-size: 0.875rem;
+        padding: 0.25rem 0;
+        min-height: auto;
     }
 
-    .proficiency-label {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        font-size: 0.875rem;
-        cursor: pointer;
+    @media (min-width: 768px) {
+        .ability-stats p {
+            font-size: 0.9375rem;
+        }
     }
 
-    .proficiency-label input[type="checkbox"] {
-        width: auto;
-        margin: 0;
-        cursor: pointer;
-    }
-
-    .ability-proficient-badge {
-        margin-top: 0.5rem;
-    }
-
+    /* Skills List */
     .skills-list {
         margin-top: 1rem;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 1rem;
     }
 
     .skill-item {
         background: #f9fafb;
         border: 1px solid #e5e7eb;
         border-radius: 6px;
-        padding: 0.75rem;
+        padding: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .skill-item:hover {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Skill Edit Form */
+    .skill-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .skill-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .skill-proficiency {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
+        justify-content: center;
+        min-height: 2.5rem;
     }
 
-    .skill-item input[type="text"] {
-        flex: 1;
-        min-width: 150px;
-    }
-
-    .skill-item select {
-        width: auto;
-    }
-
-    .skill-item input[type="number"] {
-        width: 60px;
-    }
-
+    /* Skill Info (Read-only) */
     .skill-info {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
+        font-size: 0.875rem;
     }
 
-    .badge {
-        background: #10b981;
-        color: white;
-        padding: 0.125rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .empty-message {
-        color: #6b7280;
-        font-style: italic;
-        margin: 1rem 0;
+    @media (min-width: 768px) {
+        .skill-info {
+            font-size: 1rem;
+        }
     }
 </style>

@@ -57,39 +57,78 @@
 
 <style>
     .template-modal-content {
-        padding: 1.5rem;
+        padding: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .template-modal-content {
+            padding: 1.5rem;
+        }
     }
 
     .template-modal-content h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
         color: #111827;
+        font-size: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .template-modal-content h2 {
+            font-size: 1.5rem;
+        }
     }
 
     .template-description {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         color: #6b7280;
         font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    @media (min-width: 640px) {
+        .template-description {
+            margin-bottom: 1.5rem;
+        }
     }
 
     .template-options {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .template-options {
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
     }
 
     .template-option-title {
         margin: 0 0 0.5rem 0;
         color: #111827;
-        font-size: 1.25rem;
+        font-size: 1.125rem;
+    }
+
+    @media (min-width: 640px) {
+        .template-option-title {
+            font-size: 1.25rem;
+        }
     }
 
     .template-abilities {
         margin: 0.5rem 0;
         color: #4b5563;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         line-height: 1.5;
+    }
+
+    @media (min-width: 640px) {
+        .template-abilities {
+            font-size: 0.875rem;
+        }
     }
 
     .template-note {
@@ -106,5 +145,6 @@
     .template-footer {
         display: flex;
         justify-content: flex-end;
+        gap: 0.5rem;
     }
 </style>
