@@ -274,6 +274,7 @@
         </div>
     </section>
 
+    <!-- Experience Section -->
     <section class="section">
         <h2>Experience</h2>
         <div class="form-grid">
@@ -328,6 +329,101 @@
                     />
                 {:else}
                     <p>{character.proficiencyBonus !== undefined ? (character.proficiencyBonus >= 0 ? `+${character.proficiencyBonus}` : character.proficiencyBonus) : "—"}</p>
+                {/if}
+            </div>
+        </div>
+    </section>
+
+    <!-- Health Section -->
+    <section class="section">
+        <h2>Health</h2>
+        <div class="form-grid">
+
+
+            <div class="form-field">
+                <label for="hpMax">Hit Point Maximum</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="hpMax"
+                        bind:value={editedCharacter.hitPointMaximum}
+                    />
+                {:else}
+                    <p>{character.hitPointMaximum || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="hitDice">Hit Dice</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="hitDice"
+                        bind:value={editedCharacter.hitDice}
+                        placeholder="e.g., 3d8"
+                    />
+                {:else}
+                    <p>{character.hitDice || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="hpCurrent">Current Hit Points</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="hpCurrent"
+                        bind:value={editedCharacter.currentHitPoints}
+                    />
+                {:else}
+                    <p>
+                        {character.currentHitPoints !== undefined
+                            ? character.currentHitPoints
+                            : "—"}
+                    </p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="hpTemp">Temporary Hit Points</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="hpTemp"
+                        bind:value={editedCharacter.temporaryHitPoints}
+                    />
+                {:else}
+                    <p>{character.temporaryHitPoints || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="deathSaveSuccesses">Death Save Successes</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="deathSaveSuccesses"
+                        bind:value={editedCharacter.deathSaveSuccesses}
+                        min="0"
+                        max="3"
+                    />
+                {:else}
+                    <p>{character.deathSaveSuccesses || 0} / 3</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="deathSaveFailures">Death Save Failures</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="deathSaveFailures"
+                        bind:value={editedCharacter.deathSaveFailures}
+                        min="0"
+                        max="3"
+                    />
+                {:else}
+                    <p>{character.deathSaveFailures || 0} / 3</p>
                 {/if}
             </div>
         </div>
@@ -568,93 +664,6 @@
                     />
                 {:else}
                     <p>{character.speed ? character.speed + " ft." : "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="hpMax">Hit Point Maximum</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="hpMax"
-                        bind:value={editedCharacter.hitPointMaximum}
-                    />
-                {:else}
-                    <p>{character.hitPointMaximum || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="hpCurrent">Current Hit Points</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="hpCurrent"
-                        bind:value={editedCharacter.currentHitPoints}
-                    />
-                {:else}
-                    <p>
-                        {character.currentHitPoints !== undefined
-                            ? character.currentHitPoints
-                            : "—"}
-                    </p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="hpTemp">Temporary Hit Points</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="hpTemp"
-                        bind:value={editedCharacter.temporaryHitPoints}
-                    />
-                {:else}
-                    <p>{character.temporaryHitPoints || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="hitDice">Hit Dice</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="hitDice"
-                        bind:value={editedCharacter.hitDice}
-                        placeholder="e.g., 3d8"
-                    />
-                {:else}
-                    <p>{character.hitDice || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="deathSaveSuccesses">Death Save Successes</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="deathSaveSuccesses"
-                        bind:value={editedCharacter.deathSaveSuccesses}
-                        min="0"
-                        max="3"
-                    />
-                {:else}
-                    <p>{character.deathSaveSuccesses || 0} / 3</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="deathSaveFailures">Death Save Failures</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="deathSaveFailures"
-                        bind:value={editedCharacter.deathSaveFailures}
-                        min="0"
-                        max="3"
-                    />
-                {:else}
-                    <p>{character.deathSaveFailures || 0} / 3</p>
                 {/if}
             </div>
         </div>
