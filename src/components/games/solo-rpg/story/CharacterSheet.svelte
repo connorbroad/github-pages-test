@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Character, Ability, Skill } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
-    import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import TemplateModal from "../shared/modal/TemplateModal.svelte";
 
     export let character: Character;
     export let isEditing: boolean = false;
@@ -9,7 +9,15 @@
     const dispatch = createEventDispatcher();
 
     let editedCharacter: Character = structuredClone(character);
-    let showTemplateModal: boolean = false;
+    let showAbilityTemplateModal: boolean = false;
+    let showSkillTemplateModal: boolean = false;
+
+    interface TemplateOption {
+        key: string;
+        title: string;
+        description: string;
+        note?: string;
+    }
 
     const alignmentOptions = [
         "Lawful Good",
@@ -42,6 +50,81 @@
         ],
     };
 
+    const skillTemplates = {
+        dnd5e: [
+            { name: "Acrobatics", ability: "Dexterity" },
+            { name: "Animal Handling", ability: "Wisdom" },
+            { name: "Arcana", ability: "Intelligence" },
+            { name: "Athletics", ability: "Strength" },
+            { name: "Deception", ability: "Charisma" },
+            { name: "History", ability: "Intelligence" },
+            { name: "Insight", ability: "Wisdom" },
+            { name: "Intimidation", ability: "Charisma" },
+            { name: "Investigation", ability: "Intelligence" },
+            { name: "Medicine", ability: "Wisdom" },
+            { name: "Nature", ability: "Intelligence" },
+            { name: "Perception", ability: "Wisdom" },
+            { name: "Performance", ability: "Charisma" },
+            { name: "Persuasion", ability: "Charisma" },
+            { name: "Religion", ability: "Intelligence" },
+            { name: "Sleight of Hand", ability: "Dexterity" },
+            { name: "Stealth", ability: "Dexterity" },
+            { name: "Survival", ability: "Wisdom" },
+        ],
+        pathfinder2e: [
+            { name: "Acrobatics", ability: "Dexterity" },
+            { name: "Arcana", ability: "Intelligence" },
+            { name: "Athletics", ability: "Strength" },
+            { name: "Crafting", ability: "Intelligence" },
+            { name: "Deception", ability: "Charisma" },
+            { name: "Diplomacy", ability: "Charisma" },
+            { name: "Intimidation", ability: "Charisma" },
+            { name: "Medicine", ability: "Wisdom" },
+            { name: "Nature", ability: "Wisdom" },
+            { name: "Occultism", ability: "Intelligence" },
+            { name: "Performance", ability: "Charisma" },
+            { name: "Religion", ability: "Wisdom" },
+            { name: "Society", ability: "Intelligence" },
+            { name: "Stealth", ability: "Dexterity" },
+            { name: "Survival", ability: "Wisdom" },
+            { name: "Thievery", ability: "Dexterity" },
+        ],
+    };
+
+    const abilityTemplateOptions: TemplateOption[] = [
+        {
+            key: "dnd5e",
+            title: "D&D 5e",
+            description:
+                "Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma",
+            note: "Default score: 10",
+        },
+        {
+            key: "daggerheart",
+            title: "Daggerheart",
+            description:
+                "Agility, Strength, Finesse, Instinct, Presence, Knowledge",
+            note: "Default score: 0",
+        },
+    ];
+
+    const skillTemplateOptions: TemplateOption[] = [
+        {
+            key: "dnd5e",
+            title: "D&D 5e Skills",
+            description:
+                "18 standard skills: Acrobatics, Animal Handling, Arcana, Athletics, Deception, History, Insight, Intimidation, Investigation, Medicine, Nature, Perception, Performance, Persuasion, Religion, Sleight of Hand, Stealth, Survival",
+            note: "Linked to standard D&D 5e abilities",
+        },
+        {
+            key: "pathfinder2e",
+            title: "Pathfinder 2e Skills",
+            description:
+                "16 skills: Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery",
+            note: "Linked to standard abilities",
+        },
+    ];
+
     function addAbility() {
         const newAbility: Ability = {
             id: `ability-${Date.now()}`,
@@ -54,10 +137,10 @@
     }
 
     function openTemplateModal() {
-        showTemplateModal = true;
+        showAbilityTemplateModal = true;
     }
 
-    function applyTemplate(templateKey: "dnd5e" | "daggerheart") {
+    function applyAbilityTemplate(templateKey: "dnd5e" | "daggerheart") {
         const template = abilityTemplates[templateKey];
         const baseTimestamp = Date.now();
 
@@ -73,7 +156,63 @@
             ...editedCharacter.abilities,
             ...newAbilities,
         ];
-        showTemplateModal = false;
+        showAbilityTemplateModal = false;
+    }
+
+    function openSkillTemplateModal() {
+        if (editedCharacter.abilities.length === 0) {
+            alert("Please add abilities first before using skill templates.");
+            return;
+        }
+        showSkillTemplateModal = true;
+    }
+
+    function applySkillTemplate(templateKey: "dnd5e" | "pathfinder2e") {
+        const template = skillTemplates[templateKey];
+        const baseTimestamp = Date.now();
+
+        const newSkills: Skill[] = template
+            .map((skillData, index) => {
+                // Find the ability by name
+                const ability = editedCharacter.abilities.find(
+                    (a) =>
+                        a.name.toLowerCase() ===
+                        skillData.ability.toLowerCase(),
+                );
+
+                // Skip if ability not found
+                if (!ability) {
+                    return null;
+                }
+
+                return {
+                    id: `skill-${baseTimestamp + index}`,
+                    name: skillData.name,
+                    abilityId: ability.id,
+                    proficient: false,
+                    bonus: 0,
+                };
+            })
+            .filter((skill): skill is Skill => skill !== null);
+
+        if (newSkills.length < template.length) {
+            const missingAbilities = template
+                .filter((skillData) => {
+                    return !editedCharacter.abilities.find(
+                        (a) =>
+                            a.name.toLowerCase() ===
+                            skillData.ability.toLowerCase(),
+                    );
+                })
+                .map((s) => s.ability);
+
+            alert(
+                `Some skills could not be added because the following abilities are missing: ${[...new Set(missingAbilities)].join(", ")}`,
+            );
+        }
+
+        editedCharacter.skills = [...editedCharacter.skills, ...newSkills];
+        showSkillTemplateModal = false;
     }
 
     function removeAbility(abilityId: string) {
@@ -533,9 +672,16 @@
     <section class="section">
         <h2>Skills</h2>
         {#if isEditing}
-            <button class="srpg-b srpg-b-sm" on:click={addSkill}>
-                + Add Skill
-            </button>
+            <div class="section-actions">
+                <button class="srpg-b srpg-b-sm" on:click={addSkill}>
+                    + Add Skill
+                </button>
+                <button
+                    class="srpg-b srpg-b-normal srpg-b-sm"
+                    on:click={openSkillTemplateModal}>
+                    📋 Use Template
+                </button>
+            </div>
         {/if}
 
         {#if editedCharacter.skills.length > 0}
@@ -670,48 +816,21 @@
     </section>
 </div>
 
-<SrpgModal bind:show={showTemplateModal} maxWidth="500px">
-    <div class="template-modal-content">
-        <h2>Choose Ability Template</h2>
-        <p class="template-description">
-            Quickly add a set of abilities based on popular RPG systems.
-        </p>
+<TemplateModal
+    bind:show={showAbilityTemplateModal}
+    title="Choose Ability Template"
+    description="Quickly add a set of abilities based on popular RPG systems."
+    templates={abilityTemplateOptions}
+    on:select={(e) => applyAbilityTemplate(e.detail)}
+/>
 
-        <div class="template-options">
-            <button
-                class="srpg-b-overview"
-                on:click={() => applyTemplate("dnd5e")}
-            >
-                <h3 class="template-option-title">D&D 5e</h3>
-                <p class="template-abilities">
-                    Strength, Dexterity, Constitution, Intelligence, Wisdom,
-                    Charisma
-                </p>
-                <span class="template-note">Default score: 10</span>
-            </button>
-
-            <button
-                class="srpg-b-overview"
-                on:click={() => applyTemplate("daggerheart")}
-            >
-                <h3 class="template-option-title">Daggerheart</h3>
-                <p class="template-abilities">
-                    Agility, Strength, Finesse, Instinct, Presence, Knowledge
-                </p>
-                <span class="template-note">Default score: 0</span>
-            </button>
-        </div>
-
-        <div class="template-footer">
-            <button
-                class="srpg-b"
-                on:click={() => (showTemplateModal = false)}
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-</SrpgModal>
+<TemplateModal
+    bind:show={showSkillTemplateModal}
+    title="Choose Skill Template"
+    description="Quickly add a set of skills based on popular RPG systems."
+    templates={skillTemplateOptions}
+    on:select={(e) => applySkillTemplate(e.detail)}
+/>
 
 <style>
     .abilities-remove-btn {
@@ -908,58 +1027,5 @@
         color: #6b7280;
         font-style: italic;
         margin: 1rem 0;
-    }
-
-    /* Template Modal Styles */
-    .template-modal-content {
-        padding: 1.5rem;
-    }
-
-    .template-modal-content h2 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: #111827;
-    }
-
-    .template-description {
-        margin-bottom: 1.5rem;
-        color: #6b7280;
-        font-size: 0.875rem;
-    }
-
-    .template-options {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .template-option-title {
-        margin: 0 0 0.5rem 0;
-        color: #111827;
-        font-size: 1.25rem;
-    }
-
-    .template-abilities {
-        margin: 0.5rem 0;
-        color: #4b5563;
-        font-size: 0.875rem;
-        line-height: 1.5;
-    }
-
-    .template-note {
-        display: inline-block;
-        margin-top: 0.5rem;
-        padding: 0.25rem 0.5rem;
-        background: #e0e7ff;
-        color: #3730a3;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .template-footer {
-        display: flex;
-        justify-content: flex-end;
     }
 </style>
