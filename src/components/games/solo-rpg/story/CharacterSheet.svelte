@@ -11,6 +11,7 @@
     let editedCharacter: Character = structuredClone(character);
     let showAbilityTemplateModal: boolean = false;
     let showSkillTemplateModal: boolean = false;
+    let selectedSection: string = "all";
 
     interface TemplateOption {
         key: string;
@@ -337,6 +338,14 @@
         );
         return ability ? ability.name : "Unknown";
     }
+
+    // Reactive values for each section visibility
+    $: showInformation = selectedSection === "all" || selectedSection === "information";
+    $: showExperience = selectedSection === "all" || selectedSection === "experience";
+    $: showHealth = selectedSection === "all" || selectedSection === "health";
+    $: showAbilities = selectedSection === "all" || selectedSection === "abilities";
+    $: showSkills = selectedSection === "all" || selectedSection === "skills";
+    $: showCombat = selectedSection === "all" || selectedSection === "combat";
 </script>
 
 {#if isEditing}
@@ -355,8 +364,24 @@
         </button>
     </div>
 {/if}
+
+<!-- Mobile Section Filter -->
+<div class="section-filter-mobile">
+    <label for="section-filter">View Section:</label>
+    <select id="section-filter" bind:value={selectedSection}>
+        <option value="all">All Sections</option>
+        <option value="information">Information</option>
+        <option value="experience">Experience</option>
+        <option value="health">Health</option>
+        <option value="abilities">Abilities</option>
+        <option value="skills">Skills</option>
+        <option value="combat">Combat Stats</option>
+    </select>
+</div>
+
 <div class="character-sheet">
     <!-- Core Info Section -->
+    {#if showInformation}
     <section class="srpg-section">
         <h2>Information</h2>
         <div class="srpg-form-grid">
@@ -418,8 +443,10 @@
             </div>
         </div>
     </section>
+    {/if}
 
     <!-- Experience Section -->
+    {#if showExperience}
     <section class="srpg-section">
         <h2>Experience</h2>
         <div class="srpg-form-grid">
@@ -478,8 +505,10 @@
             </div>
         </div>
     </section>
+    {/if}
 
     <!-- Health Section -->
+    {#if showHealth}
     <section class="srpg-section">
         <h2>Health</h2>
         <div class="srpg-form-grid">
@@ -572,8 +601,10 @@
             </div>
         </div>
     </section>
+    {/if}
 
     <!-- Abilities Section -->
+    {#if showAbilities}
     <section class="srpg-section">
         <h2>Abilities</h2>
         {#if isEditing}
@@ -695,8 +726,10 @@
             <p class="srpg-empty-message">No abilities added yet.</p>
         {/if}
     </section>
+    {/if}
 
     <!-- Skills Section -->
+    {#if showSkills}
     <section class="srpg-section">
         <h2>Skills</h2>
         {#if isEditing}
@@ -818,8 +851,10 @@
             <p class="srpg-empty-message">No skills added yet.</p>
         {/if}
     </section>
+    {/if}
 
     <!-- Combat Stats Section -->
+    {#if showCombat}
     <section class="srpg-section">
         <h2>Combat Stats</h2>
         <div class="srpg-form-grid">
@@ -868,6 +903,7 @@
             </div>
         </div>
     </section>
+    {/if}
 </div>
 
 <TemplateModal
@@ -887,6 +923,54 @@
 />
 
 <style>
+    /* Mobile Section Filter */
+    .section-filter-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+    }
+
+    .section-filter-mobile label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #0c4a6e;
+        letter-spacing: 0.025em;
+    }
+
+    .section-filter-mobile select {
+        padding: 0.625rem 0.75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        background-color: white;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-filter-mobile select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .section-filter-mobile select:hover {
+        border-color: #94a3b8;
+    }
+
+    /* Hide filter on larger screens */
+    @media (min-width: 768px) {
+        .section-filter-mobile {
+            display: none;
+        }
+    }
+
     /* Character Sheet Container */
     .character-sheet {
         background: white;
