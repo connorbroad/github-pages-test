@@ -5,6 +5,8 @@
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import EntryActions from "./EntryActions.svelte";
+    import EntryEditor from "./EntryEditor.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -13,8 +15,7 @@
     let showAddEntry = false;
     let newEntryText = "";
     let editingEntryId: string | null = null;
-    let addingNoteToEntry: string | null = null;
-    let noteText = "";
+    let editText = ""; // Unified edit text for both manual and fortune entries
     let showCreateChapter = false;
     let chapterCustomName = "";
     let viewingChapterId: string | null = null; // null means viewing current entries
@@ -77,12 +78,6 @@
         showAddEntry = true;
     }
 
-    function openEditEntry(entry: ChronicleEntry) {
-        newEntryText = entry.content;
-        editingEntryId = entry.id;
-        showAddEntry = true;
-    }
-
     function cancelAddEntry() {
         showAddEntry = false;
         newEntryText = "";
@@ -94,25 +89,15 @@
 
         const allEntries = loadChronicleEntries();
 
-        if (editingEntryId) {
-            const entryIndex = allEntries.findIndex(e => e.id === editingEntryId);
-            if (entryIndex !== -1) {
-                allEntries[entryIndex] = {
-                    ...allEntries[entryIndex],
-                    content: newEntryText.trim()
-                };
-            }
-        } else {
-            // Create new entry
-            const newEntry: ChronicleEntry = {
-                id: generateEntryId(),
-                campaignId: $activeCampaign.id,
-                timestamp: Date.now(),
-                type: "manual",
-                content: newEntryText.trim()
-            };
-            allEntries.push(newEntry);
-        }
+        // Create new entry
+        const newEntry: ChronicleEntry = {
+            id: generateEntryId(),
+            campaignId: $activeCampaign.id,
+            timestamp: Date.now(),
+            type: "manual",
+            content: newEntryText.trim()
+        };
+        allEntries.push(newEntry);
 
         saveChronicleEntries(allEntries);
         loadEntries();
@@ -254,32 +239,41 @@
         loadEntries();
     }
 
-    function openAddNote(entryId: string, currentNotes?: string) {
-        addingNoteToEntry = entryId;
-        noteText = currentNotes || "";
+    function openEditEntry(entryId: string, isManual: boolean, currentText?: string) {
+        editingEntryId = entryId;
+        editText = currentText || "";
     }
 
-    function cancelAddNote() {
-        addingNoteToEntry = null;
-        noteText = "";
+    function cancelEditEntry() {
+        editingEntryId = null;
+        editText = "";
     }
 
-    function saveNote(entryId: string) {
-        if (!noteText.trim()) return;
+    function saveEditEntry(entryId: string, isManual: boolean) {
+        if (!editText.trim()) return;
 
         const allEntries = loadChronicleEntries();
         const entryIndex = allEntries.findIndex(e => e.id === entryId);
         
         if (entryIndex !== -1) {
-            allEntries[entryIndex] = {
-                ...allEntries[entryIndex],
-                userNotes: noteText.trim()
-            };
+            if (isManual) {
+                // Update manual entry content
+                allEntries[entryIndex] = {
+                    ...allEntries[entryIndex],
+                    content: editText.trim()
+                };
+            } else {
+                // Update fortune entry notes
+                allEntries[entryIndex] = {
+                    ...allEntries[entryIndex],
+                    userNotes: editText.trim()
+                };
+            }
             saveChronicleEntries(allEntries);
             loadEntries();
         }
 
-        cancelAddNote();
+        cancelEditEntry();
     }
 
     function generateEntryId(): string {
@@ -423,7 +417,7 @@
 
     {#if showAddEntry}
         <div class="entry-editor">
-            <h3>{editingEntryId ? 'Edit Chronicle Entry' : 'New Chronicle Entry'}</h3>
+            <h3>New Chronicle Entry</h3>
             <textarea
                 bind:value={newEntryText}
                 placeholder="What happened in your adventure?"
@@ -431,7 +425,7 @@
             ></textarea>
             <div class="editor-actions">
                 <button class="srpg-b srpg-b-create" on:click={saveEntry} disabled={!newEntryText.trim()}>
-                    {editingEntryId ? 'Update Entry' : 'Save Entry'}
+                    Save Entry
                 </button>
                 <button class="srpg-b" on:click={cancelAddEntry}>
                     Cancel
@@ -479,109 +473,66 @@
                                 {/if}
                             </div>
 
-                            {#if entry.userNotes}
+                            {#if entry.userNotes && editingEntryId !== entry.id}
                                 <div class="fortune-notes-compact">
                                     <span class="notes-label">Note:</span>
                                     <span class="notes-text-compact">{entry.userNotes}</span>
                                 </div>
                             {/if}
 
-                            {#if addingNoteToEntry === entry.id}
-                                <div class="fortune-note-editor">
-                                    <textarea
-                                        bind:value={noteText}
-                                        placeholder="Add your interpretation..."
-                                        rows="2"
-                                    ></textarea>
-                                    <div class="note-editor-actions">
-                                        <button class="srpg-b srpg-b-create srpg-b-sm" on:click={() => saveNote(entry.id)} disabled={!noteText.trim()}>
-                                            Save
-                                        </button>
-                                        <button class="srpg-b srpg-b-sm" on:click={cancelAddNote}>
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
+                            {#if editingEntryId === entry.id}
+                                <EntryEditor
+                                    entryId={entry.id}
+                                    bind:value={editText}
+                                    placeholder="Add your interpretation..."
+                                    compact={true}
+                                    on:save={() => saveEditEntry(entry.id, false)}
+                                    on:cancel={cancelEditEntry}
+                                />
                             {/if}
                         </div>
 
-                        <div class="fortune-actions">
-                            <button 
-                                class="fortune-action-btn" 
-                                on:click={() => assignCharacter(entry.id)}
-                                title="Assign character"
-                                aria-label="Assign character"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='14' height='14'><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"/></svg>
-                            </button>
-                            {#if entry.characterId && getCharacterName(entry.characterId)}
-                                <p class="entry-character-name">{getCharacterName(entry.characterId)}</p>
-                            {/if}
-                            <div class="spacer"></div>
-                            {#if !addingNoteToEntry}
-                                <button 
-                                    class="fortune-action-btn" 
-                                    on:click={() => openAddNote(entry.id, entry.userNotes)}
-                                    title={entry.userNotes ? "Edit notes" : "Add notes"}
-                                    aria-label={entry.userNotes ? "Edit notes" : "Add notes"}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14">
-                                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                    </svg>
-                                </button>
-                            {/if}
-                            <button 
-                                class="fortune-action-btn delete-btn" 
-                                on:click={() => deleteEntry(entry.id)}
-                                title="Delete entry"
-                                aria-label="Delete entry"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14">
-                                    <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <EntryActions
+                            entryId={entry.id}
+                            characterId={entry.characterId}
+                            characterName={getCharacterName(entry.characterId)}
+                            editButtonLabel={entry.userNotes ? "Edit notes" : "Add notes"}
+                            isEditing={editingEntryId === entry.id}
+                            compact={true}
+                            on:assignCharacter={(e) => assignCharacter(e.detail)}
+                            on:edit={(e) => openEditEntry(e.detail, false, entry.userNotes)}
+                            on:delete={(e) => deleteEntry(e.detail)}
+                        />
                     {:else}
                         <!-- Manual Entry Display -->
-                        <div class="entry-content">
-                            {entry.content}
-                        </div>
-                        <div class="entry-actions">
-                            <button 
-                                class="entry-action-btn" 
-                                on:click={() => assignCharacter(entry.id)}
-                                title="Assign character"
-                                aria-label="Assign character"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='16' height='16'>
-                                    <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"/>
-                                </svg>
-                            </button>
-                            {#if entry.characterId && getCharacterName(entry.characterId)}
-                                <p class="entry-character-name">{getCharacterName(entry.characterId)}</p>
-                            {/if}
-                            <div class="spacer"></div>
-                            <button 
-                                class="entry-action-btn" 
-                                on:click={() => openEditEntry(entry)}
-                                title="Edit entry"
-                                aria-label="Edit entry"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
-                                    <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                </svg>
-                            </button>
-                            <button 
-                                class="entry-action-btn srpg-b-danger" 
-                                on:click={() => deleteEntry(entry.id)}
-                                title="Delete entry"
-                                aria-label="Delete entry"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
-                                    <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                </svg>
-                            </button>
-                        </div>
+                        {#if editingEntryId !== entry.id}
+                            <div class="entry-content">
+                                {entry.content}
+                            </div>
+                        {/if}
+
+                        {#if editingEntryId === entry.id}
+                            <EntryEditor
+                                entryId={entry.id}
+                                bind:value={editText}
+                                placeholder="Edit your entry..."
+                                compact={false}
+                                on:save={() => saveEditEntry(entry.id, true)}
+                                on:cancel={cancelEditEntry}
+                            />
+                        {/if}
+
+                        <EntryActions
+                            entryId={entry.id}
+                            characterId={entry.characterId}
+                            characterName={getCharacterName(entry.characterId)}
+                            editButtonLabel="Edit entry"
+                            isEditing={editingEntryId === entry.id}
+                            compact={false}
+                            on:assignCharacter={(e) => assignCharacter(e.detail)}
+                            on:edit={(e) => openEditEntry(e.detail, true, entry.content)}
+                            on:delete={(e) => deleteEntry(e.detail)}
+                        />
                     {/if}
                 </div>
             {/each}
@@ -931,13 +882,6 @@
         border-color: #d4d4d4;
     } 
 
-    .entry-character-name {
-        font-size: 0.9rem;
-        font-style: italic;
-        color: #6b7280; 
-        margin: 0; 
-    }
-
     .fortune-card {
         background: #fafafa;
         border: 1px solid #e5e5e5;
@@ -1047,70 +991,6 @@
         flex: 1;
     }
 
-    .fortune-note-editor {
-        background: #fafafa;
-        border: 1px solid #e5e5e5;
-        border-radius: 4px;
-        padding: 0.6rem;
-    }
-
-    .fortune-note-editor textarea {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d4d4d4;
-        border-radius: 3px;
-        font-family: inherit;
-        font-size: 0.85rem;
-        resize: vertical;
-        margin-bottom: 0.5rem;
-    }
-
-    .fortune-note-editor textarea:focus {
-        outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-    }
-
-    .note-editor-actions {
-        display: flex;
-        gap: 0.4rem;
-    }
-
-    .fortune-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0.3rem;
-        margin-top: 0.4rem;
-        padding-top: 0.4rem;
-        border-top: 1px solid #e5e5e5;
-    }
-
-    .fortune-action-btn {
-        background: transparent;
-        border: 1px solid #e5e5e5;
-        border-radius: 4px;
-        padding: 0.3rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #737373;
-    }
-
-    .fortune-action-btn:hover {
-        background: #f5f5f5;
-        border-color: #d4d4d4;
-        color: #525252;
-    }
-
-    .fortune-action-btn.delete-btn:hover {
-        background: #fef2f2;
-        border-color: #fca5a5;
-        color: #dc2626;
-    }
-
     .entry-header {
         display: flex;
         justify-content: space-between;
@@ -1141,47 +1021,6 @@
         word-wrap: break-word;
         margin-bottom: 0.85rem;
         font-size: 0.95rem;
-    }
-
-    .entry-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0.4rem;
-        padding-top: 0.65rem;
-        border-top: 1px solid #e5e5e5;
-    }
-
-    .entry-action-btn {
-        background: transparent;
-        border: 1px solid #e5e5e5;
-        border-radius: 4px;
-        padding: 0.35rem;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.15s;
-        color: #737373;
-        min-width: auto;
-        min-height: auto;
-    }
-
-    .entry-action-btn:hover {
-        background: #f5f5f5;
-        border-color: #d4d4d4;
-        color: #525252;
-    }
-
-    .entry-action-btn.srpg-b-danger:hover {
-        background: #fef2f2;
-        border-color: #fca5a5;
-        color: #dc2626;
-    }
-
-    .spacer {
-        flex-grow: 1;
     }
 
     /* Character Assignment Modal Styles */
@@ -1279,10 +1118,6 @@
         .editor-actions {
             flex-direction: column;
         }
-
-        .note-editor-actions {
-            flex-direction: column;
-        } 
 
         .chapter-view-banner {
             flex-direction: column;
