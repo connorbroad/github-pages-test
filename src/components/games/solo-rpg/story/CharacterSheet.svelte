@@ -213,10 +213,10 @@
 <div class="character-sheet">
     <!-- Core Info Section -->
     <section class="section">
-        <h2>Core Information</h2>
+        <h2>Information</h2>
         <div class="form-grid">
             <div class="form-field">
-                <label for="name">Character Name *</label>
+                <label for="name">Character Name</label>
                 {#if isEditing}
                     <input
                         type="text"
@@ -242,6 +242,41 @@
                 {/if}
             </div>
 
+            <div class="form-field">
+                <label for="alignment">Alignment</label>
+                {#if isEditing}
+                    <select
+                        id="alignment"
+                        bind:value={editedCharacter.alignment}
+                    >
+                        <option value="">Select Alignment</option>
+                        {#each alignmentOptions as alignment}
+                            <option value={alignment}>{alignment}</option>
+                        {/each}
+                    </select>
+                {:else}
+                    <p>{character.alignment || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="background">Background</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="background"
+                        bind:value={editedCharacter.background}
+                    />
+                {:else}
+                    <p>{character.background || "—"}</p>
+                {/if}
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Experience</h2>
+        <div class="form-grid">
             <div class="form-field">
                 <label for="class">Class</label>
                 {#if isEditing}
@@ -293,49 +328,6 @@
                     />
                 {:else}
                     <p>{character.proficiencyBonus !== undefined ? (character.proficiencyBonus >= 0 ? `+${character.proficiencyBonus}` : character.proficiencyBonus) : "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="background">Background</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="background"
-                        bind:value={editedCharacter.background}
-                    />
-                {:else}
-                    <p>{character.background || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="alignment">Alignment</label>
-                {#if isEditing}
-                    <select
-                        id="alignment"
-                        bind:value={editedCharacter.alignment}
-                    >
-                        <option value="">Select Alignment</option>
-                        {#each alignmentOptions as alignment}
-                            <option value={alignment}>{alignment}</option>
-                        {/each}
-                    </select>
-                {:else}
-                    <p>{character.alignment || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="playerName">Player Name</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="playerName"
-                        bind:value={editedCharacter.playerName}
-                    />
-                {:else}
-                    <p>{character.playerName || "—"}</p>
                 {/if}
             </div>
         </div>
