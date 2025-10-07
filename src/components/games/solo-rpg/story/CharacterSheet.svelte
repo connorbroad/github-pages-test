@@ -720,13 +720,13 @@
         {/if}
 
         {#if editedCharacter.skills.length > 0}
-            <div class="skills-list">
+            <div class="skills-grid">
                 {#each editedCharacter.skills as skill}
-                    <div class="skill-item">
+                    <div class="skill-card">
                         {#if isEditing}
                             <div class="skill-edit-form">
                                 <div class="srpg-form-field">
-                                    <label for="skill-name-{skill.id}">Skill Name</label>
+                                    <label for="skill-name-{skill.id}">Name</label>
                                     <input
                                         type="text"
                                         id="skill-name-{skill.id}"
@@ -741,7 +741,7 @@
                                 </div>
                                 
                                 <div class="srpg-form-field">
-                                    <label for="skill-ability-{skill.id}">Linked Ability</label>
+                                    <label for="skill-ability-{skill.id}">Ability</label>
                                     <select
                                         id="skill-ability-{skill.id}"
                                         value={skill.abilityId}
@@ -783,7 +783,7 @@
                                                         e.currentTarget.checked,
                                                     )}
                                             />
-                                            <span>Proficient</span>
+                                            <span>Prof.</span>
                                         </label>
                                     </div>
                                 </div>
@@ -798,17 +798,17 @@
                                 </button>
                             </div>
                         {:else}
-                            <div class="skill-info">
-                                <strong>{skill.name}</strong>
-                                <span>({getAbilityName(skill.abilityId)})</span>
-                                {#if skill.proficient}
-                                    <span class="srpg-badge">Proficient</span>
-                                {/if}
-                                <span>
-                                    Bonus: {skill.bonus >= 0
-                                        ? "+"
-                                        : ""}{skill.bonus}</span
-                                >
+                            <div class="skill-display">
+                                <h4 class="skill-name">{skill.name}</h4>
+                                <p class="skill-ability">({getAbilityName(skill.abilityId)})</p>
+                                <div class="skill-stats">
+                                    <span class="skill-bonus">
+                                        {skill.bonus >= 0 ? "+" : ""}{skill.bonus}
+                                    </span>
+                                    {#if skill.proficient}
+                                        <span class="srpg-badge srpg-badge-sm">Prof</span>
+                                    {/if}
+                                </div>
                             </div>
                         {/if}
                     </div>
@@ -939,16 +939,18 @@
         gap: 0.375rem;
     }
 
-    /* Abilities Grid */
-    .abilities-grid {
+    /* Shared Grid Styles */
+    .abilities-grid,
+    .skills-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.25rem;
         margin-top: 1rem;
     }
 
     @media (min-width: 640px) {
-        .abilities-grid {
+        .abilities-grid,
+        .skills-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
@@ -957,36 +959,77 @@
         .abilities-grid {
             grid-template-columns: repeat(3, 1fr);
         }
-    }
-
-    /* Ability Card */
-    .ability-card {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        padding: 1rem;
-        transition: all 0.2s ease;
-    }
-
-    .ability-card:hover {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .ability-card h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1rem;
-        color: #111827;
-        text-align: center;
-    }
-
-    @media (min-width: 768px) {
-        .ability-card h3 {
-            font-size: 1.1rem;
+        
+        .skills-grid {
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 
-    /* Ability Edit Form */
-    .ability-edit-form {
+    @media (min-width: 1280px) {
+        .skills-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* Shared Card Styles */
+    .ability-card,
+    .skill-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ability-card::before,
+    .skill-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .ability-card:hover,
+    .skill-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        border-color: #d1d5db;
+    }
+
+    .ability-card:hover::before,
+    .skill-card:hover::before {
+        opacity: 1;
+    }
+
+    /* Card Header Styles */
+    .ability-card h3,
+    .skill-name {
+        margin: 0 0 0.75rem 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        text-align: center;
+        letter-spacing: -0.025em;
+    }
+
+    @media (min-width: 768px) {
+        .ability-card h3,
+        .skill-name {
+            font-size: 1.1875rem;
+        }
+    }
+
+    /* Edit Form Styles */
+    .ability-edit-form,
+    .skill-edit-form {
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -998,7 +1041,16 @@
         gap: 0.75rem;
     }
 
-    .ability-proficiency {
+    .skill-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    /* Proficiency Styles */
+    .ability-proficiency,
+    .skill-proficiency {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1012,6 +1064,12 @@
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 500;
+        color: #374151;
+        transition: color 0.2s ease;
+    }
+
+    .proficiency-checkbox:hover {
+        color: #111827;
     }
 
     .proficiency-checkbox input[type="checkbox"] {
@@ -1019,18 +1077,21 @@
         margin: 0;
         cursor: pointer;
         transform: scale(1.1);
+        accent-color: #3b82f6;
     }
 
+    /* Remove Button Styles */
     .remove-btn {
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.375rem;
+        font-size: 0.875rem;
     }
 
-    /* Ability Stats (Read-only) */
+    /* Read-only Display Styles */
     .ability-stats {
         display: flex;
         flex-direction: column;
@@ -1040,70 +1101,65 @@
 
     .ability-stats p {
         margin: 0;
-        font-size: 0.875rem;
-        padding: 0.25rem 0;
+        font-size: 0.9375rem;
+        padding: 0.375rem 0;
         min-height: auto;
+        color: #374151;
     }
 
-    @media (min-width: 768px) {
-        .ability-stats p {
-            font-size: 0.9375rem;
-        }
-    }
-
-    /* Skills List */
-    .skills-list {
-        margin-top: 1rem;
+    .skill-display {
+        text-align: center;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.625rem;
     }
 
-    .skill-item {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        padding: 1rem;
-        transition: all 0.2s ease;
+    .skill-ability {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: #6b7280;
+        font-weight: 500;
+        letter-spacing: 0.025em;
     }
 
-    .skill-item:hover {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Skill Edit Form */
-    .skill-edit-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .skill-stats-grid {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 1rem;
-        align-items: end;
-    }
-
-    .skill-proficiency {
+    .skill-stats {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 2.5rem;
-    }
-
-    /* Skill Info (Read-only) */
-    .skill-info {
-        display: flex;
-        align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
-        font-size: 0.875rem;
     }
 
-    @media (min-width: 768px) {
-        .skill-info {
-            font-size: 1rem;
-        }
+    /* Value Display Styles */
+    .skill-bonus {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #374151;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        min-width: 3rem;
+        text-align: center;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        letter-spacing: -0.025em;
+    }
+
+    /* Badge Improvements */
+    .srpg-badge {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        letter-spacing: 0.025em;
+        box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .srpg-badge-sm {
+        font-size: 0.6875rem;
+        padding: 0.1875rem 0.375rem;
+        border-radius: 4px;
     }
 </style>
