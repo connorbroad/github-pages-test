@@ -205,18 +205,17 @@
     }
 </script>
 
+{#if isEditing}
+    <div class="edit-actions">
+        <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
+            Save Changes
+        </button>
+        <button class="srpg-b" on:click={cancelEdit}>
+            Cancel
+        </button>
+    </div>
+{/if}
 <div class="character-sheet">
-    {#if isEditing}
-        <div class="edit-actions">
-            <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
-                Save Changes
-            </button>
-            <button class="srpg-b" on:click={cancelEdit}>
-                Cancel
-            </button>
-        </div>
-    {/if}
-
     <!-- Core Info Section -->
     <section class="section">
         <h2>Core Information</h2>
@@ -737,7 +736,7 @@
         flex-direction: row;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
-        justify-content: flex-end;
+        justify-content: space-between;
     }
 
     .section {

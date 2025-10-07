@@ -121,10 +121,10 @@
     {#if selectedCharacter}
         <div class="character-view">
             <div class="view-header">
-                <button class="srpg-b srpg-b-normal" on:click={backToList}>
-                    ← Back
-                </button> 
                 {#if !isEditing}
+                    <button class="srpg-b srpg-b-normal" on:click={backToList}>
+                        ← Back
+                    </button> 
                     <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
                         Edit
                     </button>
