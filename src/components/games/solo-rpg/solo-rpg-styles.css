@@ -165,13 +165,13 @@
     justify-content: center;
     z-index: 50;
     padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 768px) {
+    .srpg-modal {
+        /* Reserve space for bottom navbar on mobile */
+        padding-bottom: calc(env(safe-area-inset-bottom));
     }
-    
-    @media (max-width: 768px) {
-        .srpg-modal {
-            /* Reserve space for bottom navbar on mobile */
-            padding-bottom: calc(env(safe-area-inset-bottom));
-        }
 }
 
 .srpg-modal-content {

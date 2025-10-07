@@ -207,11 +207,11 @@
 
 {#if isEditing}
     <div class="edit-actions">
-        <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
-            Save Changes
-        </button>
         <button class="srpg-b" on:click={cancelEdit}>
             Cancel
+        </button>
+        <button class="srpg-b srpg-b-normal" on:click={saveChanges}>
+            Save Changes
         </button>
     </div>
 {/if}

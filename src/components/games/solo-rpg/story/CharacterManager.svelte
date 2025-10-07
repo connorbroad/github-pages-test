@@ -120,16 +120,16 @@
 <div class="character-manager">
     {#if selectedCharacter}
         <div class="character-view">
-            <div class="view-header">
                 {#if !isEditing}
-                    <button class="srpg-b srpg-b-normal" on:click={backToList}>
-                        ← Back
-                    </button> 
-                    <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
-                        Edit
-                    </button>
+                    <div class="view-header">
+                        <button class="srpg-b" on:click={backToList}>
+                            ← Back
+                        </button> 
+                        <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
+                            Edit
+                        </button>
+                    </div>
                 {/if} 
-            </div>
 
             <CharacterSheet
                 character={selectedCharacter}
