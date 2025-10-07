@@ -5,8 +5,7 @@
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
-    import EntryActions from "./EntryActions.svelte";
-    import EntryEditor from "./EntryEditor.svelte";
+    import EntryCard from "./EntryCard.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -302,10 +301,6 @@
         });
     }
 
-    function isRedSuit(suit: string): boolean {
-        return suit === '♥' || suit === '♦';
-    }
-
 </script>
 
 <div class="chronicle">
@@ -442,99 +437,17 @@
             </div>
         {:else}
             {#each entries as entry (entry.id)}
-                <div class="entry-card {entry.type === 'fortune' ? 'fortune-card' : 'manual-card'}">
-                    <div class="entry-header">
-                        <span class="entry-type">{entry.type === 'manual' ? '📝 Manual Entry' : '🎲 Fortune'}</span>
-                        <span class="entry-timestamp">{formatTimestamp(entry.timestamp)}</span>
-                    </div>
-                    
-                    {#if entry.type === 'fortune' && entry.fortuneData}
-                        <!-- Fortune Result Display - Compact -->
-                        <div class="fortune-content">
-                            <div class="fortune-inline">
-                                <span class="fortune-label">{entry.fortuneData.fortuneTitle}:</span>
-                                
-                                {#if entry.fortuneData.diceRoll}
-                                    <span class="result-badge">{entry.fortuneData.diceRoll.result}</span>
-                                    {#if entry.fortuneData.diceRoll.mappedOutcome}
-                                        <span class="result-text">{entry.fortuneData.diceRoll.mappedOutcome}</span>
-                                    {/if}
-                                {/if}
-                                
-                                {#if entry.fortuneData.cardDraw}
-                                    <span class="card-badge" style="color: {isRedSuit(entry.fortuneData.cardDraw.suit) ? '#dc2626' : '#334155'}">
-                                        {entry.fortuneData.cardDraw.rank} {entry.fortuneData.cardDraw.suit}
-                                    </span>
-                                    {#if entry.fortuneData.cardDraw.suitMapped || entry.fortuneData.cardDraw.rankMapped}
-                                        <span class="result-text">
-                                            {entry.fortuneData.cardDraw.suitMapped || ''}{#if entry.fortuneData.cardDraw.suitMapped && entry.fortuneData.cardDraw.rankMapped} • {/if}{entry.fortuneData.cardDraw.rankMapped || ''}
-                                        </span>
-                                    {/if}
-                                {/if}
-                            </div>
-
-                            {#if entry.userNotes && editingEntryId !== entry.id}
-                                <div class="fortune-notes-compact">
-                                    <span class="notes-label">Note:</span>
-                                    <span class="notes-text-compact">{entry.userNotes}</span>
-                                </div>
-                            {/if}
-
-                            {#if editingEntryId === entry.id}
-                                <EntryEditor
-                                    entryId={entry.id}
-                                    bind:value={editText}
-                                    placeholder="Add your interpretation..."
-                                    compact={true}
-                                    on:save={() => saveEditEntry(entry.id, false)}
-                                    on:cancel={cancelEditEntry}
-                                />
-                            {/if}
-                        </div>
-
-                        <EntryActions
-                            entryId={entry.id}
-                            characterId={entry.characterId}
-                            characterName={getCharacterName(entry.characterId)}
-                            editButtonLabel={entry.userNotes ? "Edit notes" : "Add notes"}
-                            isEditing={editingEntryId === entry.id}
-                            compact={true}
-                            on:assignCharacter={(e) => assignCharacter(e.detail)}
-                            on:edit={(e) => openEditEntry(e.detail, false, entry.userNotes)}
-                            on:delete={(e) => deleteEntry(e.detail)}
-                        />
-                    {:else}
-                        <!-- Manual Entry Display -->
-                        {#if editingEntryId !== entry.id}
-                            <div class="entry-content">
-                                {entry.content}
-                            </div>
-                        {/if}
-
-                        {#if editingEntryId === entry.id}
-                            <EntryEditor
-                                entryId={entry.id}
-                                bind:value={editText}
-                                placeholder="Edit your entry..."
-                                compact={false}
-                                on:save={() => saveEditEntry(entry.id, true)}
-                                on:cancel={cancelEditEntry}
-                            />
-                        {/if}
-
-                        <EntryActions
-                            entryId={entry.id}
-                            characterId={entry.characterId}
-                            characterName={getCharacterName(entry.characterId)}
-                            editButtonLabel="Edit entry"
-                            isEditing={editingEntryId === entry.id}
-                            compact={false}
-                            on:assignCharacter={(e) => assignCharacter(e.detail)}
-                            on:edit={(e) => openEditEntry(e.detail, true, entry.content)}
-                            on:delete={(e) => deleteEntry(e.detail)}
-                        />
-                    {/if}
-                </div>
+                <EntryCard {entry}
+                    characterName={getCharacterName(entry.characterId)}
+                    {editingEntryId}
+                    bind:editText
+                    {formatTimestamp}
+                    on:assignCharacter={(e) => assignCharacter(e.detail)}
+                    on:edit={(e) => openEditEntry(e.detail.entryId, e.detail.isManual, e.detail.currentText)}
+                    on:delete={(e) => deleteEntry(e.detail)}
+                    on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
+                    on:cancelEdit={cancelEditEntry}
+                />
             {/each}
         {/if}
     </div>
@@ -866,161 +779,6 @@
         font-size: 1.125rem;
         font-weight: 500;
         color: #6b7280;
-    }
-
-    .entry-card {
-        background: white;
-        border: 1px solid #e5e5e5;
-        border-radius: 8px;
-        padding: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        transition: all 0.15s ease;
-    }
-
-    .entry-card:hover {
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-        border-color: #d4d4d4;
-    } 
-
-    .fortune-card {
-        background: #fafafa;
-        border: 1px solid #e5e5e5;
-        border-left: 3px solid #6366f1;
-        border-radius: 6px;
-        padding: 0.65rem 0.85rem;
-        box-shadow: none;
-        position: relative;
-        transition: all 0.15s ease;
-    }
-
-    .fortune-card:hover {
-        background: #f5f5f5;
-        border-left-color: #4f46e5;
-    }
-
-    .fortune-card .entry-header {
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid #e5e5e5;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .fortune-card .entry-type {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #737373;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .fortune-card .entry-timestamp {
-        font-size: 0.7rem;
-        color: #a3a3a3;
-        font-weight: 400;
-    }
-
-    .fortune-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .fortune-inline {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        font-size: 0.9rem;
-        line-height: 1.4;
-    }
-
-    .fortune-label {
-        font-weight: 600;
-        color: #525252;
-    }
-
-    .result-badge {
-        background: #6366f1;
-        color: white;
-        font-weight: 700;
-        font-size: 0.875rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 4px;
-        line-height: 1.4;
-    }
-
-    .card-badge {
-        background: #ffffff;
-        color: white;
-        font-weight: 700;
-        font-size: 0.875rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 4px;
-        border: 1px solid #d1d5db;
-        line-height: 1.4;
-    }
-
-    .result-text {
-        color: #525252;
-        font-style: italic;
-        font-size: 0.875rem;
-    }
-
-    .fortune-notes-compact {
-        background: #fef9c3;
-        border-left: 2px solid #facc15;
-        border-radius: 3px;
-        padding: 0.4rem 0.6rem;
-        font-size: 0.85rem;
-        line-height: 1.4;
-        display: flex;
-        gap: 0.4rem;
-        align-items: baseline;
-    }
-
-    .notes-label {
-        font-weight: 600;
-        color: #713f12;
-        flex-shrink: 0;
-    }
-
-    .notes-text-compact {
-        color: #854d0e;
-        flex: 1;
-    }
-
-    .entry-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.85rem;
-        padding-bottom: 0.65rem;
-        border-bottom: 1px solid #e5e5e5;
-    }
-
-    .entry-type {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #525252;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .entry-timestamp {
-        font-size: 0.8rem;
-        color: #a3a3a3;
-        font-weight: 400;
-    }
-
-    .entry-content {
-        color: #262626;
-        line-height: 1.65;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        margin-bottom: 0.85rem;
-        font-size: 0.95rem;
     }
 
     /* Character Assignment Modal Styles */
