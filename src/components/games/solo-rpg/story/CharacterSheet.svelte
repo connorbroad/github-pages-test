@@ -478,34 +478,6 @@
         <h2>Health</h2>
         <div class="form-grid">
 
-
-            <div class="form-field">
-                <label for="hpMax">Hit Point Maximum</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="hpMax"
-                        bind:value={editedCharacter.hitPointMaximum}
-                    />
-                {:else}
-                    <p>{character.hitPointMaximum || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="hitDice">Hit Dice</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="hitDice"
-                        bind:value={editedCharacter.hitDice}
-                        placeholder="e.g., 3d8"
-                    />
-                {:else}
-                    <p>{character.hitDice || "—"}</p>
-                {/if}
-            </div>
-
             <div class="form-field">
                 <label for="hpCurrent">Current Hit Points</label>
                 {#if isEditing}
@@ -524,6 +496,19 @@
             </div>
 
             <div class="form-field">
+                <label for="hpMax">Hit Point Maximum</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="hpMax"
+                        bind:value={editedCharacter.hitPointMaximum}
+                    />
+                {:else}
+                    <p>{character.hitPointMaximum || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
                 <label for="hpTemp">Temporary Hit Points</label>
                 {#if isEditing}
                     <input
@@ -533,6 +518,20 @@
                     />
                 {:else}
                     <p>{character.temporaryHitPoints || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="hitDice">Hit Dice</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="hitDice"
+                        bind:value={editedCharacter.hitDice}
+                        placeholder="e.g., 3d8"
+                    />
+                {:else}
+                    <p>{character.hitDice || "—"}</p>
                 {/if}
             </div>
 
