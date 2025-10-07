@@ -147,7 +147,6 @@
     {:else}
         <div class="character-list-view">
             <div class="list-header">
-                <h2>Campaign Characters</h2>
                 <button class="btn btn-primary" on:click={openCreateModal}>
                     + Create Character
                 </button>

@@ -268,8 +268,7 @@
 </script>
 
 <div class="chronicle">
-    <div class="chronicle-header">
-        <h2>Chronicle</h2>
+    <div class="chronicle-header"> 
         <div class="header-actions">
             <button class="srpg-b" on:click={toggleChaptersList}>
                 📚 View Chapters
