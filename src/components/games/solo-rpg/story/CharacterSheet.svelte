@@ -341,8 +341,11 @@
 
     function toggleSection(section: string) {
         if (selectedSections.has(section)) {
+            // Tapping on the same icon again clears the filter (shows all)
             selectedSections.delete(section);
-        } else {
+        } else { 
+            // Switch to only this section
+            selectedSections.clear();
             selectedSections.add(section);
         }
         // Trigger reactivity
