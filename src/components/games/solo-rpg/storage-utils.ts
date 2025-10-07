@@ -92,6 +92,7 @@ export type ChronicleEntry = {
     fortuneId?: string; // Optional reference to fortune if type is "fortune"
     fortuneData?: FortuneResultData; // Fortune roll/draw results
     userNotes?: string; // User-added notes to fortune results
+    characterId?: string; // Optional reference to character
 };
 
 export type FortuneResultData = {

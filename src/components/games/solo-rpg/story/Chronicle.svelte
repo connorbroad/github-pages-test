@@ -1,7 +1,7 @@
 <script lang="ts">
     import { activeCampaign } from "../campaign-store";
-    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters } from "../storage-utils";
-    import type { ChronicleEntry, Chapter } from "../storage-utils";
+    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters, loadCharacters } from "../storage-utils";
+    import type { ChronicleEntry, Chapter, Character } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
@@ -19,10 +19,14 @@
     let chapterCustomName = "";
     let viewingChapterId: string | null = null; // null means viewing current entries
     let showChaptersList = false;
+    let showCharacterAssign = false;
+    let assigningToEntryId: string | null = null;
+    let campaignCharacters: Character[] = [];
 
     $: if ($activeCampaign) {
         loadEntries();
         loadCampaignChapters();
+        loadCampaignCharacters();
     }
 
     function loadEntries() {
@@ -49,6 +53,15 @@
         chapters = allChapters
             .filter(c => c.campaignId === $activeCampaign.id)
             .sort((a, b) => b.chapterNumber - a.chapterNumber); // Most recent first
+    }
+
+    function loadCampaignCharacters() {
+        if (!$activeCampaign) return;
+        
+        const allCharacters = loadCharacters();
+        campaignCharacters = allCharacters
+            .filter(c => c.campaignId === $activeCampaign.id)
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     function getChapterDisplayName(chapter: Chapter): string {
@@ -114,6 +127,40 @@
         saveChronicleEntries(filtered);
         
         loadEntries();
+    }
+
+    function assignCharacter(entryId: string) {
+        assigningToEntryId = entryId;
+        showCharacterAssign = true;
+    }
+
+    function cancelCharacterAssign() {
+        assigningToEntryId = null;
+        showCharacterAssign = false;
+    }
+
+    function selectCharacterForEntry(characterId: string | null) {
+        if (!assigningToEntryId) return;
+
+        const allEntries = loadChronicleEntries();
+        const entryIndex = allEntries.findIndex(e => e.id === assigningToEntryId);
+        
+        if (entryIndex !== -1) {
+            allEntries[entryIndex] = {
+                ...allEntries[entryIndex],
+                characterId: characterId || undefined
+            };
+            saveChronicleEntries(allEntries);
+            loadEntries();
+        }
+
+        cancelCharacterAssign();
+    }
+
+    function getCharacterName(characterId?: string): string {
+        if (!characterId) return "";
+        const character = campaignCharacters.find(c => c.id === characterId);
+        return character ? character.name : "";
     }
 
     function openCreateChapter() {
@@ -459,6 +506,18 @@
                         </div>
 
                         <div class="fortune-actions">
+                            <button 
+                                class="fortune-action-btn" 
+                                on:click={() => assignCharacter(entry.id)}
+                                title="Assign character"
+                                aria-label="Assign character"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='14' height='14'><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"/></svg>
+                            </button>
+                            {#if entry.characterId && getCharacterName(entry.characterId)}
+                                <p class="entry-character-name">{getCharacterName(entry.characterId)}</p>
+                            {/if}
+                            <div class="spacer"></div>
                             {#if !addingNoteToEntry}
                                 <button 
                                     class="fortune-action-btn" 
@@ -490,6 +549,20 @@
                         <div class="entry-actions">
                             <button 
                                 class="entry-action-btn" 
+                                on:click={() => assignCharacter(entry.id)}
+                                title="Assign character"
+                                aria-label="Assign character"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='16' height='16'>
+                                    <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"/>
+                                </svg>
+                            </button>
+                            {#if entry.characterId && getCharacterName(entry.characterId)}
+                                <p class="entry-character-name">{getCharacterName(entry.characterId)}</p>
+                            {/if}
+                            <div class="spacer"></div>
+                            <button 
+                                class="entry-action-btn" 
                                 on:click={() => openEditEntry(entry)}
                                 title="Edit entry"
                                 aria-label="Edit entry"
@@ -516,6 +589,55 @@
     </div>
 </div>
 
+<!-- Character Assignment Modal -->
+<SrpgModal
+    bind:show={showCharacterAssign}
+    maxWidth="450px"
+    on:close={cancelCharacterAssign}
+>
+    <div class="modal-content">
+        <h2>Assign Character</h2>
+        <p class="modal-help">Select a character to associate with this entry.</p>
+        
+        {#if campaignCharacters.length > 0}
+            <div class="character-select-list">
+                <button 
+                    class="srpg-b character-select-item"
+                    on:click={() => selectCharacterForEntry(null)}
+                >
+                    <span class="character-select-name">None (Remove assignment)</span>
+                </button>
+                {#each campaignCharacters as character (character.id)}
+                    <button 
+                        class="srpg-b character-select-item"
+                        on:click={() => selectCharacterForEntry(character.id)}
+                    >
+                        <span class="character-select-name">{character.name}</span>
+                        {#if character.race || character.class}
+                            <span class="character-select-info">
+                                {#if character.race}{character.race}{/if}
+                                {#if character.race && character.class} • {/if}
+                                {#if character.class}{character.class}{/if}
+                            </span>
+                        {/if}
+                    </button>
+                {/each}
+            </div>
+        {:else}
+            <div class="no-characters-message">
+                <p>No characters available.</p>
+                <p class="hint">Create a character in the Character Manager first.</p>
+            </div>
+        {/if}
+        
+        <div class="modal-footer">
+            <button class="srpg-b" on:click={cancelCharacterAssign}>
+                Cancel
+            </button>
+        </div>
+    </div>
+</SrpgModal>
+
 <style>
     .chronicle {
         width: 100%;
@@ -528,12 +650,6 @@
         justify-content: space-between;
         align-items: center; 
         padding-bottom: 1rem; 
-    }
-
-    .chronicle-header h2 {
-        margin: 0;
-        font-size: 1.75rem;
-        color: #333;
     }
 
     .header-actions {
@@ -815,6 +931,13 @@
         border-color: #d4d4d4;
     } 
 
+    .entry-character-name {
+        font-size: 0.9rem;
+        font-style: italic;
+        color: #6b7280; 
+        margin: 0; 
+    }
+
     .fortune-card {
         background: #fafafa;
         border: 1px solid #e5e5e5;
@@ -1055,6 +1178,86 @@
         background: #fef2f2;
         border-color: #fca5a5;
         color: #dc2626;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+
+    /* Character Assignment Modal Styles */
+    .modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: #111827;
+    }
+
+    .modal-help {
+        margin: 0 0 1rem 0;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .character-select-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+    }
+
+    .character-select-item {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .character-select-item:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: translateX(2px);
+    }
+
+    .character-select-name {
+        font-weight: 600;
+        color: #111827;
+        font-size: 1rem;
+    }
+
+    .character-select-info {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .no-characters-message {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6b7280;
+        background: #f9fafb;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .no-characters-message p {
+        margin: 0.25rem 0;
+    }
+
+    .no-characters-message .hint {
+        font-size: 0.875rem;
+        font-style: italic;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
     }
 
     @media (max-width: 640px) {
