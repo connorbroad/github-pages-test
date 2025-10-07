@@ -23,7 +23,7 @@
 
 <div class="story-view"> 
     {#if $activeCampaign}
-        <h1>{$activeCampaign.title}</h1>
+        <h2>{$activeCampaign.title}</h2>
         <div class="subheading">
             <p>{$activeCampaign.blueprintTitle}</p>
         </div>
@@ -64,9 +64,9 @@
         margin: 0 auto;
     }
 
-    h1 {
-        text-align: center;
-        margin-bottom: 0;
+    h2 {
+        text-align: center; 
+        margin: 0;
     }
 
     .subheading p {
