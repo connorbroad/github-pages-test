@@ -42,10 +42,6 @@
         ],
     };
 
-    function calculateModifier(score: number): number {
-        return Math.floor((score - 10) / 2);
-    }
-
     function addAbility() {
         const newAbility: Ability = {
             id: `ability-${Date.now()}`,
@@ -69,7 +65,7 @@
             id: `ability-${baseTimestamp + index}`,
             name: abilityData.name,
             score: abilityData.score,
-            modifier: calculateModifier(abilityData.score),
+            modifier: 0,
             proficient: false,
         }));
 
@@ -96,7 +92,6 @@
                 return {
                     ...ability,
                     score: score,
-                    modifier: calculateModifier(score),
                 };
             }
             return ability;

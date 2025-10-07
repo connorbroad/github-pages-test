@@ -368,7 +368,7 @@
 
     {#if !viewingChapterId}
         <div style="margin-bottom: 1rem; text-align: center;">
-            <button class="srpg-b srpg-b-create srpg-b-w-lg" on:click={openAddEntry}>
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openAddEntry}>
                 + Add entry
             </button>
         </div>

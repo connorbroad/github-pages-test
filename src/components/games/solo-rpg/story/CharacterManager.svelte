@@ -120,16 +120,16 @@
 <div class="character-manager">
     {#if selectedCharacter}
         <div class="character-view">
-                {#if !isEditing}
-                    <div class="view-header">
-                        <button class="srpg-b" on:click={backToList}>
-                            ← Back
-                        </button> 
-                        <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
-                            Edit
-                        </button>
-                    </div>
-                {/if} 
+            {#if !isEditing}
+                <div class="view-header">
+                    <button class="srpg-b" on:click={backToList}>
+                        ← Back
+                    </button> 
+                    <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
+                        Edit
+                    </button>
+                </div>
+            {/if} 
 
             <CharacterSheet
                 character={selectedCharacter}
@@ -205,7 +205,7 @@
     on:close={() => (showCreateModal = false)}
 >
     <div class="modal-content">
-        <h2>Create New Character</h2>
+        <h2>New Character</h2>
         <label for="characterName">Character Name *</label>
         <input
             type="text"
@@ -217,14 +217,14 @@
 
         <div class="modal-footer">
             <button
-                class="btn btn-primary"
+                class="srpg-b srpg-b-create srpg-b-w-full"
                 on:click={createCharacter}
                 disabled={!newCharacterName.trim()}
             >
                 Create
             </button>
             <button
-                class="btn btn-secondary"
+                class="srpg-b"
                 on:click={() => (showCreateModal = false)}
             >
                 Cancel
@@ -298,10 +298,6 @@
     .hint {
         font-size: 0.875rem;
         font-style: italic;
-    }
-
-    .modal-content {
-        padding: 1rem 0;
     }
 
     .modal-content h2 {
