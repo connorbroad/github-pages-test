@@ -236,6 +236,19 @@
             </div>
 
             <div class="form-field">
+                <label for="race">Race</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="race"
+                        bind:value={editedCharacter.race}
+                    />
+                {:else}
+                    <p>{character.race || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
                 <label for="class">Class</label>
                 {#if isEditing}
                     <input
@@ -263,15 +276,29 @@
             </div>
 
             <div class="form-field">
-                <label for="race">Race</label>
+                <label for="xp">Experience Points</label>
                 {#if isEditing}
                     <input
-                        type="text"
-                        id="race"
-                        bind:value={editedCharacter.race}
+                        type="number"
+                        id="xp"
+                        bind:value={editedCharacter.experiencePoints}
+                        min="0"
                     />
                 {:else}
-                    <p>{character.race || "—"}</p>
+                    <p>{character.experiencePoints || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="form-field">
+                <label for="proficiencyBonus">Proficiency Bonus</label>
+                {#if isEditing}
+                    <input
+                        type="number"
+                        id="proficiencyBonus"
+                        bind:value={editedCharacter.proficiencyBonus}
+                    />
+                {:else}
+                    <p>{character.proficiencyBonus !== undefined ? (character.proficiencyBonus >= 0 ? `+${character.proficiencyBonus}` : character.proficiencyBonus) : "—"}</p>
                 {/if}
             </div>
 
@@ -302,20 +329,6 @@
                     </select>
                 {:else}
                     <p>{character.alignment || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="form-field">
-                <label for="xp">Experience Points</label>
-                {#if isEditing}
-                    <input
-                        type="number"
-                        id="xp"
-                        bind:value={editedCharacter.experiencePoints}
-                        min="0"
-                    />
-                {:else}
-                    <p>{character.experiencePoints || "—"}</p>
                 {/if}
             </div>
 

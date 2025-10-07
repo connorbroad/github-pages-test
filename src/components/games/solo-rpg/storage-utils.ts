@@ -58,6 +58,7 @@ export type Character = {
     // Core Info
     class?: string;
     level?: number;
+    proficiencyBonus?: number;
     background?: string;
     playerName?: string;
     race?: string;
