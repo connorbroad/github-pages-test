@@ -1129,8 +1129,7 @@
     .character-sheet {
         background: white;
         border-radius: 8px;
-        padding: 1rem;
-        padding-bottom: 8rem; /* Add extra space for fixed filter on mobile */
+        padding: 1rem; 
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         max-width: 100%;
     }
