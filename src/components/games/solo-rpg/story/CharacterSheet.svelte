@@ -382,7 +382,7 @@
 
 <div class="character-sheet">
     <div class="section-filter"> 
-        <div class="section-icons">
+        <div class="section-filter-icons">
             <button 
                 class="section-icon-btn" 
                 class:active={selectedSections.has("information")}
@@ -1008,7 +1008,7 @@
         gap: 0.75rem;
     } 
 
-    .section-icons { 
+    .section-filter-icons { 
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -1020,7 +1020,7 @@
         background: rgb(250, 253, 255);
         border-radius: 18px 18px 0 0;  
 
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
     .section-icon-btn {
@@ -1104,7 +1104,7 @@
             height: 1.25rem;
         }
 
-        .section-icons {
+        .section-filter-icons {
             gap: 0.375rem;
         }
     }
@@ -1128,7 +1128,7 @@
             justify-content: flex-end;
         } 
 
-        .section-icons {
+        .section-filter-icons {
             padding: 0;
             border: none;
             background: transparent;
