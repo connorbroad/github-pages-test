@@ -476,3 +476,79 @@
     width: 1.5rem;
     height: 1.5rem;
 }
+/* Select/Dropdown Styles */
+.srpg-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: white;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.srpg-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.srpg-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+}
+
+@media (max-width: 767px) {
+    .srpg-select {
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
+
+/* Utility Classes */
+.srpg-flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.srpg-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.srpg-text-center {
+    text-align: center;
+}
+
+.srpg-mt-1 {
+    margin-top: 0.5rem;
+}
+
+.srpg-mt-2 {
+    margin-top: 1rem;
+}
+
+.srpg-mb-1 {
+    margin-bottom: 0.5rem;
+}
+
+.srpg-mb-2 {
+    margin-bottom: 1rem;
+}
+
+.srpg-gap-sm {
+    gap: 0.5rem;
+}
+
+.srpg-gap-md {
+    gap: 1rem;
+}
+
+.srpg-gap-lg {
+    gap: 1.5rem;
+}

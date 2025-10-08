@@ -11,6 +11,7 @@
     import "../solo-rpg-styles.css";
     import CardDealer from "../card-dealer/CardDealer.svelte";
     import DiceRoller from "../dice-roller/DiceRoller.svelte";
+    import CharacterSelector from "../shared/CharacterSelector.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -145,13 +146,19 @@
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="oracle-page">
-    <div class="button-group">
-        <button class="srpg-b srpg-b-normal" aria-label="Open Dice Roller" on:click={() => (showDiceRoller = true)}>
-            <svg xmlns="http://www.w3.org/2000/svg" stroke-width="2" viewBox="0 0 48 48" width='1.5em' height='1.5em' {...$$props}><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m39.227 38.684l5.111-20.5L29.111 3.5L8.773 9.316l-5.111 20.5L18.889 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m33.729 34.984l10.61-16.8l-17.151-6.97L8.773 9.316l1.48 19.815L18.89 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M33.729 34.984L10.254 29.13l16.934-17.916zm-6.541-23.77L29.111 3.5m4.618 31.484l5.498 3.7M10.254 29.13l-6.592.685"/></svg>
-        </button>
-        <button class="srpg-b srpg-b-normal" aria-label="Open Card Dealer" on:click={() => (showCardDealer = true)}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width='1.3em' height='1.3em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.546.857a.475.475 0 0 1 .581-.335l6.02 1.612a.475.475 0 0 1 .337.581l-2.31 8.618a.475.475 0 0 1-.582.335l-6.02-1.612a.475.475 0 0 1-.336-.581z"/><path d="M6.108 2.535L.852 3.944a.475.475 0 0 0-.336.581l2.308 8.618a.475.475 0 0 0 .582.335l3.01-.806"/></g></svg>
-        </button>
+    <div class="oracle-header">
+
+        <div class="character-selector-wrapper">
+            <CharacterSelector />
+        </div>
+        <div class="button-group">
+            <button class="srpg-b srpg-b-normal" aria-label="Open Dice Roller" on:click={() => (showDiceRoller = true)}>
+                <svg xmlns="http://www.w3.org/2000/svg" stroke-width="2" viewBox="0 0 48 48" width='1.5em' height='1.5em' {...$$props}><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m39.227 38.684l5.111-20.5L29.111 3.5L8.773 9.316l-5.111 20.5L18.889 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m33.729 34.984l10.61-16.8l-17.151-6.97L8.773 9.316l1.48 19.815L18.89 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M33.729 34.984L10.254 29.13l16.934-17.916zm-6.541-23.77L29.111 3.5m4.618 31.484l5.498 3.7M10.254 29.13l-6.592.685"/></svg>
+            </button>
+            <button class="srpg-b srpg-b-normal" aria-label="Open Card Dealer" on:click={() => (showCardDealer = true)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width='1.3em' height='1.3em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.546.857a.475.475 0 0 1 .581-.335l6.02 1.612a.475.475 0 0 1 .337.581l-2.31 8.618a.475.475 0 0 1-.582.335l-6.02-1.612a.475.475 0 0 1-.336-.581z"/><path d="M6.108 2.535L.852 3.944a.475.475 0 0 0-.336.581l2.308 8.618a.475.475 0 0 0 .582.335l3.01-.806"/></g></svg>
+            </button>
+        </div>
     </div>
 
     {#if defaultFortunes.length > 0}
@@ -222,11 +229,44 @@
         text-align: center;
     }
 
+    .oracle-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
     .button-group {
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin-bottom: 2rem;
+    }
+
+    .character-selector-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    @media (min-width: 768px) {
+        .oracle-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .character-selector-wrapper {
+            width: auto;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .oracle-header {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     }
 
     .fortune-section {

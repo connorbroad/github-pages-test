@@ -11,11 +11,9 @@
     let isEditing: boolean = false;
     let showCreateModal: boolean = false;
     let newCharacterName: string = "";
-    let activeCharacterId: string | null = null;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
-        activeCharacterId = loadActiveCharacterId();
     }
 
     function loadCampaignCharacters() {
@@ -25,9 +23,6 @@
         characters = allCharacters
             .filter((c) => c.campaignId === $activeCampaign.id)
             .sort((a, b) => a.name.localeCompare(b.name));
-        
-        // Reload active character ID
-        activeCharacterId = loadActiveCharacterId();
     }
 
     function openCreateModal() {
@@ -120,26 +115,6 @@
         selectedCharacter = null;
         isEditing = false;
     }
-
-    function toggleActiveCharacter() {
-        if (activeCharacterId === selectedCharacter?.id) {
-            clearActiveCharacter();
-        } else {
-            setActiveCharacter();
-        }
-    }
-
-    function setActiveCharacter() {
-        if (!selectedCharacter) return;
-        
-        activeCharacterId = selectedCharacter.id;
-        saveActiveCharacterId(activeCharacterId);
-    }
-
-    function clearActiveCharacter() {
-        activeCharacterId = null;
-        saveActiveCharacterId(null);
-    }
 </script>
 
 <div class="character-manager">
@@ -150,22 +125,6 @@
                     <button class="srpg-b" on:click={backToList}>
                         ← Back
                     </button> 
-
-                    <button 
-                        class="active-toggle" 
-                        class:active={activeCharacterId === selectedCharacter.id}
-                        on:click={toggleActiveCharacter} 
-                        aria-label={activeCharacterId === selectedCharacter.id ? 'Deactivate character' : 'Set as active character'}
-                    >
-                        <span class="toggle-label">Active</span>
-                        <div class="toggle-switch">
-                            <div class="toggle-slider">
-                                <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
 
                     <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
                         Edit
@@ -205,15 +164,9 @@
                     {#each characters as character}
                         <button
                             class="srpg-b srpg-b-overview"
-                            class:is-active={activeCharacterId === character.id}
                             on:click={() => selectCharacter(character)}
                         >
                             <h3 class="character-title">
-                                {#if activeCharacterId === character.id}
-                                    <svg class="active-star" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                {/if}
                                 {character.name}
                             </h3>
                             <div class="character-summary">
@@ -314,97 +267,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         width: 100%;
-    }
-
-    /* Modern Toggle Switch */
-    .active-toggle {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 1rem;
-        background: #f3f4f6;
-        border: 2px solid #e5e7eb;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 500;
-        color: #6b7280;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .active-toggle:hover {
-        background: #e5e7eb;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .active-toggle.active {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border-color: #f59e0b;
-        color: #92400e;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
-    }
-
-    .active-toggle.active:hover {
-        background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
-    }
-
-    .toggle-label {
-        font-size: 0.875rem;
-        user-select: none;
-    }
-
-    .toggle-switch {
-        position: relative;
-        width: 2.75rem;
-        height: 1.5rem;
-        background: #d1d5db;
-        border-radius: 50px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .active-toggle.active .toggle-switch {
-        background: #f59e0b;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15),
-                    0 0 0 2px rgba(245, 158, 11, 0.2);
-    }
-
-    .toggle-slider {
-        position: absolute;
-        top: 0.125rem;
-        left: 0.125rem;
-        width: 1.25rem;
-        height: 1.25rem;
-        background: white;
-        border-radius: 50%;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .active-toggle.active .toggle-slider {
-        transform: translateX(1.25rem);
-        background: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .toggle-icon {
-        width: 0.75rem;
-        height: 0.75rem;
-        color: #f59e0b;
-        opacity: 0;
-        transform: scale(0.3) rotate(-72deg);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .active-toggle.active .toggle-icon {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-    }
+    } 
 
     /* Add subtle pulse animation when active */
     @keyframes pulse {
@@ -414,31 +277,13 @@
         50% {
             box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
         }
-    }
-
-    .active-toggle.active {
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    .active-toggle:active .toggle-slider {
-        transform: translateX(0.5rem);
-    }
-
-    .active-toggle.active:active .toggle-slider {
-        transform: translateX(1rem);
-    }
+    } 
 
     .character-list {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
-    }
-
-    .srpg-b-overview.is-active {
-        border: 2px solid #f59e0b;
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.15);
-    }
+    } 
 
     .character-title {
         margin: 0 0 0.75rem 0;
@@ -448,14 +293,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-    }
-
-    .active-star {
-        width: 1.125rem;
-        height: 1.125rem;
-        color: #f59e0b;
-        flex-shrink: 0;
-    }
+    } 
 
     .character-summary p {
         margin: 0.25rem 0;
