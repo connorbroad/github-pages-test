@@ -380,8 +380,7 @@
     </div>
 {/if}
 
-<!-- Mobile Section Filter -->
-<div class="section-filter-mobile"> 
+<div class="section-filter"> 
     <div class="section-icons">
         <button 
             class="section-icon-btn" 
@@ -997,7 +996,7 @@
 
 <style>
     /* Mobile Section Filter */
-    .section-filter-mobile {
+    .section-filter {
         position: fixed;
         bottom: calc(70px + env(safe-area-inset-bottom));
         left: 0;
@@ -1007,13 +1006,7 @@
         flex-direction: column;
         gap: 0.75rem;
         padding: 1rem;
-        padding-bottom: 1rem;
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border-top: 2px solid #bae6fd;
-        border-radius: 0;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(8px);
-        background: linear-gradient(135deg, rgba(240, 249, 255, 0.98) 0%, rgba(224, 242, 254, 0.98) 100%);
+        padding-bottom: 1rem; 
     }
 
     .section-filter-label {
@@ -1026,10 +1019,18 @@
     }
 
     .section-icons {
+        padding: 0.75rem 1rem; 
+
         display: flex;
-        gap: 0.5rem;
-        justify-content: center;
+        justify-content: space-between;
         flex-wrap: wrap;
+        gap: 0.5rem;
+
+        border: 1px solid #cfcfcf;
+        background: rgb(250, 253, 255);
+        border-radius: 8px;  
+
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .section-icon-btn {
@@ -1118,11 +1119,22 @@
         }
     }
 
-    /* Hide filter on larger screens */
+    /* larger screens */
     @media (min-width: 768px) {
-        .section-filter-mobile {
-            display: none;
-        }
+        .section-filter { 
+            position: relative;
+            border-radius: 8px;
+            bottom: auto;
+            margin-bottom: 0.5rem;
+            width: auto;
+            padding: 0;
+            border-top: 0; 
+
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: flex-end;
+        } 
     }
 
     /* Character Sheet Container */
