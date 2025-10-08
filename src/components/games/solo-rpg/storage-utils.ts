@@ -5,6 +5,7 @@
 
 const STORAGE_KEY = 'solo-rpg-data';
 const ACTIVE_CAMPAIGN_KEY = 'solo-rpg-active-campaign';
+const ACTIVE_CHARACTER_KEY = 'solo-rpg-active-character';
 
 export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
@@ -267,6 +268,7 @@ export function clearData(): void {
     try {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(ACTIVE_CAMPAIGN_KEY);
+        localStorage.removeItem(ACTIVE_CHARACTER_KEY);
     } catch (error) {
         console.error('Failed to clear Solo RPG data:', error);
     }
@@ -296,6 +298,33 @@ export function saveActiveCampaignId(campaignId: string | null): void {
         }
     } catch (error) {
         console.error('Failed to save active campaign:', error);
+    }
+}
+
+/**
+ * Load the active character ID from localStorage
+ */
+export function loadActiveCharacterId(): string | null {
+    try {
+        return localStorage.getItem(ACTIVE_CHARACTER_KEY);
+    } catch (error) {
+        console.error('Failed to load active character:', error);
+        return null;
+    }
+}
+
+/**
+ * Save the active character ID to localStorage
+ */
+export function saveActiveCharacterId(characterId: string | null): void {
+    try {
+        if (characterId) {
+            localStorage.setItem(ACTIVE_CHARACTER_KEY, characterId);
+        } else {
+            localStorage.removeItem(ACTIVE_CHARACTER_KEY);
+        }
+    } catch (error) {
+        console.error('Failed to save active character:', error);
     }
 }
 

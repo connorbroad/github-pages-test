@@ -1,6 +1,6 @@
 <script lang="ts">
     import { activeCampaign } from "../campaign-store";
-    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters, loadCharacters } from "../storage-utils";
+    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters, loadCharacters, loadActiveCharacterId } from "../storage-utils";
     import type { ChronicleEntry, Chapter, Character } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
     import "../solo-rpg-styles.css";
@@ -87,6 +87,7 @@
         if (!$activeCampaign || !newEntryText.trim()) return;
 
         const allEntries = loadChronicleEntries();
+        const activeCharacterId = loadActiveCharacterId();
 
         // Create new entry
         const newEntry: ChronicleEntry = {
@@ -94,7 +95,8 @@
             campaignId: $activeCampaign.id,
             timestamp: Date.now(),
             type: "manual",
-            content: newEntryText.trim()
+            content: newEntryText.trim(),
+            characterId: activeCharacterId || undefined
         };
         allEntries.push(newEntry);
 

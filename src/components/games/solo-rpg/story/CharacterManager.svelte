@@ -1,6 +1,6 @@
 <script lang="ts">
     import { activeCampaign } from "../campaign-store";
-    import { loadCharacters, saveCharacters } from "../storage-utils";
+    import { loadCharacters, saveCharacters, loadActiveCharacterId, saveActiveCharacterId } from "../storage-utils";
     import type { Character } from "../storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
@@ -11,9 +11,11 @@
     let isEditing: boolean = false;
     let showCreateModal: boolean = false;
     let newCharacterName: string = "";
+    let activeCharacterId: string | null = null;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
+        activeCharacterId = loadActiveCharacterId();
     }
 
     function loadCampaignCharacters() {
@@ -23,6 +25,9 @@
         characters = allCharacters
             .filter((c) => c.campaignId === $activeCampaign.id)
             .sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Reload active character ID
+        activeCharacterId = loadActiveCharacterId();
     }
 
     function openCreateModal() {
@@ -115,6 +120,18 @@
         selectedCharacter = null;
         isEditing = false;
     }
+
+    function setActiveCharacter() {
+        if (!selectedCharacter) return;
+        
+        activeCharacterId = selectedCharacter.id;
+        saveActiveCharacterId(activeCharacterId);
+    }
+
+    function clearActiveCharacter() {
+        activeCharacterId = null;
+        saveActiveCharacterId(null);
+    }
 </script>
 
 <div class="character-manager">
@@ -129,6 +146,27 @@
                         Edit
                     </button>
                 </div>
+                
+                {#if activeCharacterId === selectedCharacter.id}
+                    <div class="active-character-banner">
+                        <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        <span>Active Character</span>
+                        <button class="srpg-b srpg-b-sm" on:click={clearActiveCharacter}>
+                            Make Inactive
+                        </button>
+                    </div>
+                {:else}
+                    <div class="inactive-character-banner">
+                        <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={setActiveCharacter}>
+                            <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            Set as Active Character
+                        </button>
+                    </div>
+                {/if}
             {/if} 
 
             <CharacterSheet
@@ -160,9 +198,17 @@
                     {#each characters as character}
                         <button
                             class="srpg-b srpg-b-overview"
+                            class:is-active={activeCharacterId === character.id}
                             on:click={() => selectCharacter(character)}
                         >
-                            <h3 class="character-title">{character.name}</h3>
+                            <h3 class="character-title">
+                                {#if activeCharacterId === character.id}
+                                    <svg class="active-star" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                {/if}
+                                {character.name}
+                            </h3>
                             <div class="character-summary">
                                 {#if character.race || character.class}
                                     <p>
@@ -254,7 +300,49 @@
         flex-wrap: wrap;
         gap: 1rem;
         width: 100%;
-    } 
+    }
+
+    .active-character-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    }
+
+    .active-character-banner svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #f59e0b;
+        fill: #f59e0b;
+        flex-shrink: 0;
+    }
+
+    .active-character-banner span {
+        font-weight: 600;
+        color: #92400e;
+        flex: 1;
+    }
+
+    .inactive-character-banner {
+        margin-bottom: 1.5rem;
+    }
+
+    .inactive-character-banner button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .inactive-character-banner svg {
+        width: 1rem;
+        height: 1rem;
+    }
 
     .character-list {
         display: grid;
@@ -262,10 +350,27 @@
         gap: 1rem;
     }
 
+    .srpg-b-overview.is-active {
+        border: 2px solid #f59e0b;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.15);
+    }
+
     .character-title {
         margin: 0 0 0.75rem 0;
         color: #111827;
         font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .active-star {
+        width: 1.125rem;
+        height: 1.125rem;
+        color: #f59e0b;
+        flex-shrink: 0;
     }
 
     .character-summary p {

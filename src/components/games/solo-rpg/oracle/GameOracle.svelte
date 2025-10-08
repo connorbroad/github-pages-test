@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries } from "../storage-utils";
+    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries, loadActiveCharacterId } from "../storage-utils";
     import type { FortuneResultData } from "../storage-utils";
     import { activeCampaign } from "../campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
@@ -118,6 +118,8 @@
 
         // Create a chronicle entry for this fortune result
         const chronicleEntries = loadChronicleEntries();
+        const activeCharacterId = loadActiveCharacterId();
+        
         const newEntry = {
             id: generateId(),
             campaignId: $activeCampaign.id,
@@ -125,7 +127,8 @@
             type: "fortune" as const,
             content: "", // Empty content, fortune data is stored separately
             fortuneId: selectedFortune?.id,
-            fortuneData: resultData
+            fortuneData: resultData,
+            characterId: activeCharacterId || undefined
         };
 
         chronicleEntries.push(newEntry);
