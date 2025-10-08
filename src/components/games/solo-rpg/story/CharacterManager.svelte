@@ -282,6 +282,13 @@
 <style>
     .character-manager {
         width: 100%;
+        padding-bottom: 4rem; /* Add space for fixed section filter on mobile */
+    }
+
+    @media (min-width: 768px) {
+        .character-manager {
+            padding-bottom: 0; /* Remove padding on larger screens */
+        }
     }
 
     .list-header {

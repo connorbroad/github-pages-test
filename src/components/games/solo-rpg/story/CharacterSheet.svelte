@@ -998,15 +998,22 @@
 <style>
     /* Mobile Section Filter */
     .section-filter-mobile {
+        position: fixed;
+        bottom: calc(70px + env(safe-area-inset-bottom));
+        left: 0;
+        right: 0;
+        z-index: 50;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        margin-bottom: 1rem;
         padding: 1rem;
+        padding-bottom: 1rem;
         background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border: 1px solid #bae6fd;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-top: 2px solid #bae6fd;
+        border-radius: 0;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(8px);
+        background: linear-gradient(135deg, rgba(240, 249, 255, 0.98) 0%, rgba(224, 242, 254, 0.98) 100%);
     }
 
     .section-filter-label {
@@ -1123,6 +1130,7 @@
         background: white;
         border-radius: 8px;
         padding: 1rem;
+        padding-bottom: 8rem; /* Add extra space for fixed filter on mobile */
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         max-width: 100%;
     }
@@ -1130,6 +1138,7 @@
     @media (min-width: 768px) {
         .character-sheet {
             padding: 1.5rem;
+            padding-bottom: 1.5rem; /* Normal padding on larger screens */
         }
     }
 
