@@ -380,78 +380,78 @@
     </div>
 {/if}
 
-<div class="section-filter"> 
-    <div class="section-icons">
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("information")}
-            on:click={() => toggleSection("information")}
-            title="Information"
-            aria-label="Toggle information section">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
-                <path fill="currentColor" d="M3 10h11v2H3zm0-2h11V6H3zm0 8h7v-2H3zm15.01-3.13l.71-.71a.996.996 0 0 1 1.41 0l.71.71c.39.39.39 1.02 0 1.41l-.71.71zm-.71.71l-5.3 5.3V21h2.12l5.3-5.3z"/>
-            </svg>
-        </button>
-        
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("experience")}
-            on:click={() => toggleSection("experience")}
-            title="Experience"
-            aria-label="Toggle experience section">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-        </button>
-        
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("health")}
-            on:click={() => toggleSection("health")}
-            title="Health"
-            aria-label="Toggle health section">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-        </button>
-        
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("abilities")}
-            on:click={() => toggleSection("abilities")}
-            title="Abilities"
-            aria-label="Toggle abilities section">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width='1em' height='1em' {...$$props}>
-                <circle cx="256" cy="56" r="40" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/>
-                <path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="m199.3 295.62l-30.4 172.2a24 24 0 0 0 19.5 27.8a23.76 23.76 0 0 0 27.6-19.5l21-119.9v.2s5.2-32.5 17.5-32.5h3.1c12.5 0 17.5 32.5 17.5 32.5v-.1l21 119.9a23.92 23.92 0 1 0 47.1-8.4l-30.4-172.2l-4.9-29.7c-2.9-18.1-4.2-47.6.5-59.7c4-10.4 14.13-14.2 23.2-14.2H424a24 24 0 0 0 0-48H88a24 24 0 0 0 0 48h92.5c9.23 0 19.2 3.8 23.2 14.2c4.7 12.1 3.4 41.6.5 59.7Z"/>
-            </svg>
-        </button>
-        
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("skills")}
-            on:click={() => toggleSection("skills")}
-            title="Skills"
-            aria-label="Toggle skills section">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-            </svg>
-        </button>
-        
-        <button 
-            class="section-icon-btn" 
-            class:active={selectedSections.has("combat")}
-            on:click={() => toggleSection("combat")}
-            title="Combat Stats"
-            aria-label="Toggle combat stats section">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6m-3 3l4 4m-1 1l2-2M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4m-2-1l-3 3m-1-1l2 2"/>
-            </svg>
-        </button>
-    </div>
-</div>
-
 <div class="character-sheet">
+    <div class="section-filter"> 
+        <div class="section-icons">
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("information")}
+                on:click={() => toggleSection("information")}
+                title="Information"
+                aria-label="Toggle information section">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
+                    <path fill="currentColor" d="M3 10h11v2H3zm0-2h11V6H3zm0 8h7v-2H3zm15.01-3.13l.71-.71a.996.996 0 0 1 1.41 0l.71.71c.39.39.39 1.02 0 1.41l-.71.71zm-.71.71l-5.3 5.3V21h2.12l5.3-5.3z"/>
+                </svg>
+            </button>
+            
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("experience")}
+                on:click={() => toggleSection("experience")}
+                title="Experience"
+                aria-label="Toggle experience section">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+            </button>
+            
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("health")}
+                on:click={() => toggleSection("health")}
+                title="Health"
+                aria-label="Toggle health section">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+            </button>
+            
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("abilities")}
+                on:click={() => toggleSection("abilities")}
+                title="Abilities"
+                aria-label="Toggle abilities section">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width='1em' height='1em' {...$$props}>
+                    <circle cx="256" cy="56" r="40" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/>
+                    <path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="m199.3 295.62l-30.4 172.2a24 24 0 0 0 19.5 27.8a23.76 23.76 0 0 0 27.6-19.5l21-119.9v.2s5.2-32.5 17.5-32.5h3.1c12.5 0 17.5 32.5 17.5 32.5v-.1l21 119.9a23.92 23.92 0 1 0 47.1-8.4l-30.4-172.2l-4.9-29.7c-2.9-18.1-4.2-47.6.5-59.7c4-10.4 14.13-14.2 23.2-14.2H424a24 24 0 0 0 0-48H88a24 24 0 0 0 0 48h92.5c9.23 0 19.2 3.8 23.2 14.2c4.7 12.1 3.4 41.6.5 59.7Z"/>
+                </svg>
+            </button>
+            
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("skills")}
+                on:click={() => toggleSection("skills")}
+                title="Skills"
+                aria-label="Toggle skills section">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+            </button>
+            
+            <button 
+                class="section-icon-btn" 
+                class:active={selectedSections.has("combat")}
+                on:click={() => toggleSection("combat")}
+                title="Combat Stats"
+                aria-label="Toggle combat stats section">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6m-3 3l4 4m-1 1l2-2M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4m-2-1l-3 3m-1-1l2 2"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <!-- Core Info Section -->
     {#if showInformation}
     <section class="srpg-section">
@@ -1002,33 +1002,23 @@
         left: 0;
         right: 0;
         z-index: 50;
+
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        padding: 1rem;
-        padding-bottom: 1rem; 
-    }
+    } 
 
-    .section-filter-label {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: #0c4a6e;
-        letter-spacing: 0.025em;
-        text-align: center;
-        text-transform: uppercase;
-    }
-
-    .section-icons {
-        padding: 0.75rem 1rem; 
-
+    .section-icons { 
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 0.5rem;
 
+        padding: 0.75rem 1.5rem;
+
         border: 1px solid #cfcfcf;
         background: rgb(250, 253, 255);
-        border-radius: 8px;  
+        border-radius: 18px 18px 0 0;  
 
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
@@ -1122,12 +1112,14 @@
     /* larger screens */
     @media (min-width: 768px) {
         .section-filter { 
-            position: relative;
-            border-radius: 8px;
-            bottom: auto;
+            position: absolute;
+            top: 0; right: 0; bottom: auto; left: auto; 
+         
+            margin: 0;
             margin-bottom: 0.5rem;
-            width: auto;
-            padding: 0;
+            padding: 0.5rem; 
+
+            border-radius: 8px;
             border-top: 0; 
 
             display: flex;
@@ -1135,10 +1127,19 @@
             align-items: flex-end;
             justify-content: flex-end;
         } 
+
+        .section-icons {
+            padding: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            gap: 0.5rem;
+        }
     }
 
     /* Character Sheet Container */
     .character-sheet {
+        position: relative;
         background: white;
         border-radius: 8px;
         padding: 1rem; 
@@ -1149,7 +1150,7 @@
     @media (min-width: 768px) {
         .character-sheet {
             padding: 1.5rem;
-            padding-bottom: 1.5rem; /* Normal padding on larger screens */
+            padding-bottom: 1.5rem; 
         }
     }
 
