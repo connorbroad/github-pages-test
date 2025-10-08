@@ -257,6 +257,7 @@
         max-height: 300px;
         overflow-y: auto;
         animation: slideDown 0.2s ease;
+        min-width: 100%;
     }
 
     @keyframes slideDown {
@@ -324,6 +325,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        min-width: 0;
     }
 
     .character-class {
@@ -406,6 +408,26 @@
     @media (min-width: 641px) and (max-width: 1024px) {
         .character-selector {
             max-width: 350px;
+        }
+
+        .dropdown-menu {
+            min-width: 400px;
+        }
+    }
+
+    /* Desktop adjustments */
+    @media (min-width: 1025px) {
+        .dropdown-menu {
+            min-width: 450px;
+        }
+
+        .character-class,
+        .character-level {
+            flex-shrink: 0;
+        }
+
+        .dropdown-item {
+            padding: 0.875rem 1.25rem;
         }
     }
 </style>
