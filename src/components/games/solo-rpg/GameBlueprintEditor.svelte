@@ -71,7 +71,7 @@
 
 {#if show}
     <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
-        <h2>{isEditing ? 'Edit Game Blueprint' : 'Create Game Blueprint'}</h2>
+        <h2>{isEditing ? 'Edit Game' : 'Create Game'}</h2>
 
         <div class="form-group">
             <label for="blueprint-title">Game Title:</label>

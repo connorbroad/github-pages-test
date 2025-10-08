@@ -307,7 +307,7 @@
     <div class="chronicle-header"> 
         <div class="header-actions">
             <button class="srpg-b" on:click={toggleChaptersList}>
-                📚 View Chapters
+                📚 {showChaptersList ? 'Hide' : 'View'} Chapters
             </button>
         </div>
     </div>
@@ -316,16 +316,31 @@
         <div class="chapters-list-panel">
             <div class="chapters-header">
                 <h3>Chapters</h3>
-                <button class="close-btn" on:click={toggleChaptersList}>✕</button>
+                <button class="close-btn" on:click={toggleChaptersList} title="Close chapters list" aria-label="Close chapters list">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
+                        <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/>
+                    </svg>
+                </button>
             </div>
             <div class="chapters-content">
-                <button 
-                    class="chapter-item {viewingChapterId === null ? 'active' : ''}"
-                    on:click={() => viewChapter(null)}
-                >
-                    <div class="chapter-name">📖 Current Chapter</div>
-                    <div class="chapter-meta">{loadChronicleEntries().filter(e => e.campaignId === $activeCampaign?.id && !e.chapterId).length} entries</div>
-                </button>
+                <div class="current-chapter-item-wrapper">
+                    <button
+                        class="chapter-item {viewingChapterId === null ? 'active' : ''}"
+                        on:click={() => viewChapter(null)}
+                    >
+                        <div>
+                            <div class="chapter-name">📖 Current Chapter</div>
+                            <div class="chapter-meta">{loadChronicleEntries().filter(e => e.campaignId === $activeCampaign?.id && !e.chapterId).length} entries</div>
+                        </div>
+                    </button>
+                    {#if entries.length > 0 && viewingChapterId === null}
+                        <button class="srpg-b srpg-b-create" on:click={openCreateChapter} aria-label="Finish Chapter">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='2em' height='2em'>
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"/>
+                            </svg>
+                        </button>
+                    {/if}
+                </div>
                 {#each chapters as chapter (chapter.id)}
                     <div class="chapter-item-wrapper">
                         <button 
@@ -338,11 +353,22 @@
                             </div>
                         </button>
                         <button 
-                            class="chapter-delete-btn"
+                            class="chapter-delete-btn srpg-b srpg-b-icon"
                             on:click|stopPropagation={() => deleteChapter(chapter.id)}
                             title="Delete chapter"
+                            aria-label="Delete chapter"
                         >
-                            🗑️
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width=16
+                                height=16
+                            >
+                                <path
+                                    fill="currentColor"
+                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                                />
+                            </svg>
                         </button>
                     </div>
                 {/each}
@@ -351,18 +377,6 @@
     {/if}
 
     {#if viewingChapterId === null} 
-         <div class="current-chapter-banner">
-            <div class="banner-content">
-                <span class="banner-icon">📖</span>
-                <span class="banner-text">Chapter {(chapters?.length || 0) + 1}</span>
-            </div>
-            {#if entries.length > 0}
-                <button class="srpg-b srpg-b-create srpg-b-sm" on:click={openCreateChapter}>
-                    💾 Next chapter
-                </button>
-            {/if}
-        </div>
-
         {#if showCreateChapter}
             <SrpgModal show={showCreateChapter} ariaLabel="Close create chapter dialog" on:close={cancelCreateChapter}>
                 <h3>Finish Chapter</h3>
@@ -566,9 +580,12 @@
     }
 
     .chapter-item-wrapper {
+        position: relative;
         display: flex;
         gap: 0.25rem;
         margin-bottom: 0.25rem;
+        justify-content: center;
+        align-items: center;
     }
 
     .chapter-item {
@@ -612,46 +629,17 @@
     }
 
     .chapter-delete-btn {
-        background: transparent;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        padding: 0.5rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        font-size: 1rem;
-        flex-shrink: 0;
+        position: absolute;
+        right: 1rem;
+        color: #737373;
+        background: #fafcfd;
     }
 
     .chapter-delete-btn:hover {
+        color: #dc2626;
         background: #fef2f2;
         border-color: #fca5a5;
     } 
-    
-    .current-chapter-banner {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        color: white;
-        padding: 1rem 1.25rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .banner-content {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .banner-icon {
-        font-size: 1.5rem;
-    }
-
-    .banner-text {
-        font-size: 1.125rem;
-        font-weight: 600;
-    }
 
     .chapter-view-banner {
         background: #f9fafb;
@@ -692,6 +680,14 @@
         font-size: 0.9rem;
         color: #6b7280;
         line-height: 1.5;
+    }
+
+    .current-chapter-item-wrapper{
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+        justify-content: center;
+        align-items: center;
     }
 
     .chapter-name-input {
@@ -855,6 +851,11 @@
         display: flex;
         justify-content: flex-end;
         gap: 0.5rem;
+    }
+
+    .chapter-action-btn { 
+        margin-left: 0.5rem;
+        width: 4rem;
     }
 
     @media (max-width: 640px) {

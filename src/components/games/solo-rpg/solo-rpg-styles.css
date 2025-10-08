@@ -110,7 +110,7 @@
 
 .srpg-b-icon {
     background: transparent;
-    border: none;
+    border: 1px solid #e5e7eb;
     font-size: 1.5rem;
     cursor: pointer;
     color: #999;

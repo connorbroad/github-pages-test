@@ -35,7 +35,7 @@
 
 {#if show && blueprint}
     <SrpgModal {show} ariaLabel="Close campaign creator" on:close={handleClose}>
-        <h2>Create New Campaign</h2>
+        <h2>New Campaign</h2>
         <p class="blueprint-subtitle">
             Using: <strong>{blueprint.title}</strong>
         </p>
