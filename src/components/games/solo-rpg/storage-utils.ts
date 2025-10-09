@@ -79,6 +79,8 @@ export type Character = {
     hitDice?: string;
     deathSaveSuccesses?: number;
     deathSaveFailures?: number;
+    // UI Configuration
+    visibleSections?: string[]; // Tracks which sections are enabled for this character
     // Metadata
     createdAt: number;
     updatedAt: number;

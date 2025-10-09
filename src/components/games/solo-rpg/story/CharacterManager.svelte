@@ -113,6 +113,7 @@
             group: newCharacterGroup || undefined,
             abilities: [],
             skills: [],
+            visibleSections: ["information"], // Default to only showing information section
             createdAt: Date.now(),
             updatedAt: Date.now(),
         };
