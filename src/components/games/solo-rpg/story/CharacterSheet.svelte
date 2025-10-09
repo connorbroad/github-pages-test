@@ -575,6 +575,62 @@
             </div>
 
             <div class="srpg-form-field">
+                <label for="class">Class</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="class"
+                        bind:value={editedCharacter.class}
+                    />
+                {:else}
+                    <p>{character.class || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="srpg-form-field">
+                <label for="race">Race</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="race"
+                        bind:value={editedCharacter.race}
+                    />
+                {:else}
+                    <p>{character.race || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="srpg-form-field">
+                <label for="alignment">Alignment</label>
+                {#if isEditing}
+                    <select
+                        id="alignment"
+                        bind:value={editedCharacter.alignment}
+                    >
+                        <option value="">Select Alignment</option>
+                        {#each alignmentOptions as alignment}
+                            <option value={alignment}>{alignment}</option>
+                        {/each}
+                    </select>
+                {:else}
+                    <p>{character.alignment || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="srpg-form-field">
+                <label for="background">Background</label>
+                {#if isEditing}
+                    <input
+                        type="text"
+                        id="background"
+                        bind:value={editedCharacter.background}
+                    />
+                {:else}
+                    <p>{character.background || "—"}</p>
+                {/if}
+            </div>
+
+            <div class="srpg-form-field">
                 <label for="group">Group</label>
                 {#if isEditing}
                     <select
@@ -625,49 +681,6 @@
                     <p>{character.group || "—"}</p>
                 {/if}
             </div>
-
-            <div class="srpg-form-field">
-                <label for="race">Race</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="race"
-                        bind:value={editedCharacter.race}
-                    />
-                {:else}
-                    <p>{character.race || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="srpg-form-field">
-                <label for="alignment">Alignment</label>
-                {#if isEditing}
-                    <select
-                        id="alignment"
-                        bind:value={editedCharacter.alignment}
-                    >
-                        <option value="">Select Alignment</option>
-                        {#each alignmentOptions as alignment}
-                            <option value={alignment}>{alignment}</option>
-                        {/each}
-                    </select>
-                {:else}
-                    <p>{character.alignment || "—"}</p>
-                {/if}
-            </div>
-
-            <div class="srpg-form-field">
-                <label for="background">Background</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="background"
-                        bind:value={editedCharacter.background}
-                    />
-                {:else}
-                    <p>{character.background || "—"}</p>
-                {/if}
-            </div>
         </div>
     </section>
     {/if}
@@ -679,18 +692,6 @@
             <h2>Experience</h2> 
         </div>
         <div class="srpg-form-grid">
-            <div class="srpg-form-field">
-                <label for="class">Class</label>
-                {#if isEditing}
-                    <input
-                        type="text"
-                        id="class"
-                        bind:value={editedCharacter.class}
-                    />
-                {:else}
-                    <p>{character.class || "—"}</p>
-                {/if}
-            </div>
 
             <div class="srpg-form-field">
                 <label for="level">Level</label>
@@ -812,7 +813,7 @@
                         max="3"
                     />
                 {:else}
-                    <p>{character.deathSaveSuccesses || 0} / 3</p>
+                    <p>{character.deathSaveSuccesses || 0}</p>
                 {/if}
             </div>
 
@@ -827,7 +828,7 @@
                         max="3"
                     />
                 {:else}
-                    <p>{character.deathSaveFailures || 0} / 3</p>
+                    <p>{character.deathSaveFailures || 0}</p>
                 {/if}
             </div>
         </div>
