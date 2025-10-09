@@ -71,7 +71,7 @@
 
     .subheading p {
         margin-top: 0;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         text-align: center;
         color: #6b7280;
         font-style: italic;

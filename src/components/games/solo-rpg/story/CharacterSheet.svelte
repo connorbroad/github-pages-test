@@ -384,6 +384,20 @@
 
     function saveChanges() {
         editedCharacter.updatedAt = Date.now();
+
+        // if a currently displayed section is no longer visible, clear the filter
+        if (selectedSections.size > 0) {
+            const visibleSet = new Set(editedCharacter.visibleSections || []);
+            const intersection = new Set(
+                [...selectedSections].filter(x => visibleSet.has(x))
+            );
+            if (intersection.size === 0) {
+                selectedSections.clear();
+            } else {
+                selectedSections = intersection;
+            }
+        }
+        
         dispatch("save", editedCharacter);
     }
 
@@ -428,33 +442,38 @@
             editedCharacter.visibleSections = ["information"];
         }
         
-        if (editedCharacter.visibleSections.includes(sectionId)) {
+        const isCurrentlyVisible = editedCharacter.visibleSections.includes(sectionId);
+        
+        if (isCurrentlyVisible) {
             editedCharacter.visibleSections = editedCharacter.visibleSections.filter(s => s !== sectionId);
         } else {
             editedCharacter.visibleSections = [...editedCharacter.visibleSections, sectionId];
+            
+            // Scroll to the newly enabled section after a brief delay to allow for rendering
+            setTimeout(() => {
+                const sectionElement = document.getElementById(`section-${sectionId}`);
+                if (sectionElement) {
+                    sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
         }
     }
 
-    // Reactive values for each section visibility
-    // If a section is in visibleSections, it can be shown
-    // Then check selectedSections filter: if no sections selected (size === 0), show all visible sections
-    // Otherwise, only show sections that are both in visibleSections AND selectedSections
+    // Reactive values for each section visibility 
     $: characterVisibleSections = editedCharacter.visibleSections || ["information"];
     $: showInformation = characterVisibleSections.includes("information") && 
-                         (selectedSections.size === 0 || selectedSections.has("information"));
+                         (selectedSections.size === 0 || selectedSections.has("information") || isEditing)
     $: showExperience = characterVisibleSections.includes("experience") && 
-                        (selectedSections.size === 0 || selectedSections.has("experience"));
+                        (selectedSections.size === 0 || selectedSections.has("experience") || isEditing);
     $: showHealth = characterVisibleSections.includes("health") && 
-                    (selectedSections.size === 0 || selectedSections.has("health"));
+                    (selectedSections.size === 0 || selectedSections.has("health") || isEditing);
     $: showAbilities = characterVisibleSections.includes("abilities") && 
-                       (selectedSections.size === 0 || selectedSections.has("abilities"));
+                       (selectedSections.size === 0 || selectedSections.has("abilities") || isEditing);
     $: showSkills = characterVisibleSections.includes("skills") && 
-                    (selectedSections.size === 0 || selectedSections.has("skills"));
+                    (selectedSections.size === 0 || selectedSections.has("skills") || isEditing);
     $: showCombat = characterVisibleSections.includes("combat") && 
-                    (selectedSections.size === 0 || selectedSections.has("combat"));
-    
-    // Show section filter only when more than one section is visible (in view mode)
-    // OR when in edit mode (to allow toggling sections)
+                    (selectedSections.size === 0 || selectedSections.has("combat") || isEditing);
+ 
     $: showSectionFilter = isEditing || characterVisibleSections.length > 1;
 </script>
 
@@ -538,7 +557,7 @@
 
     <!-- Core Info Section -->
     {#if showInformation}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-information">
         <h2>Information</h2>
         <div class="srpg-form-grid">
             <div class="srpg-form-field">
@@ -655,20 +674,9 @@
 
     <!-- Experience Section -->
     {#if showExperience}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-experience">
         <div class="section-header">
-            <h2>Experience</h2>
-            {#if isEditing}
-                <button 
-                    class="srpg-b srpg-b-sm srpg-b-danger"
-                    on:click={() => toggleSectionInclusion("experience")}
-                    title="Remove this section"
-                    aria-label="Remove experience section">
-                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            {/if}
+            <h2>Experience</h2> 
         </div>
         <div class="srpg-form-grid">
             <div class="srpg-form-field">
@@ -730,20 +738,9 @@
 
     <!-- Health Section -->
     {#if showHealth}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-health">
         <div class="section-header">
-            <h2>Health</h2>
-            {#if isEditing}
-                <button 
-                    class="srpg-b srpg-b-sm srpg-b-danger"
-                    on:click={() => toggleSectionInclusion("health")}
-                    title="Remove this section"
-                    aria-label="Remove health section">
-                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            {/if}
+            <h2>Health</h2> 
         </div>
         <div class="srpg-form-grid">
 
@@ -839,20 +836,9 @@
 
     <!-- Abilities Section -->
     {#if showAbilities}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-abilities">
         <div class="section-header">
-            <h2>Abilities</h2>
-            {#if isEditing}
-                <button 
-                    class="srpg-b srpg-b-sm srpg-b-danger"
-                    on:click={() => toggleSectionInclusion("abilities")}
-                    title="Remove this section"
-                    aria-label="Remove abilities section">
-                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            {/if}
+            <h2>Abilities</h2> 
         </div>
         {#if isEditing}
             <div class="section-actions">
@@ -977,20 +963,9 @@
 
     <!-- Skills Section -->
     {#if showSkills}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-skills">
         <div class="section-header">
-            <h2>Skills</h2>
-            {#if isEditing}
-                <button 
-                    class="srpg-b srpg-b-sm srpg-b-danger"
-                    on:click={() => toggleSectionInclusion("skills")}
-                    title="Remove this section"
-                    aria-label="Remove skills section">
-                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            {/if}
+            <h2>Skills</h2> 
         </div>
         {#if isEditing}
             <div class="section-actions">
@@ -1115,20 +1090,9 @@
 
     <!-- Combat Stats Section -->
     {#if showCombat}
-    <section class="srpg-section">
+    <section class="srpg-section" id="section-combat">
         <div class="section-header">
-            <h2>Combat Stats</h2>
-            {#if isEditing}
-                <button 
-                    class="srpg-b srpg-b-sm srpg-b-danger"
-                    on:click={() => toggleSectionInclusion("combat")}
-                    title="Remove this section"
-                    aria-label="Remove combat stats section">
-                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            {/if}
+            <h2>Combat Stats</h2> 
         </div>
         <div class="srpg-form-grid">
             <div class="srpg-form-field">
@@ -1218,8 +1182,7 @@
         padding: 0.75rem 1.5rem;
 
         border: 1px solid #cfcfcf;
-        background: rgb(250, 253, 255);
-        border-radius: 18px 18px 0 0;  
+        background: rgb(250, 253, 255); 
 
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
