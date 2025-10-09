@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries, loadActiveCharacterId } from "../storage-utils";
-    import type { FortuneResultData } from "../storage-utils";
-    import { activeCampaign } from "../campaign-store";
+    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries, loadActiveCharacterId } from "../data/storage-utils";
+    import type { FortuneResultData } from "../data/storage-utils";
+    import { activeCampaign } from "../game-management/campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
     import FortuneList from "./components/FortuneList.svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
@@ -9,8 +9,8 @@
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
     import "../solo-rpg-styles.css";
-    import CardDealer from "../card-dealer/CardDealer.svelte";
-    import DiceRoller from "../dice-roller/DiceRoller.svelte";
+    import CardDealer from "./components/card-dealer/CardDealer.svelte";
+    import DiceRoller from "./components/dice-roller/DiceRoller.svelte";
     import CharacterSelector from "../shared/CharacterSelector.svelte";
 
     const dispatch = createEventDispatcher();

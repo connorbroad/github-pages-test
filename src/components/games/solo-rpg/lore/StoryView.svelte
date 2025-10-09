@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
-    import { activeCampaign } from "../campaign-store";
+    import { activeCampaign } from "../game-management/campaign-store";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
-    import Chronicle from "./Chronicle.svelte";
-    import CharacterManager from "./CharacterManager.svelte";
+    import Chronicle from "./chronicle/Chronicle.svelte";
+    import CharacterManager from "./characters/CharacterManager.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -11,7 +11,7 @@
     let activeTab: "chronicle" | "characters" = "chronicle";
 
     function handleNavigateHome() {
-        dispatch('navigateHome');
+        dispatch("navigateHome");
     }
 
     function setTab(tab: "chronicle" | "characters") {
@@ -19,9 +19,12 @@
     }
 </script>
 
-<NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
+<NoCampaignOverlay
+    show={!$activeCampaign}
+    on:navigateHome={handleNavigateHome}
+/>
 
-<div class="story-view"> 
+<div class="story-view">
     {#if $activeCampaign}
         <h2>{$activeCampaign.title}</h2>
         <div class="subheading">
@@ -29,15 +32,15 @@
         </div>
 
         <div class="tabs">
-            <button 
-                class="tab" 
+            <button
+                class="tab"
                 class:active={activeTab === "chronicle"}
                 on:click={() => setTab("chronicle")}
             >
                 Chronicle
             </button>
-            <button 
-                class="tab" 
+            <button
+                class="tab"
                 class:active={activeTab === "characters"}
                 on:click={() => setTab("characters")}
             >
@@ -65,7 +68,7 @@
     }
 
     h2 {
-        text-align: center; 
+        text-align: center;
         margin: 0;
     }
 

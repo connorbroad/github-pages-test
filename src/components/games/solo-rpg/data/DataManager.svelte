@@ -4,7 +4,7 @@
         importData,
         downloadDataFile,
         loadData,
-    } from "../storage-utils";
+    } from "./storage-utils";
     import "../solo-rpg-styles.css";
 
     export let onDataImported: () => void;
@@ -67,15 +67,12 @@
 
         <div class="body">
             <p class="description">
-                Export your Solo RPG data to a file or import data from
-                another device. Importing will overwrite your current data.
+                Export your Solo RPG data to a file or import data from another
+                device. Importing will overwrite your current data.
             </p>
 
             <div class="srpg-b-group-vertical">
-                <button
-                    class="srpg-b srpg-b-normal"
-                    on:click={handleExport}
-                >
+                <button class="srpg-b srpg-b-normal" on:click={handleExport}>
                     📥 Export Data
                 </button>
 
@@ -102,9 +99,7 @@
             {/if}
 
             {#if importSuccess}
-                <div class="success-message">
-                    ✓ Data imported successfully!
-                </div>
+                <div class="success-message">✓ Data imported successfully!</div>
             {/if}
         </div>
     </div>
@@ -115,10 +110,10 @@
         width: 100%;
     }
 
-    .content { 
+    .content {
         padding: 0;
         max-width: 500px;
-        width: 100%;  
+        width: 100%;
     }
 
     .header {

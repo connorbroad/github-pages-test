@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import "../solo-rpg-styles.css";
+    import "../../../solo-rpg-styles.css";
     onMount(() => buildDeck());
 
     const suits = ["♠", "♥", "♦", "♣"];
@@ -212,7 +212,7 @@
         margin: 1rem 0;
         gap: 1rem;
     }
-    
+
     .card-drawer-info {
         margin-top: 1rem;
         font-size: 1.1rem;
@@ -243,7 +243,7 @@
         margin: 0.2rem;
         min-width: 48px;
     }
-    
+
     .options {
         display: flex;
         flex-direction: column;

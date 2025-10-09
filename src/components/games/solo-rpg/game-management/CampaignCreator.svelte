@@ -3,10 +3,10 @@
      * Campaign Creator Component
      * Modal for creating a new campaign from a game blueprint
      */
-    import type { Campaign, GameBlueprint } from "./storage-utils";
+    import type { Campaign, GameBlueprint } from "../data/storage-utils";
     import { createEventDispatcher } from "svelte";
-    import SrpgModal from "./shared/modal/SrpgModal.svelte";
-    import "./solo-rpg-styles.css";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let blueprint: GameBlueprint | null = null;
@@ -61,7 +61,7 @@
     </SrpgModal>
 {/if}
 
-<style>  
+<style>
     h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;

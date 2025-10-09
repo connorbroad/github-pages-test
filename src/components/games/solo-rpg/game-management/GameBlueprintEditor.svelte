@@ -3,19 +3,19 @@
      * Game Blueprint Editor Component
      * Modal for creating/editing game blueprints with default fortunes
      */
-    import type { GameBlueprint, Fortune } from "./oracle/scripts/oracleTypes";
-    import { generateId } from "./oracle/scripts/oracleTypes";
+    import type { GameBlueprint, Fortune } from "../oracle/scripts/oracleTypes";
+    import { generateId } from "../oracle/scripts/oracleTypes";
     import { createEventDispatcher } from "svelte";
-    import SrpgModal from "./shared/modal/SrpgModal.svelte";
-    import FortuneEditor from "./oracle/components/FortuneEditor.svelte";
-    import "./solo-rpg-styles.css";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import FortuneEditor from "../oracle/components/FortuneEditor.svelte";
+    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let blueprint: GameBlueprint;
 
     const dispatch = createEventDispatcher();
-    
-    $: isEditing = blueprint.id && blueprint.title !== '';
+
+    $: isEditing = blueprint.id && blueprint.title !== "";
 
     // Fortune editing state
     let showFortuneEditor = false;
@@ -70,8 +70,12 @@
 </script>
 
 {#if show}
-    <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
-        <h2>{isEditing ? 'Edit Game' : 'Create Game'}</h2>
+    <SrpgModal
+        {show}
+        ariaLabel="Close game blueprint modal"
+        on:close={handleClose}
+    >
+        <h2>{isEditing ? "Edit Game" : "Create Game"}</h2>
 
         <div class="form-group">
             <label for="blueprint-title">Game Title:</label>
@@ -97,9 +101,7 @@
                     {#each blueprint.defaultFortunes as fortune, index}
                         <div class="fortune-item">
                             <div class="fortune-info">
-                                <strong
-                                    >{fortune.title || "Untitled"}</strong
-                                >
+                                <strong>{fortune.title || "Untitled"}</strong>
                             </div>
                             <div class="fortune-actions">
                                 <button
@@ -120,8 +122,7 @@
                 </div>
             {:else}
                 <p class="empty-state">
-                    No fortunes added yet. Click "Add Fortune" to create
-                    one.
+                    No fortunes added yet. Click "Add Fortune" to create one.
                 </p>
             {/if}
         </div>
@@ -145,7 +146,7 @@
     on:save={saveFortune}
 />
 
-<style> 
+<style>
     h2 {
         margin-top: 0;
         color: #333;
@@ -229,7 +230,7 @@
         margin: 1.5rem 0;
     }
 
-    @media (max-width: 600px) { 
+    @media (max-width: 600px) {
         .fortune-item {
             flex-direction: column;
             align-items: stretch;

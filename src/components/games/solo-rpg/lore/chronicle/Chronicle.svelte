@@ -1,10 +1,21 @@
 <script lang="ts">
-    import { activeCampaign } from "../campaign-store";
-    import { loadChronicleEntries, saveChronicleEntries, loadChapters, saveChapters, loadCharacters, loadActiveCharacterId } from "../storage-utils";
-    import type { ChronicleEntry, Chapter, Character } from "../storage-utils";
+    import { activeCampaign } from "../../game-management/campaign-store";
+    import {
+        loadChronicleEntries,
+        saveChronicleEntries,
+        loadChapters,
+        saveChapters,
+        loadCharacters,
+        loadActiveCharacterId,
+    } from "../../data/storage-utils";
+    import type {
+        ChronicleEntry,
+        Chapter,
+        Character,
+    } from "../../data/storage-utils";
     import { createEventDispatcher } from "svelte";
-    import "../solo-rpg-styles.css";
-    import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import "../../solo-rpg-styles.css";
+    import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import EntryCard from "./EntryCard.svelte";
 
     const dispatch = createEventDispatcher();
@@ -31,10 +42,10 @@
 
     function loadEntries() {
         if (!$activeCampaign) return;
-        
+
         const allEntries = loadChronicleEntries();
         entries = allEntries
-            .filter(e => {
+            .filter((e) => {
                 if (e.campaignId !== $activeCampaign.id) return false;
                 // When viewing current chapter (viewingChapterId is null), show entries without a chapterId
                 if (viewingChapterId === null) {
@@ -48,19 +59,19 @@
 
     function loadCampaignChapters() {
         if (!$activeCampaign) return;
-        
+
         const allChapters = loadChapters();
         chapters = allChapters
-            .filter(c => c.campaignId === $activeCampaign.id)
+            .filter((c) => c.campaignId === $activeCampaign.id)
             .sort((a, b) => b.chapterNumber - a.chapterNumber); // Most recent first
     }
 
     function loadCampaignCharacters() {
         if (!$activeCampaign) return;
-        
+
         const allCharacters = loadCharacters();
         campaignCharacters = allCharacters
-            .filter(c => c.campaignId === $activeCampaign.id)
+            .filter((c) => c.campaignId === $activeCampaign.id)
             .sort((a, b) => a.name.localeCompare(b.name));
     }
 
@@ -96,7 +107,7 @@
             timestamp: Date.now(),
             type: "manual",
             content: newEntryText.trim(),
-            characterId: activeCharacterId || undefined
+            characterId: activeCharacterId || undefined,
         };
         allEntries.push(newEntry);
 
@@ -109,9 +120,9 @@
         if (!confirm("Are you sure you want to delete this entry?")) return;
 
         const allEntries = loadChronicleEntries();
-        const filtered = allEntries.filter(e => e.id !== entryId);
+        const filtered = allEntries.filter((e) => e.id !== entryId);
         saveChronicleEntries(filtered);
-        
+
         loadEntries();
     }
 
@@ -129,12 +140,14 @@
         if (!assigningToEntryId) return;
 
         const allEntries = loadChronicleEntries();
-        const entryIndex = allEntries.findIndex(e => e.id === assigningToEntryId);
-        
+        const entryIndex = allEntries.findIndex(
+            (e) => e.id === assigningToEntryId,
+        );
+
         if (entryIndex !== -1) {
             allEntries[entryIndex] = {
                 ...allEntries[entryIndex],
-                characterId: characterId || undefined
+                characterId: characterId || undefined,
             };
             saveChronicleEntries(allEntries);
             loadEntries();
@@ -145,7 +158,7 @@
 
     function getCharacterName(characterId?: string): string {
         if (!characterId) return "";
-        const character = campaignCharacters.find(c => c.id === characterId);
+        const character = campaignCharacters.find((c) => c.id === characterId);
         return character ? character.name : "";
     }
 
@@ -163,7 +176,7 @@
         if (!$activeCampaign) return;
 
         const currentEntries = loadChronicleEntries().filter(
-            e => e.campaignId === $activeCampaign.id && !e.chapterId
+            (e) => e.campaignId === $activeCampaign.id && !e.chapterId,
         );
 
         if (currentEntries.length === 0) {
@@ -172,9 +185,10 @@
         }
 
         // Determine next chapter number
-        const nextChapterNumber = chapters.length > 0 
-            ? Math.max(...chapters.map(c => c.chapterNumber)) + 1 
-            : 1;
+        const nextChapterNumber =
+            chapters.length > 0
+                ? Math.max(...chapters.map((c) => c.chapterNumber)) + 1
+                : 1;
 
         // Create new chapter
         const newChapter: Chapter = {
@@ -182,10 +196,11 @@
             campaignId: $activeCampaign.id,
             chapterNumber: nextChapterNumber,
             customName: chapterCustomName.trim() || undefined,
-            createdAt: currentEntries.length > 0 
-                ? Math.min(...currentEntries.map(e => e.timestamp)) 
-                : Date.now(),
-            closedAt: Date.now()
+            createdAt:
+                currentEntries.length > 0
+                    ? Math.min(...currentEntries.map((e) => e.timestamp))
+                    : Date.now(),
+            closedAt: Date.now(),
         };
 
         // Save chapter
@@ -195,7 +210,7 @@
 
         // Update all current entries to belong to this chapter
         const allEntries = loadChronicleEntries();
-        allEntries.forEach(entry => {
+        allEntries.forEach((entry) => {
             if (entry.campaignId === $activeCampaign.id && !entry.chapterId) {
                 entry.chapterId = newChapter.id;
             }
@@ -219,16 +234,21 @@
     }
 
     function deleteChapter(chapterId: string) {
-        if (!confirm("Are you sure you want to delete this chapter? All entries in this chapter will also be deleted.")) return;
+        if (
+            !confirm(
+                "Are you sure you want to delete this chapter? All entries in this chapter will also be deleted.",
+            )
+        )
+            return;
 
         // Delete all entries in this chapter
         const allEntries = loadChronicleEntries();
-        const filtered = allEntries.filter(e => e.chapterId !== chapterId);
+        const filtered = allEntries.filter((e) => e.chapterId !== chapterId);
         saveChronicleEntries(filtered);
 
         // Delete the chapter
         const allChapters = loadChapters();
-        const filteredChapters = allChapters.filter(c => c.id !== chapterId);
+        const filteredChapters = allChapters.filter((c) => c.id !== chapterId);
         saveChapters(filteredChapters);
 
         // If we were viewing this chapter, go back to current
@@ -240,7 +260,11 @@
         loadEntries();
     }
 
-    function openEditEntry(entryId: string, isManual: boolean, currentText?: string) {
+    function openEditEntry(
+        entryId: string,
+        isManual: boolean,
+        currentText?: string,
+    ) {
         editingEntryId = entryId;
         editText = currentText || "";
     }
@@ -254,20 +278,20 @@
         if (!editText.trim()) return;
 
         const allEntries = loadChronicleEntries();
-        const entryIndex = allEntries.findIndex(e => e.id === entryId);
-        
+        const entryIndex = allEntries.findIndex((e) => e.id === entryId);
+
         if (entryIndex !== -1) {
             if (isManual) {
                 // Update manual entry content
                 allEntries[entryIndex] = {
                     ...allEntries[entryIndex],
-                    content: editText.trim()
+                    content: editText.trim(),
                 };
             } else {
                 // Update fortune entry notes
                 allEntries[entryIndex] = {
                     ...allEntries[entryIndex],
-                    userNotes: editText.trim()
+                    userNotes: editText.trim(),
                 };
             }
             saveChronicleEntries(allEntries);
@@ -290,26 +314,28 @@
         const diffDays = Math.floor(diffMs / 86400000);
 
         if (diffMins < 1) return "Just now";
-        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-        
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+        if (diffMins < 60)
+            return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+        if (diffHours < 24)
+            return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+        if (diffDays < 7)
+            return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+
+        return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
     }
-
 </script>
 
 <div class="chronicle">
-    <div class="chronicle-header"> 
+    <div class="chronicle-header">
         <div class="header-actions">
             <button class="srpg-b" on:click={toggleChaptersList}>
-                📚 {showChaptersList ? 'Hide' : 'View'} Chapters
+                📚 {showChaptersList ? "Hide" : "View"} Chapters
             </button>
         </div>
     </div>
@@ -318,53 +344,98 @@
         <div class="chapters-list-panel">
             <div class="chapters-header">
                 <h3>Chapters</h3>
-                <button class="close-btn" on:click={toggleChaptersList} title="Close chapters list" aria-label="Close chapters list">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}>
-                        <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/>
+                <button
+                    class="close-btn"
+                    on:click={toggleChaptersList}
+                    title="Close chapters list"
+                    aria-label="Close chapters list"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="1em"
+                        height="1em"
+                        {...$$props}
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
+                        />
                     </svg>
                 </button>
             </div>
             <div class="chapters-content">
                 <div class="current-chapter-item-wrapper">
                     <button
-                        class="chapter-item {viewingChapterId === null ? 'active' : ''}"
+                        class="chapter-item {viewingChapterId === null
+                            ? 'active'
+                            : ''}"
                         on:click={() => viewChapter(null)}
                     >
                         <div>
                             <div class="chapter-name">📖 Current Chapter</div>
-                            <div class="chapter-meta">{loadChronicleEntries().filter(e => e.campaignId === $activeCampaign?.id && !e.chapterId).length} entries</div>
+                            <div class="chapter-meta">
+                                {loadChronicleEntries().filter(
+                                    (e) =>
+                                        e.campaignId === $activeCampaign?.id &&
+                                        !e.chapterId,
+                                ).length} entries
+                            </div>
                         </div>
                     </button>
                     {#if entries.length > 0 && viewingChapterId === null}
-                        <button class="srpg-b srpg-b-create" on:click={openCreateChapter} aria-label="Finish Chapter">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='2em' height='2em'>
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"/>
+                        <button
+                            class="srpg-b srpg-b-create"
+                            on:click={openCreateChapter}
+                            aria-label="Finish Chapter"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="2em"
+                                height="2em"
+                            >
+                                <path
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"
+                                />
                             </svg>
                         </button>
                     {/if}
                 </div>
                 {#each chapters as chapter (chapter.id)}
                     <div class="chapter-item-wrapper">
-                        <button 
-                            class="chapter-item {viewingChapterId === chapter.id ? 'active' : ''}"
+                        <button
+                            class="chapter-item {viewingChapterId === chapter.id
+                                ? 'active'
+                                : ''}"
                             on:click={() => viewChapter(chapter.id)}
                         >
-                            <div class="chapter-name">📜 {getChapterDisplayName(chapter)}</div>
+                            <div class="chapter-name">
+                                📜 {getChapterDisplayName(chapter)}
+                            </div>
                             <div class="chapter-meta">
-                                {loadChronicleEntries().filter(e => e.chapterId === chapter.id).length} entries
+                                {loadChronicleEntries().filter(
+                                    (e) => e.chapterId === chapter.id,
+                                ).length} entries
                             </div>
                         </button>
-                        <button 
+                        <button
                             class="chapter-delete-btn srpg-b srpg-b-icon"
-                            on:click|stopPropagation={() => deleteChapter(chapter.id)}
+                            on:click|stopPropagation={() =>
+                                deleteChapter(chapter.id)}
                             title="Delete chapter"
                             aria-label="Delete chapter"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
-                                width=16
-                                height=16
+                                width="16"
+                                height="16"
                             >
                                 <path
                                     fill="currentColor"
@@ -378,11 +449,18 @@
         </div>
     {/if}
 
-    {#if viewingChapterId === null} 
+    {#if viewingChapterId === null}
         {#if showCreateChapter}
-            <SrpgModal show={showCreateChapter} ariaLabel="Close create chapter dialog" on:close={cancelCreateChapter}>
+            <SrpgModal
+                show={showCreateChapter}
+                ariaLabel="Close create chapter dialog"
+                on:close={cancelCreateChapter}
+            >
                 <h3>Finish Chapter</h3>
-                <p class="chapter-help">All current entries will be saved to this chapter, and you'll start fresh with a new current chapter.</p>
+                <p class="chapter-help">
+                    All current entries will be saved to this chapter, and
+                    you'll start fresh with a new current chapter.
+                </p>
                 <input
                     type="text"
                     bind:value={chapterCustomName}
@@ -397,7 +475,10 @@
                     {/if}
                 </div>
                 <div class="editor-actions">
-                    <button class="srpg-b srpg-b-create" on:click={createChapter}>
+                    <button
+                        class="srpg-b srpg-b-create"
+                        on:click={createChapter}
+                    >
                         Finish Chapter
                     </button>
                     <button class="srpg-b" on:click={cancelCreateChapter}>
@@ -413,14 +494,19 @@
                 ← Back to Current
             </button>
             <span class="viewing-chapter-name">
-                📜 Viewing: {getChapterDisplayName(chapters.find(c => c.id === viewingChapterId))}
+                📜 Viewing: {getChapterDisplayName(
+                    chapters.find((c) => c.id === viewingChapterId),
+                )}
             </span>
         </div>
     {/if}
 
     {#if !viewingChapterId}
         <div style="margin-bottom: 1rem; text-align: center;">
-            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openAddEntry}>
+            <button
+                class="srpg-b srpg-b-create srpg-b-w-full"
+                on:click={openAddEntry}
+            >
                 + Add entry
             </button>
         </div>
@@ -435,7 +521,11 @@
                 rows="6"
             ></textarea>
             <div class="editor-actions">
-                <button class="srpg-b srpg-b-create" on:click={saveEntry} disabled={!newEntryText.trim()}>
+                <button
+                    class="srpg-b srpg-b-create"
+                    on:click={saveEntry}
+                    disabled={!newEntryText.trim()}
+                >
                     Save Entry
                 </button>
                 <button class="srpg-b" on:click={cancelAddEntry}>
@@ -453,15 +543,22 @@
             </div>
         {:else}
             {#each entries as entry (entry.id)}
-                <EntryCard {entry}
+                <EntryCard
+                    {entry}
                     characterName={getCharacterName(entry.characterId)}
                     {editingEntryId}
                     bind:editText
                     {formatTimestamp}
                     on:assignCharacter={(e) => assignCharacter(e.detail)}
-                    on:edit={(e) => openEditEntry(e.detail.entryId, e.detail.isManual, e.detail.currentText)}
+                    on:edit={(e) =>
+                        openEditEntry(
+                            e.detail.entryId,
+                            e.detail.isManual,
+                            e.detail.currentText,
+                        )}
                     on:delete={(e) => deleteEntry(e.detail)}
-                    on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
+                    on:save={(e) =>
+                        saveEditEntry(e.detail.entryId, e.detail.isManual)}
                     on:cancelEdit={cancelEditEntry}
                 />
             {/each}
@@ -477,26 +574,34 @@
 >
     <div class="modal-content">
         <h2>Assign Character</h2>
-        <p class="modal-help">Select a character to associate with this entry.</p>
-        
+        <p class="modal-help">
+            Select a character to associate with this entry.
+        </p>
+
         {#if campaignCharacters.length > 0}
             <div class="character-select-list">
-                <button 
+                <button
                     class="srpg-b character-select-item"
                     on:click={() => selectCharacterForEntry(null)}
                 >
-                    <span class="character-select-name">None (Remove assignment)</span>
+                    <span class="character-select-name"
+                        >None (Remove assignment)</span
+                    >
                 </button>
                 {#each campaignCharacters as character (character.id)}
-                    <button 
+                    <button
                         class="srpg-b character-select-item"
                         on:click={() => selectCharacterForEntry(character.id)}
                     >
-                        <span class="character-select-name">{character.name}</span>
+                        <span class="character-select-name"
+                            >{character.name}</span
+                        >
                         {#if character.race || character.class}
                             <span class="character-select-info">
                                 {#if character.race}{character.race}{/if}
-                                {#if character.race && character.class} • {/if}
+                                {#if character.race && character.class}
+                                    •
+                                {/if}
                                 {#if character.class}{character.class}{/if}
                             </span>
                         {/if}
@@ -506,10 +611,12 @@
         {:else}
             <div class="no-characters-message">
                 <p>No characters available.</p>
-                <p class="hint">Create a character in the Character Manager first.</p>
+                <p class="hint">
+                    Create a character in the Character Manager first.
+                </p>
             </div>
         {/if}
-        
+
         <div class="modal-footer">
             <button class="srpg-b" on:click={cancelCharacterAssign}>
                 Cancel
@@ -528,8 +635,8 @@
     .chronicle-header {
         display: flex;
         justify-content: space-between;
-        align-items: center; 
-        padding-bottom: 1rem; 
+        align-items: center;
+        padding-bottom: 1rem;
     }
 
     .header-actions {
@@ -641,7 +748,7 @@
         color: #dc2626;
         background: #fef2f2;
         border-color: #fca5a5;
-    } 
+    }
 
     .chapter-view-banner {
         background: #f9fafb;
@@ -675,7 +782,7 @@
         font-size: 1rem;
         font-weight: 600;
         color: #333;
-    } 
+    }
 
     .chapter-help {
         margin: 0 0 1rem 0;
@@ -684,7 +791,7 @@
         line-height: 1.5;
     }
 
-    .current-chapter-item-wrapper{
+    .current-chapter-item-wrapper {
         display: flex;
         gap: 0.25rem;
         margin-bottom: 0.5rem;
@@ -855,7 +962,7 @@
         gap: 0.5rem;
     }
 
-    .chapter-action-btn { 
+    .chapter-action-btn {
         margin-left: 0.5rem;
         width: 4rem;
     }

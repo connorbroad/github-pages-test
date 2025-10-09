@@ -1,10 +1,15 @@
 <script lang="ts">
-    import { activeCampaign } from "../campaign-store";
-    import { loadCharacters, saveCharacters, loadActiveCharacterId, saveActiveCharacterId } from "../storage-utils";
-    import type { Character } from "../storage-utils";
+    import { activeCampaign } from "../../game-management/campaign-store";
+    import {
+        loadCharacters,
+        saveCharacters,
+        loadActiveCharacterId,
+        saveActiveCharacterId,
+    } from "../../data/storage-utils";
+    import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
-    import SrpgModal from "../shared/modal/SrpgModal.svelte";
-    import "../solo-rpg-styles.css";
+    import SrpgModal from "../../shared/modal/SrpgModal.svelte";
+    import "../../solo-rpg-styles.css";
 
     const DEFAULT_GROUPS = [];
 
@@ -30,24 +35,25 @@
     $: allGroupOptions = getAllGroupOptions(characters, newCharacterGroup);
 
     // Filter characters by selected group
-    $: filteredCharacters = selectedGroupFilter === "All" 
-        ? characters 
-        : selectedGroupFilter === "No Group"
-        ? characters.filter(c => !c.group)
-        : characters.filter(c => c.group === selectedGroupFilter);
+    $: filteredCharacters =
+        selectedGroupFilter === "All"
+            ? characters
+            : selectedGroupFilter === "No Group"
+              ? characters.filter((c) => !c.group)
+              : characters.filter((c) => c.group === selectedGroupFilter);
 
     function getAvailableGroups(chars: Character[]): string[] {
         const groups = new Set<string>();
         let hasNoGroup = false;
-        
-        chars.forEach(c => {
+
+        chars.forEach((c) => {
             if (c.group) {
                 groups.add(c.group);
             } else {
                 hasNoGroup = true;
             }
         });
-        
+
         const groupArray = Array.from(groups).sort();
         if (hasNoGroup) {
             groupArray.push("No Group");
@@ -55,9 +61,12 @@
         return groupArray;
     }
 
-    function getAllGroupOptions(chars: Character[], currentGroup: string): string[] {
+    function getAllGroupOptions(
+        chars: Character[],
+        currentGroup: string,
+    ): string[] {
         const groups = new Set<string>(DEFAULT_GROUPS);
-        chars.forEach(c => {
+        chars.forEach((c) => {
             if (c.group && !DEFAULT_GROUPS.includes(c.group)) {
                 groups.add(c.group);
             }
@@ -211,18 +220,34 @@
                 <div class="view-header">
                     <button class="srpg-b" on:click={backToList}>
                         ← Back
-                    </button> 
+                    </button>
 
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-                        <button class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={editCharacterSections} aria-label="Edit Sections" title="Edit Sections">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}>
-                                <path fill="currentColor" d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"/>
+                    <div
+                        style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;"
+                    >
+                        <button
+                            class="srpg-b srpg-b-normal"
+                            style="padding: 0.5rem; display: flex; align-items: center;"
+                            on:click={editCharacterSections}
+                            aria-label="Edit Sections"
+                            title="Edit Sections"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="1.5em"
+                                height="1.5em"
+                                {...$$props}
+                            >
+                                <path
+                                    fill="currentColor"
+                                    d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"
+                                />
                             </svg>
                         </button>
                     </div>
                 </div>
-                
-            {/if} 
+            {/if}
 
             <CharacterSheet
                 character={selectedCharacter}
@@ -231,15 +256,16 @@
                 on:save={saveCharacter}
                 on:cancel={cancelEdit}
             />
-            
+
             <br />
 
             {#if isEditing}
                 <button
                     class="srpg-b srpg-b-sm srpg-b-w-full srpg-b-danger"
                     on:click={deleteCharacter}
-                    aria-label="Delete Character">
-                        Delete character
+                    aria-label="Delete Character"
+                >
+                    Delete character
                 </button>
             {/if}
         </div>
@@ -254,22 +280,26 @@
             {#if availableGroups.length > 1}
                 <div class="group-filter">
                     <div class="filter-buttons">
-                        <button 
-                            class="filter-btn" 
+                        <button
+                            class="filter-btn"
                             class:active={selectedGroupFilter === "All"}
-                            on:click={() => selectedGroupFilter = "All"}
+                            on:click={() => (selectedGroupFilter = "All")}
                         >
                             All ({characters.length})
                         </button>
                         {#each availableGroups as group}
-                            {@const count = group === "No Group"
-                                ? characters.filter(c => !c.group).length
-                                : characters.filter(c => c.group === group).length}
+                            {@const count =
+                                group === "No Group"
+                                    ? characters.filter((c) => !c.group).length
+                                    : characters.filter(
+                                          (c) => c.group === group,
+                                      ).length}
                             {#if count > 0}
-                                <button 
-                                    class="filter-btn" 
+                                <button
+                                    class="filter-btn"
                                     class:active={selectedGroupFilter === group}
-                                    on:click={() => selectedGroupFilter = group}
+                                    on:click={() =>
+                                        (selectedGroupFilter = group)}
                                 >
                                     {group} ({count})
                                 </button>
@@ -289,7 +319,9 @@
                             <h3 class="character-title">
                                 {character.name}
                                 {#if character.group}
-                                    <span class="group-badge">{character.group}</span>
+                                    <span class="group-badge"
+                                        >{character.group}</span
+                                    >
                                 {/if}
                             </h3>
                             <div class="character-summary">
@@ -341,7 +373,8 @@
             id="characterName"
             bind:value={newCharacterName}
             placeholder="Enter character name"
-            on:keypress={(e) => e.key === "Enter" && !showCustomGroupInput && createCharacter()}
+            on:keypress={(e) =>
+                e.key === "Enter" && !showCustomGroupInput && createCharacter()}
         />
 
         <label for="characterGroup">Group (optional)</label>
@@ -398,10 +431,7 @@
             >
                 Create
             </button>
-            <button
-                class="srpg-b"
-                on:click={() => (showCreateModal = false)}
-            >
+            <button class="srpg-b" on:click={() => (showCreateModal = false)}>
                 Cancel
             </button>
         </div>
@@ -473,7 +503,7 @@
             font-size: 0.8125rem;
             padding: 0.5rem 0.75rem;
         }
-    } 
+    }
 
     .view-header {
         display: flex;
@@ -484,23 +514,24 @@
         flex-wrap: wrap;
         gap: 1rem;
         width: 100%;
-    } 
+    }
 
     /* Add subtle pulse animation when active */
     @keyframes pulse {
-        0%, 100% {
+        0%,
+        100% {
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
         }
         50% {
             box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
         }
-    } 
+    }
 
     .character-list {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
-    } 
+    }
 
     .character-title {
         margin: 0 0 0.75rem 0;
@@ -524,7 +555,7 @@
         letter-spacing: 0.025em;
         box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
         white-space: nowrap;
-    } 
+    }
 
     .character-summary p {
         margin: 0.25rem 0;

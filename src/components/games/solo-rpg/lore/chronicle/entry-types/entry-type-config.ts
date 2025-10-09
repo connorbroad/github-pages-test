@@ -1,5 +1,5 @@
 import type { ComponentType } from "svelte";
-import type { ChronicleEntry } from "../../storage-utils";
+import type { ChronicleEntry } from "../../../data/storage-utils";
 import FortuneEntryContent from "./FortuneEntryContent.svelte";
 import ManualEntryContent from "./ManualEntryContent.svelte";
 

@@ -1,18 +1,18 @@
 <script lang="ts">
-    import DiceRoller from './dice-roller/DiceRoller.svelte';
-    import CardDealer from './card-dealer/CardDealer.svelte';
+    import DiceRoller from './oracle/components/dice-roller/DiceRoller.svelte';
+    import CardDealer from './oracle/components/card-dealer/CardDealer.svelte';
     import GameOracle from './oracle/GameOracle.svelte';
-    import DataManager from './data-manager/DataManager.svelte';
+    import DataManager from './data/DataManager.svelte';
     import Sidebar from './Sidebar.svelte';
-    import GameBlueprintEditor from './GameBlueprintEditor.svelte';
-    import CampaignCreator from './CampaignCreator.svelte';
-    import CampaignLoadConfirm from './CampaignLoadConfirm.svelte';
-    import StoryView from './story/StoryView.svelte';
+    import GameBlueprintEditor from './game-management/GameBlueprintEditor.svelte';
+    import CampaignCreator from './game-management/CampaignCreator.svelte';
+    import CampaignLoadConfirm from './game-management/CampaignLoadConfirm.svelte';
+    import StoryView from './lore/StoryView.svelte';
     import MapView from './map/MapView.svelte';
-    import { loadGameBlueprints, saveGameBlueprints, loadCampaigns, saveCampaigns } from './storage-utils';
+    import { loadGameBlueprints, saveGameBlueprints, loadCampaigns, saveCampaigns } from './data/storage-utils';
     import { generateId } from './oracle/scripts/oracleTypes';
-    import { type GameBlueprint, type Campaign } from './storage-utils';
-    import { activeCampaign } from './campaign-store';
+    import { type GameBlueprint, type Campaign } from './data/storage-utils';
+    import { activeCampaign } from './game-management/campaign-store';
     import { onMount } from 'svelte';
     import './solo-rpg-styles.css';
     

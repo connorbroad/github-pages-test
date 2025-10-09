@@ -3,10 +3,10 @@
      * Campaign Load Confirmation Component
      * Modal for confirming campaign load
      */
-    import type { Campaign } from "./storage-utils";
+    import type { Campaign } from "../data/storage-utils";
     import { createEventDispatcher } from "svelte";
-    import SrpgModal from "./shared/modal/SrpgModal.svelte";
-    import "./solo-rpg-styles.css";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
+    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let campaign: Campaign | null = null;
@@ -34,7 +34,11 @@
 </script>
 
 {#if show && campaign}
-    <SrpgModal {show} ariaLabel="Close campaign load dialog" on:close={handleClose}>
+    <SrpgModal
+        {show}
+        ariaLabel="Close campaign load dialog"
+        on:close={handleClose}
+    >
         <h2>Campaign Info</h2>
 
         <div class="campaign-details">
@@ -58,15 +62,17 @@
             </button>
         </div>
 
-        <p class="confirmation-message"> 
-            <em>Loading a campaign makes it the active campaign for all tools.</em>
+        <p class="confirmation-message">
+            <em
+                >Loading a campaign makes it the active campaign for all tools.</em
+            >
         </p>
     </SrpgModal>
 {/if}
 
 <style>
     h2 {
-        margin-top: 0; 
+        margin-top: 0;
         color: #333;
     }
 
@@ -95,7 +101,7 @@
         color: #333;
     }
 
-    .confirmation-message { 
+    .confirmation-message {
         color: #666;
         font-size: 0.95rem;
         line-height: 1.5;

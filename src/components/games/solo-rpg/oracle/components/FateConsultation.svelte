@@ -8,7 +8,7 @@
         drawRandomCard,
         isRedSuit
     } from "../scripts/oracleTypes";
-    import DiceRollerEmbed from "../../dice-roller/DiceRollerEmbed.svelte";
+    import DiceRollerEmbed from "./dice-roller/DiceRollerEmbed.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import { createEventDispatcher } from "svelte";
     import "../../solo-rpg-styles.css";

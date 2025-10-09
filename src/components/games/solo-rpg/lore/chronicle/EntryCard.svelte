@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import type { ChronicleEntry } from "../storage-utils";
+    import type { ChronicleEntry } from "../../data/storage-utils";
     import EntryActions from "./EntryActions.svelte";
     import EntryEditor from "./EntryEditor.svelte";
     import EntryNotes from "./entry-types/EntryNotes.svelte";
@@ -50,7 +50,8 @@
 <div class="entry-card {typeConfig.cardClass}">
     <div class="entry-header">
         <span class="entry-type">
-            {typeConfig.icon} {typeConfig.label}
+            {typeConfig.icon}
+            {typeConfig.label}
         </span>
         <span class="entry-timestamp">{formatTimestamp(entry.timestamp)}</span>
     </div>
@@ -58,7 +59,7 @@
     <!-- Render type-specific content -->
     {#if !isEditing}
         <svelte:component this={typeConfig.contentComponent} {entry} />
-        
+
         <!-- Show notes if they exist (for types that support notes) -->
         {#if hasNotes}
             <EntryNotes notes={entry.userNotes} />
@@ -105,7 +106,7 @@
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
         border-color: #d4d4d4;
     }
- 
+
     .entry-header {
         display: flex;
         justify-content: space-between;

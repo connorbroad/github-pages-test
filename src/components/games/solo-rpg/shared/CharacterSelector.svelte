@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { activeCampaign } from "../campaign-store";
+    import { activeCampaign } from "../game-management/campaign-store";
     import {
         loadCharacters,
         loadActiveCharacterId,
         saveActiveCharacterId,
-    } from "../storage-utils";
-    import type { Character } from "../storage-utils";
+    } from "../data/storage-utils";
+    import type { Character } from "../data/storage-utils";
     import { onMount } from "svelte";
     import "../solo-rpg-styles.css";
 
