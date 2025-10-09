@@ -1398,7 +1398,7 @@
     @media (min-width: 640px) {
         .edit-actions {
             flex-direction: row;
-            justify-content: space-between;
+            justify-content: end;
             margin-bottom: 1.5rem;
         }
     }
