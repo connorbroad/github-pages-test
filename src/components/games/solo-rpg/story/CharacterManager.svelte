@@ -11,6 +11,7 @@
     let characters: Character[] = [];
     let selectedCharacter: Character | null = null;
     let isEditing: boolean = false;
+    let isEditingSections: boolean = false;
     let showCreateModal: boolean = false;
     let newCharacterName: string = "";
     let newCharacterGroup: string = "";
@@ -131,10 +132,17 @@
     function selectCharacter(character: Character) {
         selectedCharacter = character;
         isEditing = false;
+        isEditingSections = false;
     }
 
     function editCharacter() {
         isEditing = true;
+        isEditingSections = false;
+    }
+
+    function editCharacterSections() {
+        isEditingSections = true;
+        isEditing = false;
     }
 
     function saveCharacter(event: CustomEvent<Character>) {
@@ -150,11 +158,13 @@
             loadCampaignCharacters();
             selectedCharacter = updatedCharacter;
             isEditing = false;
+            isEditingSections = false;
         }
     }
 
     function cancelEdit() {
         isEditing = false;
+        isEditingSections = false;
         // Reload to reset any changes
         if (selectedCharacter) {
             const allCharacters = loadCharacters();
@@ -184,11 +194,13 @@
         loadCampaignCharacters();
         selectedCharacter = null;
         isEditing = false;
+        isEditingSections = false;
     }
 
     function backToList() {
         selectedCharacter = null;
         isEditing = false;
+        isEditingSections = false;
     }
 </script>
 
@@ -201,9 +213,13 @@
                         ← Back
                     </button> 
 
-                    <button class="srpg-b srpg-b-normal" on:click={editCharacter}>
-                        Edit
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <button class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={editCharacterSections} aria-label="Edit Sections" title="Edit Sections">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}>
+                                <path fill="currentColor" d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
             {/if} 
@@ -211,6 +227,7 @@
             <CharacterSheet
                 character={selectedCharacter}
                 {isEditing}
+                {isEditingSections}
                 on:save={saveCharacter}
                 on:cancel={cancelEdit}
             />

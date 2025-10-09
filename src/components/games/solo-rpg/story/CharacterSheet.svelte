@@ -6,6 +6,7 @@
 
     export let character: Character;
     export let isEditing: boolean = false;
+    export let isEditingSections: boolean = false;
 
     const dispatch = createEventDispatcher();
 
@@ -397,7 +398,7 @@
                 selectedSections = intersection;
             }
         }
-        
+ 
         dispatch("save", editedCharacter);
     }
 
@@ -414,7 +415,7 @@
     }
 
     function toggleSection(section: string) {
-        if (isEditing) {
+        if (isEditingSections) {
             // In edit mode, toggle the section's inclusion in the character sheet
             toggleSectionInclusion(section);
         } else {
@@ -438,8 +439,8 @@
             return;
         }
         
-        if (!editedCharacter.visibleSections) {
-            editedCharacter.visibleSections = ["information"];
+        if (!editedCharacter.visibleSections.includes("information")) {
+            editedCharacter.visibleSections.push("information");
         }
         
         const isCurrentlyVisible = editedCharacter.visibleSections.includes(sectionId);
@@ -457,27 +458,28 @@
                 }
             }, 100);
         }
+        console.log(editedCharacter.visibleSections);
     }
 
     // Reactive values for each section visibility 
     $: characterVisibleSections = editedCharacter.visibleSections || ["information"];
     $: showInformation = characterVisibleSections.includes("information") && 
-                         (selectedSections.size === 0 || selectedSections.has("information") || isEditing)
+                         (selectedSections.size === 0 || selectedSections.has("information") || isEditingSections)
     $: showExperience = characterVisibleSections.includes("experience") && 
-                        (selectedSections.size === 0 || selectedSections.has("experience") || isEditing);
+                        (selectedSections.size === 0 || selectedSections.has("experience") || isEditingSections);
     $: showHealth = characterVisibleSections.includes("health") && 
-                    (selectedSections.size === 0 || selectedSections.has("health") || isEditing);
+                    (selectedSections.size === 0 || selectedSections.has("health") || isEditingSections);
     $: showAbilities = characterVisibleSections.includes("abilities") && 
-                       (selectedSections.size === 0 || selectedSections.has("abilities") || isEditing);
+                       (selectedSections.size === 0 || selectedSections.has("abilities") || isEditingSections);
     $: showItems = characterVisibleSections.includes("items") && 
-                    (selectedSections.size === 0 || selectedSections.has("items") || isEditing);
+                    (selectedSections.size === 0 || selectedSections.has("items") || isEditingSections);
     $: showCombat = characterVisibleSections.includes("combat") && 
-                    (selectedSections.size === 0 || selectedSections.has("combat") || isEditing);
+                    (selectedSections.size === 0 || selectedSections.has("combat") || isEditingSections);
 
-    $: showSectionFilter = isEditing || characterVisibleSections.length > 1;
+    $: showSectionFilter = isEditingSections || characterVisibleSections.length > 1;
 </script>
 
-{#if isEditing}
+{#if isEditing || isEditingSections}
     <div class="edit-actions">
         <button class="srpg-b" on:click={cancelEdit}>
             <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -494,23 +496,24 @@
     </div>
 {/if}
 
-<div class="character-sheet">
+
+<div class="character-sheet-controls">
     {#if showSectionFilter}
     <div class="section-filter"> 
         <div class="section-filter-icons">
             <!-- In edit mode, show all sections. In view mode, show only visible sections -->
             {#each availableSections as section}
-                {#if isEditing || characterVisibleSections.includes(section.id)}
+                {#if isEditingSections || characterVisibleSections.includes(section.id)}
                 <button 
                     class="section-icon-btn" 
-                    class:active={isEditing ? characterVisibleSections.includes(section.id) : selectedSections.has(section.id)}
-                    class:excluded={isEditing && !characterVisibleSections.includes(section.id)}
-                    class:disabled={isEditing && section.id === "information"}
+                    class:active={isEditingSections ? characterVisibleSections.includes(section.id) : selectedSections.has(section.id)}
+                    class:excluded={isEditingSections && !characterVisibleSections.includes(section.id)}
+                    class:disabled={isEditingSections && section.id === "information"}
                     on:click={() => toggleSection(section.id)}
-                    title={isEditing 
+                    title={isEditingSections 
                         ? (section.id === "information" ? "Information (Required)" : (characterVisibleSections.includes(section.id) ? `Remove ${section.name}` : `Add ${section.name}`))
                         : section.name}
-                    aria-label={isEditing 
+                    aria-label={isEditingSections 
                         ? (characterVisibleSections.includes(section.id) ? `Remove ${section.name} section` : `Add ${section.name} section`)
                         : `Toggle ${section.name} section`}>
                     
@@ -531,10 +534,6 @@
                             <circle cx="256" cy="56" r="40" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/>
                             <path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="m199.3 295.62l-30.4 172.2a24 24 0 0 0 19.5 27.8a23.76 23.76 0 0 0 27.6-19.5l21-119.9v.2s5.2-32.5 17.5-32.5h3.1c12.5 0 17.5 32.5 17.5 32.5v-.1l21 119.9a23.92 23.92 0 1 0 47.1-8.4l-30.4-172.2l-4.9-29.7c-2.9-18.1-4.2-47.6.5-59.7c4-10.4 14.13-14.2 23.2-14.2H424a24 24 0 0 0 0-48H88a24 24 0 0 0 0 48h92.5c9.23 0 19.2 3.8 23.2 14.2c4.7 12.1 3.4 41.6.5 59.7Z"/>
                         </svg>
-                    {:else if section.icon === "skills"}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                        </svg>
                     {:else if section.icon === "items"}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width='1em' height='1em' {...$$props}>
                             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5c3.5 0 6-1.24 6-4c0-3-1.5-4.52-4.5-6.02l1.298-2.028a.65.65 0 0 0-.56-.95h-4.24a.65.65 0 0 0-.56 1L5.5 3.48C2.5 5 1 6.52 1 9.52c0 2.74 2.5 3.98 6 3.98"/><path d="M5.5 3.5a1.803 1.803 0 0 0 3 0v0"/></g>
@@ -546,10 +545,10 @@
                     {/if} 
                     
                     <!-- Edit mode indicator -->
-                    {#if isEditing && section.id !== "information"}
+                    {#if isEditingSections && section.id !== "information"}
                         <span class="section-status-indicator" 
-                              class:included={characterVisibleSections.includes(section.id)}
-                              class:required={section.id === "information"}>
+                                class:included={characterVisibleSections.includes(section.id)}
+                                class:required={section.id === "information"}>
                         </span>
                     {/if}
                 </button>
@@ -558,7 +557,9 @@
         </div>
     </div>
     {/if}
+</div>
 
+<div class="character-sheet">
     <!-- Core Info Section -->
     {#if showInformation}
     <section class="srpg-section" id="section-information">
@@ -1344,7 +1345,7 @@
     /* larger screens */
     @media (min-width: 768px) {
         .section-filter { 
-            position: absolute;
+            position: relative;
             top: 0; right: 0; bottom: auto; left: auto; 
          
             margin: 0;
@@ -1672,6 +1673,10 @@
 
     .section-header h2 {
         margin: 0;
+    }
+
+    .character-sheet-controls {
+        position: relative;
     }
 </style>
 
