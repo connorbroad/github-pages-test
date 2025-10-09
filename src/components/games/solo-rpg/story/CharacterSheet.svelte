@@ -17,7 +17,7 @@
         { id: "experience", name: "Experience", icon: "star" },
         { id: "health", name: "Health", icon: "heart" },
         { id: "abilities", name: "Abilities", icon: "ability" },
-        { id: "skills", name: "Skills", icon: "skills" },
+        { id: "items", name: "Items", icon: "items" },
         { id: "combat", name: "Combat Stats", icon: "combat" }
     ];
 
@@ -469,11 +469,11 @@
                     (selectedSections.size === 0 || selectedSections.has("health") || isEditing);
     $: showAbilities = characterVisibleSections.includes("abilities") && 
                        (selectedSections.size === 0 || selectedSections.has("abilities") || isEditing);
-    $: showSkills = characterVisibleSections.includes("skills") && 
-                    (selectedSections.size === 0 || selectedSections.has("skills") || isEditing);
+    $: showItems = characterVisibleSections.includes("items") && 
+                    (selectedSections.size === 0 || selectedSections.has("items") || isEditing);
     $: showCombat = characterVisibleSections.includes("combat") && 
                     (selectedSections.size === 0 || selectedSections.has("combat") || isEditing);
- 
+
     $: showSectionFilter = isEditing || characterVisibleSections.length > 1;
 </script>
 
@@ -535,11 +535,15 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                         </svg>
+                    {:else if section.icon === "items"}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width='1em' height='1em' {...$$props}>
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5c3.5 0 6-1.24 6-4c0-3-1.5-4.52-4.5-6.02l1.298-2.028a.65.65 0 0 0-.56-.95h-4.24a.65.65 0 0 0-.56 1L5.5 3.48C2.5 5 1 6.52 1 9.52c0 2.74 2.5 3.98 6 3.98"/><path d="M5.5 3.5a1.803 1.803 0 0 0 3 0v0"/></g>
+                        </svg>
                     {:else if section.icon === "combat"}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em'>
                             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6m-3 3l4 4m-1 1l2-2M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4m-2-1l-3 3m-1-1l2 2"/>
                         </svg>
-                    {/if}
+                    {/if} 
                     
                     <!-- Edit mode indicator -->
                     {#if isEditing && section.id !== "information"}
@@ -960,10 +964,7 @@
             <p class="srpg-empty-message">No abilities added yet.</p>
         {/if}
     </section>
-    {/if}
-
-    <!-- Skills Section -->
-    {#if showSkills}
+    
     <section class="srpg-section" id="section-skills">
         <div class="section-header">
             <h2>Skills</h2> 
@@ -1140,6 +1141,16 @@
                 {/if}
             </div>
         </div>
+    </section>
+    {/if}
+
+    <!-- Items Section -->
+    {#if showItems}
+    <section class="srpg-section" id="section-items">
+        <div class="section-header">
+            <h2>Items</h2> 
+        </div>
+        
     </section>
     {/if}
 </div>
