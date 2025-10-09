@@ -9,9 +9,12 @@
     import { onMount } from "svelte";
     import "../solo-rpg-styles.css";
 
+    const DEFAULT_GROUPS = [];
+
     let characters: Character[] = [];
     let activeCharacterId: string | null = null;
     let isOpen = false;
+    let selectedGroupFilter: string = "All";
 
     $: {
         if ($activeCampaign) {
@@ -22,6 +25,38 @@
     onMount(() => {
         loadCampaignCharacters();
     });
+
+    // Get all unique groups from characters (including undefined/null as "No Group")
+    $: availableGroups = getAvailableGroups(characters);
+
+    // Filter characters by selected group
+    $: filteredCharacters = selectedGroupFilter === "All" 
+        ? characters 
+        : selectedGroupFilter === "No Group"
+        ? characters.filter(c => !c.group)
+        : characters.filter(c => c.group === selectedGroupFilter);
+
+    // Show group filter if there are multiple groups with characters
+    $: showGroupFilter = availableGroups.length > 1;
+
+    function getAvailableGroups(chars: Character[]): string[] {
+        const groups = new Set<string>();
+        let hasNoGroup = false;
+        
+        chars.forEach(c => {
+            if (c.group) {
+                groups.add(c.group);
+            } else {
+                hasNoGroup = true;
+            }
+        });
+        
+        const groupArray = Array.from(groups).sort();
+        if (hasNoGroup) {
+            groupArray.push("No Group");
+        }
+        return groupArray;
+    }
 
     function loadCampaignCharacters() {
         if (!$activeCampaign) {
@@ -104,6 +139,33 @@
         <div class="dropdown-overlay" on:click={closeDropdown}></div>
         <div class="dropdown-menu">
             {#if characters.length > 0}
+                {#if showGroupFilter}
+                    <div class="group-filter-dropdown">
+                        <button 
+                            class="filter-chip" 
+                            class:active={selectedGroupFilter === "All"}
+                            on:click={() => selectedGroupFilter = "All"}
+                        >
+                            All
+                        </button>
+                        {#each availableGroups as group}
+                            {@const count = group === "No Group" 
+                                ? characters.filter(c => !c.group).length 
+                                : characters.filter(c => c.group === group).length}
+                            {#if count > 0}
+                                <button 
+                                    class="filter-chip" 
+                                    class:active={selectedGroupFilter === group}
+                                    on:click={() => selectedGroupFilter = group}
+                                >
+                                    {group}
+                                </button>
+                            {/if}
+                        {/each}
+                    </div>
+                    <div class="dropdown-divider"></div>
+                {/if}
+
                 {#if activeCharacterId}
                     <button
                         class="dropdown-item clear-item"
@@ -123,7 +185,7 @@
                     </button>
                     <div class="dropdown-divider"></div>
                 {/if}
-                {#each characters as character}
+                {#each filteredCharacters as character}
                     <button
                         class="dropdown-item"
                         class:active={character.id === activeCharacterId}
@@ -142,6 +204,9 @@
                             <circle cx="12" cy="7" r="4" />
                         </svg>
                         <span class="character-name">{character.name}</span>
+                        {#if character.group && selectedGroupFilter === "All"}
+                            <span class="character-group">{character.group}</span>
+                        {/if}
                         {#if character.class}
                             <span class="character-class"
                                 >{character.class}</span
@@ -366,6 +431,55 @@
         margin: 0.25rem 0;
     }
 
+    .group-filter-dropdown {
+        padding: 0.75rem 1rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .filter-chip {
+        padding: 0.375rem 0.75rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #374151;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .filter-chip:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .filter-chip.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+
+    .character-group {
+        font-size: 0.75rem;
+        color: white;
+        padding: 0.125rem 0.5rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .dropdown-item.active .character-group {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
     .empty-state {
         padding: 2rem 1rem;
         text-align: center;
@@ -402,6 +516,15 @@
         .character-level {
             display: none;
         }
+
+        .filter-chip {
+            font-size: 0.75rem;
+            padding: 0.3125rem 0.625rem;
+        }
+
+        .group-filter-dropdown {
+            padding: 0.625rem 0.75rem;
+        }
     }
 
     /* Tablet adjustments */
@@ -422,7 +545,8 @@
         }
 
         .character-class,
-        .character-level {
+        .character-level,
+        .character-group {
             flex-shrink: 0;
         }
 

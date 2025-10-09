@@ -2,16 +2,61 @@
     import type { Character, Ability, Skill } from "../storage-utils";
     import { createEventDispatcher } from "svelte";
     import TemplateModal from "../shared/modal/TemplateModal.svelte";
+    import { loadCharacters } from "../storage-utils";
 
     export let character: Character;
     export let isEditing: boolean = false;
 
     const dispatch = createEventDispatcher();
 
+    const DEFAULT_GROUPS = [];
+
     let editedCharacter: Character = structuredClone(character);
     let showAbilityTemplateModal: boolean = false;
     let showSkillTemplateModal: boolean = false;
     let selectedSections: Set<string> = new Set(); // Empty = show all sections by default
+    let customGroupInput: string = "";
+    let showCustomGroupInput: boolean = false;
+
+    // Get all existing groups from all characters in campaign + current selection
+    $: allGroupOptions = getAllGroupOptions(editedCharacter.group);
+
+    function getAllGroupOptions(currentGroup: string | undefined): string[] {
+        const groups = new Set<string>(DEFAULT_GROUPS);
+        const allCharacters = loadCharacters();
+        const campaignCharacters = allCharacters.filter(c => c.campaignId === character.campaignId);
+        
+        campaignCharacters.forEach(c => {
+            if (c.group && !DEFAULT_GROUPS.includes(c.group)) {
+                groups.add(c.group);
+            }
+        });
+        
+        // Add current selection if it's not a default group
+        if (currentGroup && !DEFAULT_GROUPS.includes(currentGroup)) {
+            groups.add(currentGroup);
+        }
+        
+        return Array.from(groups).sort();
+    }
+
+    function toggleCustomGroupInput() {
+        showCustomGroupInput = !showCustomGroupInput;
+        if (showCustomGroupInput) {
+            customGroupInput = "";
+        }
+    }
+
+    function addCustomGroup() {
+        const trimmed = customGroupInput.trim();
+        if (trimmed) {
+            editedCharacter.group = trimmed;
+            showCustomGroupInput = false;
+            customGroupInput = "";
+            // Trigger reactivity
+            editedCharacter = editedCharacter;
+        }
+    }
 
     interface TemplateOption {
         key: string;
@@ -468,6 +513,58 @@
                     />
                 {:else}
                     <p>{character.name}</p>
+                {/if}
+            </div>
+
+            <div class="srpg-form-field">
+                <label for="group">Group</label>
+                {#if isEditing}
+                    <select
+                        id="group"
+                        class="srpg-select"
+                        bind:value={editedCharacter.group}
+                    >
+                        <option value="">No Group</option>
+                        {#each allGroupOptions as group}
+                            <option value={group}>{group}</option>
+                        {/each}
+                    </select>
+                    {#if !showCustomGroupInput}
+                        <button
+                            class="srpg-b srpg-b-sm"
+                            style="margin-top: 0.5rem;"
+                            on:click={toggleCustomGroupInput}
+                            type="button"
+                        >
+                            + Add Custom Group
+                        </button>
+                    {:else}
+                        <div class="custom-group-input" style="margin-top: 0.5rem;">
+                            <input
+                                type="text"
+                                bind:value={customGroupInput}
+                                placeholder="Enter custom group name"
+                                on:keypress={(e) => e.key === "Enter" && addCustomGroup()}
+                            />
+                            <button
+                                class="srpg-b srpg-b-sm srpg-b-normal"
+                                on:click={addCustomGroup}
+                                disabled={!customGroupInput.trim()}
+                                type="button"
+                            >
+                                Add
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={toggleCustomGroupInput}
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    {/if}
+                {:else}
+                    <p>{character.group || "—"}</p>
                 {/if}
             </div>
 
@@ -1413,5 +1510,20 @@
         font-size: 0.6875rem;
         padding: 0.1875rem 0.375rem;
         border-radius: 4px;
+    }
+
+    /* Custom group input */
+    .custom-group-input {
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .custom-group-input input {
+        flex: 1;
+    }
+
+    .custom-group-input button {
+        flex-shrink: 0;
     }
 </style>

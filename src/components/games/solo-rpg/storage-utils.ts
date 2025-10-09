@@ -56,6 +56,7 @@ export type Character = {
     id: string;
     campaignId: string;
     name: string;
+    group?: string; 
     // Core Info
     class?: string;
     level?: number;

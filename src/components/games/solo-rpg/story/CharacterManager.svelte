@@ -6,14 +6,84 @@
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
     import "../solo-rpg-styles.css";
 
+    const DEFAULT_GROUPS = [];
+
     let characters: Character[] = [];
     let selectedCharacter: Character | null = null;
     let isEditing: boolean = false;
     let showCreateModal: boolean = false;
     let newCharacterName: string = "";
+    let newCharacterGroup: string = "";
+    let selectedGroupFilter: string = "All";
+    let customGroupInput: string = "";
+    let showCustomGroupInput: boolean = false;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
+    }
+
+    // Get all unique groups from characters (including undefined/null as "No Group")
+    $: availableGroups = getAvailableGroups(characters);
+
+    // Get all groups for the dropdown (defaults + custom groups from characters + current selection)
+    $: allGroupOptions = getAllGroupOptions(characters, newCharacterGroup);
+
+    // Filter characters by selected group
+    $: filteredCharacters = selectedGroupFilter === "All" 
+        ? characters 
+        : selectedGroupFilter === "No Group"
+        ? characters.filter(c => !c.group)
+        : characters.filter(c => c.group === selectedGroupFilter);
+
+    function getAvailableGroups(chars: Character[]): string[] {
+        const groups = new Set<string>();
+        let hasNoGroup = false;
+        
+        chars.forEach(c => {
+            if (c.group) {
+                groups.add(c.group);
+            } else {
+                hasNoGroup = true;
+            }
+        });
+        
+        const groupArray = Array.from(groups).sort();
+        if (hasNoGroup) {
+            groupArray.push("No Group");
+        }
+        return groupArray;
+    }
+
+    function getAllGroupOptions(chars: Character[], currentGroup: string): string[] {
+        const groups = new Set<string>(DEFAULT_GROUPS);
+        chars.forEach(c => {
+            if (c.group && !DEFAULT_GROUPS.includes(c.group)) {
+                groups.add(c.group);
+            }
+        });
+        // Add current selection if it's not a default group
+        if (currentGroup && !DEFAULT_GROUPS.includes(currentGroup)) {
+            groups.add(currentGroup);
+        }
+        return Array.from(groups).sort();
+    }
+
+    function toggleCustomGroupInput() {
+        showCustomGroupInput = !showCustomGroupInput;
+        if (showCustomGroupInput) {
+            customGroupInput = "";
+        }
+    }
+
+    function addCustomGroup() {
+        const trimmed = customGroupInput.trim();
+        if (trimmed && !DEFAULT_GROUPS.includes(trimmed)) {
+            newCharacterGroup = trimmed;
+            showCustomGroupInput = false;
+            customGroupInput = "";
+            // Trigger reactivity for allGroupOptions
+            characters = characters;
+        }
     }
 
     function loadCampaignCharacters() {
@@ -27,6 +97,9 @@
 
     function openCreateModal() {
         newCharacterName = "";
+        newCharacterGroup = "";
+        showCustomGroupInput = false;
+        customGroupInput = "";
         showCreateModal = true;
     }
 
@@ -37,6 +110,7 @@
             id: `char-${Date.now()}`,
             campaignId: $activeCampaign.id,
             name: newCharacterName.trim(),
+            group: newCharacterGroup || undefined,
             abilities: [],
             skills: [],
             createdAt: Date.now(),
@@ -159,15 +233,46 @@
                 </button>
             </div>
 
-            {#if characters.length > 0}
+            {#if availableGroups.length > 1}
+                <div class="group-filter">
+                    <div class="filter-buttons">
+                        <button 
+                            class="filter-btn" 
+                            class:active={selectedGroupFilter === "All"}
+                            on:click={() => selectedGroupFilter = "All"}
+                        >
+                            All ({characters.length})
+                        </button>
+                        {#each availableGroups as group}
+                            {@const count = group === "No Group"
+                                ? characters.filter(c => !c.group).length
+                                : characters.filter(c => c.group === group).length}
+                            {#if count > 0}
+                                <button 
+                                    class="filter-btn" 
+                                    class:active={selectedGroupFilter === group}
+                                    on:click={() => selectedGroupFilter = group}
+                                >
+                                    {group} ({count})
+                                </button>
+                            {/if}
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
+            {#if filteredCharacters.length > 0}
                 <div class="character-list">
-                    {#each characters as character}
+                    {#each filteredCharacters as character}
                         <button
                             class="srpg-b srpg-b-overview"
                             on:click={() => selectCharacter(character)}
                         >
                             <h3 class="character-title">
                                 {character.name}
+                                {#if character.group}
+                                    <span class="group-badge">{character.group}</span>
+                                {/if}
                             </h3>
                             <div class="character-summary">
                                 {#if character.race || character.class}
@@ -218,8 +323,54 @@
             id="characterName"
             bind:value={newCharacterName}
             placeholder="Enter character name"
-            on:keypress={(e) => e.key === "Enter" && createCharacter()}
+            on:keypress={(e) => e.key === "Enter" && !showCustomGroupInput && createCharacter()}
         />
+
+        <label for="characterGroup">Group (optional)</label>
+        <select
+            id="characterGroup"
+            class="srpg-select"
+            bind:value={newCharacterGroup}
+        >
+            <option value="">No Group</option>
+            {#each allGroupOptions as group}
+                <option value={group}>{group}</option>
+            {/each}
+        </select>
+
+        {#if !showCustomGroupInput}
+            <button
+                class="srpg-b srpg-b-sm"
+                on:click={toggleCustomGroupInput}
+                type="button"
+            >
+                + Add Custom Group
+            </button>
+        {:else}
+            <div class="custom-group-input">
+                <input
+                    type="text"
+                    bind:value={customGroupInput}
+                    placeholder="Enter custom group name"
+                    on:keypress={(e) => e.key === "Enter" && addCustomGroup()}
+                />
+                <button
+                    class="srpg-b srpg-b-sm srpg-b-normal"
+                    on:click={addCustomGroup}
+                    disabled={!customGroupInput.trim()}
+                    type="button"
+                >
+                    Add
+                </button>
+                <button
+                    class="srpg-b srpg-b-sm"
+                    on:click={toggleCustomGroupInput}
+                    type="button"
+                >
+                    Cancel
+                </button>
+            </div>
+        {/if}
 
         <div class="modal-footer">
             <button
@@ -256,6 +407,54 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
+    }
+
+    .group-filter {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+
+    @media (max-width: 640px) {
+        .filter-btn {
+            flex: 1 1 calc(50% - 0.25rem);
+            min-width: 0;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.75rem;
+        }
     } 
 
     .view-header {
@@ -293,6 +492,20 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .group-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.625rem;
+        border-radius: 12px;
+        letter-spacing: 0.025em;
+        box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+        white-space: nowrap;
     } 
 
     .character-summary p {
@@ -337,7 +550,12 @@
         display: block;
         font-weight: 600;
         margin-bottom: 0.5rem;
+        margin-top: 1rem;
         color: #374151;
+    }
+
+    .modal-content label:first-of-type {
+        margin-top: 0;
     }
 
     .modal-content input {
@@ -348,10 +566,35 @@
         font-size: 1rem;
     }
 
+    .modal-content button {
+        margin-top: 0.75rem;
+    }
+
+    .custom-group-input {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        align-items: stretch;
+    }
+
+    .custom-group-input input {
+        flex: 1;
+        margin: 0;
+    }
+
+    .custom-group-input button {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
     .modal-footer {
         margin-top: 1.5rem;
         display: flex;
         gap: 0.5rem;
         justify-content: flex-end;
+    }
+
+    .modal-footer button {
+        margin-top: 0;
     }
 </style>
