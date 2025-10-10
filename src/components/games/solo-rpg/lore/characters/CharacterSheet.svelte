@@ -2,6 +2,7 @@
     import type { Character, Ability, Skill } from "../../data/storage-utils";
     import { createEventDispatcher } from "svelte";
     import TemplateModal from "../../shared/modal/TemplateModal.svelte";
+    import CharacterSheetSection from "./CharacterSheetSection.svelte";
     import { loadCharacters } from "../../data/storage-utils";
 
     export let character: Character;
@@ -9,6 +10,8 @@
     export let isEditingSections: boolean = false;
 
     const dispatch = createEventDispatcher();
+    
+    let editingSection: string | null = null;
 
     const DEFAULT_GROUPS = [];
 
@@ -31,7 +34,14 @@
 
     // Initialize visibleSections if not present (for backward compatibility)
     $: if (editedCharacter && !editedCharacter.visibleSections) {
-        editedCharacter.visibleSections = ["information"];
+        editedCharacter.visibleSections = [
+            "information",
+            "experience",
+            "health",
+            "abilities",
+            "items",
+            "combat"
+        ];
     }
 
     // Get all existing groups from all characters in campaign + current selection
@@ -510,6 +520,30 @@
 
     $: showSectionFilter =
         isEditingSections || characterVisibleSections.length > 1;
+
+    function startEditingSection(sectionId: string) {
+        editingSection = sectionId;
+    }
+
+    function saveSection() {
+        editedCharacter.updatedAt = Date.now();
+        dispatch("save", editedCharacter);
+        editingSection = null;
+    }
+
+    function cancelSectionEdit() {
+        editedCharacter = structuredClone(character);
+        editingSection = null;
+    }
+
+    $: isSectionEditing = (sectionId: string) => editingSection === sectionId;
+    
+    $: isInformationEditable = isEditing || isSectionEditing("information");
+    $: isExperienceEditable = isEditing || isSectionEditing("experience");
+    $: isHealthEditable = isEditing || isSectionEditing("health");
+    $: isAbilitiesEditable = isEditing || isSectionEditing("abilities");
+    $: isCombatEditable = isEditing || isSectionEditing("combat");
+
 </script>
 
 {#if isEditing || isEditingSections}
@@ -692,12 +726,30 @@
 <div class="character-sheet">
     <!-- Core Info Section -->
     {#if showInformation}
-        <section class="srpg-section" id="section-information">
-            <h2>Information</h2>
+        <CharacterSheetSection
+            id="section-information"
+            title="Information"
+            isEditing={isSectionEditing("information")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("information")}
+        >
+            {#if isSectionEditing("information")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
             <div class="srpg-form-grid">
                 <div class="srpg-form-field">
                     <label for="name">Character Name</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <input
                             type="text"
                             id="name"
@@ -711,7 +763,7 @@
 
                 <div class="srpg-form-field">
                     <label for="class">Class</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <input
                             type="text"
                             id="class"
@@ -724,7 +776,7 @@
 
                 <div class="srpg-form-field">
                     <label for="race">Race</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <input
                             type="text"
                             id="race"
@@ -737,7 +789,7 @@
 
                 <div class="srpg-form-field">
                     <label for="alignment">Alignment</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <select
                             id="alignment"
                             bind:value={editedCharacter.alignment}
@@ -754,7 +806,7 @@
 
                 <div class="srpg-form-field">
                     <label for="background">Background</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <input
                             type="text"
                             id="background"
@@ -767,7 +819,7 @@
 
                 <div class="srpg-form-field">
                     <label for="group">Group</label>
-                    {#if isEditing}
+                    {#if isInformationEditable}
                         <select
                             id="group"
                             class="srpg-select"
@@ -821,19 +873,35 @@
                     {/if}
                 </div>
             </div>
-        </section>
+        </CharacterSheetSection>
     {/if}
 
     <!-- Experience Section -->
     {#if showExperience}
-        <section class="srpg-section" id="section-experience">
-            <div class="section-header">
-                <h2>Experience</h2>
-            </div>
+        <CharacterSheetSection
+            id="section-experience"
+            title="Experience"
+            isEditing={isSectionEditing("experience")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("experience")}
+        >
+            {#if isSectionEditing("experience")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
             <div class="srpg-form-grid">
                 <div class="srpg-form-field">
                     <label for="level">Level</label>
-                    {#if isEditing}
+                    {#if isExperienceEditable}
                         <input
                             type="number"
                             id="level"
@@ -847,7 +915,7 @@
 
                 <div class="srpg-form-field">
                     <label for="xp">Experience Points</label>
-                    {#if isEditing}
+                    {#if isExperienceEditable}
                         <input
                             type="number"
                             id="xp"
@@ -861,7 +929,7 @@
 
                 <div class="srpg-form-field">
                     <label for="proficiencyBonus">Proficiency Bonus</label>
-                    {#if isEditing}
+                    {#if isExperienceEditable}
                         <input
                             type="number"
                             id="proficiencyBonus"
@@ -878,19 +946,35 @@
                     {/if}
                 </div>
             </div>
-        </section>
+        </CharacterSheetSection>
     {/if}
 
     <!-- Health Section -->
     {#if showHealth}
-        <section class="srpg-section" id="section-health">
-            <div class="section-header">
-                <h2>Health</h2>
-            </div>
+        <CharacterSheetSection
+            id="section-health"
+            title="Health"
+            isEditing={isSectionEditing("health")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("health")}
+        >
+            {#if isSectionEditing("health")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
             <div class="srpg-form-grid">
                 <div class="srpg-form-field">
                     <label for="hpCurrent">Current Hit Points</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="number"
                             id="hpCurrent"
@@ -907,7 +991,7 @@
 
                 <div class="srpg-form-field">
                     <label for="hpMax">Hit Point Maximum</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="number"
                             id="hpMax"
@@ -920,7 +1004,7 @@
 
                 <div class="srpg-form-field">
                     <label for="hpTemp">Temporary Hit Points</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="number"
                             id="hpTemp"
@@ -933,7 +1017,7 @@
 
                 <div class="srpg-form-field">
                     <label for="hitDice">Hit Dice</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="text"
                             id="hitDice"
@@ -947,7 +1031,7 @@
 
                 <div class="srpg-form-field">
                     <label for="deathSaveSuccesses">Death Save Successes</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="number"
                             id="deathSaveSuccesses"
@@ -962,7 +1046,7 @@
 
                 <div class="srpg-form-field">
                     <label for="deathSaveFailures">Death Save Failures</label>
-                    {#if isEditing}
+                    {#if isHealthEditable}
                         <input
                             type="number"
                             id="deathSaveFailures"
@@ -975,16 +1059,32 @@
                     {/if}
                 </div>
             </div>
-        </section>
+        </CharacterSheetSection>
     {/if}
 
     <!-- Abilities Section -->
     {#if showAbilities}
-        <section class="srpg-section" id="section-abilities">
-            <div class="section-header">
-                <h2>Abilities</h2>
-            </div>
-            {#if isEditing}
+        <CharacterSheetSection
+            id="section-abilities"
+            title="Abilities"
+            isEditing={isSectionEditing("abilities")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("abilities")}
+        >
+            {#if isSectionEditing("abilities")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
+            {#if isAbilitiesEditable}
                 <div class="section-actions">
                     <button class="srpg-b srpg-b-sm" on:click={addAbility}>
                         <svg
@@ -1030,7 +1130,7 @@
                 <div class="abilities-grid">
                     {#each editedCharacter.abilities as ability}
                         <div class="ability-card">
-                            {#if isEditing}
+                            {#if isAbilitiesEditable}
                                 <div class="ability-edit-form">
                                     <div class="srpg-form-field">
                                         <label for="ability-name-{ability.id}"
@@ -1153,13 +1253,13 @@
             {:else}
                 <p class="srpg-empty-message">No abilities added yet.</p>
             {/if}
-        </section>
 
-        <section class="srpg-section" id="section-skills">
-            <div class="section-header">
-                <h2>Skills</h2>
-            </div>
-            {#if isEditing}
+            <!-- Skills Subsection -->
+            <div class="skills-subsection">
+                <div class="subsection-header">
+                    <h3>Skills</h3>
+                </div>
+                {#if isAbilitiesEditable}
                 <div class="section-actions">
                     <button class="srpg-b srpg-b-sm" on:click={addSkill}>
                         <svg
@@ -1205,7 +1305,7 @@
                 <div class="skills-grid">
                     {#each editedCharacter.skills as skill}
                         <div class="skill-card">
-                            {#if isEditing}
+                            {#if isAbilitiesEditable}
                                 <div class="skill-edit-form">
                                     <div class="srpg-form-field">
                                         <label for="skill-name-{skill.id}"
@@ -1327,19 +1427,36 @@
             {:else}
                 <p class="srpg-empty-message">No skills added yet.</p>
             {/if}
-        </section>
+            </div>
+        </CharacterSheetSection>
     {/if}
 
     <!-- Combat Stats Section -->
     {#if showCombat}
-        <section class="srpg-section" id="section-combat">
-            <div class="section-header">
-                <h2>Combat Stats</h2>
-            </div>
+        <CharacterSheetSection
+            id="section-combat"
+            title="Combat Stats"
+            isEditing={isSectionEditing("combat")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("combat")}
+        >
+            {#if isSectionEditing("combat")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
             <div class="srpg-form-grid">
                 <div class="srpg-form-field">
                     <label for="ac">Armor Class</label>
-                    {#if isEditing}
+                    {#if isCombatEditable}
                         <input
                             type="number"
                             id="ac"
@@ -1352,7 +1469,7 @@
 
                 <div class="srpg-form-field">
                     <label for="initiative">Initiative</label>
-                    {#if isEditing}
+                    {#if isCombatEditable}
                         <input
                             type="number"
                             id="initiative"
@@ -1370,7 +1487,7 @@
 
                 <div class="srpg-form-field">
                     <label for="speed">Speed</label>
-                    {#if isEditing}
+                    {#if isCombatEditable}
                         <input
                             type="number"
                             id="speed"
@@ -1383,16 +1500,32 @@
                     {/if}
                 </div>
             </div>
-        </section>
+        </CharacterSheetSection>
     {/if}
 
     <!-- Items Section -->
     {#if showItems}
-        <section class="srpg-section" id="section-items">
-            <div class="section-header">
-                <h2>Items</h2>
-            </div>
-        </section>
+        <CharacterSheetSection
+            id="section-items"
+            title="Items"
+            isEditing={isSectionEditing("items")}
+            showEditButton={!isEditing && !isEditingSections}
+            on:edit={() => startEditingSection("items")}
+        >
+            {#if isSectionEditing("items")}
+                <div class="section-edit-actions">
+                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={saveSection}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if} 
+        </CharacterSheetSection>
     {/if}
 </div>
 
@@ -1413,6 +1546,38 @@
 />
 
 <style>
+    /* Section Edit Actions */
+    .section-edit-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        justify-content: flex-end;
+    }
+
+    /* Skills Subsection */
+    .skills-subsection {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .subsection-header {
+        margin-bottom: 1rem;
+    }
+
+    .subsection-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    @media (min-width: 768px) {
+        .subsection-header h3 {
+            font-size: 1.5rem;
+        }
+    }
+
     /* Mobile Section Filter */
     .section-filter {
         position: fixed;
@@ -1616,17 +1781,13 @@
 
     /* Character Sheet Container */
     .character-sheet {
-        position: relative;
-        background: white;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;  
         max-width: 100%;
+        width: 100vw;
     }
 
     @media (min-width: 768px) {
-        .character-sheet {
-            padding: 1.5rem;
+        .character-sheet { 
             padding-bottom: 1.5rem;
         }
     }
