@@ -8,6 +8,7 @@
     } from "../../data/storage-utils";
     import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
+    import CharacterSheetControls from "./CharacterSheetControls.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import "../../solo-rpg-styles.css";
 
@@ -23,6 +24,7 @@
     let selectedGroupFilter: string = "All";
     let customGroupInput: string = "";
     let showCustomGroupInput: boolean = false;
+    let selectedSections: Set<string> = new Set(); // For filtering visible sections in view mode
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
@@ -211,6 +213,85 @@
         isEditing = false;
         isEditingSections = false;
     }
+
+    function handleToggleSection(event: CustomEvent<string>) {
+        const section = event.detail;
+        
+        if (isEditingSections) {
+            // In edit mode, toggle the section's inclusion in the character sheet
+            toggleSectionInclusion(section);
+        } else {
+            // In view mode, use for filtering
+            if (selectedSections.has(section)) {
+                // Tapping on the same icon again clears the filter (shows all)
+                selectedSections.delete(section);
+            } else {
+                // Switch to only this section
+                selectedSections.clear();
+                selectedSections.add(section);
+            }
+            // Trigger reactivity
+            selectedSections = selectedSections;
+        }
+    }
+
+    function toggleSectionInclusion(sectionId: string) {
+        if (!selectedCharacter) return;
+        
+        if (sectionId === "information") {
+            alert("The Information section cannot be removed.");
+            return;
+        }
+
+        if (!selectedCharacter.visibleSections) {
+            selectedCharacter.visibleSections = ["information"];
+        }
+
+        if (!selectedCharacter.visibleSections.includes("information")) {
+            selectedCharacter.visibleSections.push("information");
+        }
+
+        const isCurrentlyVisible = selectedCharacter.visibleSections.includes(sectionId);
+
+        if (isCurrentlyVisible) {
+            selectedCharacter.visibleSections = selectedCharacter.visibleSections.filter(
+                (s) => s !== sectionId
+            );
+        } else {
+            selectedCharacter.visibleSections = [
+                ...selectedCharacter.visibleSections,
+                sectionId,
+            ];
+
+            // Scroll to the newly enabled section after a brief delay to allow for rendering
+            setTimeout(() => {
+                const sectionElement = document.getElementById(`section-${sectionId}`);
+                if (sectionElement) {
+                    sectionElement.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                }
+            }, 100);
+        }
+        
+        // Update character immediately (auto-save when editing sections)
+        if (isEditingSections) {
+            selectedCharacter.updatedAt = Date.now();
+            const allCharacters = loadCharacters();
+            const index = allCharacters.findIndex(
+                (c) => c.id === selectedCharacter.id,
+            );
+            if (index !== -1) {
+                allCharacters[index] = selectedCharacter;
+                saveCharacters(allCharacters);
+                loadCampaignCharacters();
+            }
+        }
+        
+        // Trigger reactivity
+        selectedCharacter = selectedCharacter;
+    }
 </script>
 
 <div class="character-manager">
@@ -237,7 +318,6 @@
                                 viewBox="0 0 24 24"
                                 width="1.5em"
                                 height="1.5em"
-                                {...$$props}
                             >
                                 <path
                                     fill="currentColor"
@@ -249,11 +329,19 @@
                 </div>
             {/if}
 
+            <CharacterSheetControls
+                visibleSections={selectedCharacter.visibleSections || ["information"]}
+                {selectedSections}
+                {isEditingSections}
+                on:toggleSection={handleToggleSection}
+            />
+
             <div class="character-sheet-container">
                 <CharacterSheet
                     character={selectedCharacter}
                     {isEditing}
                     {isEditingSections}
+                    {selectedSections}
                     on:save={saveCharacter}
                     on:cancel={cancelEdit}
                 />
