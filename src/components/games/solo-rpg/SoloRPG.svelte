@@ -335,14 +335,14 @@
     /* Layout */
     .content {
         box-sizing: border-box;
+        min-height: 100vh;
+        max-height: 100vh;
     }
 
     /* Desktop - account for left sidebar */
     @media (min-width: 769px) {
         .content {
-            margin-left: 80px;
-            padding: 2rem;
-            min-height: 100vh;
+            margin-left: 80px;  
         }
     }
 

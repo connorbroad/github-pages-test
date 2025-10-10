@@ -9,10 +9,21 @@ import BaseLayout from "./BaseLayout.astro";
 </BaseLayout>
 
 <style>
+    :global(html),
+    :global(body) {
+        height: 100%;
+        overflow: hidden;
+    }
+
     .page-content {
         max-width: 1200px;
         margin: 0 auto;
         padding: 0;
+        height: 100%;
+    }
+
+    .page-content > :global(:first-child) {
+        margin-top: 0;
     }
 
     @media (max-width: 600px) {

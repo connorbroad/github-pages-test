@@ -226,7 +226,7 @@
 <style>
     .oracle-page {
         width: 100%;
-        text-align: center;
+        text-align: center;  
     }
 
     .oracle-header {
