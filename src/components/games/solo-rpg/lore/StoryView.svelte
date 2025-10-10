@@ -65,16 +65,34 @@
     .story-view {
         max-width: 1200px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Mobile - account for bottom sidebar */
+    @media (max-width: 768px) {
+        .story-view {
+            height: calc(100vh - 70px - env(safe-area-inset-bottom));
+        }
     }
 
     h2 {
         text-align: center;
         margin: 0;
+        padding: 1rem 1rem 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .subheading {
+        flex-shrink: 0;
     }
 
     .subheading p {
         margin-top: 0;
         margin-bottom: 1rem;
+        padding: 0 1rem;
         text-align: center;
         color: #6b7280;
         font-style: italic;
@@ -84,7 +102,8 @@
         display: flex;
         gap: 0.5rem;
         border-bottom: 2px solid #e5e7eb;
-        margin-bottom: 1.5rem;
+        margin: 0 1rem 0;
+        flex-shrink: 0;
     }
 
     .tab {
@@ -111,6 +130,9 @@
     }
 
     .tab-content {
-        min-height: 400px;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding: 1.5rem 1rem;
     }
 </style>

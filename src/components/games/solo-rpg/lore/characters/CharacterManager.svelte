@@ -249,25 +249,27 @@
                 </div>
             {/if}
 
-            <CharacterSheet
-                character={selectedCharacter}
-                {isEditing}
-                {isEditingSections}
-                on:save={saveCharacter}
-                on:cancel={cancelEdit}
-            />
+            <div class="character-sheet-container">
+                <CharacterSheet
+                    character={selectedCharacter}
+                    {isEditing}
+                    {isEditingSections}
+                    on:save={saveCharacter}
+                    on:cancel={cancelEdit}
+                />
 
-            <br />
+                <br />
 
-            {#if isEditing}
-                <button
-                    class="srpg-b srpg-b-sm srpg-b-w-full srpg-b-danger"
-                    on:click={deleteCharacter}
-                    aria-label="Delete Character"
-                >
-                    Delete character
-                </button>
-            {/if}
+                {#if isEditing}
+                    <button
+                        class="srpg-b srpg-b-sm srpg-b-w-full srpg-b-danger"
+                        on:click={deleteCharacter}
+                        aria-label="Delete Character"
+                    >
+                        Delete character
+                    </button>
+                {/if}
+            </div>
         </div>
     {:else}
         <div class="character-list-view">
@@ -309,8 +311,9 @@
                 </div>
             {/if}
 
-            {#if filteredCharacters.length > 0}
-                <div class="character-list">
+            <div class="character-list-scroll">
+                {#if filteredCharacters.length > 0}
+                    <div class="character-list">
                     {#each filteredCharacters as character}
                         <button
                             class="srpg-b srpg-b-overview"
@@ -356,6 +359,7 @@
                     </p>
                 </div>
             {/if}
+            </div>
         </div>
     {/if}
 </div>
@@ -441,12 +445,41 @@
 <style>
     .character-manager {
         width: 100%;
-        padding-bottom: 4rem; /* Add space for fixed section filter on mobile */
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .character-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .character-sheet-container {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+    }
+
+    .character-list-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .character-list-scroll {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     @media (min-width: 768px) {
         .character-manager {
-            padding-bottom: 0; /* Remove padding on larger screens */
+            padding-bottom: 0;
         }
     }
 
@@ -455,6 +488,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
+        flex-shrink: 0;
     }
 
     .group-filter {
@@ -463,6 +497,7 @@
         background: #f9fafb;
         border-radius: 8px;
         border: 1px solid #e5e7eb;
+        flex-shrink: 0;
     }
 
     .filter-buttons {
@@ -514,6 +549,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         width: 100%;
+        flex-shrink: 0;
     }
 
     /* Add subtle pulse animation when active */

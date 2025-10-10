@@ -334,8 +334,6 @@
 <style>
     /* Layout */
     .content {
-        min-height: 100vh;
-        padding: 2rem;
         box-sizing: border-box;
     }
 
@@ -343,15 +341,23 @@
     @media (min-width: 769px) {
         .content {
             margin-left: 80px;
-            padding-bottom: 2rem;
+            padding: 2rem;
+            min-height: 100vh;
         }
     }
 
     /* Mobile - account for bottom bar */
     @media (max-width: 768px) {
         .content {
+            padding: 1rem;
+            min-height: 100vh;
+        }
+        
+        /* Add bottom padding for non-fullscreen views (home, settings, oracle) */
+        .home-view,
+        .oracle-view,
+        .settings-view {
             padding-bottom: calc(90px + env(safe-area-inset-bottom));
-            padding: 1rem 1rem calc(90px + env(safe-area-inset-bottom)) 1rem;
         }
     }
 

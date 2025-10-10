@@ -546,38 +546,40 @@
 
 </script>
 
-{#if isEditing || isEditingSections}
-    <div class="edit-actions">
-        <button class="srpg-b" on:click={cancelEdit}>
-            <svg
-                class="srpg-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-            >
-                <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Cancel
-        </button>
-        <button class="srpg-b srpg-b-normal save-btn" on:click={saveChanges}>
-            <svg
-                class="srpg-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-            >
-                <path d="M5 13l4 4L19 7" />
-            </svg>
-            Save Changes
-        </button>
-    </div>
-{/if}
+<div class="character-sheet-wrapper">
+    <div class="character-sheet-sticky-header">
+        {#if isEditing || isEditingSections}
+            <div class="edit-actions">
+                <button class="srpg-b" on:click={cancelEdit}>
+                    <svg
+                        class="srpg-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                </button>
+                <button class="srpg-b srpg-b-normal save-btn" on:click={saveChanges}>
+                    <svg
+                        class="srpg-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        {/if}
 
-<div class="character-sheet-controls">
-    {#if showSectionFilter}
-        <div class="section-filter">
+        <div class="character-sheet-controls">
+            {#if showSectionFilter}
+                <div class="section-filter">
             <div class="section-filter-icons">
                 <!-- In edit mode, show all sections. In view mode, show only visible sections -->
                 {#each availableSections as section}
@@ -721,9 +723,11 @@
             </div>
         </div>
     {/if}
-</div>
+    </div>
+    </div>
 
-<div class="character-sheet">
+    <div class="character-sheet-scroll">
+        <div class="character-sheet">
     <!-- Core Info Section -->
     {#if showInformation}
         <CharacterSheetSection
@@ -1527,6 +1531,8 @@
             {/if} 
         </CharacterSheetSection>
     {/if}
+    </div>
+    </div>
 </div>
 
 <TemplateModal
@@ -1546,6 +1552,23 @@
 />
 
 <style>
+    .character-sheet-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .character-sheet-sticky-header {
+        flex-shrink: 0;
+    }
+
+    .character-sheet-scroll {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+    }
+
     /* Section Edit Actions */
     .section-edit-actions {
         display: flex;
@@ -1580,15 +1603,13 @@
 
     /* Mobile Section Filter */
     .section-filter {
-        position: fixed;
-        bottom: calc(70px + env(safe-area-inset-bottom));
-        left: 0;
-        right: 0;
-        z-index: 50;
-
         display: flex;
         flex-direction: column;
         gap: 0;
+        background-color: #2c2c2c;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
     }
 
     .section-filter-icons {
@@ -1602,8 +1623,6 @@
 
         background-color: #2c2c2c;
         border-top: 1px solid #3a3a3a;
-
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .section-icon-btn {

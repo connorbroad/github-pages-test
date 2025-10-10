@@ -332,16 +332,17 @@
 </script>
 
 <div class="chronicle">
-    <div class="chronicle-header">
-        <div class="header-actions">
-            <button class="srpg-b" on:click={toggleChaptersList}>
-                📚 {showChaptersList ? "Hide" : "View"} Chapters
-            </button>
+    <div class="chronicle-sticky-header">
+        <div class="chronicle-header">
+            <div class="header-actions">
+                <button class="srpg-b" on:click={toggleChaptersList}>
+                    📚 {showChaptersList ? "Hide" : "View"} Chapters
+                </button>
+            </div>
         </div>
-    </div>
 
-    {#if showChaptersList}
-        <div class="chapters-list-panel">
+        {#if showChaptersList}
+            <div class="chapters-list-panel">
             <div class="chapters-header">
                 <h3>Chapters</h3>
                 <button
@@ -534,6 +535,7 @@
             </div>
         </div>
     {/if}
+    </div>
 
     <div class="entries-list">
         {#if entries.length === 0}
@@ -630,6 +632,14 @@
         width: 100%;
         max-width: 900px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .chronicle-sticky-header {
+        flex-shrink: 0;
     }
 
     .chronicle-header {
@@ -866,6 +876,9 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     .no-entries {
