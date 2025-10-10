@@ -11,7 +11,7 @@
     export let selectedSections: Set<string> = new Set(); // For filtering visible sections
 
     const dispatch = createEventDispatcher();
-    
+
     let editingSection: string | null = null;
 
     const DEFAULT_GROUPS = [];
@@ -35,7 +35,7 @@
             "health",
             "abilities",
             "items",
-            "combat"
+            "combat",
         ];
     }
 
@@ -510,853 +510,901 @@
     }
 
     $: isSectionEditing = (sectionId: string) => editingSection === sectionId;
-    
+
     $: isInformationEditable = isEditing || isSectionEditing("information");
     $: isExperienceEditable = isEditing || isSectionEditing("experience");
     $: isHealthEditable = isEditing || isSectionEditing("health");
     $: isAbilitiesEditable = isEditing || isSectionEditing("abilities");
     $: isCombatEditable = isEditing || isSectionEditing("combat");
-
 </script>
 
 <div class="character-sheet-wrapper">
-    <div class="character-sheet-sticky-header">
-        {#if isEditing || isEditingSections}
-            <div class="edit-actions">
-                <button class="srpg-b" on:click={cancelEdit}>
-                    <svg
-                        class="srpg-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Cancel
-                </button>
-                <button class="srpg-b srpg-b-normal save-btn" on:click={saveChanges}>
-                    <svg
-                        class="srpg-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M5 13l4 4L19 7" />
-                    </svg>
-                    Save Changes
-                </button>
-            </div>
-        {/if}
-    </div>
-
     <div class="character-sheet-scroll">
         <div class="character-sheet">
-    <!-- Core Info Section -->
-    {#if showInformation}
-        <CharacterSheetSection
-            id="section-information"
-            title="Information"
-            isEditing={isSectionEditing("information")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("information")}
-        >
-            {#if isSectionEditing("information")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
-            {/if}
-            <div class="srpg-form-grid">
-                <div class="srpg-form-field">
-                    <label for="name">Character Name</label>
-                    {#if isInformationEditable}
-                        <input
-                            type="text"
-                            id="name"
-                            bind:value={editedCharacter.name}
-                            required
-                        />
-                    {:else}
-                        <p>{character.name}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="class">Class</label>
-                    {#if isInformationEditable}
-                        <input
-                            type="text"
-                            id="class"
-                            bind:value={editedCharacter.class}
-                        />
-                    {:else}
-                        <p>{character.class || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="race">Race</label>
-                    {#if isInformationEditable}
-                        <input
-                            type="text"
-                            id="race"
-                            bind:value={editedCharacter.race}
-                        />
-                    {:else}
-                        <p>{character.race || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="alignment">Alignment</label>
-                    {#if isInformationEditable}
-                        <select
-                            id="alignment"
-                            bind:value={editedCharacter.alignment}
-                        >
-                            <option value="">Select Alignment</option>
-                            {#each alignmentOptions as alignment}
-                                <option value={alignment}>{alignment}</option>
-                            {/each}
-                        </select>
-                    {:else}
-                        <p>{character.alignment || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="background">Background</label>
-                    {#if isInformationEditable}
-                        <input
-                            type="text"
-                            id="background"
-                            bind:value={editedCharacter.background}
-                        />
-                    {:else}
-                        <p>{character.background || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="group">Group</label>
-                    {#if isInformationEditable}
-                        <select
-                            id="group"
-                            class="srpg-select"
-                            bind:value={editedCharacter.group}
-                        >
-                            <option value="">No Group</option>
-                            {#each allGroupOptions as group}
-                                <option value={group}>{group}</option>
-                            {/each}
-                        </select>
-                        {#if !showCustomGroupInput}
+            <!-- Core Info Section -->
+            {#if showInformation}
+                <CharacterSheetSection
+                    id="section-information"
+                    title="Information"
+                    isEditing={isSectionEditing("information")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("information")}
+                >
+                    {#if isSectionEditing("information")}
+                        <div class="section-edit-actions">
                             <button
                                 class="srpg-b srpg-b-sm"
-                                style="margin-top: 0.5rem;"
-                                on:click={toggleCustomGroupInput}
-                                type="button"
+                                on:click={cancelSectionEdit}
                             >
-                                + Add Custom Group
+                                Cancel
                             </button>
-                        {:else}
-                            <div
-                                class="custom-group-input"
-                                style="margin-top: 0.5rem;"
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
                             >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                    <div class="srpg-form-grid">
+                        <div class="srpg-form-field">
+                            <label for="name">Character Name</label>
+                            {#if isInformationEditable}
                                 <input
                                     type="text"
-                                    bind:value={customGroupInput}
-                                    placeholder="Enter custom group name"
-                                    on:keypress={(e) =>
-                                        e.key === "Enter" && addCustomGroup()}
+                                    id="name"
+                                    bind:value={editedCharacter.name}
+                                    required
                                 />
-                                <button
-                                    class="srpg-b srpg-b-sm srpg-b-normal"
-                                    on:click={addCustomGroup}
-                                    disabled={!customGroupInput.trim()}
-                                    type="button"
+                            {:else}
+                                <p>{character.name}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="class">Class</label>
+                            {#if isInformationEditable}
+                                <input
+                                    type="text"
+                                    id="class"
+                                    bind:value={editedCharacter.class}
+                                />
+                            {:else}
+                                <p>{character.class || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="race">Race</label>
+                            {#if isInformationEditable}
+                                <input
+                                    type="text"
+                                    id="race"
+                                    bind:value={editedCharacter.race}
+                                />
+                            {:else}
+                                <p>{character.race || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="alignment">Alignment</label>
+                            {#if isInformationEditable}
+                                <select
+                                    id="alignment"
+                                    bind:value={editedCharacter.alignment}
                                 >
-                                    Add
-                                </button>
+                                    <option value="">Select Alignment</option>
+                                    {#each alignmentOptions as alignment}
+                                        <option value={alignment}
+                                            >{alignment}</option
+                                        >
+                                    {/each}
+                                </select>
+                            {:else}
+                                <p>{character.alignment || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="background">Background</label>
+                            {#if isInformationEditable}
+                                <input
+                                    type="text"
+                                    id="background"
+                                    bind:value={editedCharacter.background}
+                                />
+                            {:else}
+                                <p>{character.background || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="group">Group</label>
+                            {#if isInformationEditable}
+                                <select
+                                    id="group"
+                                    class="srpg-select"
+                                    bind:value={editedCharacter.group}
+                                >
+                                    <option value="">No Group</option>
+                                    {#each allGroupOptions as group}
+                                        <option value={group}>{group}</option>
+                                    {/each}
+                                </select>
+                                {#if !showCustomGroupInput}
+                                    <button
+                                        class="srpg-b srpg-b-sm"
+                                        style="margin-top: 0.5rem;"
+                                        on:click={toggleCustomGroupInput}
+                                        type="button"
+                                    >
+                                        + Add Custom Group
+                                    </button>
+                                {:else}
+                                    <div
+                                        class="custom-group-input"
+                                        style="margin-top: 0.5rem;"
+                                    >
+                                        <input
+                                            type="text"
+                                            bind:value={customGroupInput}
+                                            placeholder="Enter custom group name"
+                                            on:keypress={(e) =>
+                                                e.key === "Enter" &&
+                                                addCustomGroup()}
+                                        />
+                                        <button
+                                            class="srpg-b srpg-b-sm srpg-b-normal"
+                                            on:click={addCustomGroup}
+                                            disabled={!customGroupInput.trim()}
+                                            type="button"
+                                        >
+                                            Add
+                                        </button>
+                                        <button
+                                            class="srpg-b srpg-b-sm"
+                                            on:click={toggleCustomGroupInput}
+                                            type="button"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                {/if}
+                            {:else}
+                                <p>{character.group || "—"}</p>
+                            {/if}
+                        </div>
+                    </div>
+                </CharacterSheetSection>
+            {/if}
+
+            <!-- Experience Section -->
+            {#if showExperience}
+                <CharacterSheetSection
+                    id="section-experience"
+                    title="Experience"
+                    isEditing={isSectionEditing("experience")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("experience")}
+                >
+                    {#if isSectionEditing("experience")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                    <div class="srpg-form-grid">
+                        <div class="srpg-form-field">
+                            <label for="level">Level</label>
+                            {#if isExperienceEditable}
+                                <input
+                                    type="number"
+                                    id="level"
+                                    bind:value={editedCharacter.level}
+                                    min="1"
+                                />
+                            {:else}
+                                <p>{character.level || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="xp">Experience Points</label>
+                            {#if isExperienceEditable}
+                                <input
+                                    type="number"
+                                    id="xp"
+                                    bind:value={
+                                        editedCharacter.experiencePoints
+                                    }
+                                    min="0"
+                                />
+                            {:else}
+                                <p>{character.experiencePoints || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="proficiencyBonus"
+                                >Proficiency Bonus</label
+                            >
+                            {#if isExperienceEditable}
+                                <input
+                                    type="number"
+                                    id="proficiencyBonus"
+                                    bind:value={
+                                        editedCharacter.proficiencyBonus
+                                    }
+                                />
+                            {:else}
+                                <p>
+                                    {character.proficiencyBonus !== undefined
+                                        ? character.proficiencyBonus >= 0
+                                            ? `+${character.proficiencyBonus}`
+                                            : character.proficiencyBonus
+                                        : "—"}
+                                </p>
+                            {/if}
+                        </div>
+                    </div>
+                </CharacterSheetSection>
+            {/if}
+
+            <!-- Health Section -->
+            {#if showHealth}
+                <CharacterSheetSection
+                    id="section-health"
+                    title="Health"
+                    isEditing={isSectionEditing("health")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("health")}
+                >
+                    {#if isSectionEditing("health")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                    <div class="srpg-form-grid">
+                        <div class="srpg-form-field">
+                            <label for="hpCurrent">Current Hit Points</label>
+                            {#if isHealthEditable}
+                                <input
+                                    type="number"
+                                    id="hpCurrent"
+                                    bind:value={
+                                        editedCharacter.currentHitPoints
+                                    }
+                                />
+                            {:else}
+                                <p>
+                                    {character.currentHitPoints !== undefined
+                                        ? character.currentHitPoints
+                                        : "—"}
+                                </p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="hpMax">Hit Point Maximum</label>
+                            {#if isHealthEditable}
+                                <input
+                                    type="number"
+                                    id="hpMax"
+                                    bind:value={editedCharacter.hitPointMaximum}
+                                />
+                            {:else}
+                                <p>{character.hitPointMaximum || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="hpTemp">Temporary Hit Points</label>
+                            {#if isHealthEditable}
+                                <input
+                                    type="number"
+                                    id="hpTemp"
+                                    bind:value={
+                                        editedCharacter.temporaryHitPoints
+                                    }
+                                />
+                            {:else}
+                                <p>{character.temporaryHitPoints || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="hitDice">Hit Dice</label>
+                            {#if isHealthEditable}
+                                <input
+                                    type="text"
+                                    id="hitDice"
+                                    bind:value={editedCharacter.hitDice}
+                                    placeholder="e.g., 3d8"
+                                />
+                            {:else}
+                                <p>{character.hitDice || "—"}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="deathSaveSuccesses"
+                                >Death Save Successes</label
+                            >
+                            {#if isHealthEditable}
+                                <input
+                                    type="number"
+                                    id="deathSaveSuccesses"
+                                    bind:value={
+                                        editedCharacter.deathSaveSuccesses
+                                    }
+                                    min="0"
+                                    max="3"
+                                />
+                            {:else}
+                                <p>{character.deathSaveSuccesses || 0}</p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="deathSaveFailures"
+                                >Death Save Failures</label
+                            >
+                            {#if isHealthEditable}
+                                <input
+                                    type="number"
+                                    id="deathSaveFailures"
+                                    bind:value={
+                                        editedCharacter.deathSaveFailures
+                                    }
+                                    min="0"
+                                    max="3"
+                                />
+                            {:else}
+                                <p>{character.deathSaveFailures || 0}</p>
+                            {/if}
+                        </div>
+                    </div>
+                </CharacterSheetSection>
+            {/if}
+
+            <!-- Abilities Section -->
+            {#if showAbilities}
+                <CharacterSheetSection
+                    id="section-abilities"
+                    title="Abilities"
+                    isEditing={isSectionEditing("abilities")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("abilities")}
+                >
+                    {#if isSectionEditing("abilities")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                    {#if isAbilitiesEditable}
+                        <div class="section-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={addAbility}
+                            >
+                                <svg
+                                    class="srpg-icon-sm"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path d="M12 5v14M5 12h14" />
+                                </svg>
+                                Add Ability
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={openTemplateModal}
+                            >
+                                <svg
+                                    class="srpg-icon-sm"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <rect
+                                        x="9"
+                                        y="9"
+                                        width="13"
+                                        height="13"
+                                        rx="2"
+                                        ry="2"
+                                    />
+                                    <path
+                                        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                                    />
+                                </svg>
+                                Use Template
+                            </button>
+                        </div>
+                    {/if}
+
+                    {#if editedCharacter.abilities.length > 0}
+                        <div class="abilities-grid">
+                            {#each editedCharacter.abilities as ability}
+                                <div class="ability-card">
+                                    {#if isAbilitiesEditable}
+                                        <div class="ability-edit-form">
+                                            <div class="srpg-form-field">
+                                                <label
+                                                    for="ability-name-{ability.id}"
+                                                    >Name</label
+                                                >
+                                                <input
+                                                    type="text"
+                                                    id="ability-name-{ability.id}"
+                                                    value={ability.name}
+                                                    on:input={(e) =>
+                                                        updateAbilityName(
+                                                            ability.id,
+                                                            e.currentTarget
+                                                                .value,
+                                                        )}
+                                                    placeholder="Ability Name"
+                                                />
+                                            </div>
+
+                                            <div class="ability-stats-grid">
+                                                <div class="srpg-form-field">
+                                                    <label
+                                                        for="ability-score-{ability.id}"
+                                                        >Score</label
+                                                    >
+                                                    <input
+                                                        type="number"
+                                                        id="ability-score-{ability.id}"
+                                                        value={ability.score}
+                                                        on:input={(e) =>
+                                                            updateAbilityScore(
+                                                                ability.id,
+                                                                Number(
+                                                                    e
+                                                                        .currentTarget
+                                                                        .value,
+                                                                ),
+                                                            )}
+                                                        min="1"
+                                                        max="30"
+                                                    />
+                                                </div>
+
+                                                <div class="srpg-form-field">
+                                                    <label
+                                                        for="ability-modifier-{ability.id}"
+                                                        >Modifier</label
+                                                    >
+                                                    <input
+                                                        type="number"
+                                                        id="ability-modifier-{ability.id}"
+                                                        value={ability.modifier}
+                                                        on:input={(e) =>
+                                                            updateAbilityModifier(
+                                                                ability.id,
+                                                                Number(
+                                                                    e
+                                                                        .currentTarget
+                                                                        .value,
+                                                                ),
+                                                            )}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div class="ability-proficiency">
+                                                <label
+                                                    class="proficiency-checkbox"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={ability.proficient}
+                                                        on:change={(e) =>
+                                                            updateAbilityProficient(
+                                                                ability.id,
+                                                                e.currentTarget
+                                                                    .checked,
+                                                            )}
+                                                    />
+                                                    <span>Proficient</span>
+                                                </label>
+                                            </div>
+
+                                            <button
+                                                class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
+                                                on:click={() =>
+                                                    removeAbility(ability.id)}
+                                            >
+                                                <svg
+                                                    class="srpg-icon-sm"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                >
+                                                    <path
+                                                        d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                                    />
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    {:else}
+                                        <h3>{ability.name}</h3>
+                                        <div class="ability-stats">
+                                            <p>
+                                                <strong>Score:</strong>
+                                                {ability.score}
+                                            </p>
+                                            <p>
+                                                <strong>Modifier:</strong>
+                                                {ability.modifier >= 0
+                                                    ? "+"
+                                                    : ""}{ability.modifier}
+                                            </p>
+                                            {#if ability.proficient}
+                                                <span class="srpg-badge"
+                                                    >Proficient</span
+                                                >
+                                            {/if}
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/each}
+                        </div>
+                    {:else}
+                        <p class="srpg-empty-message">
+                            No abilities added yet.
+                        </p>
+                    {/if}
+
+                    <!-- Skills Subsection -->
+                    <div class="skills-subsection">
+                        <div class="subsection-header">
+                            <h3>Skills</h3>
+                        </div>
+                        {#if isAbilitiesEditable}
+                            <div class="section-actions">
                                 <button
                                     class="srpg-b srpg-b-sm"
-                                    on:click={toggleCustomGroupInput}
-                                    type="button"
+                                    on:click={addSkill}
                                 >
-                                    Cancel
+                                    <svg
+                                        class="srpg-icon-sm"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M12 5v14M5 12h14" />
+                                    </svg>
+                                    Add Skill
+                                </button>
+                                <button
+                                    class="srpg-b srpg-b-normal srpg-b-sm"
+                                    on:click={openSkillTemplateModal}
+                                >
+                                    <svg
+                                        class="srpg-icon-sm"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <rect
+                                            x="9"
+                                            y="9"
+                                            width="13"
+                                            height="13"
+                                            rx="2"
+                                            ry="2"
+                                        />
+                                        <path
+                                            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                                        />
+                                    </svg>
+                                    Use Template
                                 </button>
                             </div>
                         {/if}
-                    {:else}
-                        <p>{character.group || "—"}</p>
-                    {/if}
-                </div>
-            </div>
-        </CharacterSheetSection>
-    {/if}
 
-    <!-- Experience Section -->
-    {#if showExperience}
-        <CharacterSheetSection
-            id="section-experience"
-            title="Experience"
-            isEditing={isSectionEditing("experience")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("experience")}
-        >
-            {#if isSectionEditing("experience")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
-            {/if}
-            <div class="srpg-form-grid">
-                <div class="srpg-form-field">
-                    <label for="level">Level</label>
-                    {#if isExperienceEditable}
-                        <input
-                            type="number"
-                            id="level"
-                            bind:value={editedCharacter.level}
-                            min="1"
-                        />
-                    {:else}
-                        <p>{character.level || "—"}</p>
-                    {/if}
-                </div>
+                        {#if editedCharacter.skills.length > 0}
+                            <div class="skills-grid">
+                                {#each editedCharacter.skills as skill}
+                                    <div class="skill-card">
+                                        {#if isAbilitiesEditable}
+                                            <div class="skill-edit-form">
+                                                <div class="srpg-form-field">
+                                                    <label
+                                                        for="skill-name-{skill.id}"
+                                                        >Name</label
+                                                    >
+                                                    <input
+                                                        type="text"
+                                                        id="skill-name-{skill.id}"
+                                                        value={skill.name}
+                                                        on:input={(e) =>
+                                                            updateSkillName(
+                                                                skill.id,
+                                                                e.currentTarget
+                                                                    .value,
+                                                            )}
+                                                        placeholder="Skill Name"
+                                                    />
+                                                </div>
 
-                <div class="srpg-form-field">
-                    <label for="xp">Experience Points</label>
-                    {#if isExperienceEditable}
-                        <input
-                            type="number"
-                            id="xp"
-                            bind:value={editedCharacter.experiencePoints}
-                            min="0"
-                        />
-                    {:else}
-                        <p>{character.experiencePoints || "—"}</p>
-                    {/if}
-                </div>
+                                                <div class="srpg-form-field">
+                                                    <label
+                                                        for="skill-ability-{skill.id}"
+                                                        >Ability</label
+                                                    >
+                                                    <select
+                                                        id="skill-ability-{skill.id}"
+                                                        value={skill.abilityId}
+                                                        on:change={(e) =>
+                                                            updateSkillAbility(
+                                                                skill.id,
+                                                                e.currentTarget
+                                                                    .value,
+                                                            )}
+                                                    >
+                                                        {#each editedCharacter.abilities as ability}
+                                                            <option
+                                                                value={ability.id}
+                                                                >{ability.name}</option
+                                                            >
+                                                        {/each}
+                                                    </select>
+                                                </div>
 
-                <div class="srpg-form-field">
-                    <label for="proficiencyBonus">Proficiency Bonus</label>
-                    {#if isExperienceEditable}
-                        <input
-                            type="number"
-                            id="proficiencyBonus"
-                            bind:value={editedCharacter.proficiencyBonus}
-                        />
-                    {:else}
-                        <p>
-                            {character.proficiencyBonus !== undefined
-                                ? character.proficiencyBonus >= 0
-                                    ? `+${character.proficiencyBonus}`
-                                    : character.proficiencyBonus
-                                : "—"}
-                        </p>
-                    {/if}
-                </div>
-            </div>
-        </CharacterSheetSection>
-    {/if}
+                                                <div class="skill-stats-grid">
+                                                    <div
+                                                        class="srpg-form-field"
+                                                    >
+                                                        <label
+                                                            for="skill-bonus-{skill.id}"
+                                                            >Bonus</label
+                                                        >
+                                                        <input
+                                                            type="number"
+                                                            id="skill-bonus-{skill.id}"
+                                                            value={skill.bonus}
+                                                            on:input={(e) =>
+                                                                updateSkillBonus(
+                                                                    skill.id,
+                                                                    Number(
+                                                                        e
+                                                                            .currentTarget
+                                                                            .value,
+                                                                    ),
+                                                                )}
+                                                        />
+                                                    </div>
 
-    <!-- Health Section -->
-    {#if showHealth}
-        <CharacterSheetSection
-            id="section-health"
-            title="Health"
-            isEditing={isSectionEditing("health")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("health")}
-        >
-            {#if isSectionEditing("health")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
-            {/if}
-            <div class="srpg-form-grid">
-                <div class="srpg-form-field">
-                    <label for="hpCurrent">Current Hit Points</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="number"
-                            id="hpCurrent"
-                            bind:value={editedCharacter.currentHitPoints}
-                        />
-                    {:else}
-                        <p>
-                            {character.currentHitPoints !== undefined
-                                ? character.currentHitPoints
-                                : "—"}
-                        </p>
-                    {/if}
-                </div>
+                                                    <div
+                                                        class="skill-proficiency"
+                                                    >
+                                                        <label
+                                                            class="proficiency-checkbox"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={skill.proficient}
+                                                                on:change={(
+                                                                    e,
+                                                                ) =>
+                                                                    updateSkillProficient(
+                                                                        skill.id,
+                                                                        e
+                                                                            .currentTarget
+                                                                            .checked,
+                                                                    )}
+                                                            />
+                                                            <span>Prof.</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
 
-                <div class="srpg-form-field">
-                    <label for="hpMax">Hit Point Maximum</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="number"
-                            id="hpMax"
-                            bind:value={editedCharacter.hitPointMaximum}
-                        />
-                    {:else}
-                        <p>{character.hitPointMaximum || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="hpTemp">Temporary Hit Points</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="number"
-                            id="hpTemp"
-                            bind:value={editedCharacter.temporaryHitPoints}
-                        />
-                    {:else}
-                        <p>{character.temporaryHitPoints || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="hitDice">Hit Dice</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="text"
-                            id="hitDice"
-                            bind:value={editedCharacter.hitDice}
-                            placeholder="e.g., 3d8"
-                        />
-                    {:else}
-                        <p>{character.hitDice || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="deathSaveSuccesses">Death Save Successes</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="number"
-                            id="deathSaveSuccesses"
-                            bind:value={editedCharacter.deathSaveSuccesses}
-                            min="0"
-                            max="3"
-                        />
-                    {:else}
-                        <p>{character.deathSaveSuccesses || 0}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="deathSaveFailures">Death Save Failures</label>
-                    {#if isHealthEditable}
-                        <input
-                            type="number"
-                            id="deathSaveFailures"
-                            bind:value={editedCharacter.deathSaveFailures}
-                            min="0"
-                            max="3"
-                        />
-                    {:else}
-                        <p>{character.deathSaveFailures || 0}</p>
-                    {/if}
-                </div>
-            </div>
-        </CharacterSheetSection>
-    {/if}
-
-    <!-- Abilities Section -->
-    {#if showAbilities}
-        <CharacterSheetSection
-            id="section-abilities"
-            title="Abilities"
-            isEditing={isSectionEditing("abilities")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("abilities")}
-        >
-            {#if isSectionEditing("abilities")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
-            {/if}
-            {#if isAbilitiesEditable}
-                <div class="section-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={addAbility}>
-                        <svg
-                            class="srpg-icon-sm"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-                        Add Ability
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={openTemplateModal}
-                    >
-                        <svg
-                            class="srpg-icon-sm"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <rect
-                                x="9"
-                                y="9"
-                                width="13"
-                                height="13"
-                                rx="2"
-                                ry="2"
-                            />
-                            <path
-                                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                            />
-                        </svg>
-                        Use Template
-                    </button>
-                </div>
-            {/if}
-
-            {#if editedCharacter.abilities.length > 0}
-                <div class="abilities-grid">
-                    {#each editedCharacter.abilities as ability}
-                        <div class="ability-card">
-                            {#if isAbilitiesEditable}
-                                <div class="ability-edit-form">
-                                    <div class="srpg-form-field">
-                                        <label for="ability-name-{ability.id}"
-                                            >Name</label
-                                        >
-                                        <input
-                                            type="text"
-                                            id="ability-name-{ability.id}"
-                                            value={ability.name}
-                                            on:input={(e) =>
-                                                updateAbilityName(
-                                                    ability.id,
-                                                    e.currentTarget.value,
-                                                )}
-                                            placeholder="Ability Name"
-                                        />
-                                    </div>
-
-                                    <div class="ability-stats-grid">
-                                        <div class="srpg-form-field">
-                                            <label
-                                                for="ability-score-{ability.id}"
-                                                >Score</label
-                                            >
-                                            <input
-                                                type="number"
-                                                id="ability-score-{ability.id}"
-                                                value={ability.score}
-                                                on:input={(e) =>
-                                                    updateAbilityScore(
-                                                        ability.id,
-                                                        Number(
-                                                            e.currentTarget
-                                                                .value,
-                                                        ),
-                                                    )}
-                                                min="1"
-                                                max="30"
-                                            />
-                                        </div>
-
-                                        <div class="srpg-form-field">
-                                            <label
-                                                for="ability-modifier-{ability.id}"
-                                                >Modifier</label
-                                            >
-                                            <input
-                                                type="number"
-                                                id="ability-modifier-{ability.id}"
-                                                value={ability.modifier}
-                                                on:input={(e) =>
-                                                    updateAbilityModifier(
-                                                        ability.id,
-                                                        Number(
-                                                            e.currentTarget
-                                                                .value,
-                                                        ),
-                                                    )}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div class="ability-proficiency">
-                                        <label class="proficiency-checkbox">
-                                            <input
-                                                type="checkbox"
-                                                checked={ability.proficient}
-                                                on:change={(e) =>
-                                                    updateAbilityProficient(
-                                                        ability.id,
-                                                        e.currentTarget.checked,
-                                                    )}
-                                            />
-                                            <span>Proficient</span>
-                                        </label>
-                                    </div>
-
-                                    <button
-                                        class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
-                                        on:click={() =>
-                                            removeAbility(ability.id)}
-                                    >
-                                        <svg
-                                            class="srpg-icon-sm"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path
-                                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                                            />
-                                        </svg>
-                                        Remove
-                                    </button>
-                                </div>
-                            {:else}
-                                <h3>{ability.name}</h3>
-                                <div class="ability-stats">
-                                    <p>
-                                        <strong>Score:</strong>
-                                        {ability.score}
-                                    </p>
-                                    <p>
-                                        <strong>Modifier:</strong>
-                                        {ability.modifier >= 0
-                                            ? "+"
-                                            : ""}{ability.modifier}
-                                    </p>
-                                    {#if ability.proficient}
-                                        <span class="srpg-badge"
-                                            >Proficient</span
-                                        >
-                                    {/if}
-                                </div>
-                            {/if}
-                        </div>
-                    {/each}
-                </div>
-            {:else}
-                <p class="srpg-empty-message">No abilities added yet.</p>
-            {/if}
-
-            <!-- Skills Subsection -->
-            <div class="skills-subsection">
-                <div class="subsection-header">
-                    <h3>Skills</h3>
-                </div>
-                {#if isAbilitiesEditable}
-                <div class="section-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={addSkill}>
-                        <svg
-                            class="srpg-icon-sm"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-                        Add Skill
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={openSkillTemplateModal}
-                    >
-                        <svg
-                            class="srpg-icon-sm"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <rect
-                                x="9"
-                                y="9"
-                                width="13"
-                                height="13"
-                                rx="2"
-                                ry="2"
-                            />
-                            <path
-                                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                            />
-                        </svg>
-                        Use Template
-                    </button>
-                </div>
-            {/if}
-
-            {#if editedCharacter.skills.length > 0}
-                <div class="skills-grid">
-                    {#each editedCharacter.skills as skill}
-                        <div class="skill-card">
-                            {#if isAbilitiesEditable}
-                                <div class="skill-edit-form">
-                                    <div class="srpg-form-field">
-                                        <label for="skill-name-{skill.id}"
-                                            >Name</label
-                                        >
-                                        <input
-                                            type="text"
-                                            id="skill-name-{skill.id}"
-                                            value={skill.name}
-                                            on:input={(e) =>
-                                                updateSkillName(
-                                                    skill.id,
-                                                    e.currentTarget.value,
-                                                )}
-                                            placeholder="Skill Name"
-                                        />
-                                    </div>
-
-                                    <div class="srpg-form-field">
-                                        <label for="skill-ability-{skill.id}"
-                                            >Ability</label
-                                        >
-                                        <select
-                                            id="skill-ability-{skill.id}"
-                                            value={skill.abilityId}
-                                            on:change={(e) =>
-                                                updateSkillAbility(
-                                                    skill.id,
-                                                    e.currentTarget.value,
-                                                )}
-                                        >
-                                            {#each editedCharacter.abilities as ability}
-                                                <option value={ability.id}
-                                                    >{ability.name}</option
+                                                <button
+                                                    class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
+                                                    on:click={() =>
+                                                        removeSkill(skill.id)}
                                                 >
-                                            {/each}
-                                        </select>
-                                    </div>
-
-                                    <div class="skill-stats-grid">
-                                        <div class="srpg-form-field">
-                                            <label for="skill-bonus-{skill.id}"
-                                                >Bonus</label
-                                            >
-                                            <input
-                                                type="number"
-                                                id="skill-bonus-{skill.id}"
-                                                value={skill.bonus}
-                                                on:input={(e) =>
-                                                    updateSkillBonus(
-                                                        skill.id,
-                                                        Number(
-                                                            e.currentTarget
-                                                                .value,
-                                                        ),
-                                                    )}
-                                            />
-                                        </div>
-
-                                        <div class="skill-proficiency">
-                                            <label class="proficiency-checkbox">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={skill.proficient}
-                                                    on:change={(e) =>
-                                                        updateSkillProficient(
-                                                            skill.id,
-                                                            e.currentTarget
-                                                                .checked,
-                                                        )}
-                                                />
-                                                <span>Prof.</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        class="srpg-b srpg-b-danger srpg-b-sm remove-btn"
-                                        on:click={() => removeSkill(skill.id)}
-                                    >
-                                        <svg
-                                            class="srpg-icon-sm"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path
-                                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                                            />
-                                        </svg>
-                                        Remove
-                                    </button>
-                                </div>
-                            {:else}
-                                <div class="skill-display">
-                                    <h4 class="skill-name">{skill.name}</h4>
-                                    <p class="skill-ability">
-                                        ({getAbilityName(skill.abilityId)})
-                                    </p>
-                                    <div class="skill-stats">
-                                        <span class="skill-bonus">
-                                            {skill.bonus >= 0
-                                                ? "+"
-                                                : ""}{skill.bonus}
-                                        </span>
-                                        {#if skill.proficient}
-                                            <span
-                                                class="srpg-badge srpg-badge-sm"
-                                                >Prof</span
-                                            >
+                                                    <svg
+                                                        class="srpg-icon-sm"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path
+                                                            d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                                        />
+                                                    </svg>
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        {:else}
+                                            <div class="skill-display">
+                                                <h4 class="skill-name">
+                                                    {skill.name}
+                                                </h4>
+                                                <p class="skill-ability">
+                                                    ({getAbilityName(
+                                                        skill.abilityId,
+                                                    )})
+                                                </p>
+                                                <div class="skill-stats">
+                                                    <span class="skill-bonus">
+                                                        {skill.bonus >= 0
+                                                            ? "+"
+                                                            : ""}{skill.bonus}
+                                                    </span>
+                                                    {#if skill.proficient}
+                                                        <span
+                                                            class="srpg-badge srpg-badge-sm"
+                                                            >Prof</span
+                                                        >
+                                                    {/if}
+                                                </div>
+                                            </div>
                                         {/if}
                                     </div>
-                                </div>
+                                {/each}
+                            </div>
+                        {:else}
+                            <p class="srpg-empty-message">
+                                No skills added yet.
+                            </p>
+                        {/if}
+                    </div>
+                </CharacterSheetSection>
+            {/if}
+
+            <!-- Combat Stats Section -->
+            {#if showCombat}
+                <CharacterSheetSection
+                    id="section-combat"
+                    title="Combat Stats"
+                    isEditing={isSectionEditing("combat")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("combat")}
+                >
+                    {#if isSectionEditing("combat")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                    <div class="srpg-form-grid">
+                        <div class="srpg-form-field">
+                            <label for="ac">Armor Class</label>
+                            {#if isCombatEditable}
+                                <input
+                                    type="number"
+                                    id="ac"
+                                    bind:value={editedCharacter.armorClass}
+                                />
+                            {:else}
+                                <p>{character.armorClass || "—"}</p>
                             {/if}
                         </div>
-                    {/each}
-                </div>
-            {:else}
-                <p class="srpg-empty-message">No skills added yet.</p>
+
+                        <div class="srpg-form-field">
+                            <label for="initiative">Initiative</label>
+                            {#if isCombatEditable}
+                                <input
+                                    type="number"
+                                    id="initiative"
+                                    bind:value={editedCharacter.initiative}
+                                />
+                            {:else}
+                                <p>
+                                    {character.initiative
+                                        ? (character.initiative >= 0
+                                              ? "+"
+                                              : "") + character.initiative
+                                        : "—"}
+                                </p>
+                            {/if}
+                        </div>
+
+                        <div class="srpg-form-field">
+                            <label for="speed">Speed</label>
+                            {#if isCombatEditable}
+                                <input
+                                    type="number"
+                                    id="speed"
+                                    bind:value={editedCharacter.speed}
+                                />
+                            {:else}
+                                <p>
+                                    {character.speed
+                                        ? character.speed + " ft."
+                                        : "—"}
+                                </p>
+                            {/if}
+                        </div>
+                    </div>
+                </CharacterSheetSection>
             {/if}
-            </div>
-        </CharacterSheetSection>
-    {/if}
 
-    <!-- Combat Stats Section -->
-    {#if showCombat}
-        <CharacterSheetSection
-            id="section-combat"
-            title="Combat Stats"
-            isEditing={isSectionEditing("combat")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("combat")}
-        >
-            {#if isSectionEditing("combat")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
+            <!-- Items Section -->
+            {#if showItems}
+                <CharacterSheetSection
+                    id="section-items"
+                    title="Items"
+                    isEditing={isSectionEditing("items")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("items")}
+                >
+                    {#if isSectionEditing("items")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                </CharacterSheetSection>
             {/if}
-            <div class="srpg-form-grid">
-                <div class="srpg-form-field">
-                    <label for="ac">Armor Class</label>
-                    {#if isCombatEditable}
-                        <input
-                            type="number"
-                            id="ac"
-                            bind:value={editedCharacter.armorClass}
-                        />
-                    {:else}
-                        <p>{character.armorClass || "—"}</p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="initiative">Initiative</label>
-                    {#if isCombatEditable}
-                        <input
-                            type="number"
-                            id="initiative"
-                            bind:value={editedCharacter.initiative}
-                        />
-                    {:else}
-                        <p>
-                            {character.initiative
-                                ? (character.initiative >= 0 ? "+" : "") +
-                                  character.initiative
-                                : "—"}
-                        </p>
-                    {/if}
-                </div>
-
-                <div class="srpg-form-field">
-                    <label for="speed">Speed</label>
-                    {#if isCombatEditable}
-                        <input
-                            type="number"
-                            id="speed"
-                            bind:value={editedCharacter.speed}
-                        />
-                    {:else}
-                        <p>
-                            {character.speed ? character.speed + " ft." : "—"}
-                        </p>
-                    {/if}
-                </div>
-            </div>
-        </CharacterSheetSection>
-    {/if}
-
-    <!-- Items Section -->
-    {#if showItems}
-        <CharacterSheetSection
-            id="section-items"
-            title="Items"
-            isEditing={isSectionEditing("items")}
-            showEditButton={!isEditing && !isEditingSections}
-            on:edit={() => startEditingSection("items")}
-        >
-            {#if isSectionEditing("items")}
-                <div class="section-edit-actions">
-                    <button class="srpg-b srpg-b-sm" on:click={cancelSectionEdit}>
-                        Cancel
-                    </button>
-                    <button
-                        class="srpg-b srpg-b-normal srpg-b-sm"
-                        on:click={saveSection}
-                    >
-                        Save
-                    </button>
-                </div>
-            {/if} 
-        </CharacterSheetSection>
-    {/if}
-    </div>
+        </div>
     </div>
 </div>
 
@@ -1382,10 +1430,6 @@
         flex-direction: column;
         height: 100%;
         overflow: hidden;
-    }
-
-    .character-sheet-sticky-header {
-        flex-shrink: 0;
     }
 
     .character-sheet-scroll {
@@ -1428,38 +1472,16 @@
 
     /* Character Sheet Container */
     .character-sheet {
-        position: relative;  
+        position: relative;
         max-width: 100%;
         width: 100vw;
     }
 
     @media (min-width: 768px) {
-        .character-sheet { 
+        .character-sheet {
+            padding-right: 0.5rem; /* Small room for the scrollbar */
             padding-bottom: 1.5rem;
         }
-    }
-
-    /* Edit Actions */
-    .edit-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    @media (min-width: 640px) {
-        .edit-actions {
-            flex-direction: row;
-            justify-content: end;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    .edit-actions button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
     }
 
     /* Section Actions */
