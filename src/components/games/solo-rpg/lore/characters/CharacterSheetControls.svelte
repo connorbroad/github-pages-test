@@ -173,13 +173,19 @@
 <style>
     /* Mobile Section Filter */
     .section-filter {
+        position: fixed;
+        bottom: calc(70px + env(safe-area-inset-bottom));
+        left: 0;
+        right: 0;
+        z-index: 90;
         display: flex;
         flex-direction: column;
         gap: 0;
         background-color: #2c2c2c;
-        border-radius: 8px;
+        border-radius: 0;
         overflow: hidden;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .section-filter-icons {
@@ -352,6 +358,8 @@
             flex-direction: row;
             align-items: flex-end;
             justify-content: flex-end;
+
+            box-shadow: none;
         }
 
         .section-filter-icons {

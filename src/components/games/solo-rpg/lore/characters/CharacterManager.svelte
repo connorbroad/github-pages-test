@@ -550,6 +550,7 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
 
     .character-list-view {
@@ -568,6 +569,10 @@
 
     @media (min-width: 768px) {
         .character-manager {
+            padding-bottom: 0;
+        }
+
+        .character-sheet-container {
             padding-bottom: 0;
         }
     }
