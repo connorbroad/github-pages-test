@@ -2072,18 +2072,13 @@
     .custom-group-input button {
         flex-shrink: 0;
     }
-
-    /* Section Header with Remove Button */
+ 
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
-    }
-
-    .section-header h2 {
-        margin: 0;
-    }
+    } 
 
     .character-sheet-controls {
         position: relative;
