@@ -1588,111 +1588,109 @@
 
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0;
     }
 
     .section-filter-icons {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0;
 
-        padding: 0.75rem 1.5rem;
+        padding: 0;
+        height: 60px;
 
-        border: 1px solid #cfcfcf;
-        background: rgb(250, 253, 255);
+        background-color: #2c2c2c;
+        border-top: 1px solid #3a3a3a;
 
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .section-icon-btn {
         position: relative;
-        width: 2.75rem;
-        height: 2.75rem;
-        padding: 0;
-        background: white;
-        border: 2px solid #cbd5e1;
-        border-radius: 10px;
+        flex: 1;
+        height: 100%;
+        min-width: 0;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        border-top: 3px solid transparent;
+        border-radius: 0;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s ease;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 0.25rem;
         overflow: visible;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: none;
     }
 
     .section-icon-btn svg {
-        width: 1.375rem;
-        height: 1.375rem;
-        color: #64748b;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        color: #b0b0b0;
+        transition: all 0.2s ease;
         position: relative;
         z-index: 1;
     }
 
     .section-icon-btn::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-        opacity: 0;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 0;
-        border-radius: 8px;
+        display: none;
     }
 
     .section-icon-btn:hover {
-        transform: translateY(-2px);
-        border-color: #3b82f6;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        transform: none;
+        background-color: #3a3a3a;
+        border-color: transparent;
+        box-shadow: none;
     }
 
     .section-icon-btn:hover svg {
-        color: #3b82f6;
-        transform: scale(1.1);
+        color: #ffffff;
+        transform: none;
     }
 
     .section-icon-btn:active {
-        transform: translateY(0);
+        transform: none;
     }
 
     /* Active state (included sections in edit mode or selected in view mode) */
     .section-icon-btn.active {
-        border-color: #3b82f6;
-        box-shadow:
-            0 4px 12px rgba(59, 130, 246, 0.4),
-            0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: #4a4a4a;
+        border-top-color: #4a9eff;
+        border-bottom: none;
+        box-shadow: none;
+        padding-top: calc(0.5rem - 3px);
     }
 
     .section-icon-btn.active::before {
-        opacity: 1;
+        display: none;
     }
 
     .section-icon-btn.active svg {
-        color: white;
-        transform: scale(1.05);
+        color: #ffffff;
+        transform: none;
     }
 
     /* Excluded state (sections not included in edit mode) */
     .section-icon-btn.excluded {
-        background: #f3f4f6;
-        border-color: #e5e7eb;
-        border-style: dashed;
-        opacity: 0.6;
+        background: #2c2c2c;
+        border-color: transparent;
+        border-style: solid;
+        opacity: 0.4;
     }
 
     .section-icon-btn.excluded svg {
-        color: #9ca3af;
+        color: #b0b0b0;
     }
 
     .section-icon-btn.excluded:hover {
-        opacity: 0.8;
-        border-color: #10b981;
-        background: #f0fdf4;
+        opacity: 0.6;
+        border-color: transparent;
+        background: #3a3a3a;
     }
 
     .section-icon-btn.excluded:hover svg {
@@ -1706,18 +1704,19 @@
 
     .section-icon-btn.disabled:hover {
         transform: none;
-        border-color: #3b82f6;
+        background-color: #4a4a4a;
+        border-top-color: #4a9eff;
     }
 
     /* Section status indicator (shown in edit mode) */
     .section-status-indicator {
         position: absolute;
-        top: -4px;
-        right: -4px;
-        width: 14px;
-        height: 14px;
+        top: 4px;
+        right: 4px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        border: 2px solid white;
+        border: 1px solid #2c2c2c;
         background: #0c1329;
         z-index: 2;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1733,18 +1732,13 @@
 
     /* Small screen adjustments */
     @media (max-width: 380px) {
-        .section-icon-btn {
-            width: 2.5rem;
-            height: 2.5rem;
-        }
-
         .section-icon-btn svg {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 18px;
+            height: 18px;
         }
 
         .section-filter-icons {
-            gap: 0.375rem;
+            height: 55px;
         }
     }
 
@@ -1776,6 +1770,112 @@
             background: transparent;
             box-shadow: none;
             gap: 0.5rem;
+            height: auto;
+            flex-wrap: wrap;
+        }
+
+        .section-icon-btn {
+            width: 2.75rem;
+            height: 2.75rem;
+            flex: 0 0 auto;
+            padding: 0;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-icon-btn svg {
+            width: 1.375rem;
+            height: 1.375rem;
+            color: #64748b;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-icon-btn::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            opacity: 0;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+            border-radius: 8px;
+        }
+
+        .section-icon-btn:hover {
+            transform: translateY(-2px);
+            background-color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .section-icon-btn:hover svg {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .section-icon-btn:active {
+            transform: translateY(0);
+        }
+
+        .section-icon-btn.active {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow:
+                0 4px 12px rgba(59, 130, 246, 0.4),
+                0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-bottom: 2px solid #3b82f6;
+            padding-top: 0;
+        }
+
+        .section-icon-btn.active::before {
+            opacity: 0;
+        }
+
+        .section-icon-btn.active svg {
+            color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .section-icon-btn.excluded {
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+            border-style: dashed;
+            opacity: 0.6;
+        }
+
+        .section-icon-btn.excluded svg {
+            color: #9ca3af;
+        }
+
+        .section-icon-btn.excluded:hover {
+            opacity: 0.8;
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .section-icon-btn.excluded:hover svg {
+            color: #10b981;
+        }
+
+        .section-icon-btn.disabled:hover {
+            transform: none;
+            border-color: #3b82f6;
+            background-color: white;
+        }
+
+        .section-status-indicator {
+            top: -4px;
+            right: -4px;
+            width: 14px;
+            height: 14px;
+            border: 2px solid white;
         }
     }
 
