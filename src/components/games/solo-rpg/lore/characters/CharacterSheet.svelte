@@ -1299,6 +1299,34 @@
                 </CharacterSheetSection>
             {/if}
 
+            <!-- Items Section -->
+            {#if showItems}
+                <CharacterSheetSection
+                    id="section-items"
+                    title="Items"
+                    isEditing={isSectionEditing("items")}
+                    showEditButton={!isEditing && !isEditingSections}
+                    on:edit={() => startEditingSection("items")}
+                >
+                    {#if isSectionEditing("items")}
+                        <div class="section-edit-actions">
+                            <button
+                                class="srpg-b srpg-b-sm"
+                                on:click={cancelSectionEdit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-normal srpg-b-sm"
+                                on:click={saveSection}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    {/if}
+                </CharacterSheetSection>
+            {/if}
+
             <!-- Combat Stats Section -->
             {#if showCombat}
                 <CharacterSheetSection
@@ -1374,34 +1402,6 @@
                             {/if}
                         </div>
                     </div>
-                </CharacterSheetSection>
-            {/if}
-
-            <!-- Items Section -->
-            {#if showItems}
-                <CharacterSheetSection
-                    id="section-items"
-                    title="Items"
-                    isEditing={isSectionEditing("items")}
-                    showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("items")}
-                >
-                    {#if isSectionEditing("items")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                 </CharacterSheetSection>
             {/if}
         </div>

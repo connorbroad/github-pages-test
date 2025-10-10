@@ -152,8 +152,7 @@
     }
 
     function editCharacterSections() {
-        isEditingSections = true;
-        isEditing = false;
+        isEditingSections = !isEditingSections;
     }
 
     function saveCharacter(event: CustomEvent<Character>) {
@@ -307,7 +306,8 @@
                         style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;"
                     >
                         <button
-                            class="srpg-b srpg-b-normal"
+                            id="edit-sections-button"
+                            class="srpg-b srpg-b-normal {isEditingSections ? 'srpg-b-toggle-active' : ''}"
                             style="padding: 0.5rem; display: flex; align-items: center;"
                             on:click={editCharacterSections}
                             aria-label="Edit Sections"
