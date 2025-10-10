@@ -563,6 +563,7 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
+        padding-top: 0.2rem;
     }
 
     @media (min-width: 768px) {
