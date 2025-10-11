@@ -1,43 +1,66 @@
 <script lang="ts">
-    import DiceRoller from './oracle/components/dice-roller/DiceRoller.svelte';
-    import CardDealer from './oracle/components/card-dealer/CardDealer.svelte';
-    import GameOracle from './oracle/GameOracle.svelte';
-    import DataManager from './data/DataManager.svelte';
-    import Sidebar from './Sidebar.svelte';
-    import GameBlueprintEditor from './game-management/GameBlueprintEditor.svelte';
-    import CampaignCreator from './game-management/CampaignCreator.svelte';
-    import CampaignLoadConfirm from './game-management/CampaignLoadConfirm.svelte';
-    import StoryView from './lore/StoryView.svelte';
-    import MapView from './map/MapView.svelte';
-    import { loadGameBlueprints, saveGameBlueprints, loadCampaigns, saveCampaigns } from './data/storage-utils';
-    import { generateId } from './oracle/scripts/oracleTypes';
-    import { type GameBlueprint, type Campaign } from './data/storage-utils';
-    import { activeCampaign } from './game-management/campaign-store';
-    import { onMount } from 'svelte';
-    import './solo-rpg-styles.css';
-    
-    type View = 'home' | 'tools' | 'oracle' | 'settings' | 'map' | 'story';
-    let currentView: View = 'home';
+    import DiceRoller from "./oracle/components/dice-roller/DiceRoller.svelte";
+    import CardDealer from "./oracle/components/card-dealer/CardDealer.svelte";
+    import GameOracle from "./oracle/GameOracle.svelte";
+    import DataManager from "./data/DataManager.svelte";
+    import Sidebar from "./Sidebar.svelte";
+    import SecondarySidebar from "./SecondarySidebar.svelte";
+    import TertiarySidebar from "./TertiarySidebar.svelte";
+    import GameBlueprintEditor from "./game-management/GameBlueprintEditor.svelte";
+    import CampaignCreator from "./game-management/CampaignCreator.svelte";
+    import CampaignLoadConfirm from "./game-management/CampaignLoadConfirm.svelte";
+    import StoryView from "./lore/StoryView.svelte";
+    import MapView from "./map/MapView.svelte";
+    import {
+        loadGameBlueprints,
+        saveGameBlueprints,
+        loadCampaigns,
+        saveCampaigns,
+    } from "./data/storage-utils";
+    import { generateId } from "./oracle/scripts/oracleTypes";
+    import { type GameBlueprint, type Campaign } from "./data/storage-utils";
+    import { activeCampaign } from "./game-management/campaign-store";
+    import { onMount } from "svelte";
+    import "./solo-rpg-styles.css";
+
+    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story";
+    let currentView: View = "home";
+    let activeStoryTab: "chronicle" | "characters" | "codex" = "chronicle";
+
+    // Tertiary sidebar state (for character sheet controls)
+    let showTertiarySidebar = false;
+    let tertiaryVisibleSections: string[] = ["information"];
+    let tertiarySelectedSections: Set<string> = new Set();
+    let tertiaryIsEditingSections: boolean = false;
+    let currentCharacter: any = null;
+
     let showDiceRoller = false;
     let showCardDealer = false;
+    let storyViewComponent: any;
+
     let showBlueprintEditor = false;
     let showCampaignCreator = false;
     let showCampaignLoadConfirm = false;
     let gameBlueprints: GameBlueprint[] = [];
     let campaigns: Campaign[] = [];
     let editingBlueprint: GameBlueprint = {
-        id: '',
-        title: '',
-        defaultFortunes: []
+        id: "",
+        title: "",
+        defaultFortunes: [],
     };
     let selectedBlueprint: GameBlueprint | null = null;
     let selectedCampaignForLoad: Campaign | null = null;
     let expandedBlueprints: Set<string> = new Set();
 
-    $: campaignsByBlueprint = gameBlueprints.reduce((acc, blueprint) => {
-        acc[blueprint.id] = campaigns.filter(c => c.blueprintId === blueprint.id);
-        return acc;
-    }, {} as Record<string, Campaign[]>);
+    $: campaignsByBlueprint = gameBlueprints.reduce(
+        (acc, blueprint) => {
+            acc[blueprint.id] = campaigns.filter(
+                (c) => c.blueprintId === blueprint.id,
+            );
+            return acc;
+        },
+        {} as Record<string, Campaign[]>,
+    );
 
     onMount(() => {
         gameBlueprints = loadGameBlueprints();
@@ -47,20 +70,60 @@
 
     function handleNavigate(view: View) {
         currentView = view;
+        // Reset story tab when leaving story view
+        if (view !== "story") {
+            activeStoryTab = "chronicle";
+            // Hide tertiary sidebar when leaving story view
+            showTertiarySidebar = false;
+        }
+    }
+
+    function handleStoryTabChange(tab: "chronicle" | "characters" | "codex") {
+        activeStoryTab = tab;
+        // Clear tertiary sidebar when switching tabs
+        if (tab !== "characters") {
+            showTertiarySidebar = false;
+        }
+    }
+
+    function handleCharacterSelected(event: CustomEvent) {
+        const {
+            character,
+            isEditing,
+            isEditingSections,
+            selectedSections,
+            visibleSections,
+        } = event.detail;
+        currentCharacter = character;
+        tertiaryVisibleSections = visibleSections;
+        tertiarySelectedSections = selectedSections;
+        tertiaryIsEditingSections = isEditingSections;
+        showTertiarySidebar = true;
+    }
+
+    function handleCharacterDeselected() {
+        showTertiarySidebar = false;
+        currentCharacter = null;
+    }
+
+    function handleTertiaryToggleSection(section: string) {
+        if (storyViewComponent && storyViewComponent.toggleCharacterSection) {
+            storyViewComponent.toggleCharacterSection(section);
+        }
     }
 
     function handleDataImported() {
         // Refresh all components that use stored data
         gameBlueprints = loadGameBlueprints();
         campaigns = loadCampaigns();
-        currentView = 'settings';
+        currentView = "settings";
     }
 
     function openCreateBlueprint() {
         editingBlueprint = {
             id: generateId(),
-            title: '',
-            defaultFortunes: []
+            title: "",
+            defaultFortunes: [],
         };
         showBlueprintEditor = true;
     }
@@ -69,21 +132,23 @@
         editingBlueprint = {
             id: blueprint.id,
             title: blueprint.title,
-            defaultFortunes: [...blueprint.defaultFortunes]
+            defaultFortunes: [...blueprint.defaultFortunes],
         };
         showBlueprintEditor = true;
     }
 
     function saveBlueprint(event: CustomEvent<GameBlueprint>) {
         const blueprint = event.detail;
-        const existingIndex = gameBlueprints.findIndex(b => b.id === blueprint.id);
-        
+        const existingIndex = gameBlueprints.findIndex(
+            (b) => b.id === blueprint.id,
+        );
+
         if (existingIndex >= 0) {
             gameBlueprints[existingIndex] = blueprint;
         } else {
             gameBlueprints = [...gameBlueprints, blueprint];
         }
-        
+
         saveGameBlueprints(gameBlueprints);
         showBlueprintEditor = false;
     }
@@ -95,23 +160,23 @@
 
     function createCampaign(event: CustomEvent<string>) {
         if (!selectedBlueprint) return;
-        
+
         const campaignTitle = event.detail;
         const newCampaign: Campaign = {
             id: generateId(),
             title: campaignTitle,
             blueprintId: selectedBlueprint.id,
             blueprintTitle: selectedBlueprint.title,
-            createdAt: Date.now()
+            createdAt: Date.now(),
         };
-        
+
         campaigns = [...campaigns, newCampaign];
         saveCampaigns(campaigns);
-        
+
         // Automatically expand the blueprint to show the new campaign
         expandedBlueprints.add(selectedBlueprint.id);
         expandedBlueprints = expandedBlueprints;
-        
+
         showCampaignCreator = false;
         selectedBlueprint = null;
     }
@@ -126,15 +191,15 @@
     }
 
     function getCampaignsForBlueprint(blueprintId: string): Campaign[] {
-        return campaigns.filter(c => c.blueprintId === blueprintId);
+        return campaigns.filter((c) => c.blueprintId === blueprintId);
     }
 
     function formatDate(timestamp: number): string {
         const date = new Date(timestamp);
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
+        return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
         });
     }
 
@@ -151,8 +216,8 @@
         selectedCampaignForLoad = null;
 
         // Switch to story view
-        currentView = 'story'; 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        currentView = "story";
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function unloadCampaign() {
@@ -162,21 +227,43 @@
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
 
-<main class="content">
-    {#if currentView === 'home'}
+<SecondarySidebar
+    show={currentView === "story"}
+    activeTab={activeStoryTab}
+    onTabChange={handleStoryTabChange}
+/>
+
+<TertiarySidebar
+    show={showTertiarySidebar}
+    visibleSections={tertiaryVisibleSections}
+    selectedSections={tertiarySelectedSections}
+    isEditingSections={tertiaryIsEditingSections}
+    onToggleSection={handleTertiaryToggleSection}
+/>
+
+<main
+    class="content"
+    class:has-secondary={currentView === "story"}
+    class:has-tertiary={showTertiarySidebar}
+>
+    {#if currentView === "home"}
         <div class="home-view">
             <h1>Solo RPG</h1>
             <p>Welcome to your Solo RPG companion!</p>
-            
+
             {#if $activeCampaign}
                 <div class="info-card">
                     <div class="banner-content">
                         <div class="banner-info">
                             <span class="banner-label">Active Campaign:</span>
-                            <span class="banner-title">{$activeCampaign.title}</span>
-                            <span class="banner-meta">{$activeCampaign.blueprintTitle}</span>
+                            <span class="banner-title"
+                                >{$activeCampaign.title}</span
+                            >
+                            <span class="banner-meta"
+                                >{$activeCampaign.blueprintTitle}</span
+                            >
                         </div>
-                        <button 
+                        <button
                             class="srpg-b srpg-b-sm srpg-b-normal"
                             on:click={unloadCampaign}
                             title="Unload campaign"
@@ -188,25 +275,35 @@
             {/if}
 
             <div class="new-game-section">
-                <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateBlueprint}>
+                <button
+                    class="srpg-b srpg-b-create srpg-b-w-full"
+                    on:click={openCreateBlueprint}
+                >
                     + Create Game Blueprint
                 </button>
-                
+
                 {#if gameBlueprints.length > 0}
                     <h2>Your Games</h2>
-                    
+
                     <div class="blueprints-list">
                         {#each gameBlueprints as blueprint (blueprint.id)}
-                            {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
-                            {@const isExpanded = expandedBlueprints.has(blueprint.id)}
-                            
+                            {@const blueprintCampaigns =
+                                campaignsByBlueprint[blueprint.id] || []}
+                            {@const isExpanded = expandedBlueprints.has(
+                                blueprint.id,
+                            )}
+
                             <div class="blueprint-section">
                                 <div class="blueprint-header">
-                                    <button 
+                                    <button
                                         class="blueprint-toggle"
-                                        on:click={() => toggleBlueprint(blueprint.id)}
+                                        on:click={() =>
+                                            toggleBlueprint(blueprint.id)}
                                     >
-                                        <span class="collapse-icon" class:expanded={isExpanded}>
+                                        <span
+                                            class="collapse-icon"
+                                            class:expanded={isExpanded}
+                                        >
                                             ▶
                                         </span>
                                         <span class="blueprint-title">
@@ -214,19 +311,29 @@
                                         </span>
                                     </button>
                                     <div class="blueprint-actions">
-                                        <button 
+                                        <button
                                             class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-sm"
-                                            on:click={() => openEditBlueprint(blueprint)}
+                                            on:click={() =>
+                                                openEditBlueprint(blueprint)}
                                             title="Edit blueprint"
                                             aria-label="Edit blueprint"
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
-                                                <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                width="1em"
+                                                height="1em"
+                                            >
+                                                <path
+                                                    fill="currentColor"
+                                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                                                />
                                             </svg>
                                         </button>
-                                        <button 
+                                        <button
                                             class="add-campaign-btn srpg-b srpg-b-create srpg-b-sm"
-                                            on:click={() => openCampaignCreator(blueprint)}
+                                            on:click={() =>
+                                                openCampaignCreator(blueprint)}
                                             title="Create new campaign"
                                         >
                                             +
@@ -239,25 +346,63 @@
                                         {#if blueprintCampaigns.length > 0}
                                             <div class="campaigns-grid">
                                                 {#each blueprintCampaigns as campaign}
-                                                    <div class="info-card campaign-card">
-                                                        <div class="campaign-info">
-                                                            <strong class="campaign-name">{campaign.title}</strong>
-                                                            <span class="campaign-date">
-                                                                {formatDate(campaign.createdAt)}
+                                                    <div
+                                                        class="info-card campaign-card"
+                                                    >
+                                                        <div
+                                                            class="campaign-info"
+                                                        >
+                                                            <strong
+                                                                class="campaign-name"
+                                                                >{campaign.title}</strong
+                                                            >
+                                                            <span
+                                                                class="campaign-date"
+                                                            >
+                                                                {formatDate(
+                                                                    campaign.createdAt,
+                                                                )}
                                                             </span>
                                                         </div>
-                                                        <div class="campaign-actions">
+                                                        <div
+                                                            class="campaign-actions"
+                                                        >
                                                             <button
                                                                 class="srpg-b srpg-b-normal campaign-play-button"
-                                                                class:active={$activeCampaign?.id === campaign.id}
-                                                                on:click={() => openCampaignLoadConfirm(campaign)}
-                                                                disabled={$activeCampaign?.id === campaign.id}
+                                                                class:active={$activeCampaign?.id ===
+                                                                    campaign.id}
+                                                                on:click={() =>
+                                                                    openCampaignLoadConfirm(
+                                                                        campaign,
+                                                                    )}
+                                                                disabled={$activeCampaign?.id ===
+                                                                    campaign.id}
                                                                 aria-label="Load campaign"
                                                             >
                                                                 {#if $activeCampaign?.id === campaign.id}
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em' {...$$props}><path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196"/></svg>
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24"
+                                                                        width="1em"
+                                                                        height="1em"
+                                                                        {...$$props}
+                                                                        ><path
+                                                                            fill="currentColor"
+                                                                            d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196"
+                                                                        /></svg
+                                                                    >
                                                                 {:else}
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"/></svg>
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24"
+                                                                        width="1.5em"
+                                                                        height="1.5em"
+                                                                        {...$$props}
+                                                                        ><path
+                                                                            fill="currentColor"
+                                                                            d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"
+                                                                        /></svg
+                                                                    >
                                                                 {/if}
                                                             </button>
                                                         </div>
@@ -266,7 +411,8 @@
                                             </div>
                                         {:else}
                                             <p class="no-campaigns">
-                                                No campaigns yet. Click the + button to create one.
+                                                No campaigns yet. Click the +
+                                                button to create one.
                                             </p>
                                         {/if}
                                     </div>
@@ -277,15 +423,15 @@
                 {/if}
             </div>
         </div>
-    {:else if currentView === 'oracle'}
+    {:else if currentView === "oracle"}
         <div class="oracle-view">
             <h1>Oracle</h1>
-            <GameOracle 
-                on:navigateHome={() => handleNavigate('home')}
-                on:navigateToStory={() => handleNavigate('story')}
+            <GameOracle
+                on:navigateHome={() => handleNavigate("home")}
+                on:navigateToStory={() => handleNavigate("story")}
             />
         </div>
-    {:else if currentView === 'settings'}
+    {:else if currentView === "settings"}
         <div class="settings-view">
             <h1>Settings</h1>
             <div class="settings-description">
@@ -293,23 +439,27 @@
             </div>
             <DataManager onDataImported={handleDataImported} />
         </div>
-    {:else if currentView === 'map'}
-        <MapView on:navigateHome={() => handleNavigate('home')} />
-    {:else if currentView === 'story'}
-        <StoryView 
-            on:openDiceRoller={() => showDiceRoller = true}
-            on:openCardDealer={() => showCardDealer = true}
-            on:navigateHome={() => handleNavigate('home')}
+    {:else if currentView === "map"}
+        <MapView on:navigateHome={() => handleNavigate("home")} />
+    {:else if currentView === "story"}
+        <StoryView
+            bind:this={storyViewComponent}
+            activeTab={activeStoryTab}
+            on:openDiceRoller={() => (showDiceRoller = true)}
+            on:openCardDealer={() => (showCardDealer = true)}
+            on:navigateHome={() => handleNavigate("home")}
+            on:characterSelected={handleCharacterSelected}
+            on:characterDeselected={handleCharacterDeselected}
         />
     {/if}
 </main>
 
-<DiceRoller show={showDiceRoller} onClose={() => showDiceRoller = false} />
-<CardDealer show={showCardDealer} onClose={() => showCardDealer = false} />
-<GameBlueprintEditor 
-    show={showBlueprintEditor} 
+<DiceRoller show={showDiceRoller} onClose={() => (showDiceRoller = false)} />
+<CardDealer show={showCardDealer} onClose={() => (showCardDealer = false)} />
+<GameBlueprintEditor
+    show={showBlueprintEditor}
     blueprint={editingBlueprint}
-    on:close={() => showBlueprintEditor = false}
+    on:close={() => (showBlueprintEditor = false)}
     on:save={saveBlueprint}
 />
 <CampaignCreator
@@ -342,8 +492,18 @@
     /* Desktop - account for left sidebar */
     @media (min-width: 769px) {
         .content {
-            margin-left: 80px;  
+            margin-left: 80px;
             padding: 0 2rem;
+        }
+
+        /* Account for secondary sidebar when shown */
+        .content.has-secondary {
+            margin-left: 165px;
+        }
+
+        /* Account for tertiary sidebar when shown */
+        .content.has-tertiary {
+            margin-left: 250px;
         }
     }
 
@@ -353,13 +513,20 @@
             padding: 1rem;
             min-height: 100vh;
         }
-        
+
         /* Add bottom padding for non-fullscreen views (home, settings, oracle) */
         .home-view,
         .oracle-view,
         .settings-view {
             padding-bottom: calc(90px + env(safe-area-inset-bottom));
         }
+
+        /* Account for secondary sidebar when shown */
+        .content.has-secondary {
+            padding-bottom: 0;
+        }
+
+        /* No additional changes for tertiary on mobile - it stacks above secondary */
     }
 
     /* Views */
@@ -407,7 +574,7 @@
     .banner-meta {
         font-size: 0.9rem;
         opacity: 0.85;
-    } 
+    }
 
     @media (max-width: 600px) {
         .banner-content {
@@ -539,7 +706,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
         min-width: 50px;
     }
 
@@ -549,24 +716,24 @@
         gap: 0.75rem;
     }
 
-    .campaign-card { 
+    .campaign-card {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
         padding: 1rem;
         min-height: 80px;
-        text-align: left; 
+        text-align: left;
         position: relative;
         transition: all 0.2s ease;
         width: 100%;
         gap: 0.5rem;
-    } 
+    }
 
     .campaign-info {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem; 
+        gap: 0.25rem;
         flex-grow: 1;
     }
 
@@ -581,8 +748,8 @@
         font-weight: normal;
     }
 
-    .campaign-play-button { 
-        padding: 12px; 
+    .campaign-play-button {
+        padding: 12px;
         aspect-ratio: 1 / 1;
         display: flex;
         align-items: center;

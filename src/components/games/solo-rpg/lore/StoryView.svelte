@@ -9,14 +9,27 @@
 
     const dispatch = createEventDispatcher();
 
-    let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
+    export let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
+
+    let characterManagerComponent: any;
 
     function handleNavigateHome() {
         dispatch("navigateHome");
     }
 
-    function setTab(tab: "chronicle" | "characters" | "codex") {
-        activeTab = tab;
+    function handleCharacterSelected(event: CustomEvent) {
+        dispatch("characterSelected", event.detail);
+    }
+
+    function handleCharacterDeselected() {
+        dispatch("characterDeselected");
+    }
+
+    // Expose method to toggle sections in character manager
+    export function toggleCharacterSection(section: string) {
+        if (characterManagerComponent && characterManagerComponent.toggleSectionFromExternal) {
+            characterManagerComponent.toggleSectionFromExternal(section);
+        }
     }
 </script>
 
@@ -27,40 +40,17 @@
 
 <div class="story-view">
     {#if $activeCampaign}
-        <h2>{$activeCampaign.title}</h2>
-        <div class="subheading">
-            <p>{$activeCampaign.blueprintTitle}</p>
-        </div>
-
-        <div class="tabs">
-            <button
-                class="tab"
-                class:active={activeTab === "chronicle"}
-                on:click={() => setTab("chronicle")}
-            >
-                Journey
-            </button>
-            <button
-                class="tab"
-                class:active={activeTab === "characters"}
-                on:click={() => setTab("characters")}
-            >
-                Characters
-            </button>
-            <button
-                class="tab"
-                class:active={activeTab === "codex"}
-                on:click={() => setTab("codex")}
-            >
-                Codex
-            </button>
-        </div>
+        <h4>{$activeCampaign.title}</h4>
 
         <div class="tab-content">
             {#if activeTab === "chronicle"}
                 <Chronicle />
             {:else if activeTab === "characters"}
-                <CharacterManager />
+                <CharacterManager
+                    bind:this={characterManagerComponent}
+                    on:characterSelected={handleCharacterSelected}
+                    on:characterDeselected={handleCharacterDeselected}
+                />
             {:else if activeTab === "codex"}
                 <Codex />
             {/if}
@@ -84,59 +74,33 @@
     /* Mobile - account for bottom sidebar */
     @media (max-width: 768px) {
         .story-view {
-            height: calc(100vh - 70px - env(safe-area-inset-bottom));
+            height: calc(100vh - 70px - 60px - env(safe-area-inset-bottom));
         }
     }
 
-    h2 {
+    h4 {
         text-align: center;
         margin: 0;
         padding: 1rem 1rem 0.5rem;
         flex-shrink: 0;
     }
 
-    .subheading {
-        flex-shrink: 0;
+    /* Thin lines above and below the h2 */
+    h4::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 1px;
+        background-color: #ddd;
+        margin-bottom: 0.5rem;
     }
-
-    .subheading p {
-        margin-top: 0;
-        margin-bottom: 1rem;
-        padding: 0 1rem;
-        text-align: center;
-        color: #6b7280;
-        font-style: italic;
-    }
-
-    .tabs {
-        display: flex;
-        gap: 0.5rem;
-        border-bottom: 2px solid #e5e7eb;
-        margin: 0 1rem 0;
-        flex-shrink: 0;
-    }
-
-    .tab {
-        padding: 0.75rem 1.5rem;
-        background: none;
-        border: none;
-        border-bottom: 3px solid transparent;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #6b7280;
-        transition: all 0.2s;
-        margin-bottom: -2px;
-    }
-
-    .tab:hover {
-        color: #111827;
-        background: #f9fafb;
-    }
-
-    .tab.active {
-        color: #3b82f6;
-        border-bottom-color: #3b82f6;
+    h4::after {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 1px;
+        background-color: #ddd;
+        margin-top: 0.5rem;
     }
 
     .tab-content {

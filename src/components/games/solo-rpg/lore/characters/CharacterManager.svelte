@@ -8,10 +8,11 @@
     } from "../../data/storage-utils";
     import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
-    import CharacterSheetControls from "./CharacterSheetControls.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import "../../solo-rpg-styles.css";
+    import { createEventDispatcher } from "svelte";
 
+    const dispatch = createEventDispatcher();
     const DEFAULT_GROUPS = [];
 
     let characters: Character[] = [];
@@ -144,15 +145,36 @@
         selectedCharacter = character;
         isEditing = false;
         isEditingSections = false;
+        dispatch('characterSelected', {
+            character,
+            isEditing,
+            isEditingSections,
+            selectedSections,
+            visibleSections: character.visibleSections || ["information"]
+        });
     }
 
     function editCharacter() {
         isEditing = true;
         isEditingSections = false;
+        dispatch('characterSelected', {
+            character: selectedCharacter,
+            isEditing,
+            isEditingSections,
+            selectedSections,
+            visibleSections: selectedCharacter?.visibleSections || ["information"]
+        });
     }
 
     function editCharacterSections() {
         isEditingSections = !isEditingSections;
+        dispatch('characterSelected', {
+            character: selectedCharacter,
+            isEditing,
+            isEditingSections,
+            selectedSections,
+            visibleSections: selectedCharacter?.visibleSections || ["information"]
+        });
     }
 
     function saveCharacter(event: CustomEvent<Character>) {
@@ -211,6 +233,7 @@
         selectedCharacter = null;
         isEditing = false;
         isEditingSections = false;
+        dispatch('characterDeselected');
     }
 
     function handleToggleSection(event: CustomEvent<string>) {
@@ -232,6 +255,22 @@
             // Trigger reactivity
             selectedSections = selectedSections;
         }
+
+        // Emit updated state
+        if (selectedCharacter) {
+            dispatch('characterSelected', {
+                character: selectedCharacter,
+                isEditing,
+                isEditingSections,
+                selectedSections,
+                visibleSections: selectedCharacter.visibleSections || ["information"]
+            });
+        }
+    }
+
+    // Expose method to be called from parent
+    export function toggleSectionFromExternal(section: string) {
+        handleToggleSection({ detail: section } as CustomEvent<string>);
     }
 
     function toggleSectionInclusion(sectionId: string) {
@@ -329,13 +368,6 @@
                     </div>
                 </div>
             {/if}
-
-            <CharacterSheetControls
-                visibleSections={selectedCharacter.visibleSections || ["information"]}
-                {selectedSections}
-                {isEditingSections}
-                on:toggleSection={handleToggleSection}
-            />
 
             <div class="character-sheet-container">
                 <CharacterSheet
