@@ -513,35 +513,14 @@
         </div>
     {/if}
 
-    {#if showAddEntry}
-        <div class="entry-editor">
-            <h3>New Chronicle Entry</h3>
-            <textarea
-                bind:value={newEntryText}
-                placeholder="What happened in your adventure?"
-                rows="6"
-            ></textarea>
-            <div class="editor-actions">
-                <button
-                    class="srpg-b srpg-b-create"
-                    on:click={saveEntry}
-                    disabled={!newEntryText.trim()}
-                >
-                    Save Entry
-                </button>
-                <button class="srpg-b" on:click={cancelAddEntry}>
-                    Cancel
-                </button>
-            </div>
-        </div>
-    {/if}
     </div>
 
     <div class="entries-list">
         {#if entries.length === 0}
             <div class="no-entries">
                 <p>No chapter entries yet.</p>
-                <p>Click "Add entry" to record your first adventure log!</p>
+                <p>Click "Add entry" to record your first adventure log,</p>
+                <p>or roll the dice with the Oracle!</p>
             </div>
         {:else}
             {#each entries as entry (entry.id)}
@@ -567,6 +546,36 @@
         {/if}
     </div>
 </div>
+
+
+<SrpgModal
+    bind:show={showAddEntry}
+    ariaLabel="Manual chronicle entry editor"
+    maxWidth="600px"
+    on:close={cancelAddEntry}
+>
+    <div class="modal-content"> 
+        <h3>New Chronicle Entry</h3>
+        <textarea
+            bind:value={newEntryText}
+            placeholder="What happened in your adventure?"
+            rows="6"
+        ></textarea>
+        <div class="editor-actions">
+            <button
+                class="srpg-b srpg-b-create"
+                on:click={saveEntry}
+                disabled={!newEntryText.trim()}
+            >
+                Save Entry
+            </button>
+            <button class="srpg-b" on:click={cancelAddEntry}>
+                Cancel
+            </button>
+        </div> 
+    </div>
+</SrpgModal>
+
 
 <!-- Character Assignment Modal -->
 <SrpgModal
@@ -844,13 +853,13 @@
         margin-bottom: 2rem;
     }
 
-    .entry-editor h3 {
+    .modal-content h3 {
         margin: 0 0 1rem 0;
         font-size: 1.25rem;
         color: #333;
     }
 
-    .entry-editor textarea {
+    .modal-content textarea {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #d1d5db;
@@ -861,7 +870,7 @@
         margin-bottom: 1rem;
     }
 
-    .entry-editor textarea:focus {
+    .modal-content textarea:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -869,6 +878,8 @@
 
     .editor-actions {
         display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
         gap: 0.75rem;
     }
 
@@ -994,11 +1005,7 @@
 
         .header-actions button {
             flex: 1;
-        }
-
-        .editor-actions {
-            flex-direction: column;
-        }
+        } 
 
         .chapter-view-banner {
             flex-direction: column;
