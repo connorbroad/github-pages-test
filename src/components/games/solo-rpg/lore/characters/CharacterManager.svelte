@@ -548,8 +548,7 @@
     }
 
     .character-sheet-container {
-        flex: 1;
-        overflow-y: auto;
+        flex: 1; 
         min-height: 0;
         padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
