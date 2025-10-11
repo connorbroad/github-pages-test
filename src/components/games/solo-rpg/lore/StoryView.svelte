@@ -81,7 +81,7 @@
     h4 {
         text-align: center;
         margin: 0;
-        padding: 1rem 1rem 0.5rem;
+        padding-bottom: 1rem;
         flex-shrink: 0;
     }
 
