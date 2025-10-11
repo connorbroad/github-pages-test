@@ -61,10 +61,7 @@
                             width="1em"
                             height="1em"
                         >
-                            <path
-                                fill="currentColor"
-                                d="M3 10h11v2H3zm0-2h11V6H3zm0 8h7v-2H3zm15.01-3.13l.71-.71a.996.996 0 0 1 1.41 0l.71.71c.39.39.39 1.02 0 1.41l-.71.71zm-.71.71l-5.3 5.3V21h2.12l5.3-5.3z"
-                            />
+                            <path fill="currentColor" d="M3 18h12v-2H3zM3 6v2h18V6zm0 7h18v-2H3z"/>
                         </svg>
                     {:else if section.icon === "star"}
                         <svg
@@ -357,8 +354,7 @@
             box-shadow: none;
         }
 
-        .section-filter-icons {
-            padding: .5rem 0;
+        .section-filter-icons { 
             border: none;
             background: transparent;
             box-shadow: none; 
@@ -369,7 +365,7 @@
 
         .section-icon-btn {
             width: 100%;
-            height: 5rem;
+            height: 4rem;
             flex: 0 0 auto;
             padding: 0.75rem;
             background: none;

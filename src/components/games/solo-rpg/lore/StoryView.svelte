@@ -108,5 +108,6 @@
         overflow-y: auto;
         min-height: 0;
         padding: 1.5rem 0;
+        padding-top: 0;
     }
 </style>
