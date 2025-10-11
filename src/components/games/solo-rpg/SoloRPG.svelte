@@ -446,6 +446,7 @@
         <StoryView
             bind:this={storyViewComponent}
             activeTab={activeStoryTab}
+            showTertiarySidebar={showTertiarySidebar}
             on:openDiceRoller={() => (showDiceRoller = true)}
             on:openCardDealer={() => (showCardDealer = true)}
             on:navigateHome={() => handleNavigate("home")}

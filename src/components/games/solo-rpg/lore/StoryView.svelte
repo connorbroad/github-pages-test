@@ -10,6 +10,7 @@
     const dispatch = createEventDispatcher();
 
     export let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
+    export let showTertiarySidebar: boolean = false;
 
     let characterManagerComponent: any;
 
@@ -38,7 +39,7 @@
     on:navigateHome={handleNavigateHome}
 />
 
-<div class="story-view">
+<div class="story-view" class:has-tertiary={showTertiarySidebar}>
     {#if $activeCampaign}
         <h4>{$activeCampaign.title}</h4>
 
@@ -76,6 +77,11 @@
         .story-view {
             height: calc(100vh - 70px - 60px - env(safe-area-inset-bottom));
         }
+        
+        /* When tertiary sidebar is shown, account for it too */
+        .story-view.has-tertiary {
+            height: calc(100vh - 70px - 60px - 60px - env(safe-area-inset-bottom));
+        }
     }
 
     h4 {
@@ -107,7 +113,6 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-        padding: 1.5rem 0;
-        padding-top: 0;
+        padding: 0;
     }
 </style>
