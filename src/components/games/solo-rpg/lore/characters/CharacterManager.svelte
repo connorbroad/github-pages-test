@@ -11,6 +11,7 @@
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import "../../solo-rpg-styles.css";
     import { createEventDispatcher } from "svelte";
+    import SectionPickerModal from "./SectionPickerModal.svelte";
 
     const dispatch = createEventDispatcher();
     const DEFAULT_GROUPS = [];
@@ -26,6 +27,7 @@
     let customGroupInput: string = "";
     let showCustomGroupInput: boolean = false;
     let selectedSections: Set<string> = new Set(); // For filtering visible sections in view mode
+    let showSectionPickerModal: boolean = false;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
@@ -330,6 +332,26 @@
         // Trigger reactivity
         selectedCharacter = selectedCharacter;
     }
+
+    function openSectionPickerModal() {
+        showSectionPickerModal = true;
+    }
+
+    function handleSectionPickerSave(newSections: string[]) {
+        if (selectedCharacter) {
+            selectedCharacter.visibleSections = newSections;
+            selectedCharacter.updatedAt = Date.now();
+            const allCharacters = loadCharacters();
+            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
+            if (index !== -1) {
+                allCharacters[index] = selectedCharacter;
+                saveCharacters(allCharacters);
+                loadCampaignCharacters();
+            }
+            selectedCharacter = selectedCharacter; // ensure reactivity
+        }
+        showSectionPickerModal = false;
+    }
 </script>
 
 <div class="character-manager">
@@ -348,9 +370,9 @@
                     >
                         <button
                             id="edit-sections-button"
-                            class="srpg-b srpg-b-normal {isEditingSections ? 'srpg-b-toggle-active' : ''}"
+                            class="srpg-b srpg-b-normal"
                             style="padding: 0.5rem; display: flex; align-items: center;"
-                            on:click={editCharacterSections}
+                            on:click={openSectionPickerModal}
                             aria-label="Edit Sections"
                             title="Edit Sections"
                         >
@@ -365,7 +387,6 @@
                                     d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"
                                 />
                             </svg>
-                            
                         </button>
                     </div>
                 </div>
@@ -564,6 +585,26 @@
         </div>
     </div>
 </SrpgModal>
+
+<SectionPickerModal
+    bind:show={showSectionPickerModal}
+    selectedSections={selectedCharacter?.visibleSections || ["information"]}
+    on:change={e => {
+        if (selectedCharacter) {
+            selectedCharacter.visibleSections = e.detail;
+            selectedCharacter = selectedCharacter; // ensure reactivity
+            dispatch('characterSelected', { // <-- this is missing!
+                character: selectedCharacter,
+                isEditing,
+                isEditingSections,
+                selectedSections,
+                visibleSections: selectedCharacter.visibleSections
+            });
+        }
+    }}
+    on:save={e => handleSectionPickerSave(e.detail)}
+    on:close={() => (showSectionPickerModal = false)}
+/>
 
 <style>
     .character-manager {

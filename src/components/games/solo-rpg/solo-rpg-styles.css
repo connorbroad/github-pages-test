@@ -552,6 +552,138 @@
 .srpg-gap-lg {
     gap: 1.5rem;
 }
+/* Checkbox List Styles */
+.srpg-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.srpg-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-height: 44px;
+    /* Touch-friendly minimum */
+}
+
+.srpg-checkbox-item:hover:not(.disabled) {
+    background: #f3f4f6;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.srpg-checkbox-item.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: #fafafa;
+}
+
+.srpg-checkbox-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+    margin: 0;
+}
+
+.srpg-checkbox-item input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+}
+
+.srpg-checkbox-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.srpg-checkbox-item-label {
+    user-select: none;
+}
+
+.srpg-checkbox-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.srpg-checkbox-item-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.srpg-checkbox-item:hover:not(.disabled) .srpg-checkbox-item-icon {
+    color: #3b82f6;
+}
+
+.srpg-checkbox-item.disabled .srpg-checkbox-item-icon {
+    color: #9ca3af;
+}
+
+/* Modal Heading Styles */
+.srpg-modal-heading {
+    margin: 0 2rem 1.5rem 0;
+    font-size: 1.5rem;
+    color: #111827;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+@media (max-width: 767px) {
+    .srpg-modal-heading {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .srpg-checkbox-list {
+        gap: 0.625rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .srpg-checkbox-item {
+        padding: 0.875rem;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+}
+
+/* Modal Actions (Button Groups) */
+.srpg-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+    .srpg-modal-actions {
+        flex-direction: column-reverse;
+        margin-top: 1.25rem;
+    }
+
+    .srpg-modal-actions button {
+        width: 100%;
+        min-height: 44px;
+    }
+}
 .srpg-b-toggle-active {
     background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     color: #fff;

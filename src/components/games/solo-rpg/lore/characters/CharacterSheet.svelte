@@ -27,7 +27,6 @@
         editedCharacter = structuredClone(character);
     }
 
-    // Initialize visibleSections if not present (for backward compatibility)
     $: if (editedCharacter && !editedCharacter.visibleSections) {
         editedCharacter.visibleSections = [
             "information",
@@ -39,7 +38,6 @@
         ];
     }
 
-    // Get all existing groups from all characters in campaign + current selection
     $: allGroupOptions = getAllGroupOptions(editedCharacter.group);
 
     function getAllGroupOptions(currentGroup: string | undefined): string[] {
@@ -1480,6 +1478,7 @@
     @media (min-width: 768px) {
         .character-sheet {
             padding-right: 0.5rem; /* Small room for the scrollbar */
+            padding-left: 0.5rem; /* Small room for the scrollbar */
             padding-bottom: 1.5rem;
         }
     }

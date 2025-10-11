@@ -80,6 +80,7 @@
 
     function handleStoryTabChange(tab: "chronicle" | "characters" | "codex") {
         activeStoryTab = tab;
+
         // Clear tertiary sidebar when switching tabs
         if (tab !== "characters") {
             showTertiarySidebar = false;
@@ -483,7 +484,9 @@
 
 <style>
     /* Layout */
-    .content {
+    .content { 
+        padding: 1rem;
+        padding-top: 0;
         box-sizing: border-box;
         min-height: 100vh;
         max-height: 100vh;
@@ -493,7 +496,8 @@
     @media (min-width: 769px) {
         .content {
             margin-left: 80px;
-            padding: 0 2rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
         }
 
         /* Account for secondary sidebar when shown */
@@ -507,10 +511,9 @@
         }
     }
 
-    /* Mobile - account for bottom bar */
+    /* Mobile   */
     @media (max-width: 768px) {
-        .content {
-            padding: 1rem;
+        .content { 
             min-height: 100vh;
         }
 
