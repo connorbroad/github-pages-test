@@ -515,7 +515,9 @@
     /* Mobile   */
     @media (max-width: 768px) {
         .content { 
-            min-height: 100vh;
+            /* Use dynamic viewport to avoid browser UI issues and allow scrolling */
+            min-height: 100dvh;
+            max-height: none;
         }
 
         /* Add bottom padding for non-fullscreen views (home, settings, oracle) */
@@ -525,12 +527,16 @@
             padding-bottom: calc(90px + env(safe-area-inset-bottom));
         }
 
-        /* Account for secondary sidebar when shown */
+        /* Account for stacked bottom bars in story view */
+        /* Secondary visible (sits above primary 70px) */
         .content.has-secondary {
-            padding-bottom: 0;
+            padding-bottom: calc(130px + env(safe-area-inset-bottom)); /* 70 + 60 */
         }
 
-        /* No additional changes for tertiary on mobile - it stacks above secondary */
+        /* Tertiary visible too (another 60px above secondary) */
+        .content.has-secondary.has-tertiary {
+            padding-bottom: calc(190px + env(safe-area-inset-bottom)); /* 70 + 60 + 60 */
+        }
     }
 
     /* Views */

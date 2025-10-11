@@ -22,6 +22,7 @@
 {#if show}
     <aside
         class="tertiary-sidebar"
+        style="--tertiary-height: 60px;"
         transition:fly={{
             duration: 300,
             easing: quintOut,
@@ -67,21 +68,17 @@
     @media (max-width: 768px) {
         .tertiary-sidebar {
             position: fixed;
-            bottom: calc(130px + env(safe-area-inset-bottom));
+            bottom: calc(130px + env(safe-area-inset-bottom)); /* primary 70 + secondary 60 */
             left: 0;
             right: 0;
             width: 100%;
-            height: 60px;
+            height: var(--tertiary-height, 60px);
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Override CharacterSheetControls styles for mobile */
         .tertiary-sidebar :global(.section-filter) {
             position: static;
-            margin: 0;
-            background-color: transparent;
-            box-shadow: none;
-            height: 60px;
         }
     }
 </style>
