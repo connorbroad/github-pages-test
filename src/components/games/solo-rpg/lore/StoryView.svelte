@@ -4,17 +4,18 @@
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import Chronicle from "./chronicle/Chronicle.svelte";
     import CharacterManager from "./characters/CharacterManager.svelte";
+    import Codex from "./codex/Codex.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
 
-    let activeTab: "chronicle" | "characters" = "chronicle";
+    let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
 
     function handleNavigateHome() {
         dispatch("navigateHome");
     }
 
-    function setTab(tab: "chronicle" | "characters") {
+    function setTab(tab: "chronicle" | "characters" | "codex") {
         activeTab = tab;
     }
 </script>
@@ -37,7 +38,7 @@
                 class:active={activeTab === "chronicle"}
                 on:click={() => setTab("chronicle")}
             >
-                Chronicle
+                Journey
             </button>
             <button
                 class="tab"
@@ -46,6 +47,13 @@
             >
                 Characters
             </button>
+            <button
+                class="tab"
+                class:active={activeTab === "codex"}
+                on:click={() => setTab("codex")}
+            >
+                Codex
+            </button>
         </div>
 
         <div class="tab-content">
@@ -53,6 +61,8 @@
                 <Chronicle />
             {:else if activeTab === "characters"}
                 <CharacterManager />
+            {:else if activeTab === "codex"}
+                <Codex />
             {/if}
         </div>
     {:else}
