@@ -703,3 +703,203 @@
     box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
     transform: translateY(0);
 }
+/* List Styles */
+.srpg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.srpg-list-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.srpg-list-item:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.srpg-list-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.srpg-list-item-title {
+    font-weight: 600;
+    color: #111827;
+    font-size: 1rem;
+}
+
+.srpg-list-item-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Nested List Styles (for groups/subgroups) */
+.srpg-nested-list {
+    margin-top: 1rem;
+}
+
+.srpg-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.srpg-group-header:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.srpg-group-title {
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.srpg-group-count {
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.srpg-expand-icon {
+    color: #6b7280;
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.srpg-expand-icon.expanded {
+    transform: rotate(90deg);
+}
+
+.srpg-subgroup-container {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e5e7eb;
+}
+
+.srpg-subgroup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.srpg-subgroup-header:hover {
+    background: #fafbfc;
+    border-color: #d1d5db;
+}
+
+.srpg-subgroup-title {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.srpg-notes-container {
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Text Editor Styles */
+.srpg-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.srpg-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+@media (max-width: 767px) {
+    .srpg-textarea {
+        min-height: 150px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+}
+
+/* Header with Actions */
+.srpg-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.srpg-header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+@media (max-width: 767px) {
+    .srpg-header-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .srpg-header-title {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+}
+
+/* Keyboard Navigation Focus Styles */
+.srpg-group-header:focus,
+.srpg-subgroup-header:focus,
+.srpg-list-item:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.srpg-group-header:focus-visible,
+.srpg-subgroup-header:focus-visible,
+.srpg-list-item:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}

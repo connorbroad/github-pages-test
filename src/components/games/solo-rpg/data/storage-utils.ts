@@ -14,6 +14,7 @@ export interface SoloRPGData {
     chronicleEntries?: ChronicleEntry[];
     chapters?: Chapter[];
     characters?: Character[];
+    codexNotes?: CodexNote[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -34,6 +35,18 @@ export type Chapter = {
     customName?: string; // Optional custom name
     createdAt: number;
     closedAt: number; // When the chapter was closed/saved
+};
+
+export type CodexNote = {
+    id: string;
+    campaignId: string;
+    title: string;
+    content: string;
+    noteGroup: string; // e.g., "Characters", "Locations", "Items", "Custom Group"
+    subNoteGroup?: string; // Optional subgroup, e.g., character name
+    characterId?: string; // Link to character if this is a character note
+    createdAt: number;
+    updatedAt: number;
 };
 
 export type Ability = {
@@ -383,5 +396,22 @@ export function loadCharacters(): Character[] {
 export function saveCharacters(characters: Character[]): void {
     const data = loadData();
     data.characters = characters;
+    saveData(data);
+}
+
+/**
+ * Load codex notes from storage
+ */
+export function loadCodexNotes(): CodexNote[] {
+    const data = loadData();
+    return data.codexNotes || [];
+}
+
+/**
+ * Save codex notes to storage
+ */
+export function saveCodexNotes(codexNotes: CodexNote[]): void {
+    const data = loadData();
+    data.codexNotes = codexNotes;
     saveData(data);
 }
