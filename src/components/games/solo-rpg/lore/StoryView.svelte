@@ -68,19 +68,27 @@
         margin: 0 auto;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
     }
 
-    /* Mobile - account for bottom sidebar */
+    /* Desktop - use fixed viewport height */
+    @media (min-width: 769px) {
+        .story-view {
+            height: 100vh;
+            overflow: hidden;
+        }
+    }
+
+    /* Mobile - calculate available height accounting for bottom bars */
     @media (max-width: 768px) {
         .story-view {
-            height: calc(100vh - 70px - 60px - env(safe-area-inset-bottom));
+            /* Base: full viewport minus primary sidebar (70px) minus secondary (60px) */
+            height: calc(100dvh - 70px - 60px - env(safe-area-inset-bottom));
+            overflow: hidden;
         }
         
-        /* When tertiary sidebar is shown, account for it too */
+        /* When tertiary sidebar is also shown (another 60px) */
         .story-view.has-tertiary {
-            height: calc(100vh - 70px - 60px - 60px - env(safe-area-inset-bottom));
+            height: calc(100dvh - 70px - 60px - 60px - env(safe-area-inset-bottom));
         }
     }
 
