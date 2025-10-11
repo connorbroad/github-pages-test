@@ -550,7 +550,7 @@
     .character-sheet-container {
         flex: 1; 
         min-height: 0;
-        padding-bottom: calc(70px + env(safe-area-inset-bottom));
+        padding-bottom: calc(55px + env(safe-area-inset-bottom));
     }
 
     .character-list-view {
