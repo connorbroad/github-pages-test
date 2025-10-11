@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ChronicleEntry } from "../../storage-utils";
+    import type { ChronicleEntry } from "../../../data/storage-utils";
 
     export let entry: ChronicleEntry;
 </script>
