@@ -639,7 +639,7 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
         flex-wrap: wrap;
         gap: 1rem;
         width: 100%;

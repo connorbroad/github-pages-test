@@ -143,6 +143,6 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-        padding: 1.5rem 1rem;
+        padding: 1.5rem 0;
     }
 </style>

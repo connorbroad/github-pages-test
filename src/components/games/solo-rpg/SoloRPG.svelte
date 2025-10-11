@@ -343,6 +343,7 @@
     @media (min-width: 769px) {
         .content {
             margin-left: 80px;  
+            padding: 0 2rem;
         }
     }
 
