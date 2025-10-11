@@ -3,84 +3,368 @@ import GamesPageLayout from "../layouts/GamesPageLayout.astro";
 ---
 
 <GamesPageLayout pageTitle="Games">
-    <!-- Make a list of games, using a card styling  -->
-    <h1>Games</h1>
-    <ul class="game-list">
-        <li class="game-card">
-            <span class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>nintendo-game-boy</title>
-                    <path
-                        d="M7 1C5.9 1 5 1.9 5 3V21C5 22.11 5.9 23 7 23H14C16.76 23 19 20.76 19 18V3C19 1.9 18.11 1 17 1H7M8 4H16V11H8V4M9 14H10V16H12V17H10V19H9V17H7V16H9V14M16 15C16.55 15 17 15.45 17 16C17 16.55 16.55 17 16 17C15.45 17 15 16.55 15 16C15 15.45 15.45 15 16 15M14 17C14.55 17 15 17.45 15 18C15 18.55 14.55 19 14 19C13.45 19 13 18.55 13 18C13 17.45 13.45 17 14 17Z"
-                    ></path>
-                </svg>
-            </span>
-            <a href="/github-pages-test/games/biimo-player">Gamesboy</a>
-        </li>
-        <li class="game-card">
-            <span class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sword</title>
-                    <path
-                        d="M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z"
-                    ></path>
-                </svg>
-            </span>
-            <a href="/github-pages-test/games/solo-rpg">Solo RPG</a>
-        </li>
-    </ul>
+    <div class="games-container">
+        <div class="header-section">
+            <h1>Choose Your Adventure</h1>
+            <p class="subtitle">Select a game to begin your journey</p>
+        </div>
+
+        <div class="game-grid">
+            <a href="/github-pages-test/games/biimo-player" class="game-card">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            class="game-icon"
+                        >
+                            <path
+                                d="M7 1C5.9 1 5 1.9 5 3V21C5 22.11 5.9 23 7 23H14C16.76 23 19 20.76 19 18V3C19 1.9 18.11 1 17 1H7M8 4H16V11H8V4M9 14H10V16H12V17H10V19H9V17H7V16H9V14M16 15C16.55 15 17 15.45 17 16C17 16.55 16.55 17 16 17C15.45 17 15 16.55 15 16C15 15.45 15.45 15 16 15M14 17C14.55 17 15 17.45 15 18C15 18.55 14.55 19 14 19C13.45 19 13 18.55 13 18C13 17.45 13.45 17 14 17Z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div class="card-text">
+                        <h2>Gamesboy</h2>
+                        <p class="game-description">
+                            Classic retro gaming experience
+                        </p>
+                    </div>
+                    <div class="play-button">
+                        <span>Play Now</span>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                            ></path>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/github-pages-test/games/solo-rpg" class="game-card">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            class="game-icon"
+                        >
+                            <path
+                                d="M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div class="card-text">
+                        <h2>Solo RPG</h2>
+                        <p class="game-description">
+                            Companion app for tabletop role-playing adventures
+                        </p>
+                    </div>
+                    <div class="play-button">
+                        <span>Play Now</span>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                            ></path>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 </GamesPageLayout>
 
 <style>
+    .games-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInDown 0.6s ease-out;
+    }
+
     h1 {
-        font-size: 2.5rem;
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        word-wrap: break-word;
     }
 
-    p {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
+    .subtitle {
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        color: #64748b;
+        font-weight: 400;
     }
 
-    .game-list {
-        list-style-type: none;
-        padding: 0;
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+        gap: 2.5rem;
+        animation: fadeInUp 0.8s ease-out;
+        width: 100%;
     }
 
     .game-card {
-        background: #f8f8f8;
-        border-radius: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: box-shadow 0.2s;
-        min-width: 220px;
-    }
-    .game-card:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    a {
+        position: relative;
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        border-radius: 1.5rem;
+        padding: 2.5rem;
         text-decoration: none;
-        color: #007acc;
-        font-size: 1.5rem;
-        font-weight: 500;
-    }
-    a:hover {
-        text-decoration: underline;
+        color: inherit;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        backdrop-filter: blur(10px);
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .icon {
+    .game-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 1.5rem;
+        padding: 2px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .game-card:hover::before {
+        opacity: 1;
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle,
+            rgba(102, 126, 234, 0.15) 0%,
+            transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .game-card:hover .card-glow {
+        opacity: 1;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .game-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+
+    .card-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 1.25rem;
         display: flex;
         align-items: center;
-        margin-right: 0.5rem;
-        width: 32px;
-        height: 32px;
-        fill: #a4c4e2;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .game-card:hover .icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .game-icon {
+        width: 48px;
+        height: 48px;
+        fill: white;
+    }
+
+    .card-text {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-text h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+        word-wrap: break-word;
+    }
+
+    .game-card:hover .card-text h2 {
+        color: #667eea;
+    }
+
+    .game-description {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        color: #64748b;
+        line-height: 1.6;
+        margin: 0;
+        word-wrap: break-word;
+    }
+
+    .play-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .game-card:hover .play-button {
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        transform: translateX(4px);
+    }
+
+    .play-button svg {
+        transition: transform 0.3s ease;
+    }
+
+    .game-card:hover .play-button svg {
+        transform: translateX(4px);
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .games-container {
+            padding: 2rem 1rem;
+            max-width: 100vw;
+        }
+
+        .header-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .game-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .game-card {
+            padding: 1.5rem;
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+        }
+
+        .game-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .card-text {
+            margin-bottom: 1rem;
+        }
+
+        .play-button {
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .games-container {
+            padding: 1.5rem 0.75rem;
+        }
+
+        .header-section {
+            margin-bottom: 2rem;
+        }
+
+        .game-card {
+            padding: 1.25rem;
+        }
+
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+        }
+
+        .game-icon {
+            width: 32px;
+            height: 32px;
+        }
     }
 </style>
