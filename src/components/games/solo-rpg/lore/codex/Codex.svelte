@@ -27,13 +27,4 @@
     h2 {
         margin: 0 0 1rem;
     }
-
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    li {
-        margin-bottom: 0.5rem;
-    }
 </style>
