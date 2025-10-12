@@ -75,14 +75,14 @@
         <hr class="dice-roller-divider" />
         <div id="dice-options">
             <div class="dice-options-select">
-                <select bind:value={numDice}>
+                <select bind:value={numDice} aria-label="Number of dice">
                     {#each Array(10) as _, i}
                         <option value={i + 1}>{i + 1}x</option>
                     {/each}
                 </select>
             </div>
             <div class="dice-options-select">
-                <select bind:value={numSides}>
+                <select bind:value={numSides} aria-label="Die type">
                     <option value={4}>D4</option>
                     <option value={6} selected>D6</option>
                     <option value={8}>D8</option>
@@ -125,7 +125,7 @@
                         </label>
                     </div>
                     <div class="dice-options-select">
-                        <select bind:value={modifier} on:change={recalculateResult}>
+                        <select bind:value={modifier} on:change={recalculateResult} aria-label="Modifier">
                             {#each Array(16) as _, i}
                                 {#if i - 5 > -1}
                                     <option value={i - 5}>+{i - 5}</option>
@@ -170,14 +170,14 @@
             <hr class="dice-roller-divider" />
             <div id="dice-options">
                 <div class="dice-options-select">
-                    <select bind:value={numDice}>
+                    <select bind:value={numDice} aria-label="Number of dice">
                         {#each Array(10) as _, i}
                             <option value={i + 1}>{i + 1}x</option>
                         {/each}
                     </select>
                 </div>
                 <div class="dice-options-select">
-                    <select bind:value={numSides}>
+                    <select bind:value={numSides} aria-label="Die type">
                         <option value={4}>D4</option>
                         <option value={6} selected>D6</option>
                         <option value={8}>D8</option>
@@ -263,6 +263,7 @@
                             <select
                                 bind:value={modifier}
                                 on:change={recalculateResult}
+                                aria-label="Modifier"
                             >
                                 {#each Array(16) as _, i}
                                     {#if i - 5 > -1}
@@ -328,47 +329,48 @@
     #dice-options {
         display: flex;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
         margin: 1rem;
+        flex-wrap: wrap;
     }
     .dice-options-select select {
-        padding: 0.75rem 1rem;
-        font-size: 1.25rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
+        padding: 0.6rem 1rem;
+        font-size: 1.05rem;
+        border-radius: 10px;
+        border: 1.5px solid #d1d5db;
         margin: 0;
-        background: #f8f8f8;
+        background: #f9fafb;
         appearance: none;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .dice-options-select select:focus-visible {
+        outline: none;
+        border-color: #3d5d82;
+        box-shadow: 0 0 0 3px rgba(61,93,130,0.2);
+        background: #f3f6fb;
     }
     .result-radio-group {
         display: flex;
         justify-content: space-between;
         gap: 0;
-        border-radius: 8px 8px;
+        border-radius: 12px;
         overflow: hidden;
-        border: 1px solid #ccc;
-        flex-direction: row; /* restore horizontal layout */
+        border: 1px solid #d1d5db;
+        flex-direction: row;
+        background: #f3f4f6;
     }
     .result-radio {
-        background: #f8f8f8;
-        transition: background 0.2s;
-        color: #333;
+        background: transparent;
+        transition: background 0.2s, color 0.2s, transform 0.05s;
+        color: #374151;
         box-shadow: none;
-
-        border-radius: 0;
-        border-left: none;
-        border-top: none;
-        border-bottom: none;
-
         display: flex;
-        flex-direction: column; /* stack icon and label vertically */
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-
         margin: 0;
-        padding: 0.5rem 0.5rem;
-
-        font-size: 1.3rem;
+        padding: 0.45rem 0.6rem;
+        font-size: 1.2rem;
         cursor: pointer;
         position: relative;
         flex-grow: 1;
@@ -382,13 +384,10 @@
         margin: 0;
         height: 30px;
     }
-    .result-radio .result-icon {
-        font-size: 1.5rem;
-    }
+    .result-radio .result-icon { font-size: 1.4rem; }
     .result-radio:has(input[type="radio"]:checked) {
         background: #3d5d82;
         color: #fff;
-        box-shadow: none;
     }
     .result-radio input[type="radio"]:disabled + .result-icon {
         color: #aaa;
@@ -408,15 +407,13 @@
     #take-result-button p {
         margin: 0;
         padding: 0.75rem 0;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
     }
-    #take-result-button .result-icon {
-        font-size: 1rem;
-    }
+    #take-result-button .result-icon { font-size: 1rem; }
     #result-option-indicator {
         position: absolute;
         top: 25%;
@@ -431,29 +428,28 @@
         border-radius: 100px;
     }
     #result-option-indicator .result-icon {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .dice-roller-divider {
         border: none;
-        border-top: 1px solid #ccc;
+        border-top: 1px solid #e5e7eb;
         margin: 1rem 0;
     }
     #result-options {
         display: flex;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
         align-items: center;
         margin-bottom: 1rem;
+        flex-wrap: wrap;
     }
     .result-calculator-container {
         overflow: hidden;
         max-height: 1000px;
-        transition:
-            max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-            padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         will-change: max-height, padding;
     }
     .result-calculator-container:not(:has(*)) {

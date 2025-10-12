@@ -35,6 +35,9 @@
         outcome: {},
     };
 
+    // Edit mode for campaign fortunes
+    let editMode = false;
+
     onMount(() => {
         fortunes = loadFortunes();
     });
@@ -163,15 +166,35 @@
             </div>
             <nav class="oracle-nav" aria-label="Oracle navigation">
                 <button class="nav-btn {view === 'oracle' ? 'active' : ''}" on:click={() => go('oracle')} aria-label="Oracle">
-                    <span class="nav-icon">🔮</span>
+                    <span class="nav-icon" aria-hidden="true">
+                        <!-- Crystal ball icon -->
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                            <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2" />
+                            <path d="M6 18h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            <path d="M8.5 6.5c.6-1 1.7-1.7 3-1.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </span>
                     <span class="nav-label">Oracle</span>
                 </button>
                 <button class="nav-btn {view === 'dice' ? 'active' : ''}" on:click={() => go('dice')} aria-label="Dice Roller">
-                    <span class="nav-icon">🎲</span>
+                    <span class="nav-icon" aria-hidden="true">
+                        <!-- Dice icon -->
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                            <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="9" cy="9" r="1.5" fill="currentColor"/>
+                            <circle cx="15" cy="15" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </span>
                     <span class="nav-label">Dice</span>
                 </button>
                 <button class="nav-btn {view === 'cards' ? 'active' : ''}" on:click={() => go('cards')} aria-label="Card Dealer">
-                    <span class="nav-icon">🃏</span>
+                    <span class="nav-icon" aria-hidden="true">
+                        <!-- Card icon -->
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                            <rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 9.5c-1.2-1.4-3-.5-3 .9 0 1.6 1.9 2.7 3 4 1.1-1.3 3-2.4 3-4 0-1.4-1.8-2.3-3-.9z" fill="currentColor"/>
+                        </svg>
+                    </span>
                     <span class="nav-label">Cards</span>
                 </button>
             </nav>
@@ -201,14 +224,37 @@
                     {/if}
 
                     <section class="fortune-section">
-                        <h2 class="section-title">Campaign Fortunes</h2>
-                        <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateFortune}>
+                        <div class="section-header">
+                            <h2 class="section-title">Campaign Fortunes</h2>
+                            <button 
+                                class="edit-toggle-btn" 
+                                on:click={() => editMode = !editMode}
+                                aria-label={editMode ? "Exit edit mode" : "Enter edit mode"}
+                            >
+                                {#if editMode}
+                                    <!-- Done/Check icon -->
+                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                        <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Done</span>
+                                {:else}
+                                    <!-- Edit/Pencil icon -->
+                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                    <span>Edit</span>
+                                {/if}
+                            </button>
+                        </div>
+                        <button class="srpg-b srpg-b-create srpg-b-w-lg" on:click={openCreateFortune}>
                             + Create Campaign Fortune
                         </button>
                         {#if customFortunes.length > 0}
                             <div class="fortune-list-container">
                                 <FortuneList
                                     fortunes={customFortunes}
+                                    allowReorder={editMode}
+                                    allowDelete={editMode}
                                     on:consultFate={(e) => openFate(e.detail)}
                                     on:delete={(e) => deleteFortune(e.detail)}
                                     on:reorder={handleReorder}
@@ -285,19 +331,24 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        padding: 0.55rem 0.8rem;
         border: 1px solid #d1d5db;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #f9fafb;
         color: #374151;
         font-weight: 600;
+        transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.05s;
     }
+    .nav-btn:hover { background: #f3f4f6; }
+    .nav-btn:active { transform: translateY(1px); }
+    .nav-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(61,93,130,0.25); border-color: #3d5d82; }
     .nav-btn.active {
         background: #3d5d82;
         color: #fff;
         border-color: #3d5d82;
+        box-shadow: 0 2px 8px rgba(61,93,130,0.25);
     }
-    .nav-icon { font-size: 1.1rem; }
+    .nav-icon { font-size: 1.1rem; line-height: 0; display: inline-flex; }
     .nav-label { font-size: 0.95rem; }
 
     /* Scrollable body within modal */
@@ -313,20 +364,52 @@
     .oracle-page { width: 100%; }
 
     .fortune-section { margin-bottom: 1.25rem; }
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
     .section-title {
         font-size: 1.25rem;
         font-weight: 700;
         color: #333;
-        margin: 0 0 0.5rem 0;
+        margin: 0;
         padding-bottom: 0.25rem;
         border-bottom: 2px solid #e5e7eb;
+        flex: 1;
+    }
+    .edit-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.65rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #374151;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.05s;
+        cursor: pointer;
+    }
+    .edit-toggle-btn:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+    }
+    .edit-toggle-btn:active {
+        transform: translateY(1px);
+    }
+    .edit-toggle-btn svg {
+        flex-shrink: 0;
     }
     .fortune-list-container {
         max-height: 28rem;
         overflow: auto;
         padding: 0.25rem;
         border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 12px;
         background: #fff;
     }
     .no-fortunes {
@@ -350,7 +433,6 @@
         margin: 0.5rem 0 0 0;
         text-align: center;
     }
-    .tool-page-footer { margin-top: 0.5rem; }
 
     /* Desktop tweaks */
     @media (min-width: 768px) {

@@ -158,12 +158,12 @@
                 on:dragover={(e) =>
                     handleDragOver(fortune.campaign || '', fortune.id, e)}
                 on:drop={() => handleDrop(fortune.campaign || '', fortune.id)}
-                style="border: {draggedFortuneId === fortune.id
-                    ? '2px dashed #1976d2'
+                style="outline: {draggedFortuneId === fortune.id
+                    ? '2px dashed #3d5d82'
                     : dragOverFortuneId === fortune.id
                       ? '2px solid #4caf50'
                       : touchDraggedId === fortune.id
-                        ? '2px dashed #1976d2'
+                        ? '2px dashed #3d5d82'
                         : touchDragOverId === fortune.id
                           ? '2px solid #4caf50'
                           : 'none'};"
@@ -186,21 +186,27 @@
                                 handleTouchMove(fortune.campaign || '', fortune.id, e)}
                             on:touchend={(e) =>
                                 handleTouchEnd(fortune.campaign || '', fortune.id, e)}
-                            >☰</span
                         >
+                            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M7 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m5-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m5-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                            </svg>
+                        </span>
                     {/if}
                     <button
                         class="srpg-b srpg-b-normal fate-button"
                         on:click={() =>
                             dispatch("consultFate", fortune)}
-                        >{fortune.title}</button
-                    >
+                    >{fortune.title}</button>
                     {#if allowDelete}
                         <button
                             class="srpg-b-icon delete-icon"
                             on:click={() => dispatch("delete", fortune.id)}
-                            >×</button
+                            aria-label="Delete fortune"
                         >
+                            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.42 6.29 6.29-6.3 6.3 1.42 1.4 6.29-6.29 6.29 6.3 1.41-1.41-6.3-6.3 6.3-6.29z"/>
+                            </svg>
+                        </button>
                     {/if}
                 </div>
             </div>
@@ -222,59 +228,76 @@
 
     .fortune-card {
         padding: 0.5rem;
-        border-radius: 6px;
+        border-radius: 10px;
         margin-bottom: 0.75rem;
         position: relative;
         transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease,
-            opacity 0.2s ease;
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            opacity 0.15s ease,
+            background 0.2s ease;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+    }
+
+    .fortune-card:hover {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        background: #fcfdff;
     }
 
     .fortune-card[data-dragging="true"] {
-        opacity: 0.5;
-        transform: scale(0.98);
+        opacity: 0.6;
+        transform: scale(0.985);
     }
 
     .fortune-action-row {
-        display: flex;
+        display: flex; 
         align-items: center;
-        justify-content: center;
         gap: 0.5rem;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.1rem;
     }
 
     .drag-handle {
-        position: static;
         cursor: grab;
         user-select: none;
-        color: #1976d2;
-        transition:
-            color 0.2s,
-            transform 0.1s;
-        padding: 0.25rem;
-        border-radius: 4px;
-        font-size: 1.5rem;
+        color: #3d5d82;
+        transition: color 0.2s, transform 0.1s, background 0.2s;
+        padding: 0.35rem;
+        border-radius: 8px;
         width: 2rem;
         height: 2rem;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
     }
 
     .drag-handle:hover {
-        color: #1565c0;
-        background: rgba(25, 118, 210, 0.1);
+        color: #2e4766;
+        background: rgba(61,93,130,0.08);
     }
 
     .drag-handle:active {
         cursor: grabbing;
-        transform: scale(0.95);
+        transform: scale(0.96);
     }
 
-    .fate-button {
+    .fate-button { 
         width: 100%;
         font-size: 1rem;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 0.9rem;
+        text-align: left;
     }
+
+    .delete-icon {
+        color: #9ca3af;
+        transition: color 0.15s, background 0.15s, transform 0.05s;
+        border-radius: 8px;
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .delete-icon:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+    .delete-icon:active { transform: translateY(1px); }
 </style>
