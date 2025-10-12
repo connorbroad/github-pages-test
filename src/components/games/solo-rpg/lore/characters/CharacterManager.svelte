@@ -427,6 +427,16 @@
 
             {#if availableTags.length > 1}
                 <div class="group-filter">
+                    <button 
+                        class="scroll-btn scroll-btn-left" 
+                        on:click={(e) => {
+                            const container = e.currentTarget.parentElement.querySelector('.filter-buttons');
+                            container.scrollBy({ left: -200, behavior: 'smooth' });
+                        }}
+                        aria-label="Scroll left"
+                    >
+                        ←
+                    </button>
                     <div class="filter-buttons">
                         <button
                             class="filter-btn"
@@ -454,6 +464,16 @@
                             {/if}
                         {/each}
                     </div>
+                    <button 
+                        class="scroll-btn scroll-btn-right" 
+                        on:click={(e) => {
+                            const container = e.currentTarget.parentElement.querySelector('.filter-buttons');
+                            container.scrollBy({ left: 200, behavior: 'smooth' });
+                        }}
+                        aria-label="Scroll right"
+                    >
+                        →
+                    </button>
                 </div>
             {/if}
 
@@ -462,19 +482,12 @@
                     <div class="character-list">
                     {#each filteredCharacters as character}
                         <button
-                            class="srpg-b srpg-b-overview"
+                            class="srpg-b srpg-b-overview character-card"
                             on:click={() => selectCharacter(character)}
                         >
                             <h3 class="character-title">
                                 {character.name}
                             </h3>
-                            {#if character.tags && character.tags.length > 0}
-                                <div class="tag-list">
-                                    {#each character.tags as tag}
-                                        <span class="tag-badge">{tag}</span>
-                                    {/each}
-                                </div>
-                            {/if}
                             <div class="character-summary">
                                 {#if character.race || character.class}
                                     <p>
@@ -484,7 +497,8 @@
                                         {/if}
                                         {#if character.class}{character.class}{/if}
                                         {#if character.level}
-                                            (Level {character.level}){/if}
+                                            (Level {character.level})
+                                        {/if}
                                     </p>
                                 {/if}
                                 {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
@@ -495,6 +509,13 @@
                                     </p>
                                 {/if}
                             </div>
+                            {#if character.tags && character.tags.length > 0}
+                                <div class="tag-list">
+                                    {#each character.tags as tag}
+                                        <span class="tag-badge">{tag}</span>
+                                    {/each}
+                                </div>
+                            {/if}
                         </button>
                     {/each}
                 </div>
@@ -639,12 +660,95 @@
         border-radius: 8px;
         border: 1px solid #e5e7eb;
         flex-shrink: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .filter-buttons {
         display: flex;
         gap: 0.5rem;
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* Don't wrap on desktop - scroll horizontally instead */
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1;
+        /* Smooth scrolling for touch devices */
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        /* Hide scrollbar for cleaner look on desktop */
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f9fafb;
+        /* Ensure content doesn't get cut off */
+        padding-bottom: 0.25rem;
+    }
+
+    .filter-buttons::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .filter-buttons::-webkit-scrollbar-track {
+        background: #f9fafb;
+        border-radius: 3px;
+    }
+
+    .filter-buttons::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    .filter-buttons::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .scroll-btn {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #374151;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    .scroll-btn:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .scroll-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Hide scroll buttons on very small screens where touch scrolling is more natural */
+    @media (max-width: 480px) {
+        .scroll-btn {
+            display: none;
+        }
+
+        .group-filter {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-buttons {
+            /* Show scrollbar on mobile for clarity */
+            scrollbar-width: auto;
+            /* Allow wrapping on mobile */
+            flex-wrap: wrap;
+            max-height: calc(2.5rem * 2 + 0.5rem); /* 2 rows max on mobile */
+            overflow-y: auto;
+        }
     }
 
     .filter-btn {
@@ -708,8 +812,22 @@
         gap: 1rem;
     }
 
+    .character-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center; 
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        width: 100%;
+        min-height: 120px;
+    }
+
     .character-title {
-        margin: 0 0 0.75rem 0;
+        margin: 0 0 0 0;
         color: #111827;
         font-size: 1.25rem;
         display: flex;
@@ -723,6 +841,7 @@
         margin: 0.25rem 0;
         color: #6b7280;
         font-size: 0.875rem;
+        text-align: center;
     }
 
     .hp-bar {
@@ -796,8 +915,8 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-        margin-bottom: 0.75rem;
         justify-content: center;
+        margin-top: 0.75rem;
     }
 
     .tag-badge {
