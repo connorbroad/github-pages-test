@@ -12,9 +12,9 @@
     import "../../solo-rpg-styles.css";
     import { createEventDispatcher } from "svelte";
     import SectionPickerModal from "./SectionPickerModal.svelte";
+    import TagPickerModal from "./TagPickerModal.svelte";
 
     const dispatch = createEventDispatcher();
-    const DEFAULT_GROUPS = [];
 
     let characters: Character[] = [];
     let selectedCharacter: Character | null = null;
@@ -22,83 +22,43 @@
     let isEditingSections: boolean = false;
     let showCreateModal: boolean = false;
     let newCharacterName: string = "";
-    let newCharacterGroup: string = "";
-    let selectedGroupFilter: string = "All";
-    let customGroupInput: string = "";
-    let showCustomGroupInput: boolean = false;
+    let selectedTagFilter: string = "All";
     let selectedSections: Set<string> = new Set(); // For filtering visible sections in view mode
     let showSectionPickerModal: boolean = false;
+    let showTagPickerModal: boolean = false;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
     }
 
-    // Get all unique groups from characters (including undefined/null as "No Group")
-    $: availableGroups = getAvailableGroups(characters);
+    // Get all unique tags from all characters
+    $: availableTags = getAvailableTags(characters);
 
-    // Get all groups for the dropdown (defaults + custom groups from characters + current selection)
-    $: allGroupOptions = getAllGroupOptions(characters, newCharacterGroup);
-
-    // Filter characters by selected group
+    // Filter characters by selected tag
     $: filteredCharacters =
-        selectedGroupFilter === "All"
+        selectedTagFilter === "All"
             ? characters
-            : selectedGroupFilter === "No Group"
-              ? characters.filter((c) => !c.group)
-              : characters.filter((c) => c.group === selectedGroupFilter);
+            : selectedTagFilter === "No Tags"
+              ? characters.filter((c) => !c.tags || c.tags.length === 0)
+              : characters.filter((c) => c.tags && c.tags.includes(selectedTagFilter));
 
-    function getAvailableGroups(chars: Character[]): string[] {
-        const groups = new Set<string>();
-        let hasNoGroup = false;
+    function getAvailableTags(chars: Character[]): string[] {
+        const tags = new Set<string>();
+        let hasNoTags = false;
 
         chars.forEach((c) => {
-            if (c.group) {
-                groups.add(c.group);
+            if (c.tags && c.tags.length > 0) {
+                c.tags.forEach(tag => tags.add(tag));
             } else {
-                hasNoGroup = true;
+                hasNoTags = true;
             }
         });
 
-        const groupArray = Array.from(groups).sort();
-        if (hasNoGroup) {
-            groupArray.push("No Group");
+        const tagArray = Array.from(tags).sort();
+        if (hasNoTags) {
+            tagArray.push("No Tags");
         }
-        return groupArray;
-    }
-
-    function getAllGroupOptions(
-        chars: Character[],
-        currentGroup: string,
-    ): string[] {
-        const groups = new Set<string>(DEFAULT_GROUPS);
-        chars.forEach((c) => {
-            if (c.group && !DEFAULT_GROUPS.includes(c.group)) {
-                groups.add(c.group);
-            }
-        });
-        // Add current selection if it's not a default group
-        if (currentGroup && !DEFAULT_GROUPS.includes(currentGroup)) {
-            groups.add(currentGroup);
-        }
-        return Array.from(groups).sort();
-    }
-
-    function toggleCustomGroupInput() {
-        showCustomGroupInput = !showCustomGroupInput;
-        if (showCustomGroupInput) {
-            customGroupInput = "";
-        }
-    }
-
-    function addCustomGroup() {
-        const trimmed = customGroupInput.trim();
-        if (trimmed && !DEFAULT_GROUPS.includes(trimmed)) {
-            newCharacterGroup = trimmed;
-            showCustomGroupInput = false;
-            customGroupInput = "";
-            // Trigger reactivity for allGroupOptions
-            characters = characters;
-        }
+        return tagArray;
     }
 
     function loadCampaignCharacters() {
@@ -112,9 +72,6 @@
 
     function openCreateModal() {
         newCharacterName = "";
-        newCharacterGroup = "";
-        showCustomGroupInput = false;
-        customGroupInput = "";
         showCreateModal = true;
     }
 
@@ -125,7 +82,7 @@
             id: `char-${Date.now()}`,
             campaignId: $activeCampaign.id,
             name: newCharacterName.trim(),
-            group: newCharacterGroup || undefined,
+            tags: [],
             abilities: [],
             skills: [],
             visibleSections: ["information"], // Default to only showing information section
@@ -352,6 +309,31 @@
         }
         showSectionPickerModal = false;
     }
+
+    function openTagPickerModal() {
+        showTagPickerModal = true;
+    }
+
+    function handleTagPickerSave(newTags: string[]) {
+        if (selectedCharacter) {
+            selectedCharacter.tags = newTags;
+            selectedCharacter.updatedAt = Date.now();
+            const allCharacters = loadCharacters();
+            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
+            if (index !== -1) {
+                allCharacters[index] = selectedCharacter;
+                saveCharacters(allCharacters);
+                loadCampaignCharacters();
+            }
+            selectedCharacter = selectedCharacter; // ensure reactivity
+        }
+        showTagPickerModal = false;
+    }
+
+    function handleNewTag(event: CustomEvent<string>) {
+        // New tag added, trigger reactivity to update availableTags
+        characters = characters;
+    }
 </script>
 
 <div class="character-manager">
@@ -368,6 +350,26 @@
                     <div
                         style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;"
                     >
+                        <button
+                            id="edit-tags-button"
+                            class="srpg-b srpg-b-normal"
+                            style="padding: 0.5rem; display: flex; align-items: center;"
+                            on:click={openTagPickerModal}
+                            aria-label="Edit Tags"
+                            title="Edit Tags"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="1.5em"
+                                height="1.5em"
+                            >
+                                <path
+                                    fill="currentColor"
+                                    d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42"
+                                />
+                            </svg>
+                        </button>
                         <button
                             id="edit-sections-button"
                             class="srpg-b srpg-b-normal"
@@ -423,31 +425,31 @@
                 </button>
             </div>
 
-            {#if availableGroups.length > 1}
+            {#if availableTags.length > 1}
                 <div class="group-filter">
                     <div class="filter-buttons">
                         <button
                             class="filter-btn"
-                            class:active={selectedGroupFilter === "All"}
-                            on:click={() => (selectedGroupFilter = "All")}
+                            class:active={selectedTagFilter === "All"}
+                            on:click={() => (selectedTagFilter = "All")}
                         >
                             All ({characters.length})
                         </button>
-                        {#each availableGroups as group}
+                        {#each availableTags as tag}
                             {@const count =
-                                group === "No Group"
-                                    ? characters.filter((c) => !c.group).length
+                                tag === "No Tags"
+                                    ? characters.filter((c) => !c.tags || c.tags.length === 0).length
                                     : characters.filter(
-                                          (c) => c.group === group,
+                                          (c) => c.tags && c.tags.includes(tag),
                                       ).length}
                             {#if count > 0}
                                 <button
                                     class="filter-btn"
-                                    class:active={selectedGroupFilter === group}
+                                    class:active={selectedTagFilter === tag}
                                     on:click={() =>
-                                        (selectedGroupFilter = group)}
+                                        (selectedTagFilter = tag)}
                                 >
-                                    {group} ({count})
+                                    {tag} ({count})
                                 </button>
                             {/if}
                         {/each}
@@ -465,12 +467,14 @@
                         >
                             <h3 class="character-title">
                                 {character.name}
-                                {#if character.group}
-                                    <span class="group-badge"
-                                        >{character.group}</span
-                                    >
-                                {/if}
                             </h3>
+                            {#if character.tags && character.tags.length > 0}
+                                <div class="tag-list">
+                                    {#each character.tags as tag}
+                                        <span class="tag-badge">{tag}</span>
+                                    {/each}
+                                </div>
+                            {/if}
                             <div class="character-summary">
                                 {#if character.race || character.class}
                                     <p>
@@ -522,54 +526,8 @@
             bind:value={newCharacterName}
             placeholder="Enter character name"
             on:keypress={(e) =>
-                e.key === "Enter" && !showCustomGroupInput && createCharacter()}
+                e.key === "Enter" && createCharacter()}
         />
-
-        <label for="characterGroup">Group (optional)</label>
-        <select
-            id="characterGroup"
-            class="srpg-select"
-            bind:value={newCharacterGroup}
-        >
-            <option value="">No Group</option>
-            {#each allGroupOptions as group}
-                <option value={group}>{group}</option>
-            {/each}
-        </select>
-
-        {#if !showCustomGroupInput}
-            <button
-                class="srpg-b srpg-b-sm"
-                on:click={toggleCustomGroupInput}
-                type="button"
-            >
-                + Add Custom Group
-            </button>
-        {:else}
-            <div class="custom-group-input">
-                <input
-                    type="text"
-                    bind:value={customGroupInput}
-                    placeholder="Enter custom group name"
-                    on:keypress={(e) => e.key === "Enter" && addCustomGroup()}
-                />
-                <button
-                    class="srpg-b srpg-b-sm srpg-b-normal"
-                    on:click={addCustomGroup}
-                    disabled={!customGroupInput.trim()}
-                    type="button"
-                >
-                    Add
-                </button>
-                <button
-                    class="srpg-b srpg-b-sm"
-                    on:click={toggleCustomGroupInput}
-                    type="button"
-                >
-                    Cancel
-                </button>
-            </div>
-        {/if}
 
         <div class="modal-footer">
             <button
@@ -592,18 +550,33 @@
     on:change={e => {
         if (selectedCharacter) {
             selectedCharacter.visibleSections = e.detail;
-            selectedCharacter = selectedCharacter; // ensure reactivity
-            dispatch('characterSelected', { // <-- this is missing!
+            selectedCharacter = selectedCharacter;
+            dispatch('characterSelected', {
                 character: selectedCharacter,
                 isEditing,
                 isEditingSections,
                 selectedSections,
-                visibleSections: selectedCharacter.visibleSections
+                visibleSections: e.detail
             });
         }
     }}
     on:save={e => handleSectionPickerSave(e.detail)}
     on:close={() => (showSectionPickerModal = false)}
+/>
+
+<TagPickerModal
+    bind:show={showTagPickerModal}
+    selectedTags={selectedCharacter?.tags || []}
+    availableTags={availableTags.filter(t => t !== "No Tags")}
+    on:change={e => {
+        if (selectedCharacter) {
+            selectedCharacter.tags = e.detail;
+            selectedCharacter = selectedCharacter;
+        }
+    }}
+    on:newTag={handleNewTag}
+    on:save={e => handleTagPickerSave(e.detail)}
+    on:close={() => (showTagPickerModal = false)}
 />
 
 <style>
@@ -700,9 +673,7 @@
     }
 
     @media (max-width: 640px) {
-        .filter-btn {
-            flex: 1 1 calc(50% - 0.25rem);
-            min-width: 0;
+        .filter-btn { 
             font-size: 0.8125rem;
             padding: 0.5rem 0.75rem;
         }
@@ -746,19 +717,6 @@
         justify-content: center;
         gap: 0.5rem;
         flex-wrap: wrap;
-    }
-
-    .group-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.625rem;
-        border-radius: 12px;
-        letter-spacing: 0.025em;
-        box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
-        white-space: nowrap;
     }
 
     .character-summary p {
@@ -823,23 +781,6 @@
         margin-top: 0.75rem;
     }
 
-    .custom-group-input {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-        align-items: stretch;
-    }
-
-    .custom-group-input input {
-        flex: 1;
-        margin: 0;
-    }
-
-    .custom-group-input button {
-        margin: 0;
-        flex-shrink: 0;
-    }
-
     .modal-footer {
         margin-top: 1.5rem;
         display: flex;
@@ -850,4 +791,26 @@
     .modal-footer button {
         margin-top: 0;
     }
+
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        justify-content: center;
+    }
+
+    .tag-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.625rem;
+        border-radius: 12px;
+        letter-spacing: 0.025em;
+        box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+        white-space: nowrap;
+    }
 </style>
+

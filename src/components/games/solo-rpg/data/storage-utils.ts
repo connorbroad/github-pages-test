@@ -69,7 +69,7 @@ export type Character = {
     id: string;
     campaignId: string;
     name: string;
-    group?: string; 
+    tags?: string[]; // Tags for categorizing/grouping characters
     // Core Info
     class?: string;
     level?: number;

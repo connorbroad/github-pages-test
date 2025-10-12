@@ -9,8 +9,6 @@
     import { onMount } from "svelte";
     import "../solo-rpg-styles.css";
 
-    const DEFAULT_GROUPS = [];
-
     let characters: Character[] = [];
     let activeCharacterId: string | null = null;
     let isOpen = false;
@@ -26,36 +24,36 @@
         loadCampaignCharacters();
     });
 
-    // Get all unique groups from characters (including undefined/null as "No Group")
-    $: availableGroups = getAvailableGroups(characters);
+    // Get all unique tags from characters
+    $: availableGroups = getAvailableTags(characters);
 
-    // Filter characters by selected group
+    // Filter characters by selected tag
     $: filteredCharacters = selectedGroupFilter === "All" 
         ? characters 
-        : selectedGroupFilter === "No Group"
-        ? characters.filter(c => !c.group)
-        : characters.filter(c => c.group === selectedGroupFilter);
+        : selectedGroupFilter === "No Tags"
+        ? characters.filter(c => !c.tags || c.tags.length === 0)
+        : characters.filter(c => c.tags && c.tags.includes(selectedGroupFilter));
 
-    // Show group filter if there are multiple groups with characters
+    // Show tag filter if there are multiple tags with characters
     $: showGroupFilter = availableGroups.length > 1;
 
-    function getAvailableGroups(chars: Character[]): string[] {
-        const groups = new Set<string>();
-        let hasNoGroup = false;
+    function getAvailableTags(chars: Character[]): string[] {
+        const tags = new Set<string>();
+        let hasNoTags = false;
         
         chars.forEach(c => {
-            if (c.group) {
-                groups.add(c.group);
+            if (c.tags && c.tags.length > 0) {
+                c.tags.forEach(tag => tags.add(tag));
             } else {
-                hasNoGroup = true;
+                hasNoTags = true;
             }
         });
         
-        const groupArray = Array.from(groups).sort();
-        if (hasNoGroup) {
-            groupArray.push("No Group");
+        const tagArray = Array.from(tags).sort();
+        if (hasNoTags) {
+            tagArray.push("No Tags");
         }
-        return groupArray;
+        return tagArray;
     }
 
     function loadCampaignCharacters() {
@@ -148,17 +146,17 @@
                         >
                             All
                         </button>
-                        {#each availableGroups as group}
-                            {@const count = group === "No Group" 
-                                ? characters.filter(c => !c.group).length 
-                                : characters.filter(c => c.group === group).length}
+                        {#each availableGroups as tag}
+                            {@const count = tag === "No Tags" 
+                                ? characters.filter(c => !c.tags || c.tags.length === 0).length 
+                                : characters.filter(c => c.tags && c.tags.includes(tag)).length}
                             {#if count > 0}
                                 <button 
                                     class="filter-chip" 
-                                    class:active={selectedGroupFilter === group}
-                                    on:click={() => selectedGroupFilter = group}
+                                    class:active={selectedGroupFilter === tag}
+                                    on:click={() => selectedGroupFilter = tag}
                                 >
-                                    {group}
+                                    {tag}
                                 </button>
                             {/if}
                         {/each}
@@ -204,8 +202,10 @@
                             <circle cx="12" cy="7" r="4" />
                         </svg>
                         <span class="character-name">{character.name}</span>
-                        {#if character.group && selectedGroupFilter === "All"}
-                            <span class="character-group">{character.group}</span>
+                        {#if character.tags && character.tags.length > 0 && selectedGroupFilter === "All"}
+                            <span class="character-tags">
+                                {character.tags.join(", ")}
+                            </span>
                         {/if}
                         {#if character.class}
                             <span class="character-class"
@@ -465,7 +465,7 @@
         box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
     }
 
-    .character-group {
+    .character-tags {
         font-size: 0.75rem;
         color: white;
         padding: 0.125rem 0.5rem;
@@ -474,9 +474,12 @@
         white-space: nowrap;
         font-weight: 600;
         box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .dropdown-item.active .character-group {
+    .dropdown-item.active .character-tags {
         background: linear-gradient(135deg, #059669 0%, #047857 100%);
     }
 
@@ -546,7 +549,7 @@
 
         .character-class,
         .character-level,
-        .character-group {
+        .character-tags {
             flex-shrink: 0;
         }
 
