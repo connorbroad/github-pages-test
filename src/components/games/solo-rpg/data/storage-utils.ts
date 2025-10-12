@@ -104,10 +104,12 @@ export type ChronicleEntry = {
     campaignId: string;
     chapterId?: string; // Optional reference to chapter (undefined = current/active entries)
     timestamp: number;
-    type: "manual" | "fortune";
+    type: "manual" | "fortune" | "dice" | "cards";
     content: string;
     fortuneId?: string; // Optional reference to fortune if type is "fortune"
     fortuneData?: FortuneResultData; // Fortune roll/draw results
+    diceData?: DiceRollData; // Standalone dice roll results
+    cardsData?: CardsDrawData; // Standalone card draw results
     userNotes?: string; // User-added notes to fortune results
     characterId?: string; // Optional reference to character
 };
@@ -130,6 +132,22 @@ export type FortuneResultData = {
         suitMapped?: string;
         rankMapped?: string;
     };
+};
+
+export type DiceRollData = {
+    numDice: number;
+    numSides: number;
+    modifier: number;
+    resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
+    result: number;
+    individualDiceResults: number[];
+};
+
+export type CardsDrawData = {
+    cards: Array<{
+        suit: string;
+        rank: string;
+    }>;
 };
 
 export type GameBlueprint = {

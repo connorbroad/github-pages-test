@@ -40,6 +40,11 @@
         loadCampaignCharacters();
     }
 
+    // Public method to force reload entries (can be called externally)
+    export function reloadEntries() {
+        loadEntries();
+    }
+
     function loadEntries() {
         if (!$activeCampaign) return;
 

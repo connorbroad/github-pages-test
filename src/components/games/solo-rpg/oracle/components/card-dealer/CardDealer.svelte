@@ -1,6 +1,9 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, createEventDispatcher } from "svelte";
     import "../../../solo-rpg-styles.css";
+    
+    const dispatch = createEventDispatcher();
+    
     onMount(() => buildDeck());
 
     const suits = ["spade", "heart", "diamond", "club"] as const;
@@ -34,9 +37,7 @@
     let numToDraw = 1;
     let includeJokers = false;
 
-    export let show = false;
     export let embedded: boolean = false;
-    export let onClose: () => void = () => {};
 
     function buildDeck() {
         deck = [];
@@ -75,6 +76,18 @@
 
     function onClickTakeResult() {
         if (drawn.length === 0) return;
+        
+        if (embedded) {
+            // When embedded in GameOracle, save to chronicle and navigate to story
+            dispatch("recordFate", {
+                type: "cards",
+                cards: drawn.map(card => ({
+                    suit: card.suit,
+                    rank: card.rank
+                }))
+            });
+        }
+        
         drawn = [];
     }
 
@@ -131,147 +144,9 @@
             Shuffle Deck
         </button>
     </div>
-{:else}
-    {#if show}
-        <div
-            class="card-drawer-modal-overlay"
-            role="button"
-            tabindex="0"
-            aria-label="Close card drawer"
-            on:click={() => onClose && onClose()}
-            on:keydown={(e) =>
-                (e.key === "Enter" || e.key === " ") && onClose && onClose()}
-        >
-            <div
-                class="card-drawer-modal"
-                role="dialog"
-                aria-modal="true"
-                tabindex="0"
-                on:click|stopPropagation
-                on:keydown={(e) => {
-                    /* Prevent modal from closing on keydown inside modal */
-                }}
-            >
-                <div class="card-drawer-content">
-                    <button
-                        class="srpg-b-modal-nav srpg-b-modal-nav-close"
-                        aria-label="Close"
-                        on:click={() => onClose && onClose()}>&times;</button>
-                    <h2>Card Dealer</h2>
-                    <div class="card-drawer-info">
-                        <p>Cards Remaining: {cardsRemaining}</p>
-                        {#if !deckIsNotFull}
-                            <div class="options">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        bind:checked={includeJokers}
-                                        on:change={buildDeck}
-                                    /> Include Jokers
-                                </label>
-                            </div>
-                        {/if}
-                        {#if drawn.length}
-                            <div class="drawn-cards">
-                                <div class="cards-list">
-                                    {#each drawn as card}
-                                        <span
-                                            class="card-chip"
-                                            style="color: {card.suit === 'heart' || card.suit === 'diamond' ? '#e11d48' : 'inherit'}"
-                                        >
-                                            {card.rank}
-                                            <span class="suit-icon" aria-hidden="true">
-                                                {#if card.suit === 'spade'}
-                                                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2c3 3 7 6.5 7 10a4 4 0 0 1-7 2.65A4 4 0 0 1 5 12c0-3.5 4-7 7-10Zm-2.5 18h5c.5 0 .5-.6.2-.9l-1.7-1.7c-.3-.3-.8-.4-1.2-.3-.4-.1-.9 0-1.2.3L9.3 19.1c-.3.3-.3.9.2.9Z"/></svg>
-                                                {:else if card.suit === 'heart'}
-                                                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12.1 8.64l-.1.1-.1-.1C10.14 6.82 7.1 6.3 5.4 8.04c-1.83 1.86-1.35 5.02.98 7.37l5.72 5.74 5.72-5.74c2.33-2.35 2.81-5.51.98-7.37-1.7-1.74-4.74-1.22-6.6.6Z"/></svg>
-                                                {:else if card.suit === 'diamond'}
-                                                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="m12 2 7 10-7 10L5 12 12 2Z"/></svg>
-                                                {:else if card.suit === 'club'}
-                                                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 6a3 3 0 0 1 2.65 4.36A3 3 0 1 1 9.35 10 3 3 0 1 1 12 6Zm-2.5 14h5c.5 0 .5-.6.2-.9l-1.7-1.7c-.3-.3-.8-.4-1.2-.3-.4-.1-.9 0-1.2.3L9.3 19.1c-.3.3-.3.9.2.9Z"/></svg>
-                                                {:else}
-                                                    <svg viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/></svg>
-                                                {/if}
-                                            </span>
-                                        </span>
-                                    {/each}
-                                </div>
-                            </div>
-                        {/if}
-                    </div>
-                    <div class="card-drawer-actions">
-                        <button
-                            class="srpg-b srpg-b-normal"
-                            on:click={drawCards}
-                            disabled={deck.length === 0}>Draw</button
-                        >
-                        <button
-                            class="srpg-b srpg-b-normal"
-                            on:click={handleUndo}
-                            disabled={drawn.length === 0}
-                        >
-                            Undo
-                        </button>
-                    </div>
-                    <hr class="divider" />
-                    <button
-                        id="take-result-button"
-                        class="srpg-b srpg-b-create srpg-b-w-full"
-                        on:click={onClickTakeResult}
-                        disabled={drawn.length === 0}
-                    >
-                        Take cards: {drawn.length}
-                    </button>
-                    <hr class="divider" />
-                    <button
-                        id="reset-deck-button"
-                        class="srpg-b srpg-b-normal srpg-b-w-full"
-                        on:click={buildDeck}
-                    >
-                        Shuffle Deck
-                    </button>
-                </div>
-            </div>
-        </div>
-    {/if}
 {/if}
 
 <style>
-    .card-drawer-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1001;
-    }
-    .card-drawer-modal {
-        position: relative;
-        min-width: 300px;
-        max-width: 350px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 1rem;
-    }
-    .card-drawer-content {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-        min-width: 300px;
-        text-align: center;
-        position: relative;
-    }
-    .card-drawer-content label {
-        display: block;
-        margin: 1rem 0;
-        font-size: 1.05rem;
-    }
     .card-drawer-actions {
         display: flex;
         justify-content: space-between;

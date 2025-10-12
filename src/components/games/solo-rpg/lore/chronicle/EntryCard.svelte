@@ -130,6 +130,45 @@
         font-weight: 400;
     }
 
+    .oracle-card {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-left: 3px solid #6366f1;
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        box-shadow: none;
+        position: relative;
+        transition: all 0.15s ease;
+    }
+
+    .oracle-card:hover {
+        background: #f5f5f5;
+        border-left-color: #4f46e5;
+    }
+
+    .oracle-card .entry-header {
+        margin-bottom: 0.3rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .oracle-card .entry-type {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #737373;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .oracle-card .entry-timestamp {
+        font-size: 0.7rem;
+        color: #a3a3a3;
+        font-weight: 400;
+    }
+
     /* Fortune card styling */
     .fortune-card {
         background: #fafafa;
@@ -165,6 +204,86 @@
     }
 
     .fortune-card .entry-timestamp {
+        font-size: 0.7rem;
+        color: #a3a3a3;
+        font-weight: 400;
+    }
+
+    /* Dice card styling */
+    .dice-card {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-left: 3px solid #10b981;
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        box-shadow: none;
+        position: relative;
+        transition: all 0.15s ease;
+    }
+
+    .dice-card:hover {
+        background: #f5f5f5;
+        border-left-color: #059669;
+    }
+
+    .dice-card .entry-header {
+        margin-bottom: 0.3rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dice-card .entry-type {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #737373;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .dice-card .entry-timestamp {
+        font-size: 0.7rem;
+        color: #a3a3a3;
+        font-weight: 400;
+    }
+
+    /* Cards card styling */
+    .cards-card {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-left: 3px solid #f59e0b;
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        box-shadow: none;
+        position: relative;
+        transition: all 0.15s ease;
+    }
+
+    .cards-card:hover {
+        background: #f5f5f5;
+        border-left-color: #d97706;
+    }
+
+    .cards-card .entry-header {
+        margin-bottom: 0.3rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cards-card .entry-type {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #737373;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .cards-card .entry-timestamp {
         font-size: 0.7rem;
         color: #a3a3a3;
         font-weight: 400;

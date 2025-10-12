@@ -18,6 +18,7 @@
     }
 
     function handleNavigateToStory() {
+        showOracle = false; // Close the oracle when navigating to story
         dispatch("navigateToStory");
     }
 </script>

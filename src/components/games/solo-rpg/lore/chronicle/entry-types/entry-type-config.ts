@@ -2,6 +2,8 @@ import type { ComponentType } from "svelte";
 import type { ChronicleEntry } from "../../../data/storage-utils";
 import FortuneEntryContent from "./FortuneEntryContent.svelte";
 import ManualEntryContent from "./ManualEntryContent.svelte";
+import DiceEntryContent from "./DiceEntryContent.svelte";
+import CardsEntryContent from "./CardsEntryContent.svelte";
 
 export interface EntryTypeConfig {
     /** The internal type identifier */
@@ -54,6 +56,32 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         editField: "userNotes",
         editPlaceholder: "Add your interpretation...",
         hasEditableContent: () => true, // Fortunes can always have notes added
+    },
+
+    dice: {
+        type: "dice",
+        label: "Dice Roll",
+        icon: "🎲",
+        contentComponent: DiceEntryContent,
+        cardClass: "dice-card",
+        compact: true,
+        editButtonLabel: (entry) => entry.userNotes ? "Edit notes" : "Add notes",
+        editField: "userNotes",
+        editPlaceholder: "Add notes about this roll...",
+        hasEditableContent: () => true,
+    },
+
+    cards: {
+        type: "cards",
+        label: "Card Draw",
+        icon: "🃏",
+        contentComponent: CardsEntryContent,
+        cardClass: "cards-card",
+        compact: true,
+        editButtonLabel: (entry) => entry.userNotes ? "Edit notes" : "Add notes",
+        editField: "userNotes",
+        editPlaceholder: "Add notes about these cards...",
+        hasEditableContent: () => true,
     },
 
     manual: {

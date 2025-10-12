@@ -14,6 +14,7 @@
     export let showTertiarySidebar: boolean = false;
 
     let characterManagerComponent: any;
+    let chronicleComponent: any;
 
     function handleNavigateHome() {
         dispatch("navigateHome");
@@ -33,6 +34,13 @@
             characterManagerComponent.toggleSectionFromExternal(section);
         }
     }
+
+    // Expose method to reload chronicle entries
+    export function reloadChronicle() {
+        if (chronicleComponent && chronicleComponent.reloadEntries) {
+            chronicleComponent.reloadEntries();
+        }
+    }
 </script>
 
 <NoCampaignOverlay
@@ -46,7 +54,7 @@
 
         <div class="tab-content">
             {#if activeTab === "chronicle"}
-                <Chronicle />
+                <Chronicle bind:this={chronicleComponent} />
             {:else if activeTab === "characters"}
                 <CharacterManager
                     bind:this={characterManagerComponent}

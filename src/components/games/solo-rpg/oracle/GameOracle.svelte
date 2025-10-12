@@ -148,6 +148,67 @@
         dispatch('navigateToStory');
     }
 
+    function handleDiceRecordFate(event: CustomEvent) {
+        const diceData = event.detail;
+        
+        if (!$activeCampaign) return;
+
+        const chronicleEntries = loadChronicleEntries();
+        const activeCharacterId = loadActiveCharacterId();
+        
+        const newEntry = {
+            id: generateId(),
+            campaignId: $activeCampaign.id,
+            timestamp: Date.now(),
+            type: "dice" as const,
+            content: `Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`,
+            diceData: {
+                numDice: diceData.numDice,
+                numSides: diceData.numSides,
+                modifier: diceData.modifier,
+                resultOption: diceData.resultOption,
+                result: diceData.result,
+                individualDiceResults: diceData.individualDiceResults
+            },
+            characterId: activeCharacterId || undefined
+        };
+
+        chronicleEntries.push(newEntry);
+        saveChronicleEntries(chronicleEntries);
+
+        // Navigate to story page
+        dispatch('navigateToStory');
+    }
+
+    function handleCardsRecordFate(event: CustomEvent) {
+        const cardsData = event.detail;
+        
+        if (!$activeCampaign) return;
+
+        const chronicleEntries = loadChronicleEntries();
+        const activeCharacterId = loadActiveCharacterId();
+        
+        const cardsList = cardsData.cards.map((c: any) => `${c.rank} of ${c.suit}`).join(', ');
+        
+        const newEntry = {
+            id: generateId(),
+            campaignId: $activeCampaign.id,
+            timestamp: Date.now(),
+            type: "cards" as const,
+            content: `Drew ${cardsData.cards.length} card${cardsData.cards.length > 1 ? 's' : ''}: ${cardsList}`,
+            cardsData: {
+                cards: cardsData.cards
+            },
+            characterId: activeCharacterId || undefined
+        };
+
+        chronicleEntries.push(newEntry);
+        saveChronicleEntries(chronicleEntries);
+
+        // Navigate to story page
+        dispatch('navigateToStory');
+    }
+
     function handleClose() {
         dispatch('close');
     }
@@ -268,12 +329,19 @@
             {:else if view === 'dice'}
                 <div class="tool-page">
                     <h2 class="tool-title">Dice Roller</h2>
-                    <DiceRoller embedded={true} show={true} onClose={() => { /* noop in embedded */ }} />
+                    <DiceRoller 
+                        embedded={true} 
+                        onClose={() => { /* noop in embedded */ }} 
+                        on:recordFate={handleDiceRecordFate}
+                    />
                 </div>
             {:else if view === 'cards'}
                 <div class="tool-page">
                     <h2 class="tool-title">Card Dealer</h2>
-                    <CardDealer embedded={true} show={true} onClose={() => { /* noop in embedded */ }} />
+                    <CardDealer 
+                        embedded={true} 
+                        on:recordFate={handleCardsRecordFate}
+                    />
                 </div>
             {/if}
         </div>

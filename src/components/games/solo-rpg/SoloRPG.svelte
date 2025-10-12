@@ -69,12 +69,23 @@
     });
 
     function handleNavigate(view: View) {
+        const wasOnStory = currentView === "story";
         currentView = view;
         // Reset story tab when leaving story view
         if (view !== "story") {
             activeStoryTab = "chronicle";
             // Hide tertiary sidebar when leaving story view
             showTertiarySidebar = false;
+        } else if (view === "story") {
+            // When navigating to story, ensure we're on the chronicle tab
+            activeStoryTab = "chronicle";
+            // When navigating to story (or reloading while already on story), reload chronicle to show new entries
+            // Use setTimeout to ensure component is mounted
+            setTimeout(() => {
+                if (storyViewComponent && storyViewComponent.reloadChronicle) {
+                    storyViewComponent.reloadChronicle();
+                }
+            }, 0);
         }
     }
 
@@ -428,6 +439,7 @@
         <div class="oracle-view">
             <h1>Oracle</h1>
             <GameOracle 
+                on:close={() => handleNavigate("home")}
                 on:navigateHome={() => handleNavigate("home")}
                 on:navigateToStory={() => handleNavigate("story")}
             />
