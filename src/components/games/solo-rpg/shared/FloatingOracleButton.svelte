@@ -38,8 +38,7 @@
 </button>
 
 {#if showOracle}
-    <GameOracle
-        isModal={true}
+    <GameOracle 
         on:close={closeOracle}
         on:navigateToStory={handleNavigateToStory}
     />

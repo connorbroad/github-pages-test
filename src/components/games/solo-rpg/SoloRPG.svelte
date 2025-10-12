@@ -427,8 +427,7 @@
     {:else if currentView === "oracle"}
         <div class="oracle-view">
             <h1>Oracle</h1>
-            <GameOracle
-                isModal={false}
+            <GameOracle 
                 on:navigateHome={() => handleNavigate("home")}
                 on:navigateToStory={() => handleNavigate("story")}
             />
