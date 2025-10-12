@@ -91,9 +91,9 @@
 
 <style>
     .sidebar {
-        background-color: #2c2c2c;
-        color: #ffffff;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        box-shadow: 2px 0 5px var(--shadow-md);
         z-index: 100;
         display: flex;
         flex-direction: column;
@@ -126,7 +126,7 @@
         padding: 0.75rem;
         background: none;
         border: none;
-        color: #b0b0b0;
+        color: var(--sidebar-text-muted);
         cursor: pointer;
         transition: all 0.2s ease;
         flex: 1;
@@ -135,14 +135,14 @@
     }
 
     .nav-item:hover {
-        background-color: #3a3a3a;
-        color: #ffffff;
+        background-color: var(--sidebar-hover);
+        color: var(--sidebar-text);
     }
 
     .nav-item.active {
-        background-color: #4a4a4a;
-        color: #ffffff;
-        border-left: 3px solid #4a9eff;
+        background-color: var(--sidebar-active);
+        color: var(--sidebar-text);
+        border-left: 3px solid var(--accent-primary);
     }
 
     .icon {
@@ -172,13 +172,13 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem 0;
-            border-bottom: 1px solid #3a3a3a;
+            border-bottom: 1px solid var(--sidebar-border);
         }
 
         .app-icon svg {
             width: 36px;
             height: 36px;
-            stroke: #4a9eff;
+            stroke: var(--accent-primary);
         }
 
         nav {
@@ -203,7 +203,7 @@
         }
 
         .nav-item.active {
-            border-left: 3px solid #4a9eff;
+            border-left: 3px solid var(--accent-primary);
             border-bottom: none;
         }
     }
@@ -217,7 +217,7 @@
             right: 0;
             width: 100%;
             height: calc(70px + env(safe-area-inset-bottom));
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -2px 5px var(--shadow-md);
             flex-direction: row;
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -248,7 +248,7 @@
 
         .nav-item.active {
             border-left: none;
-            border-top: 3px solid #4a9eff;
+            border-top: 3px solid var(--accent-primary);
             padding-top: calc(0.5rem - 3px);
         }
 

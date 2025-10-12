@@ -41,9 +41,9 @@
 
 <style>
     .tertiary-sidebar {
-        background-color: #404040;
-        color: #ffffff;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        box-shadow: 2px 0 5px var(--shadow-md);
         z-index: 98;
         display: flex;
         flex-direction: column;
@@ -73,7 +73,7 @@
             right: 0;
             width: 100%;
             height: var(--tertiary-height, 60px);
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -2px 5px var(--shadow-md);
         }
 
         /* Override CharacterSheetControls styles for mobile */

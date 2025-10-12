@@ -28,12 +28,12 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [x] Test theme switching works at root level
 - [x] Verify theme persists in localStorage
 
-### Phase 3: Sidebar Components ⏳
-- [ ] Update `Sidebar.svelte` to use CSS variables
-- [ ] Update `SecondarySidebar.svelte` to use CSS variables
-- [ ] Update `TertiarySidebar.svelte` to use CSS variables
-- [ ] Test all sidebars in both light and dark modes
-- [ ] Verify hover/active states work in both themes
+### Phase 3: Sidebar Components ✅
+- [x] Update `Sidebar.svelte` to use CSS variables
+- [x] Update `SecondarySidebar.svelte` to use CSS variables
+- [x] Update `TertiarySidebar.svelte` to use CSS variables
+- [x] Test all sidebars in both light and dark modes
+- [x] Verify hover/active states work in both themes
 
 ### Phase 4: Main Views ⏳
 - [ ] Update Home view styles in `SoloRPG.svelte`
@@ -153,9 +153,9 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 15/150+
+- **Total Tasks:** 20/150+
 - **Phase 1-2 (Foundation):** 15/15 ✅
-- **Phase 3-11 (Components):** 0/90+ ⏳
+- **Phase 3-11 (Components):** 5/90+ 🔄
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳
 
