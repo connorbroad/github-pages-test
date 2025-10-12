@@ -27,7 +27,8 @@
     let includeJokers = false;
 
     export let show = false;
-    export let onClose: () => void;
+    export let embedded: boolean = false;
+    export let onClose: () => void = () => {};
 
     function buildDeck() {
         deck = [];
@@ -66,8 +67,6 @@
 
     function onClickTakeResult() {
         if (drawn.length === 0) return;
-        // Here you would typically pass the drawn cards to the parent component or game state
-        // For now, we'll just clear the drawn cards
         drawn = [];
     }
 
@@ -75,99 +74,137 @@
     $: deckIsNotFull = cardsRemaining < (includeJokers ? 54 : 52);
 </script>
 
-{#if show}
-    <div
-        class="card-drawer-modal-overlay"
-        role="button"
-        tabindex="0"
-        aria-label="Close card drawer"
-        on:click={() => onClose && onClose()}
-        on:keydown={(e) =>
-            (e.key === "Enter" || e.key === " ") && onClose && onClose()}
-    >
-        <div
-            class="card-drawer-modal"
-            role="dialog"
-            aria-modal="true"
-            tabindex="0"
-            on:click|stopPropagation
-            on:keydown={(e) => {
-                /* Prevent modal from closing on keydown inside modal */
-            }}
-        >
-            <div class="card-drawer-content">
-                <button
-                    class="srpg-b-modal-nav srpg-b-modal-nav-close"
-                    aria-label="Close"
-                    on:click={() => onClose && onClose()}>&times;</button
-                >
-                <h2>Card Dealer</h2>
-                <div class="card-drawer-info">
-                    <p>Cards Remaining: {cardsRemaining}</p>
-                    {#if !deckIsNotFull}
-                        <div class="options">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    bind:checked={includeJokers}
-                                    on:change={buildDeck}
-                                /> Include Jokers
-                            </label>
-                        </div>
-                    {/if}
-                    {#if drawn.length}
-                        <div class="drawn-cards">
-                            <div class="cards-list">
-                                {#each drawn as card}
-                                    <span
-                                        class="card-chip"
-                                        style="color: {card.suit === '♥' ||
-                                        card.suit === '♦'
-                                            ? 'red'
-                                            : 'inherit'}"
-                                    >
-                                        {card.rank}
-                                        {card.suit}
-                                    </span>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
+{#if embedded}
+    <div class="card-dealer-embedded">
+        <div class="card-drawer-info">
+            <p>Cards Remaining: {cardsRemaining}</p>
+            {#if !deckIsNotFull}
+                <div class="options">
+                    <label>
+                        <input type="checkbox" bind:checked={includeJokers} on:change={buildDeck} /> Include Jokers
+                    </label>
                 </div>
-                <div class="card-drawer-actions">
+            {/if}
+            {#if drawn.length}
+                <div class="drawn-cards">
+                    <div class="cards-list">
+                        {#each drawn as card}
+                            <span class="card-chip" style="color: {card.suit === '♥' || card.suit === '♦' ? 'red' : 'inherit'}">
+                                {card.rank}{card.suit}
+                            </span>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+        </div>
+        <div class="card-drawer-actions">
+            <button class="srpg-b srpg-b-normal" on:click={drawCards} disabled={deck.length === 0}>Draw</button>
+            <button class="srpg-b srpg-b-normal" on:click={handleUndo} disabled={drawn.length === 0}>Undo</button>
+        </div>
+        <hr class="divider" />
+        <button id="take-result-button" class="srpg-b srpg-b-create srpg-b-w-full" on:click={onClickTakeResult} disabled={drawn.length === 0}>
+            Take cards: {drawn.length}
+        </button>
+        <hr class="divider" />
+        <button id="reset-deck-button" class="srpg-b srpg-b-normal srpg-b-w-full" on:click={buildDeck}>
+            Shuffle Deck
+        </button>
+    </div>
+{:else}
+    {#if show}
+        <div
+            class="card-drawer-modal-overlay"
+            role="button"
+            tabindex="0"
+            aria-label="Close card drawer"
+            on:click={() => onClose && onClose()}
+            on:keydown={(e) =>
+                (e.key === "Enter" || e.key === " ") && onClose && onClose()}
+        >
+            <div
+                class="card-drawer-modal"
+                role="dialog"
+                aria-modal="true"
+                tabindex="0"
+                on:click|stopPropagation
+                on:keydown={(e) => {
+                    /* Prevent modal from closing on keydown inside modal */
+                }}
+            >
+                <div class="card-drawer-content">
                     <button
-                        class="srpg-b srpg-b-normal"
-                        on:click={drawCards}
-                        disabled={deck.length === 0}>Draw</button
+                        class="srpg-b-modal-nav srpg-b-modal-nav-close"
+                        aria-label="Close"
+                        on:click={() => onClose && onClose()}>&times;</button
                     >
+                    <h2>Card Dealer</h2>
+                    <div class="card-drawer-info">
+                        <p>Cards Remaining: {cardsRemaining}</p>
+                        {#if !deckIsNotFull}
+                            <div class="options">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        bind:checked={includeJokers}
+                                        on:change={buildDeck}
+                                    /> Include Jokers
+                                </label>
+                            </div>
+                        {/if}
+                        {#if drawn.length}
+                            <div class="drawn-cards">
+                                <div class="cards-list">
+                                    {#each drawn as card}
+                                        <span
+                                            class="card-chip"
+                                            style="color: {card.suit === '♥' ||
+                                            card.suit === '♦'
+                                                ? 'red'
+                                                : 'inherit'}"
+                                        >
+                                            {card.rank}
+                                            {card.suit}
+                                        </span>
+                                    {/each}
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                    <div class="card-drawer-actions">
+                        <button
+                            class="srpg-b srpg-b-normal"
+                            on:click={drawCards}
+                            disabled={deck.length === 0}>Draw</button
+                        >
+                        <button
+                            class="srpg-b srpg-b-normal"
+                            on:click={handleUndo}
+                            disabled={drawn.length === 0}
+                        >
+                            Undo
+                        </button>
+                    </div>
+                    <hr class="divider" />
                     <button
-                        class="srpg-b srpg-b-normal"
-                        on:click={handleUndo}
+                        id="take-result-button"
+                        class="srpg-b srpg-b-create srpg-b-w-full"
+                        on:click={onClickTakeResult}
                         disabled={drawn.length === 0}
                     >
-                        Undo
+                        Take cards: {drawn.length}
+                    </button>
+                    <hr class="divider" />
+                    <button
+                        id="reset-deck-button"
+                        class="srpg-b srpg-b-normal srpg-b-w-full"
+                        on:click={buildDeck}
+                    >
+                        Shuffle Deck
                     </button>
                 </div>
-                <hr class="divider" />
-                <button
-                    id="take-result-button"
-                    class="srpg-b srpg-b-create srpg-b-w-full"
-                    on:click={onClickTakeResult}
-                    disabled={drawn.length === 0}
-                >
-                    Take cards: {drawn.length}
-                </button>
-                <hr class="divider" />
-                <button
-                    id="reset-deck-button"
-                    class="srpg-b srpg-b-normal srpg-b-w-full"
-                    on:click={buildDeck}
-                >
-                    Shuffle Deck
-                </button>
             </div>
         </div>
-    </div>
+    {/if}
 {/if}
 
 <style>
