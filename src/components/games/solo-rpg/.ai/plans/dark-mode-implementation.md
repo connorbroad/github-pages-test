@@ -17,16 +17,16 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [x] Replace hardcoded colors in info-card class with CSS variables
 - [x] Test basic theme variable system works
 
-### Phase 2: Core Integration ⏳
-- [ ] Import theme store in `SoloRPG.svelte`
-- [ ] Add `data-theme` attribute binding to main content element
-- [ ] Create `theme/ThemeToggle.svelte` component
-- [ ] Design toggle UI (light/dark switch with icons)
-- [ ] Add accessibility features to toggle (ARIA, keyboard nav)
-- [ ] Integrate ThemeToggle into Settings view
-- [ ] Add "Appearance" section heading in Settings
-- [ ] Test theme switching works at root level
-- [ ] Verify theme persists in localStorage
+### Phase 2: Core Integration ✅
+- [x] Import theme store in `SoloRPG.svelte`
+- [x] Add `data-theme` attribute binding to main content element
+- [x] Create `theme/ThemeToggle.svelte` component
+- [x] Design toggle UI (light/dark switch with icons)
+- [x] Add accessibility features to toggle (ARIA, keyboard nav)
+- [x] Integrate ThemeToggle into Settings view
+- [x] Add "Appearance" section heading in Settings
+- [x] Test theme switching works at root level
+- [x] Verify theme persists in localStorage
 
 ### Phase 3: Sidebar Components ⏳
 - [ ] Update `Sidebar.svelte` to use CSS variables
@@ -153,8 +153,8 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 6/150+
-- **Phase 1-2 (Foundation):** 6/15 ✅
+- **Total Tasks:** 15/150+
+- **Phase 1-2 (Foundation):** 15/15 ✅
 - **Phase 3-11 (Components):** 0/90+ ⏳
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳

@@ -11,6 +11,7 @@
     import CampaignLoadConfirm from "./game-management/CampaignLoadConfirm.svelte";
     import StoryView from "./lore/StoryView.svelte";
     import MapView from "./map/MapView.svelte";
+    import ThemeToggle from "./theme/ThemeToggle.svelte";
     import {
         loadGameBlueprints,
         saveGameBlueprints,
@@ -20,6 +21,7 @@
     import { generateId } from "./oracle/scripts/oracleTypes";
     import { type GameBlueprint, type Campaign } from "./data/storage-utils";
     import { activeCampaign } from "./game-management/campaign-store";
+    import { theme } from "./theme/theme-store";
     import { onMount } from "svelte";
     import "./solo-rpg-styles.css";
 
@@ -63,6 +65,9 @@
     );
 
     onMount(() => {
+        // Initialize theme before other components load
+        theme.initialize();
+        
         gameBlueprints = loadGameBlueprints();
         campaigns = loadCampaigns();
         activeCampaign.initialize();
@@ -257,6 +262,7 @@
     class="content"
     class:has-secondary={currentView === "story"}
     class:has-tertiary={showTertiarySidebar}
+    data-theme={$theme}
 >
     {#if currentView === "home"}
         <div class="home-view">
@@ -450,7 +456,16 @@
             <div class="settings-description">
                 <p>Manage your Solo RPG data and application settings.</p>
             </div>
-            <DataManager onDataImported={handleDataImported} />
+            
+            <div class="settings-section">
+                <h2>Appearance</h2>
+                <ThemeToggle />
+            </div>
+            
+            <div class="settings-section">
+                <h2>Data Management</h2>
+                <DataManager onDataImported={handleDataImported} />
+            </div>
         </div>
     {:else if currentView === "map"}
         <MapView 
@@ -805,7 +820,22 @@
     }
 
     .settings-description p {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 1.1rem;
+    }
+
+    .settings-section {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .settings-section h2 {
+        margin: 0 0 1rem 0;
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        font-weight: 600;
     }
 </style>
