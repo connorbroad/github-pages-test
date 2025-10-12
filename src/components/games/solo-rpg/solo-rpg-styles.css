@@ -86,10 +86,12 @@
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .srpg-b-sm {
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
 }
+
 .srpg-b-lg {
     padding: 1rem 1.5rem;
     font-size: 1.1rem;
@@ -150,62 +152,74 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
 }
+
 .srpg-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    /* On mobile, account for bottom navbar */
-        height: 100dvh;
-        /* Use dynamic viewport height when available */
+    height: 100dvh;
+    /* Use dynamic viewport height */
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 50;
-    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+        padding: 1rem;
+        box-sizing: border-box;
 }
 
+/* Desktop - account for left sidebar */
+@media (min-width: 769px) {
+    .srpg-modal {
+        /* Account for primary sidebar (80px) */
+        padding-left: calc(80px + 1rem);
+    }
+}
+
+/* Mobile - account for bottom navbar */
 @media (max-width: 768px) {
     .srpg-modal {
-        /* Reserve space for bottom navbar on mobile */
-        padding-bottom: calc(env(safe-area-inset-bottom));
+        /* Reserve space for bottom navbar on mobile (70px primary + safe area) */
+            padding-bottom: calc(70px + env(safe-area-inset-bottom) + 1rem);
+            padding-top: 1rem;
     }
 }
 
 .srpg-modal-content {
     background: #fff;
-    margin: 1rem;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     min-width: 300px;
     max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
     text-align: center;
     position: relative;
+    box-sizing: border-box;
+        overflow: hidden;
+        /* Parent doesn't scroll, scroll container does */
 }
 
 @media (max-width: 768px) {
     .srpg-modal-content {
-        max-width: 95vw;
-        margin: 0.5rem;
-        margin-bottom: calc(70px + env(safe-area-inset-bottom) + 0.5rem);
+        max-width: 100%;
         padding: 1.5rem;
-        /* Adjust max-height to account for bottom navbar */
-        max-height: calc(90vh - 70px - env(safe-area-inset-bottom));
+        margin: 0;
     }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .srpg-modal-content {
-        max-width: 95vw;
-        margin: 0.5rem;
+        max-width: 90vw;
         padding: 1.5rem;
     }
 }
+
 .srpg-b-modal-nav {
     position: absolute;
     background: transparent;
@@ -237,6 +251,7 @@
     top: 0.5rem;
     left: 0.5rem;
 }
+
 /* Button Groups */
 .srpg-b-group {
     display: flex;
@@ -256,6 +271,7 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
+
 .info-card {
     background: white;
     color: rgb(47, 48, 50);
@@ -267,6 +283,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 /* Common Form Styles */
 .srpg-form-grid {
     display: grid;
@@ -425,6 +442,7 @@
     padding: 0.0625rem 0.375rem;
     font-size: 0.6875rem;
 }
+
 .srpg-badge-info {
     background: #3b82f6;
 }
@@ -476,6 +494,7 @@
     width: 1.5rem;
     height: 1.5rem;
 }
+
 /* Select/Dropdown Styles */
 .srpg-select {
     width: 100%;
@@ -552,6 +571,7 @@
 .srpg-gap-lg {
     gap: 1.5rem;
 }
+
 /* Checkbox List Styles */
 .srpg-checkbox-list {
     display: flex;
@@ -684,6 +704,7 @@
         min-height: 44px;
     }
 }
+
 .srpg-b-toggle-active {
     background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     color: #fff;
@@ -703,6 +724,7 @@
     box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
     transform: translateY(0);
 }
+
 /* List Styles */
 .srpg-list {
     display: flex;

@@ -85,7 +85,43 @@
                 </button>
             {/if}
 
-            <slot />
+            <div class="srpg-modal-scroll-container">
+                <slot />
+            </div>
         </div>
     </div>
 {/if}
+
+<style>
+    .srpg-modal-scroll-container {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Smooth scrolling */
+    .srpg-modal-scroll-container {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Custom scrollbar styling */
+    .srpg-modal-scroll-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .srpg-modal-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .srpg-modal-scroll-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .srpg-modal-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
