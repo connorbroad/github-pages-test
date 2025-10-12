@@ -186,12 +186,12 @@
                 {/if}
 
                 <div class="fortune-section">
-                    <h2 class="section-title">Custom Fortunes</h2>
+                    <h2 class="section-title">Campaign Fortunes</h2>
 
                     <button
                         class="srpg-b srpg-b-create srpg-b-w-full"
                         on:click={openCreateFortune}>
-                        + Create Custom Fortune
+                        + Create Campaign Fortune
                     </button>
                     {#if customFortunes.length > 0}
                         <FortuneList
@@ -201,7 +201,7 @@
                             on:reorder={handleReorder}
                         />
                     {:else}
-                        <p class="no-fortunes">No custom fortunes yet. Click the button above to create one.</p>
+                        <p class="no-fortunes">No campaign fortunes yet. Click the button above to create one.</p>
                     {/if}
                 </div>
             </div>
@@ -241,12 +241,12 @@
     {/if}
 
     <div class="fortune-section">
-        <h2 class="section-title">Custom Fortunes</h2>
+        <h2 class="section-title">Campaign Fortunes</h2>
 
     <button
         class="srpg-b srpg-b-create srpg-b-w-full"
         on:click={openCreateFortune}>
-        + Create Custom Fortune
+        + Create Campaign Fortune
     </button>
         {#if customFortunes.length > 0}
             <FortuneList
@@ -256,7 +256,7 @@
                 on:reorder={handleReorder}
             />
         {:else}
-            <p class="no-fortunes">No custom fortunes yet. Click the button above to create one.</p>
+            <p class="no-fortunes">No campaign fortunes yet. Click the button above to create one.</p>
         {/if}
     </div>
 </div>
