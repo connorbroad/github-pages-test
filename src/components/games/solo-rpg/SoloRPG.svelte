@@ -99,7 +99,7 @@
         tertiaryVisibleSections = visibleSections;
         tertiarySelectedSections = selectedSections;
         tertiaryIsEditingSections = isEditingSections;
-        showTertiarySidebar = true;
+        showTertiarySidebar = character.visibleSections.length > 1; 
     }
 
     function handleCharacterDeselected() {
