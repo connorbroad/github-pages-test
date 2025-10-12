@@ -14,13 +14,46 @@
             <span class="fortune-label">{entry.fortuneData.fortuneTitle}:</span>
 
             {#if entry.fortuneData.diceRoll}
-                <span class="result-badge"
-                    >{entry.fortuneData.diceRoll.result}</span
-                >
+                <span class="result-badge">
+                    {entry.fortuneData.diceRoll.result}
+                </span>
                 {#if entry.fortuneData.diceRoll.mappedOutcome}
-                    <span class="result-text"
-                        >{entry.fortuneData.diceRoll.mappedOutcome}</span
-                    >
+                    <span class="result-text">
+                        {entry.fortuneData.diceRoll.mappedOutcome}
+                    </span>
+                {/if}
+                
+                {#if entry.fortuneData.diceRoll.diceSignificance && Object.keys(entry.fortuneData.diceRoll.diceSignificance).length > 0 && entry.fortuneData.diceRoll.individualDiceResults.length > 0}
+                    <div class="dice-significance">
+                        {#if entry.fortuneData.diceRoll.resultOption === "Sum" || entry.fortuneData.diceRoll.resultOption === "Subtract"}
+                            <!-- Show all dice with significance for Sum and Subtract -->
+                            {#each entry.fortuneData.diceRoll.individualDiceResults as diceValue, index}
+                                {#if entry.fortuneData.diceRoll.diceSignificance[index + 1]}
+                                    <span class="significance-item">
+                                        <strong>{entry.fortuneData.diceRoll.diceSignificance[index + 1]}:</strong> {diceValue}
+                                    </span>
+                                {/if}
+                            {/each}
+                        {:else if entry.fortuneData.diceRoll.resultOption === "Maximum"}
+                            <!-- Show only the highest die with significance -->
+                            {@const maxValue = Math.max(...entry.fortuneData.diceRoll.individualDiceResults)}
+                            {@const maxIndex = entry.fortuneData.diceRoll.individualDiceResults.findIndex(v => v === maxValue)}
+                            {#if entry.fortuneData.diceRoll.diceSignificance[maxIndex + 1]}
+                                <span class="significance-item">
+                                    <strong>{entry.fortuneData.diceRoll.diceSignificance[maxIndex + 1]}:</strong> {maxValue}
+                                </span>
+                            {/if}
+                        {:else if entry.fortuneData.diceRoll.resultOption === "Minimum"}
+                            <!-- Show only the lowest die with significance -->
+                            {@const minValue = Math.min(...entry.fortuneData.diceRoll.individualDiceResults)}
+                            {@const minIndex = entry.fortuneData.diceRoll.individualDiceResults.findIndex(v => v === minValue)}
+                            {#if entry.fortuneData.diceRoll.diceSignificance[minIndex + 1]}
+                                <span class="significance-item">
+                                    <strong>{entry.fortuneData.diceRoll.diceSignificance[minIndex + 1]}:</strong> {minValue}
+                                </span>
+                            {/if}
+                        {/if}
+                    </div>
                 {/if}
             {/if}
 
@@ -93,5 +126,25 @@
         color: #525252;
         font-style: italic;
         font-size: 0.875rem;
+    }
+
+    .dice-significance {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .significance-item {
+        color: #525252;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .significance-item strong {
+        color: #6366f1;
+        font-weight: 600;
     }
 </style>

@@ -18,7 +18,10 @@
                 {/if}
             </div>
             <div class="dice-total">
-                Result: <strong>{diceData.result}</strong>
+                Result:
+                <span class="result-badge">
+                    {diceData.result}
+                </span>
             </div>
         </div>
         {#if diceData.individualDiceResults && diceData.individualDiceResults.length > 1}
@@ -42,9 +45,8 @@
     }
 
     .dice-formula {
-        font-size: 1rem;
-        color: #059669;
         font-weight: 600;
+        color: #525252;
     }
 
     .result-option {
@@ -58,16 +60,20 @@
         color: #374151;
     }
 
-    .dice-total strong {
-        font-size: 1.1rem;
-        color: #059669;
-        font-weight: 700;
-    }
-
     .individual-dice {
         font-size: 0.8rem;
         color: #6b7280;
         font-style: italic;
         margin-top: 0.15rem;
+    }
+
+    .result-badge {
+        background: #6366f1;
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        line-height: 1.4;
     }
 </style>

@@ -471,9 +471,7 @@
         />
     {/if}
 </main>
-
-<DiceRoller show={showDiceRoller} onClose={() => (showDiceRoller = false)} />
-<CardDealer show={showCardDealer} onClose={() => (showCardDealer = false)} />
+ 
 <GameBlueprintEditor
     show={showBlueprintEditor}
     blueprint={editingBlueprint}
