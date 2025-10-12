@@ -520,6 +520,8 @@
         box-sizing: border-box;
         min-height: 100vh;
         max-height: 100vh;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
     }
 
     /* Desktop - account for left sidebar */
@@ -576,7 +578,7 @@
         text-align: center;
         font-size: 1.1rem;
         margin-bottom: 2rem;
-        color: #666;
+        color: var(--text-secondary);
     }
 
     .banner-content {
@@ -626,7 +628,7 @@
     .new-game-section h2 {
         margin-top: 2rem;
         margin-bottom: 1rem;
-        color: #333;
+        color: var(--text-primary);
         font-size: 1.3rem;
     }
 
@@ -638,10 +640,10 @@
     }
 
     .blueprint-section {
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-primary);
         border-radius: 8px;
         overflow: hidden;
-        background: #fff;
+        background: var(--card-bg);
     }
 
     .blueprint-header {
@@ -649,7 +651,7 @@
         align-items: center;
         gap: 0.75rem;
         padding: 0.5rem;
-        background: #f8f9fa;
+        background: var(--bg-secondary);
     }
 
     .blueprint-toggle {
@@ -668,12 +670,12 @@
     }
 
     .blueprint-toggle:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--bg-tertiary);
     }
 
     .collapse-icon {
         font-size: 0.75rem;
-        color: #666;
+        color: var(--text-secondary);
         transition: transform 0.2s;
         display: inline-block;
         width: 1rem;
@@ -686,13 +688,13 @@
     .blueprint-title {
         flex: 1;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
     }
 
     .blueprint-meta {
         font-weight: 400;
         font-size: 0.875rem;
-        color: #666;
+        color: var(--text-secondary);
         margin-left: 0.5rem;
     }
 
@@ -731,7 +733,7 @@
     .campaigns-container {
         padding: 1rem 1rem;
         padding-top: 0.5rem;
-        background: #fafbfc;
+        background: var(--bg-tertiary);
     }
 
     .campaign-actions {
@@ -790,7 +792,7 @@
 
     .no-campaigns {
         text-align: center;
-        color: #999;
+        color: var(--text-muted);
         font-style: italic;
         padding: 1rem;
         margin: 0;

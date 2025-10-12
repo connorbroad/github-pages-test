@@ -73,11 +73,11 @@
 <style>
     h2 {
         margin-top: 0;
-        color: #333;
+        color: var(--text-primary);
     }
 
     .campaign-details {
-        background: #f8f9fa;
+        background: var(--bg-secondary);
         padding: 1.25rem;
         border-radius: 6px;
         margin-bottom: 1.5rem;
@@ -87,22 +87,22 @@
     .campaign-title {
         font-size: 1.25rem;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin: 0 0 1rem 0;
     }
 
     .campaign-info {
         margin: 0.5rem 0;
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.95rem;
     }
 
     .campaign-info strong {
-        color: #333;
+        color: var(--text-primary);
     }
 
     .confirmation-message {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.95rem;
         line-height: 1.5;
         margin-top: 0.5rem;

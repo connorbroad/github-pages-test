@@ -37,11 +37,17 @@
     --accent-success: #10b981;
     --accent-success-hover: #059669;
     --accent-success-active: #047857;
+    --success: #10b981;
+    --success-bg: #d1fae5;
+    --success-text: #065f46;
 
     /* Accent Colors - Danger (Red) */
     --accent-danger: #ef4444;
     --accent-danger-hover: #dc2626;
     --accent-danger-active: #b91c1c;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --danger-text: #991b1b;
 
     /* Accent Colors - Warning (Orange/Yellow) */
     --accent-warning: #f59e0b;
@@ -117,11 +123,17 @@
     --accent-success: #4ade80;
     --accent-success-hover: #6ee7b7;
     --accent-success-active: #34d399;
+    --success: #4ade80;
+    --success-bg: #064e3b;
+    --success-text: #6ee7b7;
 
     /* Accent Colors - Danger (Red) - Lighter for dark mode */
     --accent-danger: #f87171;
     --accent-danger-hover: #fca5a5;
     --accent-danger-active: #ef4444;
+    --danger: #f87171;
+    --danger-bg: #7f1d1d;
+    --danger-text: #fca5a5;
 
     /* Accent Colors - Warning (Orange/Yellow) - Lighter for dark mode */
     --accent-warning: #fbbf24;

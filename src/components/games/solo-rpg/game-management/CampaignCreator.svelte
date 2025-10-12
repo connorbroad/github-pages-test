@@ -65,17 +65,17 @@
     h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #333;
+        color: var(--text-primary);
     }
 
     .blueprint-subtitle {
         margin-bottom: 1.5rem;
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.95rem;
     }
 
     .blueprint-subtitle strong {
-        color: #1976d2;
+        color: var(--accent-primary);
     }
 
     .form-group {
@@ -87,21 +87,23 @@
         display: block;
         margin-bottom: 0.5rem;
         font-weight: 500;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     .form-group input[type="text"] {
         width: 100%;
         padding: 0.75rem;
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--input-border);
         border-radius: 6px;
         font-size: 1rem;
         box-sizing: border-box;
         transition: border-color 0.2s;
+        background-color: var(--input-bg);
+        color: var(--input-text);
     }
 
     .form-group input[type="text"]:focus {
         outline: none;
-        border-color: #1976d2;
+        border-color: var(--input-border-focus);
     }
 </style>

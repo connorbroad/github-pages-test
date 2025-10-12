@@ -121,13 +121,13 @@
         justify-content: space-between;
         align-items: center;
         padding: 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid var(--border-primary);
     }
 
     .header h2 {
         margin: 0;
         font-size: 1.5rem;
-        color: #1f2937;
+        color: var(--text-primary);
     }
 
     .body {
@@ -135,7 +135,7 @@
     }
 
     .description {
-        color: #4b5563;
+        color: var(--text-secondary);
         margin-top: 0;
         margin-bottom: 1.5rem;
         line-height: 1.6;
@@ -144,18 +144,18 @@
     .error-message {
         margin-top: 1rem;
         padding: 1rem;
-        background-color: #fee2e2;
-        border-left: 4px solid #ef4444;
-        color: #991b1b;
+        background-color: var(--danger-bg);
+        border-left: 4px solid var(--danger);
+        color: var(--danger-text);
         border-radius: 4px;
     }
 
     .success-message {
         margin-top: 1rem;
         padding: 1rem;
-        background-color: #d1fae5;
-        border-left: 4px solid #10b981;
-        color: #065f46;
+        background-color: var(--success-bg);
+        border-left: 4px solid var(--success);
+        color: var(--success-text);
         border-radius: 4px;
     }
 </style>

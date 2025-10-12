@@ -112,16 +112,16 @@
     }
 
     .srpg-modal-scroll-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
+        background: var(--bg-secondary);
         border-radius: 4px;
     }
 
     .srpg-modal-scroll-container::-webkit-scrollbar-thumb {
-        background: #888;
+        background: var(--border-secondary);
         border-radius: 4px;
     }
 
     .srpg-modal-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: #555;
+        background: var(--text-muted);
     }
 </style>

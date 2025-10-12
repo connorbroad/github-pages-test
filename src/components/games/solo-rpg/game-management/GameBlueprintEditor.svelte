@@ -149,13 +149,13 @@
 <style>
     h2 {
         margin-top: 0;
-        color: #333;
+        color: var(--text-primary);
     }
 
     h3 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #555;
+        color: var(--text-secondary);
         font-size: 1.1rem;
     }
 
@@ -168,16 +168,23 @@
         display: block;
         margin-bottom: 0.25rem;
         font-weight: 500;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     .form-group input[type="text"] {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #ccc;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 1rem;
         box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+    }
+
+    .form-group input[type="text"]:focus {
+        outline: none;
+        border-color: var(--input-border-focus);
     }
 
     .fortunes-list {
@@ -192,8 +199,8 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem;
-        background: #f8f9fa;
-        border: 1px solid #e0e0e0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
         border-radius: 6px;
         gap: 1rem;
     }
@@ -206,7 +213,7 @@
     }
 
     .fortune-info strong {
-        color: #333;
+        color: var(--text-primary);
     }
 
     .fortune-actions {
@@ -216,17 +223,17 @@
 
     .empty-state {
         text-align: center;
-        color: #999;
+        color: var(--text-muted);
         font-style: italic;
         margin-top: 1rem;
         padding: 1rem;
-        background: #f8f9fa;
+        background: var(--bg-secondary);
         border-radius: 6px;
     }
 
     .divider {
         border: none;
-        border-top: 1px solid #ccc;
+        border-top: 1px solid var(--divider);
         margin: 1.5rem 0;
     }
 
