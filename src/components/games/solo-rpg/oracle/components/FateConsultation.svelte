@@ -225,7 +225,7 @@
                 }
                 on:click={handleAcceptFate}
             >
-                Accept fate
+                Record fate
             </button>
     </SrpgModal>
 {/if}

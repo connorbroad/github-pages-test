@@ -2,6 +2,7 @@
     import { onMount, createEventDispatcher } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
+    import FloatingOracleButton from "../shared/FloatingOracleButton.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -30,6 +31,10 @@
     </div>
     <em>Coming soon!</em>
 </div>
+
+{#if $activeCampaign}
+    <FloatingOracleButton on:navigateToStory />
+{/if}
 
 <style>
     .map-view {

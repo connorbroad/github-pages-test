@@ -207,7 +207,7 @@
                         </div>
                     {/if}
                     <p>
-                        Accept fate:
+                        Record fate:
                         {rolling ? "..." : finalResult || "..."}
                     </p>
                     {#if diceResults.length > 1 && !rolling}

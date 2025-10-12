@@ -12,8 +12,11 @@
     import CardDealer from "./components/card-dealer/CardDealer.svelte";
     import DiceRoller from "./components/dice-roller/DiceRoller.svelte";
     import CharacterSelector from "../shared/CharacterSelector.svelte";
+    import SrpgModal from "../shared/modal/SrpgModal.svelte";
 
     const dispatch = createEventDispatcher();
+
+    export let isModal = false;
 
     let fortunes: Fortune[] = [];
     let defaultFortunes: Fortune[] = [];
@@ -141,9 +144,71 @@
         // Navigate to story page
         dispatch('navigateToStory');
     }
+
+    function handleClose() {
+        dispatch('close');
+    }
 </script>
 
-<NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
+{#if isModal}
+    <SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="800px" on:close={handleClose}>
+        <h2>Oracle</h2>
+        <div class="oracle-modal-content">
+            <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
+
+            <div class="oracle-page">
+                <div class="oracle-header">
+                    <div class="character-selector-wrapper">
+                        <CharacterSelector />
+                    </div>
+                    <div class="button-group">
+                        <button class="srpg-b srpg-b-normal" aria-label="Open Dice Roller" on:click={() => (showDiceRoller = true)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" stroke-width="2" viewBox="0 0 48 48" width='1.5em' height='1.5em' {...$$props}><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m39.227 38.684l5.111-20.5L29.111 3.5L8.773 9.316l-5.111 20.5L18.889 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m33.729 34.984l10.61-16.8l-17.151-6.97L8.773 9.316l1.48 19.815L18.89 44.5z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M33.729 34.984L10.254 29.13l16.934-17.916zm-6.541-23.77L29.111 3.5m4.618 31.484l5.498 3.7M10.254 29.13l-6.592.685"/></svg>
+                        </button>
+                        <button class="srpg-b srpg-b-normal" aria-label="Open Card Dealer" on:click={() => (showCardDealer = true)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width='1.3em' height='1.3em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6.546.857a.475.475 0 0 1 .581-.335l6.02 1.612a.475.475 0 0 1 .337.581l-2.31 8.618a.475.475 0 0 1-.582.335l-6.02-1.612a.475.475 0 0 1-.336-.581z"/><path d="M6.108 2.535L.852 3.944a.475.475 0 0 0-.336.581l2.308 8.618a.475.475 0 0 0 .582.335l3.01-.806"/></g></svg>
+                        </button>
+                    </div>
+                </div>
+
+                {#if defaultFortunes.length > 0}
+                    <div class="fortune-section">
+                        <h2 class="section-title">Fortunes</h2>
+                        <FortuneList
+                            fortunes={defaultFortunes}
+                            allowReorder={false}
+                            allowDelete={false}
+                            on:consultFate={(e) => openFate(e.detail)}
+                            on:delete={(e) => deleteFortune(e.detail)}
+                            on:reorder={handleReorder}
+                        />
+                    </div>
+                {/if}
+
+                <div class="fortune-section">
+                    <h2 class="section-title">Custom Fortunes</h2>
+
+                    <button
+                        class="srpg-b srpg-b-create srpg-b-w-full"
+                        on:click={openCreateFortune}>
+                        + Create Custom Fortune
+                    </button>
+                    {#if customFortunes.length > 0}
+                        <FortuneList
+                            fortunes={customFortunes}
+                            on:consultFate={(e) => openFate(e.detail)}
+                            on:delete={(e) => deleteFortune(e.detail)}
+                            on:reorder={handleReorder}
+                        />
+                    {:else}
+                        <p class="no-fortunes">No custom fortunes yet. Click the button above to create one.</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </SrpgModal>
+{:else}
+    <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
 <div class="oracle-page">
     <div class="oracle-header">
@@ -195,6 +260,7 @@
         {/if}
     </div>
 </div>
+{/if}
 
 <FortuneEditor
     show={showCreateFortune}
@@ -224,6 +290,18 @@
 />
 
 <style>
+    .oracle-modal-content {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 0 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .oracle-modal-content {
+            max-height: 60vh;
+        }
+    }
+
     .oracle-page {
         width: 100%;
         text-align: center;  

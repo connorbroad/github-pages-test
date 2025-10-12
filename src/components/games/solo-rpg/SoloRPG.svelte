@@ -428,6 +428,7 @@
         <div class="oracle-view">
             <h1>Oracle</h1>
             <GameOracle
+                isModal={false}
                 on:navigateHome={() => handleNavigate("home")}
                 on:navigateToStory={() => handleNavigate("story")}
             />
@@ -441,7 +442,10 @@
             <DataManager onDataImported={handleDataImported} />
         </div>
     {:else if currentView === "map"}
-        <MapView on:navigateHome={() => handleNavigate("home")} />
+        <MapView 
+            on:navigateHome={() => handleNavigate("home")}
+            on:navigateToStory={() => handleNavigate("story")}
+        />
     {:else if currentView === "story"}
         <StoryView
             bind:this={storyViewComponent}
@@ -450,6 +454,7 @@
             on:openDiceRoller={() => (showDiceRoller = true)}
             on:openCardDealer={() => (showCardDealer = true)}
             on:navigateHome={() => handleNavigate("home")}
+            on:navigateToStory={() => handleNavigate("story")}
             on:characterSelected={handleCharacterSelected}
             on:characterDeselected={handleCharacterDeselected}
         />

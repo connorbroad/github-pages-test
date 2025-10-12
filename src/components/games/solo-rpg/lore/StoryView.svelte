@@ -5,6 +5,7 @@
     import Chronicle from "./chronicle/Chronicle.svelte";
     import CharacterManager from "./characters/CharacterManager.svelte";
     import Codex from "./codex/Codex.svelte";
+    import FloatingOracleButton from "../shared/FloatingOracleButton.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -61,6 +62,14 @@
         <em>Select or create a campaign to start recording your adventure.</em>
     {/if}
 </div>
+
+{#if $activeCampaign}
+    <FloatingOracleButton 
+        hasSecondarySidebar={true}
+        hasTertiarySidebar={showTertiarySidebar}
+        on:navigateToStory 
+    />
+{/if}
 
 <style>
     .story-view {
