@@ -1,0 +1,164 @@
+/**
+ * Theme CSS Variables
+ * Defines all color tokens for light and dark themes
+ */
+
+:root {
+    /* Light Theme - Default */
+
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #fafbfc;
+    --bg-elevated: #ffffff;
+
+    /* Text Colors */
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --text-inverse: #ffffff;
+
+    /* Border Colors */
+    --border-primary: #e0e0e0;
+    --border-secondary: #d0d0d0;
+    --border-subtle: #f0f0f0;
+
+    /* Shadow Colors */
+    --shadow-sm: rgba(0, 0, 0, 0.05);
+    --shadow-md: rgba(0, 0, 0, 0.1);
+    --shadow-lg: rgba(0, 0, 0, 0.15);
+
+    /* Accent Colors - Primary (Blue) */
+    --accent-primary: #1976d2;
+    --accent-primary-hover: #1565c0;
+    --accent-primary-active: #0d47a1;
+
+    /* Accent Colors - Success (Green) */
+    --accent-success: #10b981;
+    --accent-success-hover: #059669;
+    --accent-success-active: #047857;
+
+    /* Accent Colors - Danger (Red) */
+    --accent-danger: #ef4444;
+    --accent-danger-hover: #dc2626;
+    --accent-danger-active: #b91c1c;
+
+    /* Accent Colors - Warning (Orange/Yellow) */
+    --accent-warning: #f59e0b;
+    --accent-warning-hover: #d97706;
+    --accent-warning-active: #b45309;
+
+    /* Accent Colors - Info (Indigo) */
+    --accent-info: #6366f1;
+    --accent-info-hover: #4f46e5;
+    --accent-info-active: #4338ca;
+
+    /* Sidebar Colors */
+    --sidebar-bg: #2c3e50;
+    --sidebar-text: #ecf0f1;
+    --sidebar-text-muted: #95a5a6;
+    --sidebar-hover: rgba(255, 255, 255, 0.1);
+    --sidebar-active: rgba(255, 255, 255, 0.15);
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+
+    /* Card/Panel Colors */
+    --card-bg: #ffffff;
+    --card-border: #e0e0e0;
+    --card-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Input/Form Colors */
+    --input-bg: #ffffff;
+    --input-border: #d0d0d0;
+    --input-border-focus: #1976d2;
+    --input-text: #333333;
+    --input-placeholder: #999999;
+
+    /* Modal Colors */
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --modal-bg: #ffffff;
+    --modal-border: #e0e0e0;
+
+    /* Misc */
+    --divider: #e0e0e0;
+    --disabled-opacity: 0.5;
+}
+
+[data-theme="dark"] {
+    /* Dark Theme */
+
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a2a2a;
+    --bg-tertiary: #252525;
+    --bg-elevated: #2f2f2f;
+
+    /* Text Colors */
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+    --text-inverse: #1a1a1a;
+
+    /* Border Colors */
+    --border-primary: #404040;
+    --border-secondary: #4a4a4a;
+    --border-subtle: #2f2f2f;
+
+    /* Shadow Colors */
+    --shadow-sm: rgba(0, 0, 0, 0.2);
+    --shadow-md: rgba(0, 0, 0, 0.3);
+    --shadow-lg: rgba(0, 0, 0, 0.4);
+
+    /* Accent Colors - Primary (Blue) - Lighter for dark mode */
+    --accent-primary: #42a5f5;
+    --accent-primary-hover: #64b5f6;
+    --accent-primary-active: #2196f3;
+
+    /* Accent Colors - Success (Green) - Lighter for dark mode */
+    --accent-success: #4ade80;
+    --accent-success-hover: #6ee7b7;
+    --accent-success-active: #34d399;
+
+    /* Accent Colors - Danger (Red) - Lighter for dark mode */
+    --accent-danger: #f87171;
+    --accent-danger-hover: #fca5a5;
+    --accent-danger-active: #ef4444;
+
+    /* Accent Colors - Warning (Orange/Yellow) - Lighter for dark mode */
+    --accent-warning: #fbbf24;
+    --accent-warning-hover: #fcd34d;
+    --accent-warning-active: #f59e0b;
+
+    /* Accent Colors - Info (Indigo) - Lighter for dark mode */
+    --accent-info: #818cf8;
+    --accent-info-hover: #a5b4fc;
+    --accent-info-active: #6366f1;
+
+    /* Sidebar Colors - Keep dark in dark mode */
+    --sidebar-bg: #1f1f1f;
+    --sidebar-text: #e0e0e0;
+    --sidebar-text-muted: #999999;
+    --sidebar-hover: rgba(255, 255, 255, 0.08);
+    --sidebar-active: rgba(255, 255, 255, 0.12);
+    --sidebar-border: rgba(255, 255, 255, 0.08);
+
+    /* Card/Panel Colors */
+    --card-bg: #2a2a2a;
+    --card-border: #404040;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+
+    /* Input/Form Colors */
+    --input-bg: #2f2f2f;
+    --input-border: #4a4a4a;
+    --input-border-focus: #42a5f5;
+    --input-text: #e0e0e0;
+    --input-placeholder: #808080;
+
+    /* Modal Colors */
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --modal-bg: #2a2a2a;
+    --modal-border: #404040;
+
+    /* Misc */
+    --divider: #404040;
+    --disabled-opacity: 0.4;
+}

@@ -1,13 +1,15 @@
+/* Import Theme Variables */
+@import './theme/theme-variables.css';
 /* Base Button Styles */
 .srpg-b {
     padding: 0.75rem 1rem;
     font-size: 1rem;
     border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-primary);
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-md);
     text-align: center;
     align-items: center;
     justify-content: center;
@@ -15,76 +17,76 @@
 }
 
 .srpg-b:disabled {
-    opacity: 0.5;
+    opacity: var(--disabled-opacity);
     cursor: not-allowed;
 }
 
 .srpg-b-normal {
-    background-color: #1976d2;
+    background-color: var(--accent-primary);
     color: white;
 }
 
 .srpg-b-normal:hover:not(:disabled) {
-    background-color: #1565c0;
+    background-color: var(--accent-primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-lg);
 }
 
 .srpg-b-normal:active:not(:disabled) {
-    background-color: #0d47a1;
+    background-color: var(--accent-primary-active);
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-md);
 }
 
 .srpg-b-create {
-    background-color: #10b981;
+    background-color: var(--accent-success);
     color: white;
 }
 
 .srpg-b-create:hover:not(:disabled) {
-    background-color: #059669;
+    background-color: var(--accent-success-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-lg);
 }
 
 .srpg-b-create:active:not(:disabled) {
-    background-color: #047857;
+    background-color: var(--accent-success-active);
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-md);
 }
 
 .srpg-b-danger {
-    background-color: #ef4444;
+    background-color: var(--accent-danger);
     color: white;
 }
 
 .srpg-b-danger:hover:not(:disabled) {
-    background-color: #dc2626;
+    background-color: var(--accent-danger-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-lg);
 }
 
 .srpg-b-danger:active:not(:disabled) {
-    background-color: #b91c1c;
+    background-color: var(--accent-danger-active);
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-md);
 }
 
 .srpg-b-delete {
-    background-color: #ef4444;
+    background-color: var(--accent-danger);
     color: white;
 }
 
 .srpg-b-delete:hover:not(:disabled) {
-    background-color: #dc2626;
+    background-color: var(--accent-danger-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-lg);
 }
 
 .srpg-b-delete:active:not(:disabled) {
-    background-color: #b91c1c;
+    background-color: var(--accent-danger-active);
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-md);
 }
 
 .srpg-b-sm {
@@ -112,10 +114,10 @@
 
 .srpg-b-icon {
     background: transparent;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-primary);
     font-size: 1.5rem;
     cursor: pointer;
-    color: #999;
+    color: var(--text-muted);
     padding: 0.25rem;
     width: 2rem;
     height: 2rem;
@@ -127,17 +129,17 @@
 }
 
 .srpg-b-icon:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--bg-secondary);
 }
 
 .srpg-b-icon.delete-icon:hover {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-danger);
+        background: var(--bg-secondary);
 }
 
 .srpg-b-overview {
-    background: white;
-    border: 2px solid #e5e7eb;
+    background: var(--card-bg);
+        border: 2px solid var(--border-primary);
     border-radius: 8px;
     padding: 1.5rem;
     cursor: pointer;
@@ -148,8 +150,8 @@
 }
 
 .srpg-b-overview:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-primary);
+        box-shadow: 0 4px 6px var(--shadow-md);
     transform: translateY(-2px);
 }
 
@@ -161,7 +163,7 @@
     height: 100vh;
     height: 100dvh;
     /* Use dynamic viewport height */
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--modal-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -188,10 +190,10 @@
 }
 
 .srpg-modal-content {
-    background: #fff;
+    background: var(--modal-bg);
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 10px var(--shadow-lg);
     min-width: 300px;
     max-width: 500px;
     width: 100%;
@@ -226,7 +228,7 @@
     border: none;
     font-size: 2rem;
     cursor: pointer;
-    color: #999;
+    color: var(--text-muted);
     width: 3rem;
     height: 3rem;
     display: flex;
@@ -238,8 +240,8 @@
 }
 
 .srpg-b-modal-nav:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: #666;
+    background: var(--bg-secondary);
+        color: var(--text-secondary);
 }
 
 .srpg-b-modal-nav-close {
@@ -273,15 +275,15 @@
 }
 
 .info-card {
-    background: white;
-    color: rgb(47, 48, 50);
+    background: var(--card-bg);
+        color: var(--text-primary);
 
     margin: 0 auto;
     padding: 1rem 1.5rem;
 
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--card-border);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--card-shadow);
 }
 
 /* Common Form Styles */
@@ -312,7 +314,7 @@
     display: block;
     font-weight: 600;
     margin-bottom: 0.25rem;
-    color: #374151;
+    color: var(--text-primary);
     font-size: 0.875rem;
 }
 
@@ -321,7 +323,9 @@
 .srpg-form-field textarea {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--input-border);
+        background-color: var(--input-bg);
+        color: var(--input-text);
     border-radius: 4px;
     font-size: 1rem;
     font-family: inherit;
@@ -332,8 +336,8 @@
 .srpg-form-field select:focus,
 .srpg-form-field textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--input-border-focus);
+        box-shadow: 0 0 0 3px var(--shadow-sm);
 }
 
 .srpg-form-field input[type="number"] {
@@ -350,7 +354,7 @@
 .srpg-form-field p {
     margin: 0;
     padding: 0.5rem 0;
-    color: #111827;
+    color: var(--text-primary);
     min-height: 2.25rem;
     display: flex;
     align-items: center;
