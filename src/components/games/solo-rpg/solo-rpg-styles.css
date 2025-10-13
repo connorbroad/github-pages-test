@@ -254,15 +254,6 @@
     }
 }
 
-/* Mobile - account for bottom navbar */
-@media (max-width: 768px) {
-    .srpg-modal {
-        /* Reserve space for bottom navbar on mobile (70px primary + safe area) */
-            padding-bottom: calc(70px + env(safe-area-inset-bottom) + 1rem);
-            padding-top: 1rem;
-    }
-}
-
 .srpg-modal-content {
     background: var(--modal-bg);
     padding: 2rem;

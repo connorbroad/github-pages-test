@@ -453,7 +453,7 @@
         flex: 1;
         font-size: 1.05rem;
         font-weight: 500;
-        color: #2d3748;
+        color: var(--text-primary);
         letter-spacing: 0.01em;
         line-height: 1.4;
     }

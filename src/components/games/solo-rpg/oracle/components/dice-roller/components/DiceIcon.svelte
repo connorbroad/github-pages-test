@@ -173,7 +173,7 @@
         width: 64px;
         height: 64px;
         z-index: 0;
-        opacity: 0.3;
+        opacity: 0.9;
     }
 
     .dice-number {
