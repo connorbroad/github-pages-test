@@ -2,19 +2,19 @@
 
 ## Implementation Progress
 
-### Status: Not Started
-**Last Updated:** [Date/Time]  
-**Current Phase:** N/A  
-**Estimated Completion:** 0% (0/6 phases)
+### Status: In Progress
+**Last Updated:** October 13, 2025 - Completed Phase 1  
+**Current Phase:** Phase 1 - Data Model (COMPLETE)  
+**Estimated Completion:** 17% (1/6 phases)
 
 ### Phase Completion Checklist
 
-#### ✅ Phase 1: Data Model (Not Started)
-- [ ] Updated `Ability` interface to include `diceRoll` field
-- [ ] Updated `Skill` interface to include `diceRoll` field
-- [ ] Updated `DiceRollData` interface to include roll context fields
-- [ ] Added migration logic for existing characters (if needed)
-- [ ] Tested data model changes
+#### ✅ Phase 1: Data Model (COMPLETE)
+- [x] Updated `Ability` interface to include `diceRoll` field
+- [x] Updated `Skill` interface to include `diceRoll` field
+- [x] Updated `DiceRollData` interface to include roll context fields
+- [x] Added migration logic for existing characters (N/A - optional fields are backward compatible)
+- [x] Tested data model changes
 
 #### ✅ Phase 2: Character Sheet UI (Not Started)
 - [ ] Added dice formula input to ability edit form
@@ -55,9 +55,18 @@
 - [ ] Performed final integration testing
 
 ### Notes & Issues
-- [Add any notes, blockers, or issues encountered during implementation]
-- [Document decisions made that deviate from the plan]
-- [Track any bugs discovered and their resolution]
+- **Phase 1 Complete:** Data model updated successfully. All new fields are optional, ensuring backward compatibility with existing characters. No migration needed.
+- TypeScript compilation passed with no errors.
+- Added fields:
+  - `Ability.diceRoll?: string` - Stores dice formula like "1d20"
+  - `Skill.diceRoll?: string` - Stores dice formula like "1d20"
+  - `DiceRollData.checkName?: string` - Name of the check (e.g., "Strength", "Perception", "Saving Throw")
+- **Design Decisions:**
+  - Removed redundant `rollType` field. The existing `resultOption` field already captures roll type:
+    - `Sum` = normal roll
+    - `Maximum` = advantage (roll 2d20, take max)
+    - `Minimum` = disadvantage (roll 2d20, take min)
+  - Merged `abilityName` and `skillName` into single `checkName` field for flexibility and simplicity
 
 ---
 

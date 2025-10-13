@@ -55,6 +55,7 @@ export type Ability = {
     score: number;
     modifier: number;
     proficient: boolean;
+    diceRoll?: string; // e.g., "1d20" or "2d6" - the dice formula to roll for this ability check
 };
 
 export type Skill = {
@@ -63,6 +64,7 @@ export type Skill = {
     abilityId: string; // Reference to the associated ability
     proficient: boolean;
     bonus: number;
+    diceRoll?: string; // e.g., "1d20" - the dice formula to roll for this skill check
 };
 
 export type Character = {
@@ -141,6 +143,7 @@ export type DiceRollData = {
     resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
     result: number;
     individualDiceResults: number[];
+    checkName?: string; // Name of the check being rolled (e.g., "Strength", "Perception", "Saving Throw")
 };
 
 export type CardsDrawData = {
