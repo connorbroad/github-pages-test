@@ -12,33 +12,58 @@
     function handleEdit() {
         dispatch("edit");
     }
+
+    function handleSave() {
+        dispatch("save");
+    }
+
+    function handleCancel() {
+        dispatch("cancel");
+    }
 </script>
 
 <section class="srpg-section" {id}>
     <div class="section-header">
         <h2>{title}</h2>
-        {#if showEditButton && canEdit && !isEditing}
-            <button
-                class="section-edit-btn"
-                on:click={handleEdit}
-                aria-label="Edit {title}"
-            >
-                <svg
-                    class="srpg-icon-sm"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
+        <div class="section-header-actions">
+            {#if showEditButton && canEdit && !isEditing}
+                <button
+                    class="section-edit-btn"
+                    on:click={handleEdit}
+                    aria-label="Edit {title}"
                 >
-                    <path
-                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                    />
-                    <path
-                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                    />
-                </svg>
-            </button>
-        {/if}
+                    <svg
+                        class="srpg-icon-sm"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                        />
+                        <path
+                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                        />
+                    </svg>
+                </button>
+            {:else if isEditing && canEdit}
+                <div class="section-edit-actions">
+                    <button
+                        class="srpg-b srpg-b-sm srpg-b-simple"
+                        on:click={handleCancel}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="srpg-b srpg-b-normal srpg-b-sm"
+                        on:click={handleSave}
+                    >
+                        Save
+                    </button>
+                </div>
+            {/if}
+        </div>
     </div>
     <slot />
 </section>
@@ -74,6 +99,17 @@
         font-size: 1.5rem;
         font-weight: 600;
         color: var(--text-primary);
+    }
+
+    .section-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-edit-actions {
+        display: flex;
+        gap: 0.5rem;
     }
 
     .section-edit-btn {

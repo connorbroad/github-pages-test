@@ -482,23 +482,9 @@
                     isEditing={isSectionEditing("information")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("information")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("information")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                     <div class="srpg-form-grid">
                         <div class="srpg-form-field">
                             <label for="name">Character Name</label>
@@ -583,23 +569,9 @@
                     isEditing={isSectionEditing("experience")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("experience")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("experience")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                     <div class="srpg-form-grid">
                         <div class="srpg-form-field">
                             <label for="level">Level</label>
@@ -665,23 +637,9 @@
                     isEditing={isSectionEditing("health")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("health")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("health")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                     <div class="srpg-form-grid">
                         <div class="srpg-form-field">
                             <label for="hpCurrent">Current Hit Points</label>
@@ -793,23 +751,9 @@
                     isEditing={isSectionEditing("abilities")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("abilities")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("abilities")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                     {#if isAbilitiesEditable}
                         <div class="section-actions">
                             <button
@@ -1203,23 +1147,9 @@
                     isEditing={isSectionEditing("items")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("items")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("items")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                 </CharacterSheetSection>
             {/if}
 
@@ -1231,23 +1161,9 @@
                     isEditing={isSectionEditing("combat")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("combat")}
+                    on:save={saveSection}
+                    on:cancel={cancelSectionEdit}
                 >
-                    {#if isSectionEditing("combat")}
-                        <div class="section-edit-actions">
-                            <button
-                                class="srpg-b srpg-b-sm srpg-b-simple"
-                                on:click={cancelSectionEdit}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-normal srpg-b-sm"
-                                on:click={saveSection}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    {/if}
                     <div class="srpg-form-grid">
                         <div class="srpg-form-field">
                             <label for="ac">Armor Class</label>
@@ -1332,14 +1248,6 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-    }
-
-    /* Section Edit Actions */
-    .section-edit-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        justify-content: flex-end;
     }
 
     /* Skills Subsection */
@@ -1473,7 +1381,7 @@
     /* Card Header Styles */
     .ability-card h3,
     .skill-name {
-        margin: 0 0 0.75rem 0;
+        margin: 0;
         font-size: 1.125rem;
         font-weight: 600;
         color: var(--text-primary);
@@ -1589,6 +1497,7 @@
         justify-content: center;
         gap: 0.5rem;
         flex-wrap: wrap;
+        margin-top: 0.25rem;
     }
 
     /* Value Display Styles */
