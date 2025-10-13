@@ -95,6 +95,8 @@
         } else if (view === "story") {
             // When navigating to story, ensure we're on the chronicle tab
             activeStoryTab = "chronicle";
+            // Hide tertiary sidebar when switching to chronicle tab
+            showTertiarySidebar = false;
             // When navigating to story (or reloading while already on story), reload chronicle to show new entries
             // Use setTimeout to ensure component is mounted
             setTimeout(() => {
