@@ -486,7 +486,7 @@
                     {#if isSectionEditing("information")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel
@@ -587,7 +587,7 @@
                     {#if isSectionEditing("experience")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel
@@ -669,7 +669,7 @@
                     {#if isSectionEditing("health")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel
@@ -797,7 +797,7 @@
                     {#if isSectionEditing("abilities")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel
@@ -1207,7 +1207,7 @@
                     {#if isSectionEditing("items")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel
@@ -1235,7 +1235,7 @@
                     {#if isSectionEditing("combat")}
                         <div class="section-edit-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-simple"
                                 on:click={cancelSectionEdit}
                             >
                                 Cancel

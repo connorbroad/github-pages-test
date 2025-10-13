@@ -28,7 +28,7 @@
             Save
         </button>
         <button
-            class="srpg-b {compact ? 'srpg-b-sm' : ''}"
+            class="srpg-b srpg-b-simple {compact ? 'srpg-b-sm' : ''}"
             on:click={handleCancel}
         >
             Cancel

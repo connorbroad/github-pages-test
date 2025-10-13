@@ -90,6 +90,12 @@
     /* Misc */
     --divider: #e0e0e0;
     --disabled-opacity: 0.5;
+    /* Simple Button Colors */
+        --button-simple-bg: #e8eaf0;
+        --button-simple-border: #c5cad6;
+        --button-simple-text: #4a5568;
+        --button-simple-hover-bg: #d4d8e3;
+        --button-simple-hover-border: #a0a8b8;
 }
 
 [data-theme="dark"] {
@@ -179,4 +185,10 @@
     /* Misc */
     --divider: #404040;
     --disabled-opacity: 0.4;
+    /* Simple Button Colors */
+        --button-simple-bg: #3a3f4a;
+        --button-simple-border: #4a5568;
+        --button-simple-text: #cbd5e0;
+        --button-simple-hover-bg: #4a5568;
+        --button-simple-hover-border: #5a6678;
 }

@@ -341,7 +341,7 @@
         <div class="character-view">
             {#if !isEditing}
                 <div class="view-header">
-                    <button class="srpg-b" on:click={backToList}>
+                    <button class="srpg-b srpg-b-simple" on:click={backToList}>
                         ←
                     </button>
 

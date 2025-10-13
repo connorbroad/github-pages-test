@@ -145,6 +145,24 @@
     box-shadow: 0 2px 4px var(--shadow-md);
 }
 
+.srpg-b-simple {
+    background-color: var(--button-simple-bg);
+    color: var(--button-simple-text);
+    border-color: var(--button-simple-border);
+}
+
+.srpg-b-simple:hover:not(:disabled) {
+    background-color: var(--button-simple-hover-bg);
+    border-color: var(--button-simple-hover-border);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-md);
+}
+
+.srpg-b-simple:active:not(:disabled) {
+    background-color: var(--button-simple-bg);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px var(--shadow-sm);
+}
 .srpg-b-sm {
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -790,12 +808,12 @@
 .srpg-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .srpg-list-item {
     background: var(--card-bg);
-        border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-primary);
     border-radius: 8px;
     padding: 1rem;
     cursor: pointer;
@@ -914,6 +932,7 @@
 .srpg-notes-container {
     margin-left: 0.5rem;
     margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 /* Text Editor Styles */

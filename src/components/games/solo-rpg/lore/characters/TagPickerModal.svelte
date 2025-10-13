@@ -116,7 +116,7 @@
                 </button>
                 <button
                     type="button"
-                    class="srpg-b srpg-b-sm"
+                    class="srpg-b srpg-b-sm srpg-b-simple"
                     on:click={toggleNewTagInput}
                 >
                     Cancel

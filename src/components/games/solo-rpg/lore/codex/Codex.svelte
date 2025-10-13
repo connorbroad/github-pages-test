@@ -287,27 +287,27 @@
         <!-- Note Detail View -->
         <div class="note-view">
             <div class="srpg-header-actions">
-                <button class="srpg-b srpg-b-normal srpg-b-sm" on:click={backToList}>
+                <button class="srpg-b srpg-b-simple" on:click={backToList}>
                     ← Back to List
                 </button>
                 <div class="srpg-b-group">
                     {#if !isEditing}
-                        <button class="srpg-b srpg-b-normal srpg-b-sm" on:click={editNote}>
+                        <button class="srpg-b srpg-b-normal" on:click={editNote}>
                             Edit
                         </button>
                         {#if !selectedNote.characterId}
                             <button
-                                class="srpg-b srpg-b-danger srpg-b-sm"
+                                class="srpg-b srpg-b-danger"
                                 on:click={deleteNote}
                             >
                                 Delete
                             </button>
                         {/if}
                     {:else}
-                        <button class="srpg-b srpg-b-create srpg-b-sm" on:click={saveNote}>
+                        <button class="srpg-b srpg-b-create" on:click={saveNote}>
                             Save
                         </button>
-                        <button class="srpg-b srpg-b-normal srpg-b-sm" on:click={cancelEdit}>
+                        <button class="srpg-b srpg-b-simple" on:click={cancelEdit}>
                             Cancel
                         </button>
                     {/if}
@@ -506,7 +506,7 @@
                     Add
                 </button>
                 <button
-                    class="srpg-b srpg-b-normal srpg-b-sm"
+                    class="srpg-b srpg-b-simple srpg-b-sm"
                     on:click={toggleCustomGroupInput}
                 >
                     Cancel
@@ -537,7 +537,7 @@
 
         <div class="srpg-modal-actions">
             <button
-                class="srpg-b srpg-b-normal"
+                class="srpg-b srpg-b-simple"
                 on:click={() => (showCreateModal = false)}
             >
                 Cancel

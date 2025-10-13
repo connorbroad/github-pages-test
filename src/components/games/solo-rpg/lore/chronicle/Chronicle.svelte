@@ -340,7 +340,7 @@
     <div class="chronicle-sticky-header">
         <div class="chronicle-header">
             <div class="header-actions">
-                <button class="srpg-b" on:click={toggleChaptersList}>
+                <button class="srpg-b srpg-b-simple" on:click={toggleChaptersList}>
                     📚 {showChaptersList ? "Hide" : "View"} Chapters
                 </button>
             </div>
@@ -574,7 +574,7 @@
             >
                 Save Entry
             </button>
-            <button class="srpg-b" on:click={cancelAddEntry}>
+            <button class="srpg-b srpg-b-simple" on:click={cancelAddEntry}>
                 Cancel
             </button>
         </div> 
@@ -634,7 +634,7 @@
         {/if}
 
         <div class="modal-footer">
-            <button class="srpg-b" on:click={cancelCharacterAssign}>
+            <button class="srpg-b srpg-b-simple" on:click={cancelCharacterAssign}>
                 Cancel
             </button>
         </div>
@@ -899,6 +899,7 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
+        padding-bottom: 10rem;
     }
 
     .no-entries {

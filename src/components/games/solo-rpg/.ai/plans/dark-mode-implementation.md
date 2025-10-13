@@ -14,9 +14,11 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [x] Create `theme/theme-variables.css` with CSS custom properties
   - Added `--focus-ring` variable for both themes
   - Added `--warning` and `--warning-light` variables for both themes
+  - Added simple button color variables (`--button-simple-*`) for distinct light/dark styling
 - [x] Update `solo-rpg-styles.css` to import and use CSS variables
   - Added global theme application to `[data-theme]` selector
   - Background and text color transitions on theme change
+  - Added `.srpg-b-simple` button style with distinct light/dark appearance
 - [x] Replace hardcoded colors in button classes with CSS variables
 - [x] Replace hardcoded colors in info-card class with CSS variables
 - [x] Test basic theme variable system works
