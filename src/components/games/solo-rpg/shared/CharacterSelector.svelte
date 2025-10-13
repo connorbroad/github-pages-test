@@ -9,15 +9,38 @@
     import { onMount } from "svelte";
     import "../solo-rpg-styles.css";
 
+    // Optional prop to temporarily pre-select a character (e.g., from a roll preset)
+    export let preselectedCharacterId: string | null = null;
+    
+    // Expose the currently displayed character ID (whether active or preselected)
+    export let currentDisplayedCharacterId: string | null = null;
+
     let characters: Character[] = [];
     let activeCharacterId: string | null = null;
     let isOpen = false;
     let selectedGroupFilter: string = "All";
+    let isUsingPreselection = false; // Track if we're showing a temporary preselection
+    let lastAppliedPreselection: string | null = null; // Track which preselection we last applied
 
     $: {
         if ($activeCampaign) {
             loadCampaignCharacters();
         }
+    }
+
+    // Apply preselection only when it changes to a new value (not continuously)
+    $: if (preselectedCharacterId && characters.length > 0 && preselectedCharacterId !== lastAppliedPreselection) {
+        const preselectedExists = characters.find(c => c.id === preselectedCharacterId);
+        if (preselectedExists) {
+            activeCharacterId = preselectedCharacterId;
+            isUsingPreselection = true;
+            lastAppliedPreselection = preselectedCharacterId;
+        }
+    } else if (!preselectedCharacterId && isUsingPreselection) {
+        // When preset is cleared, reload the saved active character
+        activeCharacterId = loadActiveCharacterId();
+        isUsingPreselection = false;
+        lastAppliedPreselection = null;
     }
 
     onMount(() => {
@@ -67,18 +90,25 @@
             .filter((c) => c.campaignId === $activeCampaign.id)
             .sort((a, b) => a.name.localeCompare(b.name));
 
-        activeCharacterId = loadActiveCharacterId();
+        // Always load saved active character (unless preselection overrides it)
+        if (!preselectedCharacterId) {
+            activeCharacterId = loadActiveCharacterId();
+        }
     }
 
     function selectCharacter(characterId: string) {
+        // User explicitly selected a character - save it as the new active character
         activeCharacterId = characterId;
         saveActiveCharacterId(characterId);
+        isUsingPreselection = false; // No longer using preset
         isOpen = false;
     }
 
     function clearSelection() {
+        // User explicitly cleared selection - save that choice
         activeCharacterId = null;
         saveActiveCharacterId(null);
+        isUsingPreselection = false; // No longer using preset
         isOpen = false;
     }
 
@@ -91,14 +121,19 @@
     }
 
     $: activeCharacter = characters.find((c) => c.id === activeCharacterId);
+    
+    // Keep the exported currentDisplayedCharacterId in sync with activeCharacterId
+    $: currentDisplayedCharacterId = activeCharacterId;
 </script>
 
 <div class="character-selector">
     <button
         class="selector-button"
+        class:preselected={isUsingPreselection}
         on:click={toggleDropdown}
         aria-label="Select active character"
         aria-expanded={isOpen}
+        title={isUsingPreselection ? "Character auto-selected for this roll (click to change)" : "Select active character"}
     >
         <svg
             class="icon"
@@ -113,6 +148,9 @@
         <span class="selector-text">
             {#if activeCharacter}
                 {activeCharacter.name}
+                {#if isUsingPreselection}
+                    <span class="preselect-badge" title="Auto-selected">●</span>
+                {/if}
             {:else if characters.length > 0}
                 Select Character
             {:else}
@@ -269,6 +307,17 @@
         box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
     }
 
+    .selector-button.preselected {
+        border-color: var(--accent-info);
+        background: linear-gradient(135deg, var(--card-bg) 0%, rgba(59, 130, 246, 0.05) 100%);
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+    }
+
+    .selector-button.preselected:hover {
+        border-color: var(--accent-primary);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+    }
+
     .selector-button:active {
         transform: scale(0.98);
     }
@@ -286,6 +335,25 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preselect-badge {
+        color: var(--accent-info);
+        font-size: 0.625rem;
+        flex-shrink: 0;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
     }
 
     .chevron {

@@ -16,16 +16,24 @@
 
     let characterManagerComponent: any;
     let chronicleComponent: any;
+    let selectedCharacterId: string | null = null; // Track the currently viewed character
+
+    // Clear selected character when switching away from characters tab
+    $: if (activeTab !== "characters") {
+        selectedCharacterId = null;
+    }
 
     function handleNavigateHome() {
         dispatch("navigateHome");
     }
 
     function handleCharacterSelected(event: CustomEvent) {
+        selectedCharacterId = event.detail.character?.id || null;
         dispatch("characterSelected", event.detail);
     }
 
     function handleCharacterDeselected() {
+        selectedCharacterId = null;
         dispatch("characterDeselected");
     }
 
@@ -91,6 +99,7 @@
         on:navigateToStory 
         {diceRollPreset}
         on:clearPreset
+        currentCharacterId={selectedCharacterId}
     />
 {/if}
 

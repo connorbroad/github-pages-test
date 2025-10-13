@@ -7,6 +7,7 @@
     export let hasSecondarySidebar = false;
     export let hasTertiarySidebar = false;
     export let diceRollPreset: any = null;
+    export let currentCharacterId: string | null = null; // Currently viewed character ID
 
     let showOracle = false;
 
@@ -50,6 +51,7 @@
         on:close={closeOracle}
         on:navigateToStory={handleNavigateToStory}
         on:clearPreset
+        preselectedCharacterId={diceRollPreset?.characterId || currentCharacterId}
     />
 {/if}
 

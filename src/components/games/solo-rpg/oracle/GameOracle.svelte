@@ -25,6 +25,9 @@
         rollType: "normal" | "advantage" | "disadvantage";
     } | null = null;
 
+    // Optional character ID to preselect (e.g., when opening from a character sheet)
+    export let preselectedCharacterId: string | null = null;
+
     const dispatch = createEventDispatcher();
 
     let fortunes: Fortune[] = [];
@@ -35,6 +38,9 @@
     // View state for in-modal navigation
     type OracleView = "oracle" | "dice" | "cards";
     let view: OracleView = "dice";
+    
+    // Track the currently displayed character in the selector
+    let currentDisplayedCharacterId: string | null = null;
 
     // Create/Edit Fortune state
     let showFate = false;
@@ -141,7 +147,6 @@
 
         // Create a chronicle entry for this fortune result
         const chronicleEntries = loadChronicleEntries();
-        const activeCharacterId = loadActiveCharacterId();
         
         const newEntry = {
             id: generateId(),
@@ -151,7 +156,8 @@
             content: "", // Empty content, fortune data is stored separately
             fortuneId: selectedFortune?.id,
             fortuneData: resultData,
-            characterId: activeCharacterId || undefined
+            // Use the currently displayed character ID from the selector
+            characterId: currentDisplayedCharacterId || undefined
         };
 
         chronicleEntries.push(newEntry);
@@ -170,7 +176,6 @@
         if (!$activeCampaign) return;
 
         const chronicleEntries = loadChronicleEntries();
-        const activeCharacterId = loadActiveCharacterId();
         
         // Build content string with optional check name
         let content = "";
@@ -195,7 +200,8 @@
                 individualDiceResults: diceData.individualDiceResults,
                 checkName: diceData.checkName
             },
-            characterId: diceData.characterId || activeCharacterId || undefined
+            // Use the currently displayed character ID from the selector
+            characterId: currentDisplayedCharacterId || undefined
         };
 
         chronicleEntries.push(newEntry);
@@ -211,7 +217,6 @@
         if (!$activeCampaign) return;
 
         const chronicleEntries = loadChronicleEntries();
-        const activeCharacterId = loadActiveCharacterId();
         
         const cardsList = cardsData.cards.map((c: any) => `${c.rank} of ${c.suit}`).join(', ');
         
@@ -224,7 +229,8 @@
             cardsData: {
                 cards: cardsData.cards
             },
-            characterId: activeCharacterId || undefined
+            // Use the currently displayed character ID from the selector
+            characterId: currentDisplayedCharacterId || undefined
         };
 
         chronicleEntries.push(newEntry);
@@ -235,6 +241,7 @@
     }
 
     function handleClose() {
+        dispatch('clearPreset');
         dispatch('close');
     }
 
@@ -248,7 +255,10 @@
         <!-- Sticky utility header -->
         <div class="oracle-sticky-header">
             <div class="character-selector-wrapper">
-                <CharacterSelector />
+                <CharacterSelector 
+                    preselectedCharacterId={preselectedCharacterId} 
+                    bind:currentDisplayedCharacterId
+                />
             </div>
             <nav class="oracle-nav" aria-label="Oracle navigation">
                 <button class="nav-btn {view === 'oracle' ? 'active' : ''}" on:click={() => go('oracle')} aria-label="Oracle">
