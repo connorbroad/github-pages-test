@@ -669,8 +669,8 @@
     }
 
     .chapters-list-panel {
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--srpg-card-bg);
+        border: 2px solid var(--srpg-border-color);
         border-radius: 8px;
         margin-bottom: 1.5rem;
         overflow: hidden;
@@ -681,21 +681,21 @@
         justify-content: space-between;
         align-items: center;
         padding: 1rem 1.25rem;
-        background: #f9fafb;
-        border-bottom: 1px solid #e5e7eb;
+        background: var(--srpg-secondary-bg);
+        border-bottom: 1px solid var(--srpg-border-color);
     }
 
     .chapters-header h3 {
         margin: 0;
         font-size: 1.125rem;
-        color: #333;
+        color: var(--srpg-text-primary);
     }
 
     .close-btn {
         background: transparent;
         border: none;
         font-size: 1.25rem;
-        color: #9ca3af;
+        color: var(--srpg-text-tertiary);
         cursor: pointer;
         padding: 0.25rem;
         line-height: 1;
@@ -703,7 +703,7 @@
     }
 
     .close-btn:hover {
-        color: #333;
+        color: var(--srpg-text-primary);
     }
 
     .chapters-content {
@@ -723,8 +723,8 @@
 
     .chapter-item {
         flex: 1;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--srpg-secondary-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 6px;
         padding: 0.75rem 1rem;
         text-align: left;
@@ -734,14 +734,14 @@
     }
 
     .chapter-item:hover {
-        background: #f3f4f6;
-        border-color: #d1d5db;
+        background: var(--srpg-hover-bg);
+        border-color: var(--srpg-border-hover);
     }
 
     .chapter-item.active {
-        background: #6366f1;
+        background: var(--srpg-oracle-accent);
         color: white;
-        border-color: #6366f1;
+        border-color: var(--srpg-oracle-accent);
     }
 
     .chapter-item.active .chapter-name,
@@ -752,31 +752,31 @@
     .chapter-name {
         font-weight: 600;
         font-size: 0.95rem;
-        color: #333;
+        color: var(--srpg-text-primary);
         margin-bottom: 0.25rem;
     }
 
     .chapter-meta {
         font-size: 0.8rem;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
     }
 
     .chapter-delete-btn {
         position: absolute;
         right: 1rem;
-        color: #737373;
-        background: #fafcfd;
+        color: var(--srpg-text-muted);
+        background: var(--srpg-card-bg);
     }
 
     .chapter-delete-btn:hover {
-        color: #dc2626;
-        background: #fef2f2;
-        border-color: #fca5a5;
+        color: var(--srpg-error-text);
+        background: var(--srpg-error-bg-light);
+        border-color: var(--srpg-error-border);
     }
 
     .chapter-view-banner {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--srpg-secondary-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 8px;
         padding: 1rem 1.25rem;
         margin-bottom: 1.5rem;
@@ -786,32 +786,32 @@
     }
 
     .back-btn {
-        background: white;
-        border: 1px solid #d1d5db;
+        background: var(--srpg-card-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 6px;
         padding: 0.5rem 1rem;
         cursor: pointer;
         font-size: 0.9rem;
         font-weight: 500;
-        color: #525252;
+        color: var(--srpg-text-secondary);
         transition: all 0.15s;
     }
 
     .back-btn:hover {
-        background: #f9fafb;
-        border-color: #9ca3af;
+        background: var(--srpg-secondary-bg);
+        border-color: var(--srpg-text-tertiary);
     }
 
     .viewing-chapter-name {
         font-size: 1rem;
         font-weight: 600;
-        color: #333;
+        color: var(--srpg-text-primary);
     }
 
     .chapter-help {
         margin: 0 0 1rem 0;
         font-size: 0.9rem;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
         line-height: 1.5;
     }
 
@@ -826,33 +826,35 @@
     .chapter-name-input {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--srpg-border-color);
         border-radius: 6px;
         font-family: inherit;
         font-size: 1rem;
         margin-bottom: 0.75rem;
+        background: var(--srpg-input-bg);
+        color: var(--srpg-text-primary);
     }
 
     .chapter-name-input:focus {
         outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        border-color: var(--srpg-oracle-accent);
+        box-shadow: 0 0 0 3px var(--srpg-focus-ring);
     }
 
     .chapter-preview {
-        background: white;
-        border: 1px solid #e5e7eb;
+        background: var(--srpg-card-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 6px;
         padding: 0.75rem;
         margin-bottom: 1rem;
         font-weight: 600;
-        color: #525252;
+        color: var(--srpg-text-secondary);
         font-size: 0.95rem;
     }
 
     .entry-editor {
-        background: #f9fafb;
-        border: 2px solid #e5e7eb;
+        background: var(--srpg-secondary-bg);
+        border: 2px solid var(--srpg-border-color);
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -861,24 +863,26 @@
     .modal-content h3 {
         margin: 0 0 1rem 0;
         font-size: 1.25rem;
-        color: #333;
+        color: var(--srpg-text-primary);
     }
 
     .modal-content textarea {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--srpg-border-color);
         border-radius: 6px;
         font-family: inherit;
         font-size: 1rem;
         resize: vertical;
         margin-bottom: 1rem;
+        background: var(--srpg-input-bg);
+        color: var(--srpg-text-primary);
     }
 
     .modal-content textarea:focus {
         outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: var(--srpg-oracle-accent);
+        box-shadow: 0 0 0 3px var(--srpg-focus-ring);
     }
 
     .editor-actions {
@@ -900,8 +904,8 @@
     .no-entries {
         text-align: center;
         padding: 3rem 1rem;
-        color: #9ca3af;
-        background: #f9fafb;
+        color: var(--srpg-text-tertiary);
+        background: var(--srpg-secondary-bg);
         border-radius: 8px;
     }
 
@@ -912,20 +916,20 @@
     .no-entries p:first-child {
         font-size: 1.125rem;
         font-weight: 500;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
     }
 
     /* Character Assignment Modal Styles */
     .modal-content h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #111827;
+        color: var(--srpg-text-primary);
     }
 
     .modal-help {
         margin: 0 0 1rem 0;
         font-size: 0.9rem;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
     }
 
     .character-select-list {
@@ -938,8 +942,8 @@
     }
 
     .character-select-item {
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--srpg-card-bg);
+        border: 2px solid var(--srpg-border-color);
         border-radius: 6px;
         padding: 0.75rem 1rem;
         text-align: left;
@@ -951,27 +955,27 @@
     }
 
     .character-select-item:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
+        border-color: var(--srpg-oracle-accent);
+        background: var(--srpg-hover-bg);
         transform: translateX(2px);
     }
 
     .character-select-name {
         font-weight: 600;
-        color: #111827;
+        color: var(--srpg-text-primary);
         font-size: 1rem;
     }
 
     .character-select-info {
         font-size: 0.85rem;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
     }
 
     .no-characters-message {
         text-align: center;
         padding: 2rem 1rem;
-        color: #6b7280;
-        background: #f9fafb;
+        color: var(--srpg-text-muted);
+        background: var(--srpg-secondary-bg);
         border-radius: 6px;
         margin-bottom: 1rem;
     }

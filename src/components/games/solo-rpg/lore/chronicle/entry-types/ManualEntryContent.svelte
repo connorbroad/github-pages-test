@@ -10,7 +10,7 @@
 
 <style>
     .entry-content {
-        color: #262626;
+        color: var(--text-primary);
         white-space: pre-wrap;
         word-wrap: break-word;
         font-size: 0.95rem;

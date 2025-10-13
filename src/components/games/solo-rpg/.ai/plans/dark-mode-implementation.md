@@ -140,19 +140,48 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
   - ✅ Fortune lists, editors, and fate consultation themed
   - ✅ No errors in any Oracle components
 
-### Phase 8: Chronicle/Story Components ⏳
-- [ ] Update `lore/StoryView.svelte`
-- [ ] Update `lore/chronicle/Chronicle.svelte`
-- [ ] Update `lore/chronicle/EntryCard.svelte`
-- [ ] Update `lore/chronicle/EntryEditor.svelte`
-- [ ] Update `lore/chronicle/EntryActions.svelte`
-- [ ] Update `lore/chronicle/entry-types/ManualEntryContent.svelte`
-- [ ] Update `lore/chronicle/entry-types/CardsEntryContent.svelte`
-- [ ] Update `lore/chronicle/entry-types/DiceEntryContent.svelte`
-- [ ] Update `lore/chronicle/entry-types/FortuneEntryContent.svelte`
-- [ ] Update `lore/chronicle/entry-types/EntryNotes.svelte`
-- [ ] Test timeline visuals in both themes
-- [ ] Test entry cards readability in both themes
+### Phase 8: Chronicle/Story Components ✅ COMPLETE
+- [x] Update `lore/StoryView.svelte`
+  - Borders use `var(--border-primary)`
+- [x] Update `lore/chronicle/Chronicle.svelte`
+  - All panels, headers, and modals use theme variables
+  - Chapter list and navigation properly themed
+  - Character assignment modal uses theme variables
+  - No entries placeholder uses theme variables
+- [x] Update `lore/chronicle/EntryCard.svelte`
+  - Card backgrounds, borders, and hover states themed
+  - Oracle card styling uses accent colors
+  - All text colors use theme variables
+- [x] Update `lore/chronicle/EntryEditor.svelte`
+  - Editor background and borders themed
+  - Textarea uses input theme variables
+  - Focus states use oracle accent color
+- [x] Update `lore/chronicle/EntryActions.svelte`
+  - Action buttons use theme variables
+  - Hover and delete states properly themed
+  - Character name text uses muted color
+- [x] Update `lore/chronicle/entry-types/ManualEntryContent.svelte`
+  - Text color uses theme variables
+- [x] Update `lore/chronicle/entry-types/CardsEntryContent.svelte`
+  - Card backgrounds and borders themed
+  - Red suit color uses accent danger variable
+- [x] Update `lore/chronicle/entry-types/DiceEntryContent.svelte`
+  - All text colors use theme variables
+  - Result badge uses oracle accent color
+- [x] Update `lore/chronicle/entry-types/FortuneEntryContent.svelte`
+  - Fortune card styling uses theme variables
+  - Badge colors use CSS classes
+- [x] Update `lore/chronicle/entry-types/EntryNotes.svelte`
+  - Note background, border, and text colors themed
+  - Special note variables for light/dark mode
+- [x] Added SRPG-specific CSS variable aliases to `solo-rpg-styles.css`
+  - Mapped common patterns to theme variables
+  - Added special note colors for both themes
+- [x] Test timeline visuals in both themes
+  - ✅ All Chronicle components properly themed
+- [x] Test entry cards readability in both themes
+  - ✅ All entry types readable in both themes
+  - ✅ No errors in any Chronicle components
 
 ### Phase 9: Character Components ⏳
 - [ ] Update `lore/characters/CharacterManager.svelte`
@@ -224,13 +253,13 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 53/150+
-- **Phase 1-7 (Foundation through Oracle):** 53/53 ✅
-- **Phase 8-11 (Story, Character, Codex, Map, & Shared Components):** 0/58+ ⏳
+- **Total Tasks:** 76/150+
+- **Phase 1-8 (Foundation through Chronicle):** 76/76 ✅
+- **Phase 9-11 (Character, Codex, Map, & Shared Components):** 0/46+ ⏳
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳
 
-**Current Status:** Phases 1-7 complete! Foundation, views, data/game management, and ALL Oracle components are themed. Next: Chronicle/Story components.
+**Current Status:** Phases 1-8 complete! Foundation, views, data/game management, Oracle, and ALL Chronicle/Story components are themed. Next: Character components.
 
 **Legend:** ⏳ = Not Started | 🔄 = In Progress | ✅ = Complete
 

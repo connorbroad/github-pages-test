@@ -94,7 +94,7 @@
         align-items: center;
         gap: 0.4rem;
         padding-top: 0.65rem;
-        border-top: 1px solid #e5e5e5;
+        border-top: 1px solid var(--srpg-border-color);
     }
 
     .entry-actions.compact {
@@ -105,13 +105,13 @@
     .entry-character-name {
         font-size: 0.9rem;
         font-style: italic;
-        color: #6b7280;
+        color: var(--srpg-text-muted);
         margin: 0;
     }
 
     .entry-action-btn {
         background: transparent;
-        border: 1px solid #e5e5e5;
+        border: 1px solid var(--srpg-border-color);
         border-radius: 4px;
         padding: 0.35rem;
         line-height: 1;
@@ -120,7 +120,7 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.15s;
-        color: #737373;
+        color: var(--srpg-text-muted);
         min-width: auto;
         min-height: auto;
     }
@@ -130,15 +130,15 @@
     }
 
     .entry-action-btn:hover {
-        background: #f5f5f5;
-        border-color: #d4d4d4;
-        color: #525252;
+        background: var(--srpg-hover-bg);
+        border-color: var(--srpg-border-hover);
+        color: var(--srpg-text-secondary);
     }
 
     .entry-action-btn.delete-btn:hover {
-        background: #fef2f2;
-        border-color: #fca5a5;
-        color: #dc2626;
+        background: var(--srpg-error-bg-light);
+        border-color: var(--srpg-error-border);
+        color: var(--srpg-error-text);
     }
 
     .spacer {

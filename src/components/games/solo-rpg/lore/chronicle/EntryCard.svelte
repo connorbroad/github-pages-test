@@ -94,8 +94,8 @@
 
 <style>
     .entry-card {
-        background: white;
-        border: 1px solid #e5e5e5;
+        background: var(--srpg-card-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 8px;
         padding: 1rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -104,7 +104,7 @@
 
     .entry-card:hover {
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-        border-color: #d4d4d4;
+        border-color: var(--srpg-border-hover);
     }
 
     .entry-header {
@@ -113,27 +113,27 @@
         align-items: center;
         margin-bottom: 0.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid #e5e5e5;
+        border-bottom: 1px solid var(--srpg-border-color);
     }
 
     .entry-type {
         font-size: 0.8rem;
         font-weight: 600;
-        color: #525252;
+        color: var(--srpg-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .entry-timestamp {
         font-size: 0.8rem;
-        color: #a3a3a3;
+        color: var(--srpg-text-tertiary);
         font-weight: 400;
     }
 
     .oracle-card {
-        background: #fafafa;
-        border: 1px solid #e5e5e5;
-        border-left: 3px solid #6366f1;
+        background: var(--srpg-secondary-bg);
+        border: 1px solid var(--srpg-border-color);
+        border-left: 3px solid var(--srpg-oracle-accent);
         border-radius: 6px;
         padding: 0.65rem 0.85rem;
         box-shadow: none;
@@ -142,14 +142,14 @@
     }
 
     .oracle-card:hover {
-        background: #f5f5f5;
-        border-left-color: #4f46e5;
+        background: var(--srpg-hover-bg);
+        border-left-color: var(--srpg-oracle-accent-hover);
     }
 
     .oracle-card .entry-header {
         margin-bottom: 0.3rem;
         padding-bottom: 0.4rem;
-        border-bottom: 1px solid #e5e5e5;
+        border-bottom: 1px solid var(--srpg-border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -158,14 +158,14 @@
     .oracle-card .entry-type {
         font-size: 0.7rem;
         font-weight: 600;
-        color: #737373;
+        color: var(--srpg-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .oracle-card .entry-timestamp {
         font-size: 0.7rem;
-        color: #a3a3a3;
+        color: var(--srpg-text-tertiary);
         font-weight: 400;
     } 
 </style>

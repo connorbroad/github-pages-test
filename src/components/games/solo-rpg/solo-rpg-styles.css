@@ -1,5 +1,53 @@
 /* Import Theme Variables */
 @import './theme/theme-variables.css';
+/* SRPG-specific variable aliases for convenience */
+:root,
+[data-theme="dark"] {
+    /* Card and Background */
+    --srpg-card-bg: var(--card-bg);
+    --srpg-secondary-bg: var(--bg-secondary);
+    --srpg-hover-bg: var(--bg-tertiary);
+
+    /* Text Colors */
+    --srpg-text-primary: var(--text-primary);
+    --srpg-text-secondary: var(--text-secondary);
+    --srpg-text-muted: var(--text-muted);
+    --srpg-text-tertiary: var(--text-muted);
+
+    /* Borders */
+    --srpg-border-color: var(--border-primary);
+    --srpg-border-hover: var(--border-secondary);
+
+    /* Inputs */
+    --srpg-input-bg: var(--input-bg);
+
+    /* Oracle/Accent Colors */
+    --srpg-oracle-accent: var(--accent-info);
+    --srpg-oracle-accent-hover: var(--accent-info-hover);
+    --srpg-focus-ring: rgba(99, 102, 241, 0.1);
+
+    /* Error/Danger */
+    --srpg-error-text: var(--danger-text);
+    --srpg-error-bg-light: var(--danger-bg);
+    --srpg-error-border: var(--accent-danger);
+
+    /* Note colors */
+    --srpg-note-bg: #fef9c3;
+    --srpg-note-border: #facc15;
+    --srpg-note-label-color: #713f12;
+    --srpg-note-text-color: #854d0e;
+}
+
+[data-theme="dark"] {
+    /* Override focus ring for dark mode */
+    --srpg-focus-ring: rgba(129, 140, 248, 0.2);
+
+    /* Note colors for dark mode */
+    --srpg-note-bg: #422006;
+    --srpg-note-border: #d97706;
+    --srpg-note-label-color: #fbbf24;
+    --srpg-note-text-color: #fcd34d;
+}
 /* Base Button Styles */
 .srpg-b {
     padding: 0.75rem 1rem;

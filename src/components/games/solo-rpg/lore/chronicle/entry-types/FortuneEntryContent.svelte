@@ -60,9 +60,7 @@
             {#if entry.fortuneData.cardDraw}
                 <span
                     class="card-badge"
-                    style="color: {isRedSuit(entry.fortuneData.cardDraw.suit)
-                        ? '#dc2626'
-                        : '#334155'}"
+                    class:red-suit={isRedSuit(entry.fortuneData.cardDraw.suit)}
                 >
                     {entry.fortuneData.cardDraw.rank}
                     {entry.fortuneData.cardDraw.suit}
@@ -98,12 +96,12 @@
 
     .fortune-label {
         font-weight: 600;
-        color: #525252;
+        color: var(--text-primary);
     }
 
     .result-badge {
-        background: #6366f1;
-        color: white;
+        background: var(--accent-info);
+        color: var(--text-inverse);
         font-weight: 700;
         font-size: 0.875rem;
         padding: 0.15rem 0.5rem;
@@ -112,18 +110,22 @@
     }
 
     .card-badge {
-        background: #ffffff;
-        color: white;
+        background: var(--card-bg);
+        color: var(--text-primary);
         font-weight: 700;
         font-size: 0.875rem;
         padding: 0.15rem 0.5rem;
         border-radius: 4px;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--border-primary);
         line-height: 1.4;
     }
 
+    .card-badge.red-suit {
+        color: var(--accent-danger);
+    }
+
     .result-text {
-        color: #525252;
+        color: var(--text-primary);
         font-style: italic;
         font-size: 0.875rem;
     }
@@ -136,7 +138,7 @@
     }
 
     .significance-item {
-        color: #525252;
+        color: var(--text-primary);
         font-size: 0.875rem;
         display: inline-flex;
         align-items: center;
@@ -144,7 +146,7 @@
     }
 
     .significance-item strong {
-        color: #6366f1;
+        color: var(--accent-info);
         font-weight: 600;
     }
 </style>

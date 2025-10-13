@@ -38,8 +38,8 @@
 
 <style>
     .entry-editor {
-        background: #fafafa;
-        border: 1px solid #e5e5e5;
+        background: var(--srpg-secondary-bg);
+        border: 1px solid var(--srpg-border-color);
         border-radius: 4px;
         padding: 0.6rem;
     }
@@ -51,18 +51,20 @@
     .entry-editor textarea {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #d4d4d4;
+        border: 1px solid var(--srpg-border-color);
         border-radius: 3px;
         font-family: inherit;
         font-size: 0.85rem;
         resize: vertical;
         margin-bottom: 0.5rem;
+        background: var(--srpg-input-bg);
+        color: var(--srpg-text-primary);
     }
 
     .entry-editor textarea:focus {
         outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        border-color: var(--srpg-oracle-accent);
+        box-shadow: 0 0 0 2px var(--srpg-focus-ring);
     }
 
     .editor-actions {

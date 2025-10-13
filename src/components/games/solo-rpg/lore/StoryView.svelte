@@ -122,7 +122,7 @@
         display: block;
         width: 100%;
         height: 1px;
-        background-color: #ddd;
+        background-color: var(--border-primary);
         margin-bottom: 0.5rem;
     }
     h4::after {
@@ -130,7 +130,7 @@
         display: block;
         width: 100%;
         height: 1px;
-        background-color: #ddd;
+        background-color: var(--border-primary);
         margin-top: 0.5rem;
     }
 

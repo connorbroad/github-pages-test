@@ -46,30 +46,30 @@
 
     .dice-formula {
         font-weight: 600;
-        color: #525252;
+        color: var(--text-primary);
     }
 
     .result-option {
         font-size: 0.8rem;
-        color: #6b7280;
+        color: var(--text-secondary);
         font-weight: normal;
     }
 
     .dice-total {
         font-size: 0.9rem;
-        color: #374151;
+        color: var(--text-primary);
     }
 
     .individual-dice {
         font-size: 0.8rem;
-        color: #6b7280;
+        color: var(--text-secondary);
         font-style: italic;
         margin-top: 0.15rem;
     }
 
     .result-badge {
-        background: #6366f1;
-        color: white;
+        background: var(--accent-info);
+        color: var(--text-inverse);
         font-weight: 700;
         font-size: 0.875rem;
         padding: 0.15rem 0.5rem;

@@ -16,9 +16,7 @@
             {#each cardsData.cards as card}
                 <span
                     class="card-chip"
-                    style="color: {isRedSuit(card.suit)
-                        ? '#e11d48'
-                        : 'inherit'}"
+                    class:red-suit={isRedSuit(card.suit)}
                 >
                     {card.rank}
                     <span class="suit-icon" aria-hidden="true">
@@ -86,18 +84,23 @@
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 2px solid var(--border-primary);
         border-radius: 6px;
         padding: 0.35rem 0.55rem;
         font-weight: 600;
         font-size: 0.9rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 2px var(--shadow-sm);
         transition: all 0.15s ease;
+        color: var(--text-primary);
+    }
+
+    .card-chip.red-suit {
+        color: var(--accent-danger);
     }
 
     .card-chip:hover {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 2px 4px var(--shadow-md);
         transform: translateY(-1px);
     }
 

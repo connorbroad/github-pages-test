@@ -9,8 +9,8 @@
 
 <style>
     .notes-compact {
-        background: #fef9c3;
-        border-left: 2px solid #facc15;
+        background: var(--srpg-note-bg);
+        border-left: 2px solid var(--srpg-note-border);
         border-radius: 3px;
         margin-top: 0.2rem;
         padding: 0.4rem 0.6rem;
@@ -23,12 +23,12 @@
 
     .notes-label {
         font-weight: 600;
-        color: #713f12;
+        color: var(--srpg-note-label-color);
         flex-shrink: 0;
     }
 
     .notes-text-compact {
-        color: #854d0e;
+        color: var(--srpg-note-text-color);
         flex: 1;
     }
 </style>
