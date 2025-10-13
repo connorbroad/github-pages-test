@@ -1,7 +1,4 @@
 <script lang="ts">
-    import DiceRoller from "./oracle/components/dice-roller/DiceRoller.svelte";
-    import CardDealer from "./oracle/components/card-dealer/CardDealer.svelte";
-    import GameOracle from "./oracle/GameOracle.svelte";
     import DataManager from "./data/DataManager.svelte";
     import Sidebar from "./Sidebar.svelte";
     import SecondarySidebar from "./SecondarySidebar.svelte";
@@ -488,17 +485,6 @@
                 {/if}
             </div>
         </div>
-    {:else if currentView === "oracle"}
-        <div class="oracle-view">
-            <h1>Oracle</h1>
-            <GameOracle 
-                diceRollPreset={diceRollPreset}
-                on:close={() => handleNavigate("home")}
-                on:navigateHome={() => handleNavigate("home")}
-                on:navigateToStory={() => handleNavigate("story")}
-                on:clearPreset={() => diceRollPreset = null}
-            />
-        </div>
     {:else if currentView === "settings"}
         <div class="settings-view">
             <h1>Settings</h1>
@@ -851,10 +837,6 @@
     .oracle-view {
         max-width: 1200px;
         margin: 0 auto;
-    }
-
-    .oracle-view h1 {
-        margin-bottom: 2rem;
     }
 
     .settings-view {
