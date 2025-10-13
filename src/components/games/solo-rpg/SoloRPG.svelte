@@ -458,12 +458,10 @@
             </div>
             
             <div class="settings-section">
-                <h2>Appearance</h2>
                 <ThemeToggle />
             </div>
             
             <div class="settings-section">
-                <h2>Data Management</h2>
                 <DataManager onDataImported={handleDataImported} />
             </div>
         </div>
@@ -826,18 +824,8 @@
         font-size: 1.1rem;
     }
 
-    .settings-section {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .settings-section h2 {
-        margin: 0 0 1rem 0;
-        color: var(--text-primary);
-        font-size: 1.2rem;
-        font-weight: 600;
-    }
+    .settings-section { 
+        padding: 1.5rem; 
+        padding-top: 0;
+    } 
 </style>
