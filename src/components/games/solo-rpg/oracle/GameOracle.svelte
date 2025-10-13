@@ -14,6 +14,17 @@
     import CharacterSelector from "../shared/CharacterSelector.svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
 
+    // Dice roll preset for ability/skill checks
+    export let diceRollPreset: {
+        characterId: string;
+        characterName: string;
+        checkName: string;
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        rollType: "normal" | "advantage" | "disadvantage";
+    } | null = null;
+
     const dispatch = createEventDispatcher();
 
     let fortunes: Fortune[] = [];
@@ -41,6 +52,11 @@
     onMount(() => {
         fortunes = loadFortunes();
     });
+
+    // Automatically switch to dice roller view when preset is provided
+    $: if (diceRollPreset) {
+        view = "dice";
+    }
 
     // Separate default fortunes from the active blueprint and user fortunes
     $: {
@@ -156,21 +172,30 @@
         const chronicleEntries = loadChronicleEntries();
         const activeCharacterId = loadActiveCharacterId();
         
+        // Build content string with optional check name
+        let content = "";
+        if (diceData.checkName) {
+            content = `${diceData.checkName} check: Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`;
+        } else {
+            content = `Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`;
+        }
+        
         const newEntry = {
             id: generateId(),
             campaignId: $activeCampaign.id,
             timestamp: Date.now(),
             type: "dice" as const,
-            content: `Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`,
+            content,
             diceData: {
                 numDice: diceData.numDice,
                 numSides: diceData.numSides,
                 modifier: diceData.modifier,
                 resultOption: diceData.resultOption,
                 result: diceData.result,
-                individualDiceResults: diceData.individualDiceResults
+                individualDiceResults: diceData.individualDiceResults,
+                checkName: diceData.checkName
             },
-            characterId: activeCharacterId || undefined
+            characterId: diceData.characterId || activeCharacterId || undefined
         };
 
         chronicleEntries.push(newEntry);
@@ -333,6 +358,8 @@
                         embedded={true} 
                         onClose={() => { /* noop in embedded */ }} 
                         on:recordFate={handleDiceRecordFate}
+                        preset={diceRollPreset}
+                        on:clearPreset={() => dispatch("clearPreset")}
                     />
                 </div>
             {:else if view === 'cards'}

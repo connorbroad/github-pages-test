@@ -3,9 +3,9 @@
 ## Implementation Progress
 
 ### Status: In Progress
-**Last Updated:** October 13, 2025 - Completed Phase 2  
-**Current Phase:** Phase 2 - Character Sheet UI (COMPLETE)  
-**Estimated Completion:** 33% (2/6 phases)
+**Last Updated:** October 13, 2025 - Phase 3 Complete  
+**Current Phase:** Phase 4 - Oracle Updates  
+**Estimated Completion:** 50% (3/6 phases)
 
 ### Phase Completion Checklist
 
@@ -25,28 +25,28 @@
 - [x] Added event dispatchers for roll actions
 - [x] Tested UI changes in edit and read modes
 
-#### ✅ Phase 3: Integration Layer (Not Started)
-- [ ] Updated character sheet container to handle roll events
-- [ ] Updated main orchestrator (SoloRPG.svelte) to handle dice roller opening
-- [ ] Implemented dice formula parsing utility
-- [ ] Handled advantage/disadvantage logic (2d20 with Max/Min)
-- [ ] Tested event flow from character sheet to oracle
+#### ✅ Phase 3: Integration Layer (COMPLETE)
+- [x] Updated character sheet container to handle roll events
+- [x] Updated main orchestrator (SoloRPG.svelte) to handle dice roller opening
+- [x] Implemented dice formula parsing utility
+- [x] Handled advantage/disadvantage logic (2d20 with Max/Min)
+- [x] Tested event flow from character sheet to oracle
 
-#### ✅ Phase 4: Oracle Updates (Not Started)
-- [ ] Updated GameOracle to accept and use preset
-- [ ] Updated DiceRoller to accept and apply preset
-- [ ] Implemented auto-navigate to dice view when preset exists
-- [ ] Included roll context in recordFate event
-- [ ] Tested preset application and clearing
+#### ✅ Phase 4: Oracle Updates (COMPLETE)
+- [x] Updated GameOracle to accept and use preset
+- [x] Updated DiceRoller to accept and apply preset
+- [x] Implemented auto-navigate to dice view when preset exists
+- [x] Included roll context in recordFate event
+- [x] Tested preset application and clearing
 
-#### ✅ Phase 5: Chronicle Integration (Not Started)
-- [ ] Updated handleDiceRecordFate to include ability/skill context
-- [ ] Formatted chronicle entry content with ability/skill name
-- [ ] Tested normal rolls
-- [ ] Tested advantage rolls
-- [ ] Tested disadvantage rolls
+#### ✅ Phase 5: Chronicle Integration (COMPLETE)
+- [x] Updated handleDiceRecordFate to include ability/skill context
+- [x] Formatted chronicle entry content with ability/skill name
+- [x] Tested normal rolls
+- [x] Tested advantage rolls
+- [x] Tested disadvantage rolls
 
-#### ✅ Phase 6: Testing & Polish (Not Started)
+#### 🔄 Phase 6: Testing & Polish (Not Started)
 - [ ] Tested with different abilities and skills
 - [ ] Tested advantage/disadvantage rolls end-to-end
 - [ ] Verified chronicle entries are properly formatted
@@ -75,6 +75,28 @@
   - Dice formula input accepts any format (e.g., "1d20", "2d6", etc.)
   - Event dispatches `rollCheck` with: checkName, diceFormula, modifier, resultOption
   - Design change: Moved from per-ability/skill dice formulas to character-level formulas for simplicity
+- **Phase 3 Complete:** Integration layer implemented successfully
+  - `CharacterManager.svelte` forwards `rollCheck` events with character context
+  - `StoryView.svelte` forwards `rollCheck` events to `SoloRPG.svelte`
+  - `SoloRPG.svelte` handles `rollCheck` events:
+    - Parses dice formula (e.g., "1d20" -> numDice=1, numSides=20)
+    - Stores preset data including character, check name, modifier, and roll type
+    - Navigates to oracle view
+  - Dice formula parsing uses regex: `/^(\d+)d(\d+)$/i`
+- **Phase 4 Complete:** Oracle integration implemented successfully
+  - `GameOracle.svelte` accepts `diceRollPreset` prop
+  - Automatically switches to dice roller view when preset is provided
+  - `DiceRoller.svelte` accepts and applies preset data:
+    - Pre-fills numDice, numSides, and modifier
+    - Applies advantage/disadvantage logic (2d20 with Max/Min for d20 rolls)
+    - Includes character and check context in recordFate event
+    - Clears preset after recording result
+- **Phase 5 Complete:** Chronicle integration implemented successfully
+  - `handleDiceRecordFate` in `GameOracle.svelte` updated to:
+    - Include check name in chronicle entry content
+    - Format as "[CheckName] check: Rolled [formula]: [result]"
+    - Store `checkName` in `diceData` for reference
+    - Use `characterId` from preset if provided, falling back to active character
 
 ---
 

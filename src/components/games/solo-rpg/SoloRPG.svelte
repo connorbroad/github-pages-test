@@ -40,6 +40,17 @@
     let showCardDealer = false;
     let storyViewComponent: any;
 
+    // Dice roll preset data for ability/skill checks
+    let diceRollPreset: {
+        characterId: string;
+        characterName: string;
+        checkName: string;
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        rollType: "normal" | "advantage" | "disadvantage";
+    } | null = null;
+
     let showBlueprintEditor = false;
     let showCampaignCreator = false;
     let showCampaignLoadConfirm = false;
@@ -121,6 +132,35 @@
     function handleCharacterDeselected() {
         showTertiarySidebar = false;
         currentCharacter = null;
+    }
+
+    function handleRollCheck(event: CustomEvent) {
+        const { characterId, characterName, checkName, diceFormula, modifier, rollType } = event.detail;
+        
+        // Parse the dice formula (e.g., "1d20" -> numDice=1, numSides=20)
+        const match = diceFormula.match(/^(\d+)d(\d+)$/i);
+        if (!match) {
+            console.error("Invalid dice formula:", diceFormula);
+            return;
+        }
+        
+        const numDice = parseInt(match[1], 10);
+        const numSides = parseInt(match[2], 10);
+        
+        // Store the preset data
+        diceRollPreset = {
+            characterId,
+            characterName,
+            checkName,
+            numDice,
+            numSides,
+            modifier,
+            rollType,
+        };
+        
+        // Navigate to oracle view and open dice roller
+        handleNavigate("oracle");
+        // The oracle will need to read diceRollPreset and apply it
     }
 
     function handleTertiaryToggleSection(section: string) {
@@ -445,9 +485,11 @@
         <div class="oracle-view">
             <h1>Oracle</h1>
             <GameOracle 
+                diceRollPreset={diceRollPreset}
                 on:close={() => handleNavigate("home")}
                 on:navigateHome={() => handleNavigate("home")}
                 on:navigateToStory={() => handleNavigate("story")}
+                on:clearPreset={() => diceRollPreset = null}
             />
         </div>
     {:else if currentView === "settings"}
@@ -481,6 +523,7 @@
             on:navigateToStory={() => handleNavigate("story")}
             on:characterSelected={handleCharacterSelected}
             on:characterDeselected={handleCharacterDeselected}
+            on:rollCheck={handleRollCheck}
         />
     {/if}
 </main>

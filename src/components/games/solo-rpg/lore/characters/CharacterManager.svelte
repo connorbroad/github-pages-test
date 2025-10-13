@@ -155,17 +155,16 @@
 
     function cancelEdit() {
         isEditing = false;
-        isEditingSections = false;
-        // Reload to reset any changes
-        if (selectedCharacter) {
-            const allCharacters = loadCharacters();
-            const character = allCharacters.find(
-                (c) => c.id === selectedCharacter!.id,
-            );
-            if (character) {
-                selectedCharacter = character;
-            }
-        }
+        loadCampaignCharacters();
+    }
+
+    function handleRollCheck(event: CustomEvent) {
+        // Forward the rollCheck event to the parent (StoryView or SoloRPG)
+        dispatch('rollCheck', {
+            ...event.detail,
+            characterId: selectedCharacter?.id,
+            characterName: selectedCharacter?.name
+        });
     }
 
     function deleteCharacter() {
@@ -402,6 +401,7 @@
                     {selectedSections}
                     on:save={saveCharacter}
                     on:cancel={cancelEdit}
+                    on:rollCheck={handleRollCheck}
                 />
 
                 <br />

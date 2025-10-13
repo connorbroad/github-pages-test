@@ -28,6 +28,10 @@
         dispatch("characterDeselected");
     }
 
+    function handleRollCheck(event: CustomEvent) {
+        dispatch("rollCheck", event.detail);
+    }
+
     // Expose method to toggle sections in character manager
     export function toggleCharacterSection(section: string) {
         if (characterManagerComponent && characterManagerComponent.toggleSectionFromExternal) {
@@ -60,6 +64,7 @@
                     bind:this={characterManagerComponent}
                     on:characterSelected={handleCharacterSelected}
                     on:characterDeselected={handleCharacterDeselected}
+                    on:rollCheck={handleRollCheck}
                 />
             {:else if activeTab === "codex"}
                 <Codex />

@@ -13,6 +13,15 @@
 
     export let embedded: boolean = false;
     export let onClose: () => void = () => {};
+    export let preset: {
+        characterId: string;
+        characterName: string;
+        checkName: string;
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        rollType: "normal" | "advantage" | "disadvantage";
+    } | null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -26,6 +35,24 @@
     let rolling = false;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
     let showResultCalculator = true;
+
+    // Apply preset when provided
+    $: if (preset) {
+        numDice = preset.numDice;
+        numSides = preset.numSides;
+        modifier = preset.modifier;
+        
+        // Handle advantage/disadvantage for d20 rolls
+        if (preset.rollType === "advantage" && numSides === 20) {
+            numDice = 2;
+            resultOption = "Maximum";
+        } else if (preset.rollType === "disadvantage" && numSides === 20) {
+            numDice = 2;
+            resultOption = "Minimum";
+        } else {
+            resultOption = "Sum";
+        }
+    }
 
     function onRollButtonClick() {
         const animation = createDiceRollerAnimation(
@@ -60,8 +87,15 @@
                 modifier,
                 resultOption,
                 result: finalResult,
-                individualDiceResults: diceResults
+                individualDiceResults: diceResults,
+                characterId: preset?.characterId,
+                checkName: preset?.checkName
             });
+        }
+        
+        // Clear preset after recording
+        if (preset) {
+            dispatch("clearPreset");
         }
         
         // Reset state
