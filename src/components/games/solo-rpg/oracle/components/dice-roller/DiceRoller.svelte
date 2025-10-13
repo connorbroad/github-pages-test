@@ -35,12 +35,14 @@
     let rolling = false;
     let diceOffsets: { x: number; y: number; r: number }[] = [];
     let showResultCalculator = true;
+    let checkName = ""; // Editable check name
 
     // Apply preset when provided
     $: if (preset) {
         numDice = preset.numDice;
         numSides = preset.numSides;
         modifier = preset.modifier;
+        checkName = preset.checkName || "";
         
         // Handle advantage/disadvantage for d20 rolls
         if (preset.rollType === "advantage" && numSides === 20) {
@@ -89,7 +91,7 @@
                 result: finalResult,
                 individualDiceResults: diceResults,
                 characterId: preset?.characterId,
-                checkName: preset?.checkName
+                checkName: checkName || undefined // Use edited checkName
             });
         }
         
@@ -104,6 +106,7 @@
         finalResult = null;
         rolling = false;
         diceOffsets = [];
+        checkName = "";
 
         onClose && onClose();
     }
@@ -114,6 +117,22 @@
 {#if embedded}
     <div class="dice-roller-embedded">
         <!-- No header in embedded mode; parent provides the title -->
+        
+        <!-- Check name input (shown when preset exists) -->
+        {#if preset}
+            <div class="check-name-container">
+                <label for="check-name-input">Check Name:</label>
+                <input
+                    id="check-name-input"
+                    type="text"
+                    bind:value={checkName}
+                    placeholder="Enter check name (e.g., Strength, Perception)"
+                    class="check-name-input"
+                />
+            </div>
+            <hr class="dice-roller-divider" />
+        {/if}
+        
         <DiceDisplay
             {numDice}
             {numSides}
@@ -338,5 +357,39 @@
     .result-calculator-container:not(:has(*)) {
         max-height: 0;
         padding: 0;
+    }
+
+    .check-name-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 0 1rem;
+    }
+
+    .check-name-container label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .check-name-input {
+        padding: 0.75rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1.5px solid var(--border-primary);
+        background: var(--input-bg);
+        color: var(--input-text);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .check-name-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--shadow-md);
+    }
+
+    .check-name-input::placeholder {
+        color: var(--text-muted);
+        opacity: 0.6;
     }
 </style>

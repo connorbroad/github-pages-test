@@ -12,6 +12,7 @@
 
     export let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
     export let showTertiarySidebar: boolean = false;
+    export let diceRollPreset: any = null; // Preset data for ability/skill rolls
 
     let characterManagerComponent: any;
     let chronicleComponent: any;
@@ -81,6 +82,8 @@
         hasSecondarySidebar={true}
         hasTertiarySidebar={showTertiarySidebar}
         on:navigateToStory 
+        {diceRollPreset}
+        on:clearPreset
     />
 {/if}
 

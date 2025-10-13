@@ -158,9 +158,7 @@
             rollType,
         };
         
-        // Navigate to oracle view and open dice roller
-        handleNavigate("oracle");
-        // The oracle will need to read diceRollPreset and apply it
+        // The FloatingOracleButton will automatically open when preset is set
     }
 
     function handleTertiaryToggleSection(section: string) {
@@ -517,6 +515,7 @@
             bind:this={storyViewComponent}
             activeTab={activeStoryTab}
             showTertiarySidebar={showTertiarySidebar}
+            {diceRollPreset}
             on:openDiceRoller={() => (showDiceRoller = true)}
             on:openCardDealer={() => (showCardDealer = true)}
             on:navigateHome={() => handleNavigate("home")}
@@ -524,6 +523,7 @@
             on:characterSelected={handleCharacterSelected}
             on:characterDeselected={handleCharacterDeselected}
             on:rollCheck={handleRollCheck}
+            on:clearPreset={() => diceRollPreset = null}
         />
     {/if}
 </main>

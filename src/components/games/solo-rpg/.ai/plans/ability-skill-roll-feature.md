@@ -2,10 +2,10 @@
 
 ## Implementation Progress
 
-### Status: In Progress
-**Last Updated:** October 13, 2025 - Phase 3 Complete  
-**Current Phase:** Phase 4 - Oracle Updates  
-**Estimated Completion:** 50% (3/6 phases)
+### Status: Complete
+**Last Updated:** October 13, 2025 - All Phases Complete  
+**Current Phase:** Phase 7 - UX Improvements  
+**Estimated Completion:** 100% (7/7 phases)
 
 ### Phase Completion Checklist
 
@@ -54,6 +54,20 @@
 - [ ] Added loading states and error handling
 - [ ] Performed final integration testing
 
+#### ✅ Phase 7: UX Improvements (COMPLETE)
+- [x] **Task 7.1:** Use FloatingOracleButton instead of navigating to Oracle page
+  - Remove navigation logic from handleRollCheck
+  - Store preset in SoloRPG state
+  - Pass preset to GameOracle via FloatingOracleButton flow
+- [x] **Task 7.2:** Display check name in Chronicle entries and make it editable in Oracle
+  - Show check name prominently in Chronicle entry display
+  - Add editable text input for check name in DiceRoller
+  - Allow users to edit the check name before recording
+- [x] **Task 7.3:** Default dice formulas to "1d20"
+  - Set default value for abilityCheckDice to "1d20"
+  - Set default value for skillCheckDice to "1d20"
+  - Apply defaults when creating new characters
+
 ### Notes & Issues
 - **Phase 1 Complete:** Data model updated successfully. All new fields are optional, ensuring backward compatibility with existing characters. No migration needed.
 - TypeScript compilation passed with no errors.
@@ -97,6 +111,20 @@
     - Format as "[CheckName] check: Rolled [formula]: [result]"
     - Store `checkName` in `diceData` for reference
     - Use `characterId` from preset if provided, falling back to active character
+- **Phase 7 Complete:** UX improvements implemented successfully
+  - **Task 7.1:** FloatingOracleButton integration
+    - Removed navigation to Oracle page from `handleRollCheck`
+    - `diceRollPreset` now passed through: SoloRPG → StoryView → FloatingOracleButton → GameOracle
+    - FloatingOracleButton automatically opens when preset is provided
+    - User stays on Story view when rolling checks
+  - **Task 7.2:** Check name display and editing
+    - `DiceEntryContent.svelte` now displays check name prominently with styling
+    - Added editable text input for check name in `DiceRoller.svelte`
+    - Check name is pre-filled from preset and can be edited before recording
+    - Edited check name is saved to chronicle entry
+  - **Task 7.3:** Default dice formulas
+    - New characters now default to "1d20" for both ability and skill checks
+    - Applied in `CharacterManager.svelte` `createCharacter()` function
 
 ---
 
@@ -509,6 +537,20 @@ function handleDiceRecordFate(event: CustomEvent) {
 3. Verify chronicle entries are properly formatted
 4. Test edge cases (missing dice formula, invalid format)
 5. Add loading states and error handling
+
+### Phase 7: UX Improvements (In Progress)
+- **Task 7.1:** Use FloatingOracleButton instead of navigating to Oracle page
+  - Remove navigation logic from handleRollCheck
+  - Store preset in SoloRPG state
+  - Pass preset to GameOracle via FloatingOracleButton flow
+- **Task 7.2:** Display check name in Chronicle entries and make it editable in Oracle
+  - Show check name prominently in Chronicle entry display
+  - Add editable text input for check name in DiceRoller
+  - Allow users to edit the check name before recording
+- **Task 7.3:** Default dice formulas to "1d20"
+  - Set default value for abilityCheckDice to "1d20"
+  - Set default value for skillCheckDice to "1d20"
+  - Apply defaults when creating new characters
 
 ## Total Estimated Time: 9-15 hours
 

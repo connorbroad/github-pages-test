@@ -85,6 +85,8 @@
             tags: [],
             abilities: [],
             skills: [],
+            abilityCheckDice: "1d20", // Default dice formula for ability checks
+            skillCheckDice: "1d20", // Default dice formula for skill checks
             visibleSections: ["information"], // Default to only showing information section
             createdAt: Date.now(),
             updatedAt: Date.now(),

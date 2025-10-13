@@ -8,6 +8,11 @@
 
 <div class="dice-entry-content">
     {#if diceData}
+        {#if diceData.checkName}
+            <div class="check-name">
+                {diceData.checkName}
+            </div>
+        {/if}
         <div class="dice-result">
             <div class="dice-formula">
                 {diceData.numDice}d{diceData.numSides}{diceData.modifier !== 0
@@ -35,6 +40,15 @@
 <style>
     .dice-entry-content {
         font-size: 0.9rem;
+    }
+
+    .check-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid var(--border-primary);
     }
 
     .dice-result {

@@ -6,8 +6,14 @@
 
     export let hasSecondarySidebar = false;
     export let hasTertiarySidebar = false;
+    export let diceRollPreset: any = null;
 
     let showOracle = false;
+
+    // Automatically open oracle when preset is provided
+    $: if (diceRollPreset && !showOracle) {
+        showOracle = true;
+    }
 
     function toggleOracle() {
         showOracle = !showOracle;
@@ -40,8 +46,10 @@
 
 {#if showOracle}
     <GameOracle 
+        {diceRollPreset}
         on:close={closeOracle}
         on:navigateToStory={handleNavigateToStory}
+        on:clearPreset
     />
 {/if}
 
