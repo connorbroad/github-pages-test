@@ -656,9 +656,9 @@
     .group-filter {
         margin-bottom: 1.5rem;
         padding: 1rem;
-        background: #f9fafb;
+        background: var(--bg-secondary);
         border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-primary);
         flex-shrink: 0;
         position: relative;
         display: flex;
@@ -678,7 +678,7 @@
         -webkit-overflow-scrolling: touch;
         /* Hide scrollbar for cleaner look on desktop */
         scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 #f9fafb;
+        scrollbar-color: var(--border-secondary) var(--bg-secondary);
         /* Ensure content doesn't get cut off */
         padding-bottom: 0.25rem;
     }
@@ -688,17 +688,17 @@
     }
 
     .filter-buttons::-webkit-scrollbar-track {
-        background: #f9fafb;
+        background: var(--bg-secondary);
         border-radius: 3px;
     }
 
     .filter-buttons::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: var(--border-secondary);
         border-radius: 3px;
     }
 
     .filter-buttons::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: var(--text-muted);
     }
 
     .scroll-btn {
@@ -706,13 +706,13 @@
         width: 2rem;
         height: 2rem;
         padding: 0;
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 2px solid var(--border-primary);
         border-radius: 50%;
         cursor: pointer;
         font-size: 1.25rem;
         font-weight: bold;
-        color: #374151;
+        color: var(--text-secondary);
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
@@ -721,9 +721,9 @@
     }
 
     .scroll-btn:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
-        color: #3b82f6;
+        border-color: var(--accent-primary);
+        background: var(--bg-tertiary);
+        color: var(--accent-primary);
     }
 
     .scroll-btn:active {
@@ -753,26 +753,26 @@
 
     .filter-btn {
         padding: 0.5rem 1rem;
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 2px solid var(--border-primary);
         border-radius: 6px;
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 500;
-        color: #374151;
+        color: var(--text-secondary);
         transition: all 0.2s ease;
         white-space: nowrap;
     }
 
     .filter-btn:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
+        border-color: var(--accent-primary);
+        background: var(--bg-tertiary);
     }
 
     .filter-btn.active {
-        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-        color: white;
-        border-color: #3b82f6;
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-info) 100%);
+        color: var(--text-inverse);
+        border-color: var(--accent-primary);
         box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
     }
 
@@ -817,10 +817,10 @@
         flex-direction: column;
         align-items: center;
         text-align: center; 
-        background: white;
-        border: 1px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
         border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px var(--shadow-sm);
         transition: all 0.2s ease;
         width: 100%;
         min-height: 120px;
@@ -828,7 +828,7 @@
 
     .character-title {
         margin: 0 0 0 0;
-        color: #111827;
+        color: var(--text-primary);
         font-size: 1.25rem;
         display: flex;
         align-items: center;
@@ -839,7 +839,7 @@
 
     .character-summary p {
         margin: 0.25rem 0;
-        color: #6b7280;
+        color: var(--text-muted);
         font-size: 0.875rem;
         text-align: center;
     }
@@ -847,18 +847,18 @@
     .hp-bar {
         margin-top: 0.5rem;
         padding-top: 0.5rem;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--border-primary);
     }
 
     .hp-bar span {
         font-weight: 600;
-        color: #111827;
+        color: var(--text-primary);
     }
 
     .empty-state {
         text-align: center;
         padding: 3rem 1rem;
-        color: #6b7280;
+        color: var(--text-muted);
     }
 
     .empty-state p {
@@ -873,7 +873,7 @@
     .modal-content h2 {
         margin-top: 0;
         margin-bottom: 1rem;
-        color: #111827;
+        color: var(--text-primary);
     }
 
     .modal-content label {
@@ -881,7 +881,7 @@
         font-weight: 600;
         margin-bottom: 0.5rem;
         margin-top: 1rem;
-        color: #374151;
+        color: var(--text-secondary);
     }
 
     .modal-content label:first-of-type {
@@ -891,9 +891,11 @@
     .modal-content input {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 1rem;
+        background: var(--input-bg);
+        color: var(--input-text);
     }
 
     .modal-content button {
@@ -921,8 +923,8 @@
 
     .tag-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-success) 0%, var(--accent-success-hover) 100%);
+        color: var(--text-inverse);
         font-size: 0.75rem;
         font-weight: 600;
         padding: 0.25rem 0.625rem;

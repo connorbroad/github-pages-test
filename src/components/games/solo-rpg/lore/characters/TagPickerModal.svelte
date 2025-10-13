@@ -146,9 +146,11 @@
         flex: 1;
         min-width: 150px;
         padding: 0.5rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 1rem;
+        background: var(--input-bg);
+        color: var(--input-text);
     }
 
     .custom-tag-input button {

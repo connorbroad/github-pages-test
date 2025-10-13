@@ -183,15 +183,35 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
   - ✅ All entry types readable in both themes
   - ✅ No errors in any Chronicle components
 
-### Phase 9: Character Components ⏳
-- [ ] Update `lore/characters/CharacterManager.svelte`
-- [ ] Update `lore/characters/CharacterSheet.svelte`
-- [ ] Update `lore/characters/CharacterSheetSection.svelte`
-- [ ] Update `lore/characters/CharacterSheetControls.svelte`
-- [ ] Update `lore/characters/SectionPickerModal.svelte`
-- [ ] Update `lore/characters/TagPickerModal.svelte`
-- [ ] Test character sheet in both themes
-- [ ] Test character creation/editing in both themes
+### Phase 9: Character Components ✅ COMPLETE
+- [x] Update `lore/characters/CharacterManager.svelte`
+  - Filter buttons and group filter themed
+  - Character cards use theme variables
+  - Tag badges use success gradient
+  - Modal content properly themed
+  - Scrollbar colors use theme variables
+- [x] Update `lore/characters/CharacterSheet.svelte`
+  - Subsection headers use theme colors
+  - Ability and skill cards use gradients with theme variables
+  - Card hover effects properly themed
+  - Badge styles use accent colors
+  - All text colors use theme variables
+- [x] Update `lore/characters/CharacterSheetSection.svelte`
+  - Section background and borders themed
+  - Section headers use theme colors
+  - Edit button hover states use theme variables
+- [x] Update `lore/characters/CharacterSheetControls.svelte`
+  - Already inherits theme from parent (no hardcoded colors)
+- [x] Update `lore/characters/SectionPickerModal.svelte`
+  - Already inherits theme from SrpgModal (no hardcoded colors)
+- [x] Update `lore/characters/TagPickerModal.svelte`
+  - Input fields use theme variables
+  - Already inherits theme from SrpgModal
+- [x] Test character sheet in both themes
+  - ✅ All character components properly themed
+- [x] Test character creation/editing in both themes
+  - ✅ Forms and modals readable in both themes
+  - ✅ No errors in any character components
 
 ### Phase 10: Codex & Map ⏳
 - [ ] Update `lore/codex/Codex.svelte`
@@ -253,13 +273,13 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 76/150+
-- **Phase 1-8 (Foundation through Chronicle):** 76/76 ✅
-- **Phase 9-11 (Character, Codex, Map, & Shared Components):** 0/46+ ⏳
+- **Total Tasks:** 84/150+
+- **Phase 1-9 (Foundation through Character):** 84/84 ✅
+- **Phase 10-11 (Codex, Map, & Shared Components):** 0/38+ ⏳
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳
 
-**Current Status:** Phases 1-8 complete! Foundation, views, data/game management, Oracle, and ALL Chronicle/Story components are themed. Next: Character components.
+**Current Status:** Phases 1-9 complete! Foundation, views, data/game management, Oracle, Chronicle/Story, and ALL Character components are themed. Next: Codex & Map components.
 
 **Legend:** ⏳ = Not Started | 🔄 = In Progress | ✅ = Complete
 

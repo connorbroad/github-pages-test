@@ -48,16 +48,16 @@
         position: relative;
         margin-bottom: 1.5rem;
         padding: 1.5rem;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px var(--shadow-sm);
         transition: all 0.2s ease;
     }
 
     .srpg-section:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-        border-color: #cbd5e1;
+        box-shadow: 0 2px 6px var(--shadow-md);
+        border-color: var(--border-secondary);
     }
 
     .section-header {
@@ -66,20 +66,20 @@
         justify-content: space-between;
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
-        border-bottom: 2px solid #e2e8f0;
+        border-bottom: 2px solid var(--border-primary);
     }
 
     .section-header h2 {
         margin: 0;
         font-size: 1.5rem;
         font-weight: 600;
-        color: #1e293b;
+        color: var(--text-primary);
     }
 
     .section-edit-btn {
         padding: 0.5rem;
         background: transparent;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border-primary);
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -91,17 +91,17 @@
     .section-edit-btn svg {
         width: 1rem;
         height: 1rem;
-        color: #64748b;
+        color: var(--text-muted);
         transition: color 0.2s ease;
     }
 
     .section-edit-btn:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
+        background: var(--bg-tertiary);
+        border-color: var(--border-secondary);
     }
 
     .section-edit-btn:hover svg {
-        color: #3b82f6;
+        color: var(--accent-primary);
     }
 
     .section-edit-btn:active {

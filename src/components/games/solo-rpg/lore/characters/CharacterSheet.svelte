@@ -1357,7 +1357,7 @@
         margin: 0;
         font-size: 1.25rem;
         font-weight: 600;
-        color: #334155;
+        color: var(--text-primary);
     }
 
     @media (min-width: 768px) {
@@ -1430,12 +1430,12 @@
     /* Shared Card Styles */
     .ability-card,
     .skill-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-        border: 1px solid #e5e7eb;
+        background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
+        border: 1px solid var(--border-primary);
         border-radius: 12px;
         padding: 1.25rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px var(--shadow-sm);
         position: relative;
         overflow: hidden;
     }
@@ -1450,9 +1450,9 @@
         height: 3px;
         background: linear-gradient(
             90deg,
-            #3b82f6 0%,
-            #6366f1 50%,
-            #8b5cf6 100%
+            var(--accent-primary) 0%,
+            var(--accent-info) 50%,
+            var(--accent-info-hover) 100%
         );
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -1461,8 +1461,8 @@
     .ability-card:hover,
     .skill-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        border-color: #d1d5db;
+        box-shadow: 0 8px 25px var(--shadow-md);
+        border-color: var(--border-secondary);
     }
 
     .ability-card:hover::before,
@@ -1476,7 +1476,7 @@
         margin: 0 0 0.75rem 0;
         font-size: 1.125rem;
         font-weight: 600;
-        color: #111827;
+        color: var(--text-primary);
         text-align: center;
         letter-spacing: -0.025em;
     }
@@ -1525,12 +1525,12 @@
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 500;
-        color: #374151;
+        color: var(--text-secondary);
         transition: color 0.2s ease;
     }
 
     .proficiency-checkbox:hover {
-        color: #111827;
+        color: var(--text-primary);
     }
 
     .proficiency-checkbox input[type="checkbox"] {
@@ -1538,7 +1538,7 @@
         margin: 0;
         cursor: pointer;
         transform: scale(1.1);
-        accent-color: #3b82f6;
+        accent-color: var(--accent-primary);
     }
 
     /* Remove Button Styles */
@@ -1565,7 +1565,7 @@
         font-size: 0.9375rem;
         padding: 0.375rem 0;
         min-height: auto;
-        color: #374151;
+        color: var(--text-secondary);
     }
 
     .skill-display {
@@ -1578,7 +1578,7 @@
     .skill-ability {
         margin: 0;
         font-size: 0.8125rem;
-        color: #6b7280;
+        color: var(--text-muted);
         font-weight: 500;
         letter-spacing: 0.025em;
     }
@@ -1595,21 +1595,21 @@
     .skill-bonus {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #374151;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: var(--text-secondary);
+        background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
         padding: 0.375rem 0.75rem;
         border-radius: 8px;
         min-width: 3rem;
         text-align: center;
-        border: 1px solid #cbd5e1;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-secondary);
+        box-shadow: 0 1px 2px var(--shadow-sm);
         letter-spacing: -0.025em;
     }
 
     /* Badge Improvements */
     .srpg-badge {
-        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-info) 100%);
+        color: var(--text-inverse);
         font-size: 0.75rem;
         font-weight: 600;
         padding: 0.25rem 0.5rem;
