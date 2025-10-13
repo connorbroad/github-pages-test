@@ -375,13 +375,13 @@
 <style>
     h2 {
         margin-top: 0;
-        color: #333;
+        color: var(--text-primary);
     }
 
     h3 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #555;
+        color: var(--text-secondary);
         font-size: 1.1rem;
     }
 
@@ -394,16 +394,23 @@
         display: block;
         margin-bottom: 0.25rem;
         font-weight: 500;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     .form-group input[type="text"] {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #ccc;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 1rem;
         box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+    }
+
+    .form-group input[type="text"]:focus {
+        outline: none;
+        border-color: var(--input-border-focus);
     }
 
     .fortune-outcome-options { 
@@ -419,12 +426,12 @@
     .dice-config select {
         flex: 1;
         padding: 0.6rem 1rem;
-        border: 1.5px solid #1976d2;
+        border: 1.5px solid var(--accent-primary);
         border-radius: 8px;
-        background: #f8faff;
+        background: var(--input-bg);
         font-size: 1.05rem;
-        color: #333;
-        box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+        color: var(--input-text);
+        box-shadow: 0 1px 4px var(--shadow-sm);
         transition:
             border-color 0.2s,
             box-shadow 0.2s;
@@ -432,14 +439,14 @@
 
     .dice-config select:focus {
         outline: none;
-        border-color: #1565c0;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
-        background: #e3f2fd;
+        border-color: var(--accent-primary-hover);
+        box-shadow: 0 0 0 2px var(--shadow-md);
+        background: var(--bg-secondary);
     }
 
     .divider {
         border: none;
-        border-top: 1px solid #ccc;
+        border-top: 1px solid var(--divider);
         margin: 1rem 0;
     }
 
@@ -452,12 +459,12 @@
     .mapping-section h3 {
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
-        color: #1976d2;
+        color: var(--accent-primary);
     }
 
     .section-description {
         font-size: 0.9rem;
-        color: #666;
+        color: var(--text-secondary);
         margin: 0 0 0.5rem 0;
         font-style: italic;
     }
@@ -473,11 +480,11 @@
         grid-template-columns: 80px 1fr;
         gap: 0.75rem;
         padding: 0.5rem;
-        background: #f0f0f0;
+        background: var(--bg-secondary);
         border-radius: 4px;
         font-weight: 600;
         font-size: 0.9rem;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     .mapping-row {
@@ -493,9 +500,9 @@
         font-size: 1.1rem;
         text-align: center;
         padding: 0.5rem;
-        background: #f5f5f5;
+        background: var(--bg-secondary);
         border-radius: 4px;
-        color: #333;
+        color: var(--text-primary);
     }
 
     .suit-symbol {
@@ -505,16 +512,18 @@
     .mapping-input {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #ccc;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 1rem;
         box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--input-text);
     }
 
     .mapping-input:focus {
         outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+        border-color: var(--input-border-focus);
+        box-shadow: 0 0 0 2px var(--shadow-md);
     }
 
     .mapping-col-result,

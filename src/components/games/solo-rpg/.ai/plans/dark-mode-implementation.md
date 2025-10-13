@@ -98,18 +98,47 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
   - ✅ Buttons use global button classes (already themed)
   - ✅ No errors in any game management components
 
-### Phase 7: Oracle Components ⏳
-- [ ] Update `oracle/GameOracle.svelte`
-- [ ] Update `oracle/components/FortuneList.svelte`
-- [ ] Update `oracle/components/FortuneEditor.svelte`
-- [ ] Update `oracle/components/FateConsultation.svelte`
-- [ ] Update `oracle/components/dice-roller/DiceRoller.svelte`
-- [ ] Update `oracle/components/dice-roller/DiceRollerEmbed.svelte`
-- [ ] Update dice roller sub-components (DiceIcon, DiceDisplay, ResultOptionIcon)
-- [ ] Update `oracle/components/card-dealer/CardDealer.svelte`
-- [ ] Test dice visuals in both themes
-- [ ] Test card visuals in both themes
-- [ ] Test fortune tables in both themes
+### Phase 7: Oracle Components ✅ COMPLETE
+- [x] Update `oracle/GameOracle.svelte`
+  - Sticky header background uses `var(--bg-primary)`
+  - Nav buttons use theme variables for background, text, borders
+  - Active nav button uses `var(--accent-primary)`
+  - Section titles and borders properly themed
+  - Fortune list container uses `var(--card-bg)`
+  - No fortunes message uses `var(--text-muted)` and `var(--bg-secondary)`
+- [x] Update `oracle/components/FortuneList.svelte`
+  - Fortune cards use `var(--card-bg)` and `var(--card-border)`
+  - Card hover effects use theme variables
+  - Drag handle and delete icon properly themed
+  - Drag states use CSS classes instead of inline styles
+  - Empty message uses `var(--text-muted)`
+- [x] Update `oracle/components/FortuneEditor.svelte`
+  - Headers and labels use theme variables
+  - Input fields properly themed with focus states
+  - Dice config selects use accent colors
+  - Mapping sections use theme variables
+  - Dividers use `var(--divider)`
+- [x] Update `oracle/components/FateConsultation.svelte`
+  - Headers and sections use theme variables
+  - Card display uses `var(--bg-secondary)`
+  - Result display uses success theme variables
+  - Significance items use `var(--text-secondary)` and `var(--accent-primary)`
+- [x] Update `oracle/components/dice-roller/DiceRoller.svelte`
+  - Dice options selects properly themed with focus states
+  - Result radio group uses theme variables
+  - Checked state uses `var(--accent-primary)`
+  - Disabled states use muted colors
+- [x] Update `oracle/components/card-dealer/CardDealer.svelte`
+  - Card chips use `var(--bg-secondary)` and borders
+  - Red suits use `var(--accent-danger)` via CSS class
+  - Dividers use `var(--divider)`
+- [x] Test dice visuals in both themes
+  - ✅ All dice controls properly themed
+- [x] Test card visuals in both themes
+  - ✅ Cards and suits properly colored
+- [x] Test fortune tables in both themes
+  - ✅ Fortune lists, editors, and fate consultation themed
+  - ✅ No errors in any Oracle components
 
 ### Phase 8: Chronicle/Story Components ⏳
 - [ ] Update `lore/StoryView.svelte`
@@ -195,13 +224,13 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 44/150+
-- **Phase 1-6 (Foundation, Views, Data, & Game Management):** 44/44 ✅
-- **Phase 7-11 (Oracle, Story, Character, Codex, Map, & Shared Components):** 0/67+ ⏳
+- **Total Tasks:** 53/150+
+- **Phase 1-7 (Foundation through Oracle):** 53/53 ✅
+- **Phase 8-11 (Story, Character, Codex, Map, & Shared Components):** 0/58+ ⏳
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳
 
-**Current Status:** Phases 1-6 complete! Foundation, core views, data management, and game management components are all themed. Next: Oracle components.
+**Current Status:** Phases 1-7 complete! Foundation, views, data/game management, and ALL Oracle components are themed. Next: Chronicle/Story components.
 
 **Legend:** ⏳ = Not Started | 🔄 = In Progress | ✅ = Complete
 

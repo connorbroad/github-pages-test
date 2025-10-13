@@ -233,13 +233,13 @@
 <style>  
     h2 {
         margin-top: 0;
-        color: #333;
+        color: var(--text-primary);
     }
 
     h3 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #555;
+        color: var(--text-secondary);
         font-size: 1.1rem;
     }
 
@@ -247,7 +247,7 @@
         margin-bottom: 1.5rem;
         padding: 0.5rem;
         border-radius: 6px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-primary);
     }
 
     .card-draw-result {
@@ -259,7 +259,7 @@
         font-size: 1.2rem;
         font-weight: bold;
         border-radius: 4px;
-        background: #f0f0f0;
+        background: var(--bg-secondary);
         padding: 0.5rem 1rem;
     }
 
@@ -271,26 +271,26 @@
     .result-display {
         margin-top: 0.5rem;
         padding: 1rem;
-        background: #e8f5e9;
+        background: var(--success-bg);
         border-radius: 6px;
-        border: 2px solid #4caf50;
+        border: 2px solid var(--success);
     }
 
     .result-display strong {
         font-size: 1.2rem;
-        color: #2e7d32;
+        color: var(--success-text);
     }
 
     .outcome-text {
         margin: 0;
-        color: #333;
+        color: var(--text-primary);
         text-align: left;
     }
 
     .dice-significance {
         margin-top: 0.75rem;
         padding-top: 0.75rem;
-        border-top: 1px solid #4caf50;
+        border-top: 1px solid var(--success);
     }
 
     .dice-significance:first-child {
@@ -301,13 +301,13 @@
 
     .significance-item {
         margin: 0.25rem 0;
-        color: #555;
+        color: var(--text-secondary);
         font-size: 0.95rem;
         text-align: left;
     }
 
     .significance-item strong {
-        color: #1976d2;
+        color: var(--accent-primary);
         font-size: 1rem;
     }
 </style>

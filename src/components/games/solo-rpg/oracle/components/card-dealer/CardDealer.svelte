@@ -110,7 +110,7 @@
                 <div class="drawn-cards">
                     <div class="cards-list">
                         {#each drawn as card}
-                            <span class="card-chip" style="color: {card.suit === 'heart' || card.suit === 'diamond' ? '#e11d48' : 'inherit'}">
+                            <span class="card-chip" class:red-suit={card.suit === 'heart' || card.suit === 'diamond'}>
                                 {card.rank}
                                 <span class="suit-icon" aria-hidden="true">
                                     {#if card.suit === 'spade'}
@@ -179,11 +179,15 @@
         gap: 0.35rem;
         padding: 0.4rem 0.7rem;
         border-radius: 999px;
-        background: #f3f4f6;
-        border: 1px solid #e5e7eb;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
         font-size: 0.95rem;
         margin: 0.2rem;
         min-width: 48px;
+        color: var(--text-primary);
+    }
+    .card-chip.red-suit {
+        color: var(--accent-danger);
     }
     .suit-icon { display: inline-flex; }
 
@@ -196,7 +200,7 @@
     }
     .divider {
         border: none;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--divider);
         margin: 1rem 0;
     }
 </style>

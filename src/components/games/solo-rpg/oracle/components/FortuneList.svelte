@@ -164,15 +164,8 @@
                 on:dragover={(e) =>
                     handleDragOver(fortune.campaign || '', fortune.id, e)}
                 on:drop={() => handleDrop(fortune.campaign || '', fortune.id)}
-                style="outline: {draggedFortuneId === fortune.id
-                    ? '2px dashed #3d5d82'
-                    : dragOverFortuneId === fortune.id
-                      ? '2px solid #4caf50'
-                      : touchDraggedId === fortune.id
-                        ? '2px dashed #3d5d82'
-                        : touchDragOverId === fortune.id
-                          ? '2px solid #4caf50'
-                          : 'none'};"
+                class:dragging={draggedFortuneId === fortune.id || touchDraggedId === fortune.id}
+                class:drag-over={dragOverFortuneId === fortune.id || touchDragOverId === fortune.id}
             >
                 <div class="fortune-card-header">
                     {#if allowReorder}
@@ -276,7 +269,7 @@
 
     .empty-message {
         text-align: center;
-        color: #999;
+        color: var(--text-muted);
         font-style: italic;
     }
 
@@ -288,8 +281,8 @@
             transform 0.2s ease,
             box-shadow 0.2s ease,
             opacity 0.15s ease;
-        border: 1.5px solid #e0e5eb;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+        border: 1.5px solid var(--card-border);
+        background: var(--card-bg);
         overflow: hidden;
     }
 
@@ -300,15 +293,15 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #4a5d7a 0%, #6b7fa8 50%, #4a5d7a 100%);
+        background: var(--accent-primary);
         opacity: 0.4;
         transition: opacity 0.2s ease;
     }
 
     .fortune-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(61, 93, 130, 0.12);
-        border-color: #c5cdd8;
+        box-shadow: 0 4px 16px var(--shadow-md);
+        border-color: var(--border-secondary);
     }
 
     .fortune-card:hover::before {
@@ -318,6 +311,14 @@
     .fortune-card[data-dragging="true"] {
         opacity: 0.5;
         transform: scale(0.98);
+    }
+
+    .fortune-card.dragging {
+        outline: 2px dashed var(--accent-primary);
+    }
+
+    .fortune-card.drag-over {
+        outline: 2px solid var(--accent-success);
     }
 
     .fortune-card-header {
@@ -331,7 +332,7 @@
     .drag-handle {
         cursor: grab;
         user-select: none;
-        color: #6b7fa8;
+        color: var(--text-secondary);
         transition: color 0.2s, transform 0.1s, background 0.2s;
         padding: 0.25rem;
         border-radius: 6px;
@@ -342,8 +343,8 @@
     }
 
     .drag-handle:hover {
-        color: #4a5d7a;
-        background: rgba(61,93,130,0.08);
+        color: var(--text-primary);
+        background: var(--bg-secondary);
         opacity: 1;
     }
 
@@ -353,7 +354,7 @@
     }
 
     .delete-icon {
-        color: #9ca3af;
+        color: var(--text-muted);
         transition: color 0.15s, background 0.15s, transform 0.05s;
         border-radius: 6px;
         padding: 0.25rem;
@@ -367,8 +368,8 @@
     }
     
     .delete-icon:hover { 
-        color: #ef4444; 
-        background: rgba(239,68,68,0.08); 
+        color: var(--accent-danger);
+        background: var(--danger-bg);
         opacity: 1;
     }
     
@@ -390,7 +391,7 @@
     }
 
     .fortune-card-content:hover {
-        background: rgba(74, 93, 122, 0.03);
+        background: var(--bg-secondary);
     }
 
     .fortune-card-content:active {
