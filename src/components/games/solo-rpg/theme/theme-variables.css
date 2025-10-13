@@ -34,10 +34,10 @@
     --accent-primary-active: #0d47a1;
 
     /* Accent Colors - Success (Green) */
-    --accent-success: #10b981;
-    --accent-success-hover: #059669;
-    --accent-success-active: #047857;
-    --success: #10b981;
+    --accent-success: #059669;
+    --accent-success-hover: #047857;
+    --accent-success-active: #065f46;
+    --success: #059669;
     --success-bg: #d1fae5;
     --success-text: #065f46;
 
@@ -54,7 +54,7 @@
     --accent-warning-hover: #d97706;
     --accent-warning-active: #b45309;
     --warning: #f59e0b;
-        --warning-light: #fbbf24;
+    --warning-light: #fbbf24;
 
     /* Accent Colors - Info (Indigo) */
     --accent-info: #6366f1;
@@ -91,11 +91,11 @@
     --divider: #e0e0e0;
     --disabled-opacity: 0.5;
     /* Simple Button Colors */
-        --button-simple-bg: #e8eaf0;
-        --button-simple-border: #c5cad6;
-        --button-simple-text: #4a5568;
-        --button-simple-hover-bg: #d4d8e3;
-        --button-simple-hover-border: #a0a8b8;
+    --button-simple-bg: #e8eaf0;
+    --button-simple-border: #c5cad6;
+    --button-simple-text: #4a5568;
+    --button-simple-hover-bg: #d4d8e3;
+    --button-simple-hover-border: #a0a8b8;
 }
 
 [data-theme="dark"] {
@@ -129,10 +129,10 @@
     --accent-primary-active: #2196f3;
 
     /* Accent Colors - Success (Green) - Lighter for dark mode */
-    --accent-success: #4ade80;
-    --accent-success-hover: #6ee7b7;
-    --accent-success-active: #34d399;
-    --success: #4ade80;
+    --accent-success: #22c55e;
+    --accent-success-hover: #4ade80;
+    --accent-success-active: #16a34a;
+    --success: #22c55e;
     --success-bg: #064e3b;
     --success-text: #6ee7b7;
 
@@ -149,7 +149,7 @@
     --accent-warning-hover: #fcd34d;
     --accent-warning-active: #f59e0b;
     --warning: #fbbf24;
-        --warning-light: #fcd34d;
+    --warning-light: #fcd34d;
 
     /* Accent Colors - Info (Indigo) - Lighter for dark mode */
     --accent-info: #818cf8;
@@ -186,9 +186,9 @@
     --divider: #404040;
     --disabled-opacity: 0.4;
     /* Simple Button Colors */
-        --button-simple-bg: #3a3f4a;
-        --button-simple-border: #4a5568;
-        --button-simple-text: #cbd5e0;
-        --button-simple-hover-bg: #4a5568;
-        --button-simple-hover-border: #5a6678;
+    --button-simple-bg: #3a3f4a;
+    --button-simple-border: #4a5568;
+    --button-simple-text: #cbd5e0;
+    --button-simple-hover-bg: #4a5568;
+    --button-simple-hover-border: #5a6678;
 }
