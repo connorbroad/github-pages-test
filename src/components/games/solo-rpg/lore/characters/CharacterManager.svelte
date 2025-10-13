@@ -233,6 +233,11 @@
         handleToggleSection({ detail: section } as CustomEvent<string>);
     }
 
+    // Expose method to reset view back to character list
+    export function resetToList() {
+        backToList();
+    }
+
     function toggleSectionInclusion(sectionId: string) {
         if (!selectedCharacter) return;
         

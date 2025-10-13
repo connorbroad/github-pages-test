@@ -40,6 +40,13 @@
         }
     }
 
+    // Expose method to reset character view back to list
+    export function resetCharacterView() {
+        if (characterManagerComponent && characterManagerComponent.resetToList) {
+            characterManagerComponent.resetToList();
+        }
+    }
+
     // Expose method to reload chronicle entries
     export function reloadChronicle() {
         if (chronicleComponent && chronicleComponent.reloadEntries) {

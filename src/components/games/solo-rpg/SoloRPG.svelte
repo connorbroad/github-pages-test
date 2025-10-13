@@ -113,6 +113,13 @@
         // Clear tertiary sidebar when switching tabs
         if (tab !== "characters") {
             showTertiarySidebar = false;
+        } else {
+            // When switching to characters tab, reset to the character list view
+            setTimeout(() => {
+                if (storyViewComponent && storyViewComponent.resetCharacterView) {
+                    storyViewComponent.resetCharacterView();
+                }
+            }, 0);
         }
     }
 
