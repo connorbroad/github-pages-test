@@ -3,9 +3,9 @@
 ## Implementation Progress
 
 ### Status: In Progress
-**Last Updated:** October 13, 2025 - Completed Phase 1  
-**Current Phase:** Phase 1 - Data Model (COMPLETE)  
-**Estimated Completion:** 17% (1/6 phases)
+**Last Updated:** October 13, 2025 - Completed Phase 2  
+**Current Phase:** Phase 2 - Character Sheet UI (COMPLETE)  
+**Estimated Completion:** 33% (2/6 phases)
 
 ### Phase Completion Checklist
 
@@ -16,14 +16,14 @@
 - [x] Added migration logic for existing characters (N/A - optional fields are backward compatible)
 - [x] Tested data model changes
 
-#### ✅ Phase 2: Character Sheet UI (Not Started)
-- [ ] Added dice formula input to ability edit form
-- [ ] Added dice formula input to skill edit form
-- [ ] Added roll buttons to read-only ability cards
-- [ ] Added roll buttons to read-only skill cards
-- [ ] Implemented advantage/disadvantage buttons
-- [ ] Added event dispatchers for roll actions
-- [ ] Tested UI changes in edit and read modes
+#### ✅ Phase 2: Character Sheet UI (COMPLETE)
+- [x] Added dice formula input to ability edit form
+- [x] Added dice formula input to skill edit form
+- [x] Added roll buttons to read-only ability cards
+- [x] Added roll buttons to read-only skill cards
+- [x] Implemented advantage/disadvantage buttons
+- [x] Added event dispatchers for roll actions
+- [x] Tested UI changes in edit and read modes
 
 #### ✅ Phase 3: Integration Layer (Not Started)
 - [ ] Updated character sheet container to handle roll events
@@ -67,6 +67,14 @@
     - `Maximum` = advantage (roll 2d20, take max)
     - `Minimum` = disadvantage (roll 2d20, take min)
   - Merged `abilityName` and `skillName` into single `checkName` field for flexibility and simplicity
+- **Phase 2 Complete:** Character Sheet UI updated with dice formula inputs and roll buttons
+  - Added `Character.abilityCheckDice` and `Character.skillCheckDice` fields at character level
+  - Single dice formula applies to ALL abilities, another for ALL skills
+  - Roll buttons use individual ability/skill modifiers with shared dice formula
+  - Roll buttons show "Roll", "Adv", and "Dis" for d20 systems
+  - Dice formula input accepts any format (e.g., "1d20", "2d6", etc.)
+  - Event dispatches `rollCheck` with: checkName, diceFormula, modifier, resultOption
+  - Design change: Moved from per-ability/skill dice formulas to character-level formulas for simplicity
 
 ---
 
@@ -86,29 +94,15 @@ As a player, I want to:
 
 #### File: `src/components/games/solo-rpg/data/storage-utils.ts`
 
-**Add to `Ability` interface:**
+**Add to `Character` interface:**
 ```typescript
-export type Ability = {
-    id: string;
-    name: string;
-    score: number;
-    modifier: number;
-    proficient: boolean;
-    // NEW FIELDS:
-    diceRoll?: string; // e.g., "1d20" or "2d6" - the dice formula to roll
-};
-```
-
-**Add to `Skill` interface:**
-```typescript
-export type Skill = {
-    id: string;
-    name: string;
-    abilityId: string;
-    proficient: boolean;
-    bonus: number;
-    // NEW FIELDS:
-    diceRoll?: string; // e.g., "1d20" - the dice formula to roll
+export type Character = {
+    // ...existing fields...
+    abilities: Ability[];
+    skills: Skill[];
+    abilityCheckDice?: string; // Dice formula for all ability checks (e.g., "1d20")
+    skillCheckDice?: string; // Dice formula for all skill checks (e.g., "1d20")
+    // ...rest of fields...
 };
 ```
 
@@ -121,32 +115,11 @@ export type DiceRollData = {
     resultOption: "Sum" | "Maximum" | "Minimum" | "Subtract";
     result: number;
     individualDiceResults: number[];
-    // NEW FIELDS:
-    rollType?: "ability" | "skill" | "advantage" | "disadvantage"; // Context for the roll
-    abilityName?: string; // Name of ability if this was an ability check
-    skillName?: string; // Name of skill if this was a skill check
+    checkName?: string; // Name of the check being rolled (e.g., "Strength", "Perception")
 };
 ```
 
-**Add to `ChronicleEntry` interface:**
-```typescript
-export type ChronicleEntry = {
-    id: string;
-    campaignId: string;
-    chapterId?: string;
-    timestamp: number;
-    type: "manual" | "fortune" | "dice" | "cards";
-    content: string;
-    fortuneId?: string;
-    fortuneData?: FortuneResultData;
-    diceData?: DiceRollData;
-    cardsData?: CardsDrawData;
-    userNotes?: string;
-    characterId?: string;
-    // NEW FIELD (already covered by diceData changes):
-    // The diceData.abilityName or diceData.skillName will provide context
-};
-```
+**Note:** Ability and Skill interfaces remain unchanged. Dice formulas are stored at the Character level, not per ability/skill.
 
 ### 2. Character Sheet UI Updates
 

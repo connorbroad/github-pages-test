@@ -55,7 +55,6 @@ export type Ability = {
     score: number;
     modifier: number;
     proficient: boolean;
-    diceRoll?: string; // e.g., "1d20" or "2d6" - the dice formula to roll for this ability check
 };
 
 export type Skill = {
@@ -64,7 +63,6 @@ export type Skill = {
     abilityId: string; // Reference to the associated ability
     proficient: boolean;
     bonus: number;
-    diceRoll?: string; // e.g., "1d20" - the dice formula to roll for this skill check
 };
 
 export type Character = {
@@ -84,6 +82,8 @@ export type Character = {
     // Abilities
     abilities: Ability[];
     skills: Skill[];
+    abilityCheckDice?: string; // Dice formula for all ability checks (e.g., "1d20")
+    skillCheckDice?: string; // Dice formula for all skill checks (e.g., "1d20")
     // Combat Stats
     armorClass?: number;
     initiative?: number;

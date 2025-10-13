@@ -367,6 +367,26 @@
         dispatch("cancel");
     }
 
+    function rollAbility(ability: Ability, resultOption: "Sum" | "Maximum" | "Minimum") {
+        const diceFormula = editedCharacter.abilityCheckDice || "1d20";
+        dispatch("rollCheck", {
+            checkName: ability.name,
+            diceFormula,
+            modifier: ability.modifier,
+            resultOption
+        });
+    }
+
+    function rollSkill(skill: Skill, resultOption: "Sum" | "Maximum" | "Minimum") {
+        const diceFormula = editedCharacter.skillCheckDice || "1d20";
+        dispatch("rollCheck", {
+            checkName: skill.name,
+            diceFormula,
+            modifier: skill.bonus,
+            resultOption
+        });
+    }
+
     function getAbilityName(abilityId: string): string {
         const ability = editedCharacter.abilities.find(
             (a) => a.id === abilityId,
@@ -799,6 +819,19 @@
                         </div>
                     {/if}
 
+                    {#if isAbilitiesEditable}
+                        <div class="dice-formula-input">
+                            <label for="abilityCheckDice">Ability Check Dice Formula</label>
+                            <input
+                                type="text"
+                                id="abilityCheckDice"
+                                bind:value={editedCharacter.abilityCheckDice}
+                                placeholder="e.g., 1d20"
+                            />
+                            <p class="input-help">This dice formula will be used for all ability checks</p>
+                        </div>
+                    {/if}
+
                     {#if editedCharacter.abilities.length > 0}
                         <div class="abilities-grid">
                             {#each editedCharacter.abilities as ability}
@@ -926,6 +959,38 @@
                                                 >
                                             {/if}
                                         </div>
+                                        {#if editedCharacter.abilityCheckDice}
+                                            <div class="roll-buttons">
+                                                <button
+                                                    class="srpg-b srpg-b-sm srpg-b-normal roll-btn"
+                                                    on:click={() => rollAbility(ability, "Sum")}
+                                                    title="Roll {ability.name} check"
+                                                >
+                                                    <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <rect x="4" y="4" width="16" height="16" rx="3"/>
+                                                        <circle cx="9" cy="9" r="1.5" fill="currentColor"/>
+                                                        <circle cx="15" cy="15" r="1.5" fill="currentColor"/>
+                                                    </svg>
+                                                    Roll
+                                                </button>
+                                                {#if editedCharacter.abilityCheckDice === "1d20"}
+                                                    <button
+                                                        class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
+                                                        on:click={() => rollAbility(ability, "Maximum")}
+                                                        title="Roll with advantage"
+                                                    >
+                                                        Adv
+                                                    </button>
+                                                    <button
+                                                        class="srpg-b srpg-b-sm srpg-b-simple roll-btn-dis"
+                                                        on:click={() => rollAbility(ability, "Minimum")}
+                                                        title="Roll with disadvantage"
+                                                    >
+                                                        Dis
+                                                    </button>
+                                                {/if}
+                                            </div>
+                                        {/if}
                                     {/if}
                                 </div>
                             {/each}
@@ -983,6 +1048,19 @@
                                     </svg>
                                     Use Template
                                 </button>
+                            </div>
+                        {/if}
+
+                        {#if isAbilitiesEditable}
+                            <div class="dice-formula-input">
+                                <label for="skillCheckDice">Skill Check Dice Formula</label>
+                                <input
+                                    type="text"
+                                    id="skillCheckDice"
+                                    bind:value={editedCharacter.skillCheckDice}
+                                    placeholder="e.g., 1d20"
+                                />
+                                <p class="input-help">This dice formula will be used for all skill checks</p>
                             </div>
                         {/if}
 
@@ -1125,6 +1203,38 @@
                                                         >
                                                     {/if}
                                                 </div>
+                                                {#if editedCharacter.skillCheckDice}
+                                                    <div class="roll-buttons">
+                                                        <button
+                                                            class="srpg-b srpg-b-sm srpg-b-normal roll-btn"
+                                                            on:click={() => rollSkill(skill, "Sum")}
+                                                            title="Roll {skill.name} check"
+                                                        >
+                                                            <svg class="srpg-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <rect x="4" y="4" width="16" height="16" rx="3"/>
+                                                                <circle cx="9" cy="9" r="1.5" fill="currentColor"/>
+                                                                <circle cx="15" cy="15" r="1.5" fill="currentColor"/>
+                                                            </svg>
+                                                            Roll
+                                                        </button>
+                                                        {#if editedCharacter.skillCheckDice === "1d20"}
+                                                            <button
+                                                                class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
+                                                                on:click={() => rollSkill(skill, "Maximum")}
+                                                                title="Roll with advantage"
+                                                            >
+                                                                Adv
+                                                            </button>
+                                                            <button
+                                                                class="srpg-b srpg-b-sm srpg-b-simple roll-btn-dis"
+                                                                on:click={() => rollSkill(skill, "Minimum")}
+                                                                title="Roll with disadvantage"
+                                                            >
+                                                                Dis
+                                                            </button>
+                                                        {/if}
+                                                    </div>
+                                                {/if}
                                             </div>
                                         {/if}
                                     </div>
@@ -1531,5 +1641,73 @@
         font-size: 0.6875rem;
         padding: 0.1875rem 0.375rem;
         border-radius: 4px;
+    }
+
+    /* Roll Buttons */
+    .roll-buttons {
+        display: flex;
+        gap: 0.375rem;
+        margin-top: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .roll-btn {
+        flex: 1;
+        min-width: fit-content;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    .roll-btn-adv,
+    .roll-btn-dis {
+        flex: 0 0 auto;
+        min-width: 3rem;
+    }
+
+    .roll-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Dice Formula Input */
+    .dice-formula-input {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+    }
+
+    .dice-formula-input label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .dice-formula-input input {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.9375rem;
+        border: 1px solid var(--border-secondary);
+        border-radius: 6px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .dice-formula-input input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--focus-ring);
+    }
+
+    .input-help {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        font-style: italic;
     }
 </style>
