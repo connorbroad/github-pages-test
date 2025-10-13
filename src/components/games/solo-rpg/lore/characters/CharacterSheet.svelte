@@ -1364,7 +1364,7 @@
     .skills-subsection {
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 2px solid #e2e8f0;
+        border-top: 2px solid var(--divider);
     }
 
     .subsection-header {
@@ -1441,7 +1441,7 @@
 
     @media (min-width: 1280px) {
         .skills-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 

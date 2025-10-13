@@ -243,8 +243,8 @@
 <style>
     .character-selector {
         position: relative;
-        width: 100%;
-        max-width: 300px;
+        width: 100%; 
+        max-width: 300px; 
     }
 
     .selector-button {

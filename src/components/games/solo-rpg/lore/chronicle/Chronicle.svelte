@@ -487,7 +487,7 @@
                     >
                         Finish Chapter
                     </button>
-                    <button class="srpg-b" on:click={cancelCreateChapter}>
+                    <button class="srpg-b srpg-b-simple" on:click={cancelCreateChapter}>
                         Cancel
                     </button>
                 </div>

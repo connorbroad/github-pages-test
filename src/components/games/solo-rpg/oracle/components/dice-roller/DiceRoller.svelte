@@ -115,13 +115,10 @@
 </script>
 
 {#if embedded}
-    <div class="dice-roller-embedded">
-        <!-- No header in embedded mode; parent provides the title -->
-        
+    <div class="dice-roller-embedded"> 
         <!-- Check name input (shown when preset exists) -->
         {#if preset}
-            <div class="check-name-container">
-                <label for="check-name-input">Check Name:</label>
+            <div class="check-name-container"> 
                 <input
                     id="check-name-input"
                     type="text"
@@ -129,8 +126,7 @@
                     placeholder="Enter check name (e.g., Strength, Perception)"
                     class="check-name-input"
                 />
-            </div>
-            <hr class="dice-roller-divider" />
+            </div> 
         {/if}
         
         <DiceDisplay
@@ -142,98 +138,107 @@
         />
         <hr class="dice-roller-divider" />
         <div id="dice-options">
-            <div class="dice-options-select">
-                <select bind:value={numDice} aria-label="Number of dice">
-                    {#each Array(10) as _, i}
-                        <option value={i + 1}>{i + 1}x</option>
-                    {/each}
-                </select>
-            </div>
-            <div class="dice-options-select">
-                <select bind:value={numSides} aria-label="Die type">
-                    <option value={4}>D4</option>
-                    <option value={6} selected>D6</option>
-                    <option value={8}>D8</option>
-                    <option value={10}>D10</option>
-                    <option value={12}>D12</option>
-                    <option value={20}>D20</option>
-                    <option value={100}>D100</option>
-                </select>
+            <div id="dice-selection-options">
+                <div class="dice-options-select">
+                    <select bind:value={numDice} aria-label="Number of dice">
+                        {#each Array(10) as _, i}
+                            <option value={i + 1}>{i + 1}x</option>
+                        {/each}
+                    </select>
+                </div>
+                <div class="dice-options-select">
+                    <select bind:value={numSides} aria-label="Die type">
+                        <option value={4}>D4</option>
+                        <option value={6} selected>D6</option>
+                        <option value={8}>D8</option>
+                        <option value={10}>D10</option>
+                        <option value={12}>D12</option>
+                        <option value={20}>D20</option>
+                        <option value={100}>D100</option>
+                    </select>
+                </div>
+                <div class="dice-options-select">
+                    <select bind:value={modifier} on:change={recalculateResult} aria-label="Modifier">
+                        {#each Array(16) as _, i}
+                            {#if i - 5 > -1}
+                                <option value={i - 5}>+{i - 5}</option>
+                            {:else if i - 5 === 0}
+                                <option value={i - 5}>0</option>
+                            {:else}
+                                <option value={i - 5}>{i - 5}</option>
+                            {/if}
+                        {/each}
+                    </select>
+                </div>
+            </div> 
+            <div id="result-options">
+                <div class="result-radio-group">
+                    <label class="result-radio" aria-label="Sum">
+                        <input type="radio" name="resultOption" value="Sum"
+                            disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
+                            bind:group={resultOption} on:change={recalculateResult} />
+                        <span class="result-icon"><ResultOptionIcon option="Sum" size="1em" /></span>
+                    </label>
+                    <label class="result-radio" aria-label="Maximum">
+                        <input type="radio" name="resultOption" value="Maximum"
+                            disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
+                            bind:group={resultOption} on:change={recalculateResult} />
+                        <span class="result-icon"><ResultOptionIcon option="Maximum" size="1em" /></span>
+                    </label>
+                    <label class="result-radio" aria-label="Minimum">
+                        <input type="radio" name="resultOption" value="Minimum"
+                            disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
+                            bind:group={resultOption} on:change={recalculateResult} />
+                        <span class="result-icon"><ResultOptionIcon option="Minimum" size="1em" /></span>
+                    </label>
+                    <label class="result-radio" aria-label="Subtract">
+                        <input type="radio" name="resultOption" value="Subtract"
+                            disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
+                            bind:group={resultOption} on:change={recalculateResult} />
+                        <span class="result-icon"><ResultOptionIcon option="Subtract" size="1em" /></span>
+                    </label>
+                </div>
             </div>
         </div>
-        <button class="srpg-b srpg-b-normal srpg-b-w-lg" on:click={onRollButtonClick}>Roll</button>
-        {#if showResultCalculator}
-            <div class="result-calculator-container" transition:slide>
-                <hr class="dice-roller-divider" />
-                <div id="result-options">
-                    <div class="result-radio-group">
-                        <label class="result-radio" aria-label="Sum">
-                            <input type="radio" name="resultOption" value="Sum"
-                                disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
-                                bind:group={resultOption} on:change={recalculateResult} />
-                            <span class="result-icon"><ResultOptionIcon option="Sum" size="1em" /></span>
-                        </label>
-                        <label class="result-radio" aria-label="Maximum">
-                            <input type="radio" name="resultOption" value="Maximum"
-                                disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
-                                bind:group={resultOption} on:change={recalculateResult} />
-                            <span class="result-icon"><ResultOptionIcon option="Maximum" size="1em" /></span>
-                        </label>
-                        <label class="result-radio" aria-label="Minimum">
-                            <input type="radio" name="resultOption" value="Minimum"
-                                disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
-                                bind:group={resultOption} on:change={recalculateResult} />
-                            <span class="result-icon"><ResultOptionIcon option="Minimum" size="1em" /></span>
-                        </label>
-                        <label class="result-radio" aria-label="Subtract">
-                            <input type="radio" name="resultOption" value="Subtract"
-                                disabled={(diceResults.length == 0 && numDice == 1) || (numDice == 1 && diceResults.length == 1)}
-                                bind:group={resultOption} on:change={recalculateResult} />
-                            <span class="result-icon"><ResultOptionIcon option="Subtract" size="1em" /></span>
-                        </label>
+        <button class="srpg-b srpg-b-normal srpg-b-w-lg" on:click={onRollButtonClick}>Roll</button> 
+        <div class="result-calculator-container" transition:slide> 
+            <button id="take-result-button" class="srpg-b srpg-b-create srpg-b-w-lg"
+                on:click={onClickTakeResult}
+                disabled={diceResults.length === 0 || finalResult === null || rolling}>
+                {#if diceResults.length > 1 && !rolling}
+                    <div id="result-option-indicator" aria-live="polite" style="position: absolute; left: 0.5rem; right: auto;">
+                        <span class="result-icon"><ResultOptionIcon option={resultOption} size="1em" /></span>
                     </div>
-                    <div class="dice-options-select">
-                        <select bind:value={modifier} on:change={recalculateResult} aria-label="Modifier">
-                            {#each Array(16) as _, i}
-                                {#if i - 5 > -1}
-                                    <option value={i - 5}>+{i - 5}</option>
-                                {:else if i - 5 === 0}
-                                    <option value={i - 5}>0</option>
-                                {:else}
-                                    <option value={i - 5}>{i - 5}</option>
-                                {/if}
-                            {/each}
-                        </select>
+                {/if}
+                <p>Record fate: {rolling ? "..." : finalResult || "..."}</p>
+                {#if diceResults.length > 1 && !rolling}
+                    <div id="result-option-indicator" aria-live="polite" style="position: absolute; right: 0.5rem; left: auto;">
+                        <span class="result-icon"><ResultOptionIcon option={resultOption} size="1em" /></span>
                     </div>
-                </div>
-                <button id="take-result-button" class="srpg-b srpg-b-create srpg-b-w-lg"
-                    on:click={onClickTakeResult}
-                    disabled={diceResults.length === 0 || finalResult === null || rolling}>
-                    {#if diceResults.length > 1 && !rolling}
-                        <div id="result-option-indicator" aria-live="polite" style="position: absolute; left: 0.5rem; right: auto;">
-                            <span class="result-icon"><ResultOptionIcon option={resultOption} size="1em" /></span>
-                        </div>
-                    {/if}
-                    <p>Record fate: {rolling ? "..." : finalResult || "..."}</p>
-                    {#if diceResults.length > 1 && !rolling}
-                        <div id="result-option-indicator" aria-live="polite" style="position: absolute; right: 0.5rem; left: auto;">
-                            <span class="result-icon"><ResultOptionIcon option={resultOption} size="1em" /></span>
-                        </div>
-                    {/if}
-                </button>
-            </div>
-        {/if}
+                {/if}
+            </button>
+        </div> 
     </div> 
 {/if}
 
 <style>
     #dice-options {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         gap: 0.75rem;
         margin: 1rem;
+        margin-bottom: 0;
         flex-wrap: wrap;
     }
+
+    #dice-selection-options {
+        display: flex; 
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
     .dice-options-select select {
         padding: 0.6rem 1rem;
         font-size: 1.05rem;
@@ -302,6 +307,7 @@
     }
 
     #take-result-button {
+        margin-top: 1rem;
         margin-bottom: 0;
         padding: 0;
         position: relative;
@@ -337,7 +343,7 @@
     }
     .dice-roller-divider {
         border: none;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--divider);
         margin: 1rem 0;
     }
     #result-options {
@@ -364,6 +370,7 @@
         flex-direction: column;
         gap: 0.5rem;
         margin: 0 1rem;
+        margin-bottom: 1rem;
     }
 
     .check-name-container label {

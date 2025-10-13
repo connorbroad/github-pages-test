@@ -352,8 +352,7 @@
                     </section>
                 </div>
             {:else if view === 'dice'}
-                <div class="tool-page">
-                    <h2 class="tool-title">Dice Roller</h2>
+                <div class="tool-page"> 
                     <DiceRoller 
                         embedded={true} 
                         onClose={() => { /* noop in embedded */ }} 
@@ -363,8 +362,7 @@
                     />
                 </div>
             {:else if view === 'cards'}
-                <div class="tool-page">
-                    <h2 class="tool-title">Card Dealer</h2>
+                <div class="tool-page"> 
                     <CardDealer 
                         embedded={true} 
                         on:recordFate={handleCardsRecordFate}
@@ -405,16 +403,17 @@
         top: 0;
         z-index: 2;
         background: var(--bg-primary);
-        padding: 0.5rem 0.25rem;
+        padding: 0.5rem ;
         border-bottom: 1px solid var(--border-primary);
         display: grid;
         grid-template-columns: 1fr;
-        gap: 0.5rem;
+        gap: 1.0rem;
+        border-radius: 16px;
     }
-    .character-selector-wrapper {
-        width: 100%;
+    .character-selector-wrapper { 
         display: flex;
         justify-content: center;
+        min-width: 150px; 
     }
     .oracle-nav {
         display: grid;

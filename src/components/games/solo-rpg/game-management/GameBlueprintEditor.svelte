@@ -90,7 +90,7 @@
         <div class="form-group">
             <h3>Default Fortunes</h3>
             <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
+                class="srpg-b srpg-b-create"
                 on:click={openCreateFortune}
             >
                 + Add Fortune

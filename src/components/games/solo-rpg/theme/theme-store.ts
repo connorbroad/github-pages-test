@@ -13,7 +13,7 @@ const THEME_STORAGE_KEY = 'solo-rpg-theme';
 /**
  * Default theme value
  */
-const DEFAULT_THEME: Theme = 'light';
+const DEFAULT_THEME: Theme = 'dark';
 
 /**
  * Check if we're in a browser environment
