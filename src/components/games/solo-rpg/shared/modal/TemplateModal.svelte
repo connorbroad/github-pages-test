@@ -50,7 +50,7 @@
         </div>
 
         <div class="template-footer">
-            <button class="srpg-b" on:click={cancel}>Cancel</button>
+            <button class="srpg-b srpg-b-simple" on:click={cancel}>Cancel</button>
         </div>
     </div>
 </SrpgModal>
@@ -69,7 +69,7 @@
     .template-modal-content h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
-        color: #111827;
+        color: var(--text-primary);
         font-size: 1.25rem;
     }
 
@@ -81,7 +81,7 @@
 
     .template-description {
         margin-bottom: 1.25rem;
-        color: #6b7280;
+        color: var(--text-secondary);
         font-size: 0.875rem;
         line-height: 1.5;
     }
@@ -108,7 +108,7 @@
 
     .template-option-title {
         margin: 0 0 0.5rem 0;
-        color: #111827;
+        color: var(--text-primary);
         font-size: 1.125rem;
     }
 
@@ -120,7 +120,7 @@
 
     .template-abilities {
         margin: 0.5rem 0;
-        color: #4b5563;
+        color: var(--text-secondary);
         font-size: 0.8125rem;
         line-height: 1.5;
     }
@@ -135,8 +135,8 @@
         display: inline-block;
         margin-top: 0.5rem;
         padding: 0.25rem 0.5rem;
-        background: #e0e7ff;
-        color: #3730a3;
+        background: var(--accent-info);
+        color: var(--text-inverse);
         border-radius: 4px;
         font-size: 0.75rem;
         font-weight: 600;
