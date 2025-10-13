@@ -813,7 +813,7 @@
                     {#if isAbilitiesEditable}
                         <div class="section-actions">
                             <button
-                                class="srpg-b srpg-b-sm"
+                                class="srpg-b srpg-b-sm srpg-b-create"
                                 on:click={addAbility}
                             >
                                 <svg
@@ -1000,7 +1000,7 @@
                         {#if isAbilitiesEditable}
                             <div class="section-actions">
                                 <button
-                                    class="srpg-b srpg-b-sm"
+                                    class="srpg-b srpg-b-sm srpg-b-create"
                                     on:click={addSkill}
                                 >
                                     <svg
