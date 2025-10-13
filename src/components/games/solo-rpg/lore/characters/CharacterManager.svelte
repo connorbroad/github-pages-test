@@ -190,6 +190,16 @@
     }
 
     function backToList() {
+        // If editing, confirm before discarding changes
+        if (isEditing) {
+            const confirmed = confirm(
+                `You have unsaved changes to ${selectedCharacter?.name}. Are you sure you want to leave? All unsaved changes will be lost.`
+            );
+            if (!confirmed) {
+                return;
+            }
+        }
+        
         selectedCharacter = null;
         isEditing = false;
         isEditingSections = false;
