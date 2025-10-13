@@ -34,7 +34,7 @@
 
     // View state for in-modal navigation
     type OracleView = "oracle" | "dice" | "cards";
-    let view: OracleView = "oracle";
+    let view: OracleView = "dice";
 
     // Create/Edit Fortune state
     let showFate = false;
@@ -520,13 +520,7 @@
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-    }
-    .tool-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin: 0.5rem 0 0 0;
-        text-align: center;
-    }
+    } 
 
     /* Desktop tweaks */
     @media (min-width: 768px) {
