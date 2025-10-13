@@ -371,13 +371,7 @@
         gap: 0.5rem;
         margin: 0 1rem;
         margin-bottom: 1rem;
-    }
-
-    .check-name-container label {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-    }
+    } 
 
     .check-name-input {
         padding: 0.75rem;
