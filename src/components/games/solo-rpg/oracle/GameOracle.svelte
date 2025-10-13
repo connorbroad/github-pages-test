@@ -243,7 +243,7 @@
     }
 </script>
  
-<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="860px" on:close={handleClose}>
+<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="400px" on:close={handleClose}>
     <div class="oracle-modal">
         <!-- Sticky utility header -->
         <div class="oracle-sticky-header">
@@ -407,7 +407,7 @@
         border-bottom: 1px solid var(--border-primary);
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1.0rem;
+        gap: 0.75rem;
         border-radius: 16px;
     }
     .character-selector-wrapper { 
@@ -520,20 +520,5 @@
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-    } 
-
-    /* Desktop tweaks */
-    @media (min-width: 768px) {
-        .oracle-sticky-header {
-            grid-template-columns: 1fr auto; /* selector | nav */
-            align-items: center;
-        }
-        .oracle-nav { max-width: 420px; justify-self: end; }
-        .fortune-list-container { max-height: 32rem; }
-        .section-title { font-size: 1.35rem; }
-    }
-
-    @media (min-width: 1024px) {
-        .oracle-body { max-height: 70vh; }
-    }
+    }  
 </style>
