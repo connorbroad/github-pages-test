@@ -591,24 +591,25 @@
     .note-title {
         margin: 0;
         font-size: 2rem;
-        color: #111827;
+        color: var(--text-primary);
         font-weight: 700;
     }
 
     .note-title-input {
         width: 100%;
         padding: 0.75rem;
-        border: 2px solid #3b82f6;
+        border: 2px solid var(--accent-primary);
         border-radius: 8px;
         font-size: 1.75rem;
         font-weight: 700;
-        color: #111827;
+        color: var(--text-primary);
         font-family: inherit;
+        background: var(--input-bg);
     }
 
     .note-title-input:disabled {
-        border-color: #d1d5db;
-        background: #f9fafb;
+        border-color: var(--border-secondary);
+        background: var(--bg-secondary);
         cursor: not-allowed;
     }
 
@@ -616,7 +617,7 @@
         display: flex;
         gap: 1rem;
         font-size: 0.875rem;
-        color: #6b7280;
+        color: var(--text-muted);
     }
 
     .note-content {
@@ -625,13 +626,13 @@
     }
 
     .note-display {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
         border-radius: 8px;
         padding: 1.5rem;
         white-space: pre-wrap;
         word-wrap: break-word;
-        color: #374151;
+        color: var(--text-secondary);
         line-height: 1.6;
         min-height: 200px;
     }
@@ -642,7 +643,7 @@
 
     .hint {
         font-style: italic;
-        color: #9ca3af;
+        color: var(--text-tertiary);
     }
 
     .modal-content {

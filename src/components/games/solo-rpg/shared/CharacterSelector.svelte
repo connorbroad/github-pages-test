@@ -253,19 +253,19 @@
         gap: 0.625rem;
         width: 100%;
         padding: 0.625rem 1rem;
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 2px solid var(--border-primary);
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s ease;
         font-size: 0.9375rem;
         font-weight: 500;
-        color: #374151;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        color: var(--text-secondary);
+        box-shadow: 0 1px 3px var(--shadow-sm);
     }
 
     .selector-button:hover {
-        border-color: #3b82f6;
+        border-color: var(--accent-primary);
         box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
     }
 
@@ -277,7 +277,7 @@
         width: 1.25rem;
         height: 1.25rem;
         flex-shrink: 0;
-        color: #6b7280;
+        color: var(--text-muted);
     }
 
     .selector-text {
@@ -292,7 +292,7 @@
         width: 1rem;
         height: 1rem;
         flex-shrink: 0;
-        color: #9ca3af;
+        color: var(--text-tertiary);
         transition: transform 0.2s ease;
     }
 
@@ -314,10 +314,10 @@
         top: calc(100% + 0.5rem);
         left: 0;
         right: 0;
-        background: white;
-        border: 1px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
         border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 25px var(--shadow-lg);
         z-index: 50;
         max-height: 300px;
         overflow-y: auto;
@@ -342,14 +342,14 @@
         gap: 0.625rem;
         width: 100%;
         padding: 0.75rem 1rem;
-        background: white;
+        background: var(--card-bg);
         border: none;
         cursor: pointer;
         transition: all 0.15s ease;
         text-align: left;
         font-size: 0.875rem;
-        color: #374151;
-        border-bottom: 1px solid #f3f4f6;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     .dropdown-item:last-child {
@@ -357,25 +357,25 @@
     }
 
     .dropdown-item:hover {
-        background: #f9fafb;
+        background: var(--bg-secondary);
     }
 
     .dropdown-item.active {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        color: #1e40af;
+        background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+        color: var(--accent-primary);
     }
 
     .dropdown-item.active:hover {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     }
 
     .dropdown-item.clear-item {
-        color: #ef4444;
+        color: var(--accent-danger);
         font-weight: 500;
     }
 
     .dropdown-item.clear-item:hover {
-        background: #fef2f2;
+        background: var(--danger-bg);
     }
 
     .item-icon {
@@ -395,18 +395,18 @@
 
     .character-class {
         font-size: 0.75rem;
-        color: #6b7280;
+        color: var(--text-muted);
         padding: 0.125rem 0.375rem;
-        background: #f3f4f6;
+        background: var(--bg-tertiary);
         border-radius: 4px;
         white-space: nowrap;
     }
 
     .character-level {
         font-size: 0.75rem;
-        color: #6b7280;
+        color: var(--text-muted);
         padding: 0.125rem 0.375rem;
-        background: #f3f4f6;
+        background: var(--bg-tertiary);
         border-radius: 4px;
         white-space: nowrap;
         font-weight: 600;
@@ -415,19 +415,19 @@
     .dropdown-item.active .character-class,
     .dropdown-item.active .character-level {
         background: rgba(59, 130, 246, 0.1);
-        color: #1e40af;
+        color: var(--accent-primary);
     }
 
     .check-icon {
         width: 1rem;
         height: 1rem;
         flex-shrink: 0;
-        color: #3b82f6;
+        color: var(--accent-primary);
     }
 
     .dropdown-divider {
         height: 1px;
-        background: #e5e7eb;
+        background: var(--border-primary);
         margin: 0.25rem 0;
     }
 
@@ -436,40 +436,40 @@
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
-        background: #f9fafb;
-        border-bottom: 1px solid #e5e7eb;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-primary);
     }
 
     .filter-chip {
         padding: 0.375rem 0.75rem;
-        background: white;
-        border: 2px solid #e5e7eb;
+        background: var(--card-bg);
+        border: 2px solid var(--border-primary);
         border-radius: 16px;
         cursor: pointer;
         font-size: 0.8125rem;
         font-weight: 500;
-        color: #374151;
+        color: var(--text-secondary);
         transition: all 0.2s ease;
         white-space: nowrap;
     }
 
     .filter-chip:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
+        border-color: var(--accent-primary);
+        background: var(--bg-tertiary);
     }
 
     .filter-chip.active {
-        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-        color: white;
-        border-color: #3b82f6;
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-info) 100%);
+        color: var(--text-inverse);
+        border-color: var(--accent-primary);
         box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
     }
 
     .character-tags {
         font-size: 0.75rem;
-        color: white;
+        color: var(--text-inverse);
         padding: 0.125rem 0.5rem;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: linear-gradient(135deg, var(--accent-success) 0%, var(--accent-success-hover) 100%);
         border-radius: 10px;
         white-space: nowrap;
         font-weight: 600;
@@ -480,13 +480,13 @@
     }
 
     .dropdown-item.active .character-tags {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        background: linear-gradient(135deg, var(--accent-success-hover) 0%, var(--accent-success-active) 100%);
     }
 
     .empty-state {
         padding: 2rem 1rem;
         text-align: center;
-        color: #6b7280;
+        color: var(--text-muted);
     }
 
     .empty-state p {
@@ -497,7 +497,7 @@
     .empty-hint {
         font-size: 0.75rem;
         font-style: italic;
-        color: #9ca3af;
+        color: var(--text-tertiary);
     }
 
     /* Mobile adjustments */

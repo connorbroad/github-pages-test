@@ -53,7 +53,7 @@
     }
 
     .map-description p {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 1rem;
         line-height: 1.6;
     }

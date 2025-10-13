@@ -213,20 +213,63 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
   - ✅ Forms and modals readable in both themes
   - ✅ No errors in any character components
 
-### Phase 10: Codex & Map ⏳
-- [ ] Update `lore/codex/Codex.svelte`
-- [ ] Update `map/MapView.svelte`
-- [ ] Test codex entries in both themes
-- [ ] Test map canvas and controls in both themes
+### Phase 10: Codex & Map ✅ COMPLETE
+- [x] Update `lore/codex/Codex.svelte`
+  - Note titles and inputs use theme variables
+  - Note display background and borders themed
+  - Date and hint text use muted colors
+  - All text colors properly themed
+- [x] Update `map/MapView.svelte`
+  - Description text uses theme variables
+  - Already minimal styling (coming soon)
+- [x] Update `solo-rpg-styles.css` nested list and global utility styles
+  - `.srpg-nested-list` group/subgroup headers use theme variables
+  - `.srpg-group-header` background, border, text colors themed
+  - `.srpg-subgroup-header` background and hover states themed
+  - `.srpg-list-item` background, border, and hover states themed
+  - `.srpg-list-item-title` and `.srpg-list-item-meta` text colors themed
+  - `.srpg-textarea` uses input theme variables
+  - `.srpg-header-title` uses text color variable
+  - `.srpg-section h2` uses text color variable
+  - `.srpg-badge` and badge variants use theme accent colors
+  - `.srpg-card` uses card background and border variables
+  - `.srpg-empty-message` uses text color variable
+  - `.srpg-select` uses input theme variables with focus states
+  - `.srpg-checkbox-item` and variants use theme variables
+  - `.srpg-modal-heading` uses text color variable
+  - `.srpg-b-toggle-active` uses warning color variables
+  - Keyboard focus styles use accent color variable
+- [x] Update `theme/theme-variables.css`
+  - Added `--warning` and `--warning-light` variables for both themes
+- [x] Test codex entries in both themes
+  - ✅ Codex notes readable in both themes
+  - ✅ Nested lists properly themed
+  - ✅ All global utilities properly themed
+- [x] Test map canvas and controls in both themes
+  - ✅ Map view properly themed (minimal UI)
+  - ✅ No errors in Codex or Map components
 
-### Phase 11: Shared Components ⏳
-- [ ] Update `shared/FloatingOracleButton.svelte`
-- [ ] Update `shared/CharacterSelector.svelte`
-- [ ] Update `shared/modal/SrpgModal.svelte`
-- [ ] Update `shared/modal/TemplateModal.svelte`
-- [ ] Update `NoCampaignOverlay.svelte`
-- [ ] Test floating button in both themes
-- [ ] Test modals in both themes
+### Phase 11: Shared Components ✅ COMPLETE
+- [x] Update `shared/FloatingOracleButton.svelte`
+  - Button uses gradient (intentionally kept as-is for brand consistency)
+- [x] Update `shared/CharacterSelector.svelte`
+  - Selector button uses theme variables
+  - Dropdown menu and items properly themed
+  - Filter chips and tags use theme colors
+  - Active states use accent colors
+  - Empty state uses muted colors
+- [x] Update `shared/modal/SrpgModal.svelte`
+  - Already themed in Phase 6
+- [x] Update `shared/modal/TemplateModal.svelte`
+  - Inherits from SrpgModal (already themed)
+- [x] Update `NoCampaignOverlay.svelte`
+  - Description text uses theme variables
+  - Inherits modal styling from SrpgModal
+- [x] Test floating button in both themes
+  - ✅ Floating button visible in both themes
+- [x] Test modals in both themes
+  - ✅ All modals properly themed
+  - ✅ No errors in any shared components
 
 ### Phase 12: Visual Testing ⏳
 - [ ] All text readable in light mode
@@ -273,13 +316,12 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 - [ ] Final QA review
 
 ### Progress Summary
-- **Total Tasks:** 84/150+
-- **Phase 1-9 (Foundation through Character):** 84/84 ✅
-- **Phase 10-11 (Codex, Map, & Shared Components):** 0/38+ ⏳
+- **Total Tasks:** 99/150+
+- **Phase 1-11 (All Component Updates):** 99/99 ✅
 - **Phase 12-14 (Testing):** 0/35+ ⏳
 - **Phase 15 (Docs):** 0/6 ⏳
 
-**Current Status:** Phases 1-9 complete! Foundation, views, data/game management, Oracle, Chronicle/Story, and ALL Character components are themed. Next: Codex & Map components.
+**Current Status:** Phases 1-11 COMPLETE! ALL components are now themed for dark mode. Foundation, views, data/game management, Oracle, Chronicle, Characters, Codex, Map, and Shared components are fully updated. Next: Comprehensive testing phases.
 
 **Legend:** ⏳ = Not Started | 🔄 = In Progress | ✅ = Complete
 

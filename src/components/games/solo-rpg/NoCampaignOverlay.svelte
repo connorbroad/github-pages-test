@@ -44,7 +44,7 @@
     }
 
     .description {
-        color: #4b5563;
+        color: var(--text-secondary);
         margin-top: 0;
         margin-bottom: 1rem;
         line-height: 1.6;

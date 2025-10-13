@@ -53,6 +53,8 @@
     --accent-warning: #f59e0b;
     --accent-warning-hover: #d97706;
     --accent-warning-active: #b45309;
+    --warning: #f59e0b;
+        --warning-light: #fbbf24;
 
     /* Accent Colors - Info (Indigo) */
     --accent-info: #6366f1;
@@ -139,6 +141,8 @@
     --accent-warning: #fbbf24;
     --accent-warning-hover: #fcd34d;
     --accent-warning-active: #f59e0b;
+    --warning: #fbbf24;
+        --warning-light: #fcd34d;
 
     /* Accent Colors - Info (Indigo) - Lighter for dark mode */
     --accent-info: #818cf8;
