@@ -1,5 +1,13 @@
 /* Import Theme Variables */
 @import './theme/theme-variables.css';
+/* Global Theme Application */
+/* Apply theme to any element with data-theme attribute and its descendants */
+[data-theme="light"],
+[data-theme="dark"] {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 /* SRPG-specific variable aliases for convenience */
 :root,
 [data-theme="dark"] {

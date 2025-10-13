@@ -80,6 +80,7 @@
     --input-border-focus: #1976d2;
     --input-text: #333333;
     --input-placeholder: #999999;
+    --focus-ring: rgba(25, 118, 210, 0.1);
 
     /* Modal Colors */
     --modal-overlay: rgba(0, 0, 0, 0.5);
@@ -168,6 +169,7 @@
     --input-border-focus: #42a5f5;
     --input-text: #e0e0e0;
     --input-placeholder: #808080;
+    --focus-ring: rgba(66, 165, 245, 0.15);
 
     /* Modal Colors */
     --modal-overlay: rgba(0, 0, 0, 0.7);

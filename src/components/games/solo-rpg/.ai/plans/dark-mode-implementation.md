@@ -9,10 +9,14 @@ Implement a comprehensive dark mode feature for the Solo RPG application with a 
 
 ## TODO Checklist
 
-### Phase 1: Foundation 🔄
+### Phase 1: Foundation ✅ COMPLETE
 - [x] Create `theme/theme-store.ts` with theme state management
 - [x] Create `theme/theme-variables.css` with CSS custom properties
+  - Added `--focus-ring` variable for both themes
+  - Added `--warning` and `--warning-light` variables for both themes
 - [x] Update `solo-rpg-styles.css` to import and use CSS variables
+  - Added global theme application to `[data-theme]` selector
+  - Background and text color transitions on theme change
 - [x] Replace hardcoded colors in button classes with CSS variables
 - [x] Replace hardcoded colors in info-card class with CSS variables
 - [x] Test basic theme variable system works
