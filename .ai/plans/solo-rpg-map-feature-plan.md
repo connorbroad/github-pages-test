@@ -26,9 +26,22 @@ UX Flows
   - Tap a map to open Editor view.
 - Editor
   - Fullscreen canvas area that accounts for primary/secondary/tertiary sidebars. Always shows grid.
-  - Toolbar (mobile-first): mode toggle (Edit/Play), tool selector (paint, object, select/move, erase), color palette, zoom controls, home/back.
+  - Reuse existing sidebars for tool UI (see Sidebars Integration).
   - Edit mode: paint background tiles on grid, place shapes (foreground), move/select/erase.
   - Play mode: pan/zoom and move foreground objects only; no background edits.
+
+Sidebars Integration (Consistency)
+- Goal: Reuse layout/visuals of SecondarySidebar and TertiarySidebar for map tools to match the rest of the app.
+- Approach A (preferred): Create map-specific wrappers with identical styling:
+  - MapSecondarySidebar.svelte (styled like SecondarySidebar)
+    - Mode toggle: Edit / Play
+    - Quick actions: Home/Back, Zoom in/out (optional)
+  - MapTertiarySidebar.svelte (styled like TertiarySidebar)
+    - Tools: Paint, Object, Move, Erase
+    - Shape pickers (■ ● ▲ ★) shown when Object tool active
+    - Color palette selector
+- Approach B (alternate): Make SecondarySidebar accept dynamic tab configs and slot content; use TertiarySidebar for tool palette. Requires refactor but reduces duplication.
+- Mobile behavior: sidebars stack as current components do (primary bottom bar, then secondary, then tertiary). Editor height accounts for their presence via existing content classes.
 
 Architecture
 - Rendering: Canvas 2D (primary) for performance and mobile. Optional overlays for selections and hit-testing.
@@ -88,10 +101,9 @@ Components (proposed)
   - Editor subview (if a map is selected/open)
 - map/
   - MapLanding.svelte: create input, list of maps for campaign; open map
-  - MapEditor.svelte: canvas renderer, toolbar, palette
-  - GridCanvas.svelte: grid rendering util or inline in editor
-  - ObjectPalette.svelte: shape selection UI
-  - ColorPalette.svelte: limited color picker
+  - MapEditor.svelte: canvas renderer, camera, grid; initial inline toolbar for scaffolding
+  - MapSecondarySidebar.svelte: mode toggle + quick actions (reuse SecondarySidebar look)
+  - MapTertiarySidebar.svelte: tools + shapes + palette (reuse TertiarySidebar look)
   - MapStore.ts: store utilities (current map, tools, mode, debounce)
 
 APIs & Events
@@ -131,39 +143,44 @@ Acceptance Criteria (MVP)
 - [ ] Play mode prevents background edits and allows moving foreground objects.
 - [ ] Map state auto-saves with debounce and persists across reloads.
 - [ ] Works on mobile (touch) and desktop (mouse) with responsive UI.
+- [ ] Map tools are presented via Secondary/Tertiary-style sidebars (consistent visuals).
 
 Milestones & Tasks
 1) Data & Storage
-- [ ] Define MapEntity/MapObject types in storage-utils.ts
-- [ ] Add maps[] and activeMapId to SoloRPGData
-- [ ] Implement loadMaps/saveMaps, loadMapsByCampaign, load/saveActiveMapId
+- [x] Define MapEntity/MapObject types in storage-utils.ts
+- [x] Add maps[] and activeMapId to SoloRPGData
+- [x] Implement loadMaps/saveMaps, loadMapsByCampaign, load/saveActiveMapId
 - [ ] Add debounce utility (shared or local)
 
 2) Landing UI
-- [ ] MapLanding.svelte (create by name, list maps)
-- [ ] Wire to MapView: open map -> Editor
-- [ ] Persist to storage utils
+- [x] MapLanding.svelte (create by name, list maps)
+- [x] Wire to MapView: open map -> Editor
+- [x] Persist to storage utils
 
 3) Editor Base
-- [ ] MapEditor.svelte with canvas, camera, grid rendering
+- [x] MapEditor.svelte with canvas, camera, grid rendering (inline toolbar scaffold)
 - [ ] Pan/zoom gestures (touch + mouse)
-- [ ] Toolbar with mode toggle, tools, colors, zoom
 
-4) Background Painting
-- [ ] Paint/erase tiles; sparse storage; offscreen redraw of background
-- [ ] Color palette selector
+4) Sidebar Tooling (Consistency)
+- [ ] MapSecondarySidebar.svelte with Edit/Play toggle and quick actions
+- [ ] MapTertiarySidebar.svelte with tools, shapes, color palette
+- [ ] Integrate sidebars into MapView; remove temporary inline toolbar
 
-5) Foreground Objects
-- [ ] Object placement (square/circle/triangle/star)
-- [ ] Selection and move
-- [ ] Color assignment
+5) Background Painting
+- [x] Paint/erase tiles; sparse storage; redraw
+- [x] Color palette selector
 
-6) Modes & Persistence
-- [ ] Mode toggle and enforcement
-- [ ] Debounced autosave + flush on exit
-- [ ] Restore last camera view per map
+6) Foreground Objects
+- [x] Object placement (square/circle/triangle/star)
+- [x] Selection and move
+- [ ] Color reassignment for selected object
 
-7) Polish
+7) Modes & Persistence
+- [x] Mode toggle and enforcement (basic)
+- [x] Debounced autosave + flush on exit (basic)
+- [ ] Restore last camera view per map (persist updates continuously)
+
+8) Polish
 - [ ] Empty states, error handling
 - [ ] Performance pass (dirty rects, throttling)
 - [ ] QA on mobile and desktop
@@ -172,18 +189,19 @@ Open Questions / Risks
 - Map bounds: fixed grid size vs unbounded. Proposal: fixed (e.g., 100x100 tiles), configurable per map.
 - Deletion/rename: MVP omits delete; consider adding safely later.
 - Undo/redo: out of scope for MVP; plan for operation log later.
-- Tileset images: design MapEntity to later support tileId as well as color.
+- Tileset images: design MapEntity to later support tileId instead of color.
 - Layers: plan to extend with layers[] array; current background/foreground are implicit.
 
-File Plan (not yet implemented)
-- Update: src/components/games/solo-rpg/data/storage-utils.ts
-  - Add MapEntity/MapObject types, maps helpers, activeMapId helpers
-- Add: src/components/games/solo-rpg/map/MapLanding.svelte
-- Add: src/components/games/solo-rpg/map/MapEditor.svelte
-- Add: src/components/games/solo-rpg/map/components/{ObjectPalette.svelte,ColorPalette.svelte}
-- Add: src/components/games/solo-rpg/map/stores/MapStore.ts
-- Update: MapView.svelte to route between Landing and Editor subviews and wire events
+File Plan (not yet fully implemented)
+- Update: src/components/games/solo-rpg/data/storage-utils.ts (done)
+- Add: src/components/games/solo-rpg/map/MapLanding.svelte (done)
+- Add: src/components/games/solo-rpg/map/MapEditor.svelte (scaffold done)
+- Add: src/components/games/solo-rpg/map/MapSecondarySidebar.svelte (pending)
+- Add: src/components/games/solo-rpg/map/MapTertiarySidebar.svelte (pending)
+- Add: src/components/games/solo-rpg/map/stores/MapStore.ts (pending)
+- Update: MapView.svelte to route between Landing and Editor subviews and wire events (done)
 - Styles: reuse solo-rpg-styles.css; add scoped editor styles if needed
 
-Tracking 
+Tracking
+- Link PRs/commits against each milestone item above.
 - Check off Acceptance Criteria as they pass manual QA.

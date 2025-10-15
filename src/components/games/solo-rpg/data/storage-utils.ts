@@ -6,6 +6,7 @@
 const STORAGE_KEY = 'solo-rpg-data';
 const ACTIVE_CAMPAIGN_KEY = 'solo-rpg-active-campaign';
 const ACTIVE_CHARACTER_KEY = 'solo-rpg-active-character';
+const ACTIVE_MAP_KEY = 'solo-rpg-active-map';
 
 export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
@@ -15,6 +16,9 @@ export interface SoloRPGData {
     chapters?: Chapter[];
     characters?: Character[];
     codexNotes?: CodexNote[];
+    // Map data
+    maps?: MapEntity[];
+    activeMapId?: string;
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -187,6 +191,34 @@ type Outcome = {
     rankMapping?: { [key: string]: string };
 };
 
+// Map types
+export type MapObject = {
+    id: string;
+    type: "square" | "circle" | "triangle" | "star";
+    x: number; // world px
+    y: number; // world px
+    w: number; // px
+    h: number; // px
+    rotation?: number;
+    color: string; // palette key or hex
+    z?: number;
+    locked?: boolean;
+};
+
+export type MapEntity = {
+    id: string;
+    campaignId: string;
+    name: string;
+    createdAt: number;
+    updatedAt: number;
+    width: number; // tiles
+    height: number; // tiles
+    tileSize: number; // px
+    background: Record<string, string>; // key "x,y" -> color
+    objects: MapObject[];
+    view?: { x: number; y: number; zoom: number };
+};
+
 /**
  * Load all Solo RPG data from localStorage
  */
@@ -299,6 +331,45 @@ export function saveChapters(chapters: Chapter[]): void {
 }
 
 /**
+ * Map storage helpers
+ */
+export function loadMaps(): MapEntity[] {
+    const data = loadData();
+    return data.maps || [];
+}
+
+export function saveMaps(maps: MapEntity[]): void {
+    const data = loadData();
+    data.maps = maps;
+    saveData(data);
+}
+
+export function loadMapsByCampaign(campaignId: string): MapEntity[] {
+    return loadMaps().filter((m) => m.campaignId === campaignId);
+}
+
+export function loadActiveMapId(): string | null {
+    try {
+        return localStorage.getItem(ACTIVE_MAP_KEY);
+    } catch (error) {
+        console.error('Failed to load active map:', error);
+        return null;
+    }
+}
+
+export function saveActiveMapId(mapId: string | null): void {
+    try {
+        if (mapId) {
+            localStorage.setItem(ACTIVE_MAP_KEY, mapId);
+        } else {
+            localStorage.removeItem(ACTIVE_MAP_KEY);
+        }
+    } catch (error) {
+        console.error('Failed to save active map:', error);
+    }
+}
+
+/**
  * Clear all Solo RPG data from localStorage
  */
 export function clearData(): void {
@@ -306,6 +377,7 @@ export function clearData(): void {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(ACTIVE_CAMPAIGN_KEY);
         localStorage.removeItem(ACTIVE_CHARACTER_KEY);
+        localStorage.removeItem(ACTIVE_MAP_KEY);
     } catch (error) {
         console.error('Failed to clear Solo RPG data:', error);
     }

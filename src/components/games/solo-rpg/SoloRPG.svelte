@@ -297,6 +297,7 @@
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
 
+<!-- Use app sidebars only on Story view; Map view uses its own map sidebars -->
 <SecondarySidebar
     show={currentView === "story"}
     activeTab={activeStoryTab === "chronicle" ? "characters" : activeStoryTab}
