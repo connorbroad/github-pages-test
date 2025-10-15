@@ -437,7 +437,7 @@
     {:else}
         <div class="character-list-view">
             <div class="list-header">
-                <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
+                <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateModal}>
                     + Create Character
                 </button>
             </div>

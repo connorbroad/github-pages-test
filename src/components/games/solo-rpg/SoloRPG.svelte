@@ -314,7 +314,7 @@
             <p>Welcome to your Solo RPG companion!</p>
 
             {#if $activeCampaign}
-                <div class="info-card">
+                <div class="banner">
                     <div class="banner-content">
                         <div class="banner-info">
                             <span class="banner-label">Active Campaign:</span>
