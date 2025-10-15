@@ -324,14 +324,7 @@
                             <span class="banner-meta"
                                 >{$activeCampaign.blueprintTitle}</span
                             >
-                        </div>
-                        <button
-                            class="srpg-b srpg-b-sm srpg-b-normal"
-                            on:click={unloadCampaign}
-                            title="Unload campaign"
-                        >
-                            Unload
-                        </button>
+                        </div> 
                     </div>
                 </div>
             {/if}
@@ -677,8 +670,7 @@
 
     .blueprint-section {
         border: 1px solid var(--border-primary);
-        border-radius: 8px;
-        overflow: hidden;
+        border-radius: 8px;  
         background: var(--card-bg);
     }
 
