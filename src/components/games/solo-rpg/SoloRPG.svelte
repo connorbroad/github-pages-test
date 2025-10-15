@@ -22,7 +22,7 @@
     import { onMount } from "svelte";
     import "./solo-rpg-styles.css";
 
-    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story";
+    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle";
     let currentView: View = "home";
     let activeStoryTab: "chronicle" | "characters" | "codex" = "chronicle";
 
@@ -84,17 +84,26 @@
     function handleNavigate(view: View) {
         const wasOnStory = currentView === "story";
         currentView = view;
-        // Reset story tab when leaving story view
-        if (view !== "story") {
+        // Reset story tab when leaving story view or chronicle view
+        if (view !== "story" && view !== "chronicle") {
             activeStoryTab = "chronicle";
             // Hide tertiary sidebar when leaving story view
             showTertiarySidebar = false;
         } else if (view === "story") {
-            // When navigating to story, ensure we're on the chronicle tab
-            activeStoryTab = "chronicle";
-            // Hide tertiary sidebar when switching to chronicle tab
+            // When navigating to story, set to characters tab
+            activeStoryTab = "characters";
+            // Hide tertiary sidebar when switching tabs
             showTertiarySidebar = false;
-            // When navigating to story (or reloading while already on story), reload chronicle to show new entries
+            // Use setTimeout to ensure component is mounted
+            setTimeout(() => {
+                if (storyViewComponent && storyViewComponent.resetCharacterView) {
+                    storyViewComponent.resetCharacterView();
+                }
+            }, 0);
+        } else if (view === "chronicle") {
+            // When navigating to chronicle, set to chronicle tab
+            activeStoryTab = "chronicle";
+            showTertiarySidebar = false;
             // Use setTimeout to ensure component is mounted
             setTimeout(() => {
                 if (storyViewComponent && storyViewComponent.reloadChronicle) {
@@ -104,7 +113,7 @@
         }
     }
 
-    function handleStoryTabChange(tab: "chronicle" | "characters" | "codex") {
+    function handleStoryTabChange(tab: "characters" | "codex") {
         activeStoryTab = tab;
 
         // Clear tertiary sidebar when switching tabs
@@ -276,8 +285,8 @@
         showCampaignLoadConfirm = false;
         selectedCampaignForLoad = null;
 
-        // Switch to story view
-        currentView = "story";
+        // Switch to chronicle view
+        currentView = "chronicle";
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -290,7 +299,7 @@
 
 <SecondarySidebar
     show={currentView === "story"}
-    activeTab={activeStoryTab}
+    activeTab={activeStoryTab === "chronicle" ? "characters" : activeStoryTab}
     onTabChange={handleStoryTabChange}
 />
 
@@ -498,10 +507,11 @@
             on:navigateHome={() => handleNavigate("home")}
             on:navigateToStory={() => handleNavigate("story")}
         />
-    {:else if currentView === "story"}
+    {:else if currentView === "chronicle" || currentView === "story"}
         <StoryView
             bind:this={storyViewComponent}
             activeTab={activeStoryTab}
+            showSecondarySidebar={currentView === "story"}
             showTertiarySidebar={showTertiarySidebar}
             {diceRollPreset}
             on:openDiceRoller={() => (showDiceRoller = true)}

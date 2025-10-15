@@ -1,7 +1,7 @@
 <script lang="ts">
-    export let currentView: "home" | "tools" | "oracle" | "settings" | "map" | "story" = "home";
+    export let currentView: "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle" = "home";
     export let onNavigate: (
-        view: "home" | "tools" | "oracle" | "settings" | "map" | "story",
+        view: "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle",
     ) => void = () => {};
 </script>
 
@@ -43,12 +43,22 @@
 
             <button
                 class="nav-item"
-                class:active={currentView === "story"}
-                on:click={() => onNavigate("story")}
-                aria-label="Lore"
+                class:active={currentView === "chronicle"}
+                on:click={() => onNavigate("chronicle")}
+                aria-label="Journey"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4M2 6h4m-4 4h4m-4 4h4m-4 4h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></g></svg>
-                <span class="label">Lore</span>
+                <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="label">Journey</span>
             </button>
 
             <button
@@ -67,6 +77,16 @@
                     <path fill="currentColor" d="m20.5 3l-.16.03L15 5.1L9 3L3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1l5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5M15 19l-6-2.11V5l6 2.11z"/>
                 </svg>
                 <span class="label">Map</span>
+            </button>
+
+            <button
+                class="nav-item"
+                class:active={currentView === "story"}
+                on:click={() => onNavigate("story")}
+                aria-label="Lore"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4M2 6h4m-4 4h4m-4 4h4m-4 4h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></g></svg>
+                <span class="label">Lore</span>
             </button>
         </div>
 

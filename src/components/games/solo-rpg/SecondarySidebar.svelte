@@ -2,8 +2,8 @@
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
 
-    export let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
-    export let onTabChange: (tab: "chronicle" | "characters" | "codex") => void;
+    export let activeTab: "characters" | "codex" = "characters";
+    export let onTabChange: (tab: "characters" | "codex") => void;
     export let show: boolean = false;
 
     // Detect if we're on mobile
@@ -28,26 +28,6 @@
     >
         <nav>
             <div class="nav-items">
-                <button
-                    class="nav-item"
-                    class:active={activeTab === "chronicle"}
-                    on:click={() => onTabChange("chronicle")}
-                    aria-label="Journey"
-                >
-                    <svg
-                        class="icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                        <path d="M2 17l10 5 10-5"></path>
-                        <path d="M2 12l10 5 10-5"></path>
-                    </svg>
-                    <span class="label">Journey</span>
-                </button>
-
                 <button
                     class="nav-item"
                     class:active={activeTab === "characters"}

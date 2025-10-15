@@ -12,6 +12,7 @@
 
     export let activeTab: "chronicle" | "characters" | "codex" = "chronicle";
     export let showTertiarySidebar: boolean = false;
+    export let showSecondarySidebar: boolean = false; // Whether secondary sidebar is visible
     export let diceRollPreset: any = null; // Preset data for ability/skill rolls
 
     let characterManagerComponent: any;
@@ -68,7 +69,7 @@
     on:navigateHome={handleNavigateHome}
 />
 
-<div class="story-view" class:has-tertiary={showTertiarySidebar}>
+<div class="story-view" class:has-secondary={showSecondarySidebar} class:has-tertiary={showTertiarySidebar}>
     {#if $activeCampaign}
         <h4>{$activeCampaign.title}</h4>
 
@@ -94,7 +95,7 @@
 
 {#if $activeCampaign}
     <FloatingOracleButton 
-        hasSecondarySidebar={true}
+        hasSecondarySidebar={showSecondarySidebar}
         hasTertiarySidebar={showTertiarySidebar}
         on:navigateToStory 
         {diceRollPreset}
@@ -122,13 +123,18 @@
     /* Mobile - calculate available height accounting for bottom bars */
     @media (max-width: 768px) {
         .story-view {
-            /* Base: full viewport minus primary sidebar (70px) minus secondary (60px) */
-            height: calc(100dvh - 70px - 60px - env(safe-area-inset-bottom));
+            /* Base: full viewport minus primary sidebar (70px) only */
+            height: calc(100dvh - 70px - env(safe-area-inset-bottom));
             overflow: hidden;
         }
         
+        /* When secondary sidebar is shown (another 60px) */
+        .story-view.has-secondary {
+            height: calc(100dvh - 70px - 60px - env(safe-area-inset-bottom));
+        }
+        
         /* When tertiary sidebar is also shown (another 60px) */
-        .story-view.has-tertiary {
+        .story-view.has-secondary.has-tertiary {
             height: calc(100dvh - 70px - 60px - 60px - env(safe-area-inset-bottom));
         }
     }
