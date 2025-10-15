@@ -505,7 +505,7 @@
     {:else if currentView === "map"}
         <MapView 
             on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={() => handleNavigate("story")}
+            on:navigateToStory={() => handleNavigate("chronicle")}
         />
     {:else if currentView === "chronicle" || currentView === "story"}
         <StoryView
@@ -517,7 +517,7 @@
             on:openDiceRoller={() => (showDiceRoller = true)}
             on:openCardDealer={() => (showCardDealer = true)}
             on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={() => handleNavigate("story")}
+            on:navigateToStory={() => handleNavigate("chronicle")}
             on:characterSelected={handleCharacterSelected}
             on:characterDeselected={handleCharacterDeselected}
             on:rollCheck={handleRollCheck}

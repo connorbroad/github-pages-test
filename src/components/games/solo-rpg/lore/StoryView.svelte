@@ -97,7 +97,7 @@
     <FloatingOracleButton 
         hasSecondarySidebar={showSecondarySidebar}
         hasTertiarySidebar={showTertiarySidebar}
-        on:navigateToStory 
+        on:navigateToStory
         {diceRollPreset}
         on:clearPreset
         currentCharacterId={selectedCharacterId}
