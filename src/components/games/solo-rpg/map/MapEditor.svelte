@@ -313,6 +313,26 @@
     let pointers = new Map<number, { x: number; y: number }>();
     let pinchBase = { distance: 0, zoom: 1, centerWorld: { x: 0, y: 0 } };
 
+    // Double-tap gestures (touch) for Move tool
+    const DOUBLE_TAP_DELAY = 300; // ms
+    const DOUBLE_TAP_SLOP = 24;   // px
+    const DOUBLE_TAP_ZOOM = 1.8;  // zoom-in factor on quick double-tap
+    const MANUAL_ZOOM_RATE = 0.004; // per-pixel exponential rate for double-tap+drag
+
+    let lastTapTime = 0;
+    let lastTapPos = { x: 0, y: 0 };
+
+    let manualZoomActive = false;
+    let manualZoomPointerId: number | null = null;
+    let manualZoomBase = {
+        y: 0,
+        zoom: 1,
+        anchorWorld: { x: 0, y: 0 },
+        anchorScreen: { x: 0, y: 0 },
+    };
+    let manualZoomStartTime = 0;
+    let manualZoomMoved = false;
+
     function cancelInertia() {
         if (inertiaRaf !== null) {
             cancelAnimationFrame(inertiaRaf);
@@ -378,6 +398,7 @@
         target.setPointerCapture(e.pointerId);
         pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+        // Multi-touch pinch shortcut
         if (pointers.size >= 2) {
             // Start pinch
             const pts = Array.from(pointers.values()) as { x: number; y: number }[];
@@ -393,8 +414,37 @@
             return;
         }
 
+        // Double-tap detection on touch for Move tool / Play mode
+        const isTouch = e.pointerType === 'touch';
+        const allowDoubleTap = isTouch && (tool === 'move' || mode === 'play');
+        if (allowDoubleTap && e.button === 0) {
+            const now = e.timeStamp;
+            const dt = now - lastTapTime;
+            const dx = e.clientX - lastTapPos.x;
+            const dy = e.clientY - lastTapPos.y;
+            const withinSlop = Math.hypot(dx, dy) <= DOUBLE_TAP_SLOP;
+            if (dt <= DOUBLE_TAP_DELAY && withinSlop) {
+                // Start manual zoom gesture
+                manualZoomActive = true;
+                manualZoomPointerId = e.pointerId;
+                manualZoomBase.y = e.clientY;
+                manualZoomBase.zoom = camera.zoom;
+                manualZoomBase.anchorScreen = { x: e.clientX, y: e.clientY };
+                manualZoomBase.anchorWorld = screenToWorld(e.clientX, e.clientY);
+                manualZoomStartTime = now;
+                manualZoomMoved = false;
+                // Do not start panning yet; wait to see if drag happens
+            } else {
+                // Record tap as possible first tap
+                lastTapTime = now;
+                lastTapPos = { x: e.clientX, y: e.clientY };
+            }
+        }
+
+        // If manual zoom just initiated, don't fall through to pan/other interactions
+        if (manualZoomActive) return;
+
         // Start panning on middle/right button, or when using Move tool (or play mode) with left/touch
-        // Check this FIRST so right/middle click always pans, regardless of objects
         if (e.button === 1 || e.button === 2 || tool === 'move' || mode === 'play') {
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
@@ -453,6 +503,25 @@
         // Update pointer
         if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+        // Manual zoom via double-tap+drag (touch)
+        if (manualZoomActive && manualZoomPointerId === e.pointerId) {
+            const dy = e.clientY - manualZoomBase.y;
+            if (Math.abs(dy) > 2) manualZoomMoved = true;
+            const factor = Math.exp(dy * MANUAL_ZOOM_RATE); // drag down => zoom in
+            const newZoom = clamp(manualZoomBase.zoom * factor, MIN_ZOOM, MAX_ZOOM);
+            if (newZoom !== camera.zoom) {
+                camera.zoom = newZoom;
+                const rect = canvasFg.getBoundingClientRect();
+                camera.x = manualZoomBase.anchorWorld.x - (manualZoomBase.anchorScreen.x - rect.left) / camera.zoom;
+                camera.y = manualZoomBase.anchorWorld.y - (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
+                clampCameraToBounds();
+                if (map) map.view = { ...camera };
+                drawGrid();
+                drawObjects();
+            }
+            return;
+        }
+
         // Pinch zoom/pan when two pointers active
         if (pointers.size >= 2) {
             const pts = Array.from(pointers.values()) as { x: number; y: number }[];
@@ -504,6 +573,21 @@
         } else if (mode === 'edit' && (tool === 'paint' || tool === 'erase') && (e.buttons & 1)) {
             paintAt(e.clientX, e.clientY);
         }
+
+        // Handle manual zoom with double-tap+drag
+        if (manualZoomActive && e.pointerId === manualZoomPointerId) {
+            const dy = e.clientY - manualZoomBase.anchorScreen.y;
+            const dt = Math.max(1, e.timeStamp - manualZoomStartTime);
+            const zoomDelta = Math.exp(-MANUAL_ZOOM_RATE * dy);
+            camera.zoom = clamp(manualZoomBase.zoom * zoomDelta, MIN_ZOOM, MAX_ZOOM);
+            const { x, y } = manualZoomBase.anchorWorld;
+            camera.x = x - (x - camera.x) * zoomDelta;
+            camera.y = y - (y - camera.y) * zoomDelta;
+            clampCameraToBounds();
+            map.view = { ...camera };
+            drawGrid();
+            drawObjects();
+        }
     }
 
     function onPointerUp(e?: PointerEvent) {
@@ -512,6 +596,28 @@
             if (target.hasPointerCapture(e.pointerId)) target.releasePointerCapture(e.pointerId);
             pointers.delete(e.pointerId);
         }
+
+        // Finish manual zoom gesture
+        if (manualZoomActive && e && manualZoomPointerId === e.pointerId) {
+            const dt = e.timeStamp - manualZoomStartTime;
+            if (!manualZoomMoved && dt <= DOUBLE_TAP_DELAY) {
+                // Quick double-tap without drag: zoom in by fixed factor around anchor
+                const newZoom = clamp(manualZoomBase.zoom * DOUBLE_TAP_ZOOM, MIN_ZOOM, MAX_ZOOM);
+                camera.zoom = newZoom;
+                const rect = canvasFg.getBoundingClientRect();
+                camera.x = manualZoomBase.anchorWorld.x - (manualZoomBase.anchorScreen.x - rect.left) / camera.zoom;
+                camera.y = manualZoomBase.anchorWorld.y - (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
+                clampCameraToBounds();
+                if (map) map.view = { ...camera };
+                drawGrid();
+                drawObjects();
+            }
+            manualZoomActive = false;
+            manualZoomPointerId = null;
+            manualZoomMoved = false;
+            lastTapTime = 0; // reset sequence
+        }
+
         if (isPanning) {
             startInertia();
         }
