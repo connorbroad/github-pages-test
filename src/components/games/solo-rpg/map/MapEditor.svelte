@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy, createEventDispatcher } from "svelte";
-    import { loadMaps, saveMaps, type MapEntity, type MapObject } from "../data/storage-utils";
+    import { loadMaps, saveMaps, type MapEntity, type MapObject } from "../data/storage-utils"; 
 
     export let mapId: string;
     // Receive editor UI state from sidebars
@@ -439,10 +439,9 @@
                 lastTapTime = now;
                 lastTapPos = { x: e.clientX, y: e.clientY };
             }
+            // If manual zoom just initiated, don't fall through to pan/other interactions
+            if (manualZoomActive) return;
         }
-
-        // If manual zoom just initiated, don't fall through to pan/other interactions
-        if (manualZoomActive) return;
 
         // Start panning on middle/right button, or when using Move tool (or play mode) with left/touch
         if (e.button === 1 || e.button === 2 || tool === 'move' || mode === 'play') {
@@ -471,9 +470,10 @@
         }
 
         // Object placement in edit mode with object tool
-        if (mode === 'edit' && tool === 'object' && e.button === 0) {
+        // Touch events have button === -1 or 0, mouse left-click is 0
+        if (mode === 'edit' && tool === 'object' && (e.button === 0 || e.button === -1)) {
             const newObj: MapObject = {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 type: currentShape,
                 x, y,
                 w: map.tileSize,
@@ -631,6 +631,19 @@
         }
         draggingObj = null;
         isPanning = false;
+    }
+
+    // UUID generator with fallback for browsers without crypto.randomUUID
+    function generateUUID(): string {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        // Fallback UUID generator
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 
     onMount(() => {
