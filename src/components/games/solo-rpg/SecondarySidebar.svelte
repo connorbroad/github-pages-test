@@ -89,6 +89,24 @@
                     <!-- Map mode: Edit, Play, and Back buttons -->
                     <button
                         class="nav-item"
+                        on:click={handleClose}
+                        aria-label="Back to Maps"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span class="label">Back</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
                         class:active={mapMode === 'edit'}
                         on:click={() => setMapMode('edit')}
                         aria-label="Edit Mode"
@@ -122,24 +140,6 @@
                             <polygon points="5 3 19 12 5 21 5 3"></polygon>
                         </svg>
                         <span class="label">Play</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
-                        on:click={handleClose}
-                        aria-label="Back to Maps"
-                    >
-                        <svg
-                            class="icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        <span class="label">Back</span>
                     </button>
                 {/if}
             </div>

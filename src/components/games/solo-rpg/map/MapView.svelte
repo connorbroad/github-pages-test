@@ -137,7 +137,11 @@
         <div class="map-view-full has-sidebars">
             <MapEditor mapId={currentMapId} {mode} {tool} {currentShape} {color} />
         </div>
-        <FloatingOracleButton on:navigateToStory />
+        <FloatingOracleButton 
+            hasSecondarySidebar={true}
+            hasTertiarySidebar={true}
+            on:navigateToStory 
+        />
     {/if}
 {/if}
 

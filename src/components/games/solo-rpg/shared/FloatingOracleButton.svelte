@@ -90,6 +90,16 @@
             right: 1.5rem;
             bottom: 1.5rem;
         }
+
+        /* When secondary sidebar is present (90px wide at left: 80px) */
+        .floating-oracle-button.has-secondary {
+            right: 1.5rem;
+        }
+
+        /* When both secondary and tertiary sidebars are present (total 80px + 90px + 80px = 250px) */
+        .floating-oracle-button.has-secondary.has-tertiary {
+            right: 1.5rem;
+        }
     }
 
     /* Mobile - account for bottom navbar */
