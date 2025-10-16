@@ -4,8 +4,7 @@
 
     export let mapId: string;
     // Receive editor UI state from sidebars
-    export let mode: "edit" | "play" = "edit";
-    export let tool: "paint" | "object" | "move" | "erase" = "paint";
+    export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
 
@@ -229,7 +228,7 @@
         }
 
         // Draw selection handle if an object is selected (move tool only)
-        if (selectedObject && (tool === 'move' || mode === 'play')) {
+        if (selectedObject && tool === 'move') {
             const handleSize = 16 / camera.zoom; // Fixed screen size
             const handleOffset = 8 / camera.zoom; // Distance from object edge
             
@@ -318,18 +317,20 @@
     }
 
     function paintAt(sx: number, sy: number) {
-        if (!map || mode === 'play') return;
+        if (!map) return;
         const { x, y } = screenToWorld(sx, sy);
         const { tx, ty } = worldToTile(x, y);
         const key = `${tx},${ty}`;
         const existed = Object.prototype.hasOwnProperty.call(map.background, key);
-        if (tool === 'erase') {
+        if (color === 'clear') {
+            // Clear/erase the tile
             if (existed) {
                 delete map.background[key];
                 // Erase can shrink bounds; mark dirty to recompute lazily
                 invalidateBounds();
             }
         } else {
+            // Paint with the selected color
             map.background[key] = color;
             if (!existed) {
                 // Expand cached bounds if present, else mark dirty
@@ -363,7 +364,7 @@
     let isDraggingHandle = false;
 
     // Clear selection when switching away from move tool
-    $: if (tool !== 'move' && mode !== 'play') {
+    $: if (tool !== 'move') {
         if (selectedObject) {
             selectedObject = null;
             if (map) drawObjects();
@@ -475,9 +476,9 @@
             return;
         }
 
-        // Double-tap detection on touch for Move tool / Play mode
+        // Double-tap detection on touch for Move tool
         const isTouch = e.pointerType === 'touch';
-        const allowDoubleTap = isTouch && (tool === 'move' || mode === 'play');
+        const allowDoubleTap = isTouch && tool === 'move';
         if (allowDoubleTap && e.button === 0) {
             const now = e.timeStamp;
             const dt = now - lastTapTime;
@@ -507,8 +508,8 @@
         // Compute world position to decide object hit vs other interactions
         const { x, y } = screenToWorld(e.clientX, e.clientY);
 
-        // Handle move tool / play mode interactions
-        if (tool === 'move' || mode === 'play') {
+        // Handle move tool interactions
+        if (tool === 'move') {
             // Check if clicking on the selected object (body or handle) to drag it
             if (selectedObject && isPointInObject(x, y, selectedObject)) {
                 isDraggingHandle = true;
@@ -546,7 +547,7 @@
             return;
         }
 
-        if (mode === 'edit' && (tool === 'paint' || tool === 'erase')) {
+        if (tool === 'paint') {
             paintAt(e.clientX, e.clientY);
             return;
         }
@@ -561,9 +562,9 @@
             return;
         }
 
-        // Object placement in edit mode with object tool
+        // Object placement with object tool
         // Touch events have button === -1 or 0, mouse left-click is 0
-        if (mode === 'edit' && tool === 'object' && (e.button === 0 || e.button === -1)) {
+        if (tool === 'object' && (e.button === 0 || e.button === -1)) {
             const newObj: MapObject = {
                 id: generateUUID(),
                 type: currentShape,
@@ -596,7 +597,7 @@
         if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
         // Update cursor based on hover state (only in move tool)
-        if ((tool === 'move' || mode === 'play') && !isDraggingHandle && !isPanning) {
+        if (tool === 'move' && !isDraggingHandle && !isPanning) {
             const { x, y } = screenToWorld(e.clientX, e.clientY);
             const target = e.currentTarget as HTMLElement;
             
@@ -679,7 +680,7 @@
             draggingObj.x = x - dragOffset.x;
             draggingObj.y = y - dragOffset.y;
             drawObjects();
-        } else if (mode === 'edit' && (tool === 'paint' || tool === 'erase') && (e.buttons & 1)) {
+        } else if (tool === 'paint' && (e.buttons & 1)) {
             paintAt(e.clientX, e.clientY);
         }
     }

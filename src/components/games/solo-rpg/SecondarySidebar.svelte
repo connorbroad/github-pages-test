@@ -9,12 +9,12 @@
     
     // Map-specific props
     export let mode: "story" | "map" = "story"; // Which context are we in?
-    export let mapMode: "edit" | "play" = "edit";
+    export let tool: "paint" | "object" | "move" = "move";
 
     const dispatch = createEventDispatcher();
 
-    function setMapMode(next: "edit" | "play") {
-        if (mapMode !== next) dispatch("modeChange", next);
+    function setTool(t: typeof tool) {
+        if (tool !== t) dispatch("toolChange", t);
     }
 
     function handleClose() {
@@ -86,7 +86,7 @@
                         <span class="label">Codex</span>
                     </button>
                 {:else}
-                    <!-- Map mode: Edit, Play, and Back buttons -->
+                    <!-- Map mode: Tool buttons -->
                     <button
                         class="nav-item"
                         on:click={handleClose}
@@ -107,9 +107,9 @@
 
                     <button
                         class="nav-item"
-                        class:active={mapMode === 'edit'}
-                        on:click={() => setMapMode('edit')}
-                        aria-label="Edit Mode"
+                        class:active={tool === 'move'}
+                        on:click={() => setTool('move')}
+                        aria-label="Move"
                     >
                         <svg
                             class="icon"
@@ -118,17 +118,21 @@
                             stroke="currentColor"
                             stroke-width="2"
                         >
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            <polyline points="5 9 2 12 5 15"></polyline>
+                            <polyline points="9 5 12 2 15 5"></polyline>
+                            <polyline points="15 19 12 22 9 19"></polyline>
+                            <polyline points="19 9 22 12 19 15"></polyline>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="12" y1="2" x2="12" y2="22"></line>
                         </svg>
-                        <span class="label">Edit</span>
+                        <span class="label">Move</span>
                     </button>
 
                     <button
                         class="nav-item"
-                        class:active={mapMode === 'play'}
-                        on:click={() => setMapMode('play')}
-                        aria-label="Play Mode"
+                        class:active={tool === 'paint'}
+                        on:click={() => setTool('paint')}
+                        aria-label="Paint"
                     >
                         <svg
                             class="icon"
@@ -137,9 +141,29 @@
                             stroke="currentColor"
                             stroke-width="2"
                         >
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"></path>
+                            <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
+                            <path d="M14.5 17.5 4.5 15"></path>
                         </svg>
-                        <span class="label">Play</span>
+                        <span class="label">Paint</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
+                        class:active={tool === 'object'}
+                        on:click={() => setTool('object')}
+                        aria-label="Object"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        </svg>
+                        <span class="label">Object</span>
                     </button>
                 {/if}
             </div>

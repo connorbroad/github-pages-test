@@ -89,15 +89,10 @@
     }
 
     // Editor UI state routed to sidebars
-    let mode: "edit" | "play" = "edit";
-    let tool: "paint" | "object" | "move" | "erase" = "paint";
+    let tool: "paint" | "object" | "move" = "move";
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     let color = "#2980b9";
 
-    // When switching to play mode, automatically equip move tool
-    $: if (mode === "play") {
-        tool = "move";
-    }
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -118,14 +113,14 @@
         <SecondarySidebar 
             show={true} 
             mode="map"
-            mapMode={mode}
+            {tool}
             activeTab="characters"
             onTabChange={() => {}}
-            on:modeChange={(e) => mode = e.detail}
+            on:toolChange={(e) => tool = e.detail}
             on:close={closeMap}
         />
         <TertiarySidebar 
-            show={mode === "edit"}
+            show={tool === "paint" || tool === "object"}
             mode="map"
             {tool} 
             {currentShape} 
@@ -134,17 +129,16 @@
             selectedSections={new Set()}
             isEditingSections={false}
             onToggleSection={() => {}}
-            on:toolChange={(e) => tool = e.detail}
             on:shapeChange={(e) => currentShape = e.detail}
             on:colorChange={(e) => color = e.detail}
         />
 
         <div class="map-view-full has-sidebars">
-            <MapEditor mapId={currentMapId} {mode} {tool} {currentShape} {color} />
+            <MapEditor mapId={currentMapId} {tool} {currentShape} {color} />
         </div>
         <FloatingOracleButton 
             hasSecondarySidebar={true}
-            hasTertiarySidebar={mode === "edit"}
+            hasTertiarySidebar={tool === "paint" || tool === "object"}
             on:navigateToStory 
         />
     {/if}

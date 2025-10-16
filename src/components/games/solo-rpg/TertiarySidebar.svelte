@@ -14,7 +14,7 @@
     export let onToggleSection: (section: string) => void = () => {};
 
     // Map mode props
-    export let tool: "paint" | "object" | "move" | "erase" = "paint";
+    export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     export let color: string = "#2980b9";
 
@@ -42,6 +42,8 @@
     }
 
     const palette = ["#222","#555","#888","#c0392b","#27ae60","#2980b9","#f1c40f","#8e44ad"];
+    const CLEAR_COLOR = "clear"; // Special value for erasing/clearing tiles
+
 </script>
 
 {#if show}
@@ -63,71 +65,11 @@
                 on:toggleSection={(e) => onToggleSection(e.detail)}
             />
         {:else}
-            <!-- Map mode: Tools, Shapes, Colors -->
+            <!-- Map mode: Shapes and Colors (shown when paint or object tool is active) -->
             <nav>
                 <div class="nav-items">
-                    <!-- Tools -->
-                    <button
-                        class="nav-item"
-                        class:active={tool === 'move'}
-                        on:click={() => setTool('move')}
-                        aria-label="Move"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="5 9 2 12 5 15"></polyline>
-                            <polyline points="9 5 12 2 15 5"></polyline>
-                            <polyline points="15 19 12 22 9 19"></polyline>
-                            <polyline points="19 9 22 12 19 15"></polyline>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <line x1="12" y1="2" x2="12" y2="22"></line>
-                        </svg>
-                        <span class="label">Move</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
-                        class:active={tool === 'paint'}
-                        on:click={() => setTool('paint')}
-                        aria-label="Paint"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"></path>
-                            <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
-                            <path d="M14.5 17.5 4.5 15"></path>
-                        </svg>
-                        <span class="label">Paint</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
-                        class:active={tool === 'erase'}
-                        on:click={() => setTool('erase')}
-                        aria-label="Erase"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
-                            <path d="M22 21H7"></path>
-                            <path d="m5 11 9 9"></path>
-                        </svg>
-                        <span class="label">Erase</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
-                        class:active={tool === 'object'}
-                        on:click={() => setTool('object')}
-                        aria-label="Object"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        </svg>
-                        <span class="label">Object</span>
-                    </button>
-
                     {#if tool === 'object'}
                         <!-- Shapes (only shown when object tool is active) -->
-                        <div class="divider"></div>
-                        
                         <button
                             class="nav-item"
                             class:active={currentShape === 'square'}
@@ -175,22 +117,42 @@
                             </svg>
                             <span class="label">Star</span>
                         </button>
+
+                        <div class="divider"></div>
                     {/if}
 
-                    <div class="divider"></div>
-
-                    <!-- Colors -->
-                    {#each palette as c}
-                        <button
-                            class="nav-item color-item"
-                            class:active={color === c}
-                            on:click={() => setColor(c)}
-                            aria-label={c}
-                        >
-                            <div class="color-swatch" style="background: {c}"></div>
-                            <span class="label visually-hidden">{c}</span>
-                        </button>
-                    {/each}
+                    {#if tool === 'paint' || tool === 'object'}
+                        <!-- Colors (shown when paint or object tool is active) -->
+                        {#if tool === 'paint'}
+                            <!-- Clear/Erase option (only in paint mode) -->
+                            <button
+                                class="nav-item color-item"
+                                class:active={color === CLEAR_COLOR}
+                                on:click={() => setColor(CLEAR_COLOR)}
+                                aria-label="Clear"
+                            >
+                                <div class="color-swatch clear-swatch">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </div>
+                                <span class="label">Clear</span>
+                            </button>
+                        {/if}
+                        
+                        {#each palette as c}
+                            <button
+                                class="nav-item color-item"
+                                class:active={color === c}
+                                on:click={() => setColor(c)}
+                                aria-label={c}
+                            >
+                                <div class="color-swatch" style="background: {c}"></div>
+                                <span class="label visually-hidden">{c}</span>
+                            </button>
+                        {/each}
+                    {/if}
                 </div>
             </nav>
         {/if}
@@ -285,6 +247,25 @@
         border-radius: 4px;
         border: 2px solid var(--sidebar-border);
         flex-shrink: 0;
+    }
+
+    .clear-swatch {
+        background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 3px,
+            var(--sidebar-border) 3px,
+            var(--sidebar-border) 6px
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .clear-swatch .icon {
+        width: 16px;
+        height: 16px;
+        color: var(--sidebar-text);
     }
 
     .color-item.active .color-swatch {
