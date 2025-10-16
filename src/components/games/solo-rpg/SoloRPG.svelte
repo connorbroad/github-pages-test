@@ -36,6 +36,7 @@
     let showDiceRoller = false;
     let showCardDealer = false;
     let storyViewComponent: any;
+    let mapViewComponent: any;
 
     // Dice roll preset data for ability/skill checks
     let diceRollPreset: {
@@ -83,6 +84,15 @@
 
     function handleNavigate(view: View) {
         const wasOnStory = currentView === "story";
+        
+        // Handle map toggle behavior: if already on map, return to landing
+        if (view === "map" && currentView === "map") {
+            if (mapViewComponent && mapViewComponent.returnToLanding) {
+                mapViewComponent.returnToLanding();
+            }
+            return;
+        }
+        
         currentView = view;
         // Reset story tab when leaving story view or chronicle view
         if (view !== "story" && view !== "chronicle") {
@@ -301,7 +311,6 @@
 <SecondarySidebar
     show={currentView === "story"}
     mode="story"
-    mapMode="edit"
     activeTab={activeStoryTab === "chronicle" ? "characters" : activeStoryTab}
     onTabChange={handleStoryTabChange}
 />
@@ -511,6 +520,7 @@
         </div>
     {:else if currentView === "map"}
         <MapView 
+            bind:this={mapViewComponent}
             on:navigateHome={() => handleNavigate("home")}
             on:navigateToStory={() => handleNavigate("chronicle")}
         />

@@ -25,13 +25,28 @@
     onMount(() => {
         if (campaignId) {
             maps = loadMapsByCampaign(campaignId);
-            currentMapId = loadActiveMapId();
+            const activeMapId = loadActiveMapId();
+            // Validate that the active map belongs to the current campaign
+            if (activeMapId && maps.some(m => m.id === activeMapId)) {
+                currentMapId = activeMapId;
+            } else {
+                currentMapId = null;
+                saveActiveMapId(null);
+            }
         }
     });
 
-    // Refresh maps when campaign changes
+    // Refresh maps when campaign changes and validate active map
     $: if (campaignId) {
         maps = loadMapsByCampaign(campaignId);
+        // If there's a current map open, verify it belongs to this campaign
+        if (currentMapId) {
+            const mapBelongsToCampaign = maps.some(m => m.id === currentMapId);
+            if (!mapBelongsToCampaign) {
+                currentMapId = null;
+                saveActiveMapId(null);
+            }
+        }
     }
 
     function createMap(e: CustomEvent<{ name: string }>) {
@@ -113,6 +128,12 @@
         showTertiarySidebar = tool === "paint" || tool === "object";
     }
 
+    // Public method to close the current map and return to landing
+    export function returnToLanding() {
+        if (currentMapId) {
+            closeMap();
+        }
+    }
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />

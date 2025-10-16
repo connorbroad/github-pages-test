@@ -17,10 +17,6 @@
         if (tool !== t) dispatch("toolChange", t);
     }
 
-    function handleClose() {
-        dispatch('close');
-    }
-
     // Detect if we're on mobile
     let isMobile = false;
     if (typeof window !== "undefined") {
@@ -85,26 +81,8 @@
                         </svg>
                         <span class="label">Codex</span>
                     </button>
-                {:else}
+                {:else if mode === "map"}
                     <!-- Map mode: Tool buttons -->
-                    <button
-                        class="nav-item"
-                        on:click={handleClose}
-                        aria-label="Back to Maps"
-                    >
-                        <svg
-                            class="icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        <span class="label">Back</span>
-                    </button>
-
                     <button
                         class="nav-item"
                         class:active={tool === 'move'}
