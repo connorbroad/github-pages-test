@@ -11,7 +11,7 @@
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import "../../solo-rpg-styles.css";
 
-    const DEFAULT_GROUPS = ["Characters", "Locations", "Items", "NPCs", "Factions", "Lore"];
+    const DEFAULT_GROUPS = ["Game Rules", "Characters", "Locations", "Items", "NPCs", "Factions", "Lore"];
 
     let codexNotes: CodexNote[] = [];
     let characters: Character[] = [];
@@ -271,6 +271,7 @@
 
     function getGroupIcon(group: string): string {
         const icons: Record<string, string> = {
+            "Game Rules": "🎲",
             Characters: "👤",
             Locations: "📍",
             Items: "🎒",
