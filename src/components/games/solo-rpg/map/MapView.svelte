@@ -93,6 +93,26 @@
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     let color = "#2980b9";
 
+    // Track sidebar visibility for smooth animations
+    let showSecondarySidebar = false;
+    let showTertiarySidebar = false;
+
+    // Reactive statement to show sidebars when a map is opened
+    $: if (currentMapId) {
+        // Small delay to ensure DOM is ready and transition can play
+        setTimeout(() => {
+            showSecondarySidebar = true;
+        }, 10);
+    } else {
+        showSecondarySidebar = false;
+        showTertiarySidebar = false;
+    }
+
+    // Update tertiary sidebar visibility based on tool
+    $: if (currentMapId) {
+        showTertiarySidebar = tool === "paint" || tool === "object";
+    }
+
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -111,7 +131,7 @@
     {:else}
         <!-- Sidebars for consistent tool UI -->
         <SecondarySidebar 
-            show={true} 
+            show={showSecondarySidebar} 
             mode="map"
             {tool}
             activeTab="characters"
@@ -120,7 +140,7 @@
             on:close={closeMap}
         />
         <TertiarySidebar 
-            show={tool === "paint" || tool === "object"}
+            show={showTertiarySidebar}
             mode="map"
             {tool} 
             {currentShape} 
@@ -137,8 +157,8 @@
             <MapEditor mapId={currentMapId} {tool} {currentShape} {color} />
         </div>
         <FloatingOracleButton 
-            hasSecondarySidebar={true}
-            hasTertiarySidebar={tool === "paint" || tool === "object"}
+            hasSecondarySidebar={showSecondarySidebar}
+            hasTertiarySidebar={showTertiarySidebar}
             on:navigateToStory 
         />
     {/if}
