@@ -46,55 +46,127 @@
     const VELOCITY_EPS = 0.02; // world units per ms
     function clamp(v: number, min: number, max: number) { return Math.min(max, Math.max(min, v)); }
 
+    // Soft-bounds configuration (in tiles)
+    const SAFE_MARGIN_TILES = 20;
+
+    // Cached content bounds to avoid O(N) scans on every clamp
+    let cachedBounds: { minX: number; minY: number; maxX: number; maxY: number } | null = null;
+    let boundsDirty = true;
+    function invalidateBounds() { boundsDirty = true; }
+
+    function computeContentBounds() {
+        const ts = map!.tileSize;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        // Background tiles
+        for (const key in map!.background) {
+            const [tx, ty] = key.split(',').map(Number);
+            const x1 = tx * ts, y1 = ty * ts, x2 = x1 + ts, y2 = y1 + ts;
+            if (x1 < minX) minX = x1;
+            if (y1 < minY) minY = y1;
+            if (x2 > maxX) maxX = x2;
+            if (y2 > maxY) maxY = y2;
+        }
+        // Foreground objects
+        for (const o of map!.objects) {
+            const x1 = o.x - o.w / 2, y1 = o.y - o.h / 2;
+            const x2 = o.x + o.w / 2, y2 = o.y + o.h / 2;
+            if (x1 < minX) minX = x1;
+            if (y1 < minY) minY = y1;
+            if (x2 > maxX) maxX = x2;
+            if (y2 > maxY) maxY = y2;
+        }
+        if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+            // No content yet: define a small region around origin
+            const pad = ts * 4;
+            return { minX: -pad, minY: -pad, maxX: pad, maxY: pad };
+        }
+        return { minX, minY, maxX, maxY };
+    }
+
+    function getContentBounds() {
+        if (boundsDirty || !cachedBounds) {
+            cachedBounds = computeContentBounds();
+            boundsDirty = false;
+        }
+        return cachedBounds!;
+    }
+
     function clampCameraToBounds() {
-        if (!map || !canvasFg) return;
-        const rect = canvasFg.getBoundingClientRect();
-        const viewW = rect.width / camera.zoom;
-        const viewH = rect.height / camera.zoom;
-        const worldW = map.width * map.tileSize;
-        const worldH = map.height * map.tileSize;
-        const maxX = Math.max(0, worldW - viewW);
-        const maxY = Math.max(0, worldH - viewH);
-        camera.x = clamp(camera.x, 0, maxX);
-        camera.y = clamp(camera.y, 0, maxY);
+        if (!map) return;
+        const bounds = getContentBounds();
+        const ts = map.tileSize;
+        const margin = SAFE_MARGIN_TILES * ts;
+        const { vw, vh } = getViewSize();
+        const minX = bounds.minX - margin;
+        const maxX = bounds.maxX + margin;
+        const minY = bounds.minY - margin;
+        const maxY = bounds.maxY + margin;
+        const regionW = maxX - minX;
+        const regionH = maxY - minY;
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+        const minCamX = regionW > vw ? minX : cx - vw / 2;
+        const maxCamX = regionW > vw ? maxX - vw : cx - vw / 2;
+        const minCamY = regionH > vh ? minY : cy - vh / 2;
+        const maxCamY = regionH > vh ? maxY - vh : cy - vh / 2;
+        camera.x = clamp(camera.x, minCamX, maxCamX);
+        camera.y = clamp(camera.y, minCamY, maxCamY);
     }
 
     function drawGrid() {
         if (!map || !ctxBg) return;
-        const { tileSize } = map;
+        const ts = map.tileSize;
         const { width, height } = canvasBg;
         ctxBg.clearRect(0, 0, width, height);
         // Background fill
         ctxBg.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
         ctxBg.fillRect(0, 0, width, height);
+
+        // Compute visible world rect
+        const rect = canvasBg.getBoundingClientRect();
+        const viewW = rect.width / camera.zoom;
+        const viewH = rect.height / camera.zoom;
+        const startTx = Math.floor(camera.x / ts) - 1;
+        const endTx = Math.ceil((camera.x + viewW) / ts) + 1;
+        const startTy = Math.floor(camera.y / ts) - 1;
+        const endTy = Math.ceil((camera.y + viewH) / ts) + 1;
+
         // Grid
         ctxBg.save();
         ctxBg.scale(camera.zoom, camera.zoom);
         ctxBg.translate(-camera.x, -camera.y);
-        const cols = map.width;
-        const rows = map.height;
         ctxBg.strokeStyle = 'rgba(255,255,255,0.1)';
         ctxBg.lineWidth = 1 / camera.zoom;
-        for (let x = 0; x <= cols; x++) {
-            const gx = Math.round(x * tileSize) + 0.5;
+
+        const left = startTx * ts;
+        const right = endTx * ts;
+        const top = startTy * ts;
+        const bottom = endTy * ts;
+
+        // Vertical lines
+        for (let tx = startTx; tx <= endTx; tx++) {
+            const gx = Math.round(tx * ts) + 0.5;
             ctxBg.beginPath();
-            ctxBg.moveTo(gx, 0);
-            ctxBg.lineTo(gx, rows * tileSize);
+            ctxBg.moveTo(gx, top);
+            ctxBg.lineTo(gx, bottom);
             ctxBg.stroke();
         }
-        for (let y = 0; y <= rows; y++) {
-            const gy = Math.round(y * tileSize) + 0.5;
+        // Horizontal lines
+        for (let ty = startTy; ty <= endTy; ty++) {
+            const gy = Math.round(ty * ts) + 0.5;
             ctxBg.beginPath();
-            ctxBg.moveTo(0, gy);
-            ctxBg.lineTo(cols * tileSize, gy);
+            ctxBg.moveTo(left, gy);
+            ctxBg.lineTo(right, gy);
             ctxBg.stroke();
         }
-        // Paint background tiles
+
+        // Paint background tiles (only visible region)
         for (const key in map.background) {
             const [tx, ty] = key.split(',').map(Number);
+            if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
             const fill = map.background[key];
             ctxBg.fillStyle = fill;
-            ctxBg.fillRect(tx * tileSize, ty * tileSize, tileSize, tileSize);
+            ctxBg.fillRect(tx * ts, ty * ts, ts, ts);
         }
         ctxBg.restore();
     }
@@ -102,10 +174,26 @@
     function drawObjects() {
         if (!map || !ctxFg) return;
         ctxFg.clearRect(0, 0, canvasFg.width, canvasFg.height);
+
+        // Compute visible world rect
+        const rect = canvasFg.getBoundingClientRect();
+        const viewW = rect.width / camera.zoom;
+        const viewH = rect.height / camera.zoom;
+        const left = camera.x;
+        const right = camera.x + viewW;
+        const top = camera.y;
+        const bottom = camera.y + viewH;
+
         ctxFg.save();
         ctxFg.scale(camera.zoom, camera.zoom);
         ctxFg.translate(-camera.x, -camera.y);
-        const objs = [...map.objects].sort((a,b) => (a.z ?? 0) - (b.z ?? 0));
+        const objs = [...map.objects]
+            .sort((a,b) => (a.z ?? 0) - (b.z ?? 0))
+            .filter(o => {
+                const ox1 = o.x - o.w/2, ox2 = o.x + o.w/2;
+                const oy1 = o.y - o.h/2, oy2 = o.y + o.h/2;
+                return ox2 >= left && ox1 <= right && oy2 >= top && oy1 <= bottom;
+            });
         for (const o of objs) {
             ctxFg.fillStyle = o.color;
             ctxFg.strokeStyle = o.color;
@@ -174,10 +262,28 @@
         const { x, y } = screenToWorld(sx, sy);
         const { tx, ty } = worldToTile(x, y);
         const key = `${tx},${ty}`;
+        const existed = Object.prototype.hasOwnProperty.call(map.background, key);
         if (tool === 'erase') {
-            delete map.background[key];
+            if (existed) {
+                delete map.background[key];
+                // Erase can shrink bounds; mark dirty to recompute lazily
+                invalidateBounds();
+            }
         } else {
             map.background[key] = color;
+            if (!existed) {
+                // Expand cached bounds if present, else mark dirty
+                if (cachedBounds && !boundsDirty) {
+                    const ts = map.tileSize;
+                    const x1 = tx * ts, y1 = ty * ts, x2 = x1 + ts, y2 = y1 + ts;
+                    cachedBounds.minX = Math.min(cachedBounds.minX, x1);
+                    cachedBounds.minY = Math.min(cachedBounds.minY, y1);
+                    cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
+                    cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
+                } else {
+                    invalidateBounds();
+                }
+            }
         }
         queueSave();
         drawGrid();
@@ -314,6 +420,17 @@
                 color,
             };
             map.objects.push(newObj);
+            // Expand cached bounds quickly
+            if (cachedBounds && !boundsDirty) {
+                const x1 = newObj.x - newObj.w/2, y1 = newObj.y - newObj.h/2;
+                const x2 = newObj.x + newObj.w/2, y2 = newObj.y + newObj.h/2;
+                cachedBounds.minX = Math.min(cachedBounds.minX, x1);
+                cachedBounds.minY = Math.min(cachedBounds.minY, y1);
+                cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
+                cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
+            } else {
+                invalidateBounds();
+            }
             queueSave();
             drawObjects();
             return;
@@ -337,7 +454,6 @@
                 const midX = (pts[0].x + pts[1].x) / 2;
                 const midY = (pts[0].y + pts[1].y) / 2;
                 camera.zoom = newZoom;
-                // Keep base center world under current midpoint
                 const rect = canvasFg.getBoundingClientRect();
                 camera.x = pinchBase.centerWorld.x - (midX - rect.left) / camera.zoom;
                 camera.y = pinchBase.centerWorld.y - (midY - rect.top) / camera.zoom;
@@ -389,6 +505,8 @@
             startInertia();
         }
         if (draggingObj) {
+            // Object move may expand or shrink bounds; recompute lazily
+            invalidateBounds();
             queueSave();
         }
         if (pointers.size < 2) {
@@ -406,7 +524,7 @@
         map = all.find(m => m.id === mapId) || null;
         if (!map) return;
         camera = map.view || { x: 0, y: 0, zoom: 1 };
-        clampCameraToBounds();
+        //clampCameraToBounds();
         // Set canvas size to container size
         resizeCanvas();
         drawGrid();
@@ -438,6 +556,18 @@
         clampCameraToBounds();
         drawGrid();
         drawObjects();
+    }
+
+    function getViewSize() {
+        const zoom = camera?.zoom ?? 1;
+        // Guard for early calls before canvas is bound/mounted
+        if (typeof window === 'undefined' || !canvasFg) {
+            const vw = (typeof window !== 'undefined' ? window.innerWidth : 1) / zoom;
+            const vh = (typeof window !== 'undefined' ? window.innerHeight : 1) / zoom;
+            return { vw, vh };
+        }
+        const rect = canvasFg.getBoundingClientRect();
+        return { vw: rect.width / zoom, vh: rect.height / zoom };
     }
 </script>
 
