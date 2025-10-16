@@ -227,6 +227,38 @@
             }
             ctxFg.restore();
         }
+
+        // Draw selection handle if an object is selected (move tool only)
+        if (selectedObject && (tool === 'move' || mode === 'play')) {
+            const handleSize = 16 / camera.zoom; // Fixed screen size
+            const handleOffset = 8 / camera.zoom; // Distance from object edge
+            
+            // Position handle at bottom-right of object
+            const handleX = selectedObject.x + selectedObject.w/2 + handleOffset;
+            const handleY = selectedObject.y + selectedObject.h/2 + handleOffset;
+            
+            // Draw handle background (white)
+            ctxFg.fillStyle = '#ffffff';
+            ctxFg.fillRect(handleX - handleSize/2, handleY - handleSize/2, handleSize, handleSize);
+            
+            // Draw handle border (blue)
+            ctxFg.strokeStyle = '#3498db';
+            ctxFg.lineWidth = 2 / camera.zoom;
+            ctxFg.strokeRect(handleX - handleSize/2, handleY - handleSize/2, handleSize, handleSize);
+            
+            // Draw selection outline around object
+            ctxFg.strokeStyle = '#3498db';
+            ctxFg.lineWidth = 2 / camera.zoom;
+            ctxFg.setLineDash([8 / camera.zoom, 4 / camera.zoom]);
+            ctxFg.strokeRect(
+                selectedObject.x - selectedObject.w/2,
+                selectedObject.y - selectedObject.h/2,
+                selectedObject.w,
+                selectedObject.h
+            );
+            ctxFg.setLineDash([]);
+        }
+
         ctxFg.restore();
     }
 
@@ -273,6 +305,18 @@
         return { x, y };
     }
 
+    function isPointInHandle(wx: number, wy: number, obj: MapObject): boolean {
+        const handleSize = 16 / camera.zoom;
+        const handleOffset = 8 / camera.zoom;
+        const handleX = obj.x + obj.w/2 + handleOffset;
+        const handleY = obj.y + obj.h/2 + handleOffset;
+        return Math.abs(wx - handleX) <= handleSize/2 && Math.abs(wy - handleY) <= handleSize/2;
+    }
+
+    function isPointInObject(wx: number, wy: number, obj: MapObject): boolean {
+        return Math.abs(wx - obj.x) <= obj.w/2 && Math.abs(wy - obj.y) <= obj.h/2;
+    }
+
     function paintAt(sx: number, sy: number) {
         if (!map || mode === 'play') return;
         const { x, y } = screenToWorld(sx, sy);
@@ -313,6 +357,18 @@
     let lastPanTime = 0;
     let velocity = { x: 0, y: 0 }; // world units per ms for camera
     let inertiaRaf: number | null = null;
+    
+    // Object selection state for move tool
+    let selectedObject: MapObject | null = null;
+    let isDraggingHandle = false;
+
+    // Clear selection when switching away from move tool
+    $: if (tool !== 'move' && mode !== 'play') {
+        if (selectedObject) {
+            selectedObject = null;
+            if (map) drawObjects();
+        }
+    }
     
     // Multi-touch pointer tracking
     let pointers = new Map<number, { x: number; y: number }>();
@@ -448,25 +504,56 @@
             if (manualZoomActive) return;
         }
 
-        // Start panning on middle/right button, or when using Move tool (or play mode) with left/touch
-        if (e.button === 1 || e.button === 2 || tool === 'move' || mode === 'play') {
+        // Compute world position to decide object hit vs other interactions
+        const { x, y } = screenToWorld(e.clientX, e.clientY);
+
+        // Handle move tool / play mode interactions
+        if (tool === 'move' || mode === 'play') {
+            // Check if clicking on the selected object (body or handle) to drag it
+            if (selectedObject && isPointInObject(x, y, selectedObject)) {
+                isDraggingHandle = true;
+                draggingObj = selectedObject;
+                dragOffset.x = x - selectedObject.x;
+                dragOffset.y = y - selectedObject.y;
+                return;
+            }
+
+            // Check if clicking on any object to select it
+            const objs = [...map.objects].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
+            const hit = objs.find(o => isPointInObject(x, y, o));
+            if (hit) {
+                selectedObject = hit;
+                drawObjects();
+                return;
+            }
+
+            // Otherwise, deselect and start panning
+            selectedObject = null;
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
+            drawObjects();
             return;
         }
 
-        // Compute world position to decide object hit vs other interactions
-        const { x, y } = screenToWorld(e.clientX, e.clientY);
+        // Start panning on middle/right button
+        if (e.button === 1 || e.button === 2) {
+            selectedObject = null;
+            isPanning = true;
+            lastPan = { x: e.clientX, y: e.clientY };
+            lastPanTime = e.timeStamp;
+            drawObjects();
+            return;
+        }
 
         if (mode === 'edit' && (tool === 'paint' || tool === 'erase')) {
             paintAt(e.clientX, e.clientY);
             return;
         }
 
-        // Foreground interaction (single finger/mouse left)
+        // Foreground interaction for other edit tools (single finger/mouse left)
         const objs = [...map.objects].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
-        const hit = objs.find(o => Math.abs(x - o.x) <= o.w/2 && Math.abs(y - o.y) <= o.h/2);
+        const hit = objs.find(o => isPointInObject(x, y, o));
         if (hit) {
             draggingObj = hit;
             dragOffset.x = x - hit.x;
@@ -507,6 +594,23 @@
         if (!map) return;
         // Update pointer
         if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        // Update cursor based on hover state (only in move tool)
+        if ((tool === 'move' || mode === 'play') && !isDraggingHandle && !isPanning) {
+            const { x, y } = screenToWorld(e.clientX, e.clientY);
+            const target = e.currentTarget as HTMLElement;
+            
+            if (selectedObject && isPointInHandle(x, y, selectedObject)) {
+                target.style.cursor = 'grab';
+            } else {
+                const objs = [...map.objects].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
+                const hit = objs.find(o => isPointInObject(x, y, o));
+                target.style.cursor = hit ? 'pointer' : 'default';
+            }
+        } else if (isDraggingHandle) {
+            const target = e.currentTarget as HTMLElement;
+            target.style.cursor = 'grabbing';
+        }
 
         // Manual zoom via double-tap+drag (touch)
         if (manualZoomActive && manualZoomPointerId === e.pointerId) {
@@ -578,21 +682,6 @@
         } else if (mode === 'edit' && (tool === 'paint' || tool === 'erase') && (e.buttons & 1)) {
             paintAt(e.clientX, e.clientY);
         }
-
-        // Handle manual zoom with double-tap+drag
-        if (manualZoomActive && e.pointerId === manualZoomPointerId) {
-            const dy = e.clientY - manualZoomBase.anchorScreen.y;
-            const dt = Math.max(1, e.timeStamp - manualZoomStartTime);
-            const zoomDelta = Math.exp(-MANUAL_ZOOM_RATE * dy);
-            camera.zoom = clamp(manualZoomBase.zoom * zoomDelta, MIN_ZOOM, MAX_ZOOM);
-            const { x, y } = manualZoomBase.anchorWorld;
-            camera.x = x - (x - camera.x) * zoomDelta;
-            camera.y = y - (y - camera.y) * zoomDelta;
-            clampCameraToBounds();
-            map.view = { ...camera };
-            drawGrid();
-            drawObjects();
-        }
     }
 
     function onPointerUp(e?: PointerEvent) {
@@ -635,6 +724,7 @@
             pinchBase.distance = 0;
         }
         draggingObj = null;
+        isDraggingHandle = false;
         isPanning = false;
     }
 
