@@ -250,19 +250,8 @@
     function onWheel(e: WheelEvent) {
         if (!map) return;
         e.preventDefault();
-        if (e.ctrlKey || e.metaKey) {
-            const factor = Math.pow(1.0015, -e.deltaY);
-            setZoomAround(camera.zoom * factor, e.clientX, e.clientY);
-        } else {
-            // Pan with wheel deltas
-            camera.x += e.deltaX / camera.zoom;
-            camera.y += e.deltaY / camera.zoom;
-            clampCameraToBounds();
-            if (map) map.view = { ...camera };
-            drawGrid();
-            drawObjects();
-            queueSave();
-        }
+        const factor = Math.pow(1.0015, -e.deltaY);
+        setZoomAround(camera.zoom * factor, e.clientX, e.clientY);
     }
 
     function onPointerDown(e: PointerEvent) {
