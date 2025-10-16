@@ -195,18 +195,21 @@
             });
         for (const o of objs) {
             ctxFg.fillStyle = o.color;
-            ctxFg.strokeStyle = o.color;
+            ctxFg.strokeStyle = '#000000'; // Black outline
+            ctxFg.lineWidth = 2 / camera.zoom; // Scale-aware outline width
             ctxFg.save();
             ctxFg.translate(o.x, o.y);
             if (o.rotation) ctxFg.rotate(o.rotation);
             switch (o.type) {
                 case 'square':
                     ctxFg.fillRect(-o.w/2, -o.h/2, o.w, o.h);
+                    ctxFg.strokeRect(-o.w/2, -o.h/2, o.w, o.h);
                     break;
                 case 'circle':
                     ctxFg.beginPath();
                     ctxFg.arc(0, 0, Math.min(o.w, o.h)/2, 0, Math.PI*2);
                     ctxFg.fill();
+                    ctxFg.stroke();
                     break;
                 case 'triangle':
                     ctxFg.beginPath();
@@ -215,9 +218,11 @@
                     ctxFg.lineTo(o.w/2, o.h/2);
                     ctxFg.closePath();
                     ctxFg.fill();
+                    ctxFg.stroke();
                     break;
                 case 'star':
                     drawStar(ctxFg, 0, 0, 5, Math.min(o.w,o.h)/2, Math.min(o.w,o.h)/4);
+                    ctxFg.stroke();
                     break;
             }
             ctxFg.restore();
