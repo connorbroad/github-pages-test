@@ -142,27 +142,9 @@
     h4 {
         text-align: center;
         margin: 0;
-        padding-bottom: 1rem;
+        padding: 1rem 0;
         flex-shrink: 0;
-    }
-
-    /* Thin lines above and below the h2 */
-    h4::before {
-        content: "";
-        display: block;
-        width: 100%;
-        height: 1px;
-        background-color: var(--border-primary);
-        margin-bottom: 0.5rem;
-    }
-    h4::after {
-        content: "";
-        display: block;
-        width: 100%;
-        height: 1px;
-        background-color: var(--border-primary);
-        margin-top: 0.5rem;
-    }
+    } 
 
     .tab-content {
         flex: 1;
