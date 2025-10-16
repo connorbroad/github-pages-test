@@ -7,8 +7,8 @@
     import { loadMapsByCampaign, saveMaps, loadMaps, saveActiveMapId, loadActiveMapId, type MapEntity } from "../data/storage-utils";
     import MapLanding from "./MapLanding.svelte";
     import MapEditor from "./MapEditor.svelte";
-    import MapSecondarySidebar from "./MapSecondarySidebar.svelte";
-    import MapTertiarySidebar from "./MapTertiarySidebar.svelte";
+    import SecondarySidebar from "../SecondarySidebar.svelte";
+    import TertiarySidebar from "../TertiarySidebar.svelte";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -110,11 +110,25 @@
         <FloatingOracleButton on:navigateToStory />
     {:else}
         <!-- Sidebars for consistent tool UI -->
-        <MapSecondarySidebar show={true} {mode}
+        <SecondarySidebar 
+            show={true} 
+            mode="map"
+            mapMode={mode}
+            activeTab="characters"
+            onTabChange={() => {}}
             on:modeChange={(e) => mode = e.detail}
             on:close={closeMap}
         />
-        <MapTertiarySidebar show={true} {tool} {currentShape} {color}
+        <TertiarySidebar 
+            show={true}
+            mode="map"
+            {tool} 
+            {currentShape} 
+            {color}
+            visibleSections={[]}
+            selectedSections={new Set()}
+            isEditingSections={false}
+            onToggleSection={() => {}}
             on:toolChange={(e) => tool = e.detail}
             on:shapeChange={(e) => currentShape = e.detail}
             on:colorChange={(e) => color = e.detail}

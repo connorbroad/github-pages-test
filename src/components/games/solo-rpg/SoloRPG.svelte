@@ -300,12 +300,18 @@
 <!-- Use app sidebars only on Story view; Map view uses its own map sidebars -->
 <SecondarySidebar
     show={currentView === "story"}
+    mode="story"
+    mapMode="edit"
     activeTab={activeStoryTab === "chronicle" ? "characters" : activeStoryTab}
     onTabChange={handleStoryTabChange}
 />
 
 <TertiarySidebar
     show={showTertiarySidebar}
+    mode="story"
+    tool="paint"
+    currentShape="square"
+    color="#2980b9"
     visibleSections={tertiaryVisibleSections}
     selectedSections={tertiarySelectedSections}
     isEditingSections={tertiaryIsEditingSections}

@@ -1,10 +1,25 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
+    import { createEventDispatcher } from "svelte";
 
     export let activeTab: "characters" | "codex" = "characters";
     export let onTabChange: (tab: "characters" | "codex") => void;
     export let show: boolean = false;
+    
+    // Map-specific props
+    export let mode: "story" | "map" = "story"; // Which context are we in?
+    export let mapMode: "edit" | "play" = "edit";
+
+    const dispatch = createEventDispatcher();
+
+    function setMapMode(next: "edit" | "play") {
+        if (mapMode !== next) dispatch("modeChange", next);
+    }
+
+    function handleClose() {
+        dispatch('close');
+    }
 
     // Detect if we're on mobile
     let isMobile = false;
@@ -28,46 +43,105 @@
     >
         <nav>
             <div class="nav-items">
-                <button
-                    class="nav-item"
-                    class:active={activeTab === "characters"}
-                    on:click={() => onTabChange("characters")}
-                    aria-label="Characters"
-                >
-                    <svg
-                        class="icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
+                {#if mode === "story"}
+                    <!-- Story mode: Characters and Codex tabs -->
+                    <button
+                        class="nav-item"
+                        class:active={activeTab === "characters"}
+                        on:click={() => onTabChange("characters")}
+                        aria-label="Characters"
                     >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                        ></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <span class="label">Characters</span>
-                </button>
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                            ></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span class="label">Characters</span>
+                    </button>
 
-                <button
-                    class="nav-item"
-                    class:active={activeTab === "codex"}
-                    on:click={() => onTabChange("codex")}
-                    aria-label="Codex"
-                >
-                    <svg
-                        class="icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
+                    <button
+                        class="nav-item"
+                        class:active={activeTab === "codex"}
+                        on:click={() => onTabChange("codex")}
+                        aria-label="Codex"
                     >
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                        <path
-                            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
-                        ></path>
-                    </svg>
-                    <span class="label">Codex</span>
-                </button>
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path
+                                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                            ></path>
+                        </svg>
+                        <span class="label">Codex</span>
+                    </button>
+                {:else}
+                    <!-- Map mode: Edit, Play, and Back buttons -->
+                    <button
+                        class="nav-item"
+                        class:active={mapMode === 'edit'}
+                        on:click={() => setMapMode('edit')}
+                        aria-label="Edit Mode"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <span class="label">Edit</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
+                        class:active={mapMode === 'play'}
+                        on:click={() => setMapMode('play')}
+                        aria-label="Play Mode"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span class="label">Play</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
+                        on:click={handleClose}
+                        aria-label="Back to Maps"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span class="label">Back</span>
+                    </button>
+                {/if}
             </div>
         </nav>
     </aside>
