@@ -116,11 +116,9 @@
     function drawGrid() {
         if (!map || !ctxBg) return;
         const ts = map.tileSize;
-        const { width, height } = canvasBg;
-        ctxBg.clearRect(0, 0, width, height);
-        // Background fill
-        ctxBg.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
-        ctxBg.fillRect(0, 0, width, height);
+        const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
+        // Clear and fill full canvas in device pixels
+        clearCanvas(ctxBg, canvasBg, bgFill);
 
         // Compute visible world rect
         const rect = canvasBg.getBoundingClientRect();
@@ -173,7 +171,8 @@
 
     function drawObjects() {
         if (!map || !ctxFg) return;
-        ctxFg.clearRect(0, 0, canvasFg.width, canvasFg.height);
+        // Clear full canvas (no fill background on fg layer)
+        clearCanvas(ctxFg, canvasFg);
 
         // Compute visible world rect
         const rect = canvasFg.getBoundingClientRect();
@@ -224,6 +223,18 @@
             ctxFg.restore();
         }
         ctxFg.restore();
+    }
+
+    function clearCanvas(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, fill?: string) {
+        ctx.save();
+        // Reset to identity to cover entire pixel buffer regardless of current scaling
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (fill) {
+            ctx.fillStyle = fill;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.restore();
     }
 
     function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, spikes: number, outerRadius: number, innerRadius: number) {
@@ -524,7 +535,6 @@
         map = all.find(m => m.id === mapId) || null;
         if (!map) return;
         camera = map.view || { x: 0, y: 0, zoom: 1 };
-        //clampCameraToBounds();
         // Set canvas size to container size
         resizeCanvas();
         drawGrid();
