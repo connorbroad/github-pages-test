@@ -4,6 +4,7 @@
     import TemplateModal from "../../shared/modal/TemplateModal.svelte";
     import CharacterSheetSection from "./CharacterSheetSection.svelte";
     import { loadCharacters } from "../../data/storage-utils";
+    import ResultOptionIcon from "../../oracle/components/dice-roller/components/ResultOptionIcon.svelte";
 
     export let character: Character;
     export let isEditing: boolean = false;
@@ -369,9 +370,10 @@
 
     function rollAbility(ability: Ability, resultOption: "Sum" | "Maximum" | "Minimum") {
         const diceFormula = editedCharacter.abilityCheckDice || "1d20";
+        const adjustedFormula = adjustDiceRollForAdvantageOrDisadvantage(diceFormula, resultOption);
         dispatch("rollCheck", {
             checkName: ability.name,
-            diceFormula,
+            diceFormula: adjustedFormula,
             modifier: ability.modifier,
             resultOption
         });
@@ -379,12 +381,31 @@
 
     function rollSkill(skill: Skill, resultOption: "Sum" | "Maximum" | "Minimum") {
         const diceFormula = editedCharacter.skillCheckDice || "1d20";
+        const adjustedFormula = adjustDiceRollForAdvantageOrDisadvantage(diceFormula, resultOption);
         dispatch("rollCheck", {
             checkName: skill.name,
-            diceFormula,
+            diceFormula: adjustedFormula,
             modifier: skill.bonus,
             resultOption
         });
+    }
+
+    function adjustDiceRollForAdvantageOrDisadvantage(diceFormula: string, resultOption: "Sum" | "Maximum" | "Minimum"): string {
+        // If the formula is already multiple dice, return as-is
+        if (diceFormula.includes("+") || diceFormula.includes("-")) {
+            return diceFormula;
+        }
+        const match = diceFormula.match(/^(\d*)d(\d+)$/);
+        if (match) {
+            const numDice = parseInt(match[1] || "1", 10);
+            const sides = parseInt(match[2], 10);
+
+            // To keep it simple for now, only adjust if it's a single die
+            if (numDice === 1 && (resultOption === "Maximum" || resultOption === "Minimum")) {
+                return `2d${sides}`;
+            }
+        }
+        return diceFormula;
     }
 
     function getAbilityName(abilityId: string): string {
@@ -961,6 +982,15 @@
                                         </div>
                                         {#if editedCharacter.abilityCheckDice}
                                             <div class="roll-buttons">
+                                                {#if editedCharacter.abilityCheckDice.startsWith("1d")}
+                                                    <button
+                                                        class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
+                                                        on:click={() => rollAbility(ability, "Maximum")}
+                                                        title="Roll with advantage"
+                                                    >
+                                                        <span class="result-icon"><ResultOptionIcon option="Maximum" size="1.5em" /></span>
+                                                    </button>
+                                                {/if}
                                                 <button
                                                     class="srpg-b srpg-b-sm srpg-b-normal roll-btn"
                                                     on:click={() => rollAbility(ability, "Sum")}
@@ -973,20 +1003,13 @@
                                                     </svg>
                                                     Roll
                                                 </button>
-                                                {#if editedCharacter.abilityCheckDice === "1d20"}
-                                                    <button
-                                                        class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
-                                                        on:click={() => rollAbility(ability, "Maximum")}
-                                                        title="Roll with advantage"
-                                                    >
-                                                        Adv
-                                                    </button>
+                                                {#if editedCharacter.abilityCheckDice.startsWith("1d")}
                                                     <button
                                                         class="srpg-b srpg-b-sm srpg-b-simple roll-btn-dis"
                                                         on:click={() => rollAbility(ability, "Minimum")}
                                                         title="Roll with disadvantage"
                                                     >
-                                                        Dis
+                                                        <span class="result-icon"><ResultOptionIcon option="Minimum" size="1.5em" /></span>
                                                     </button>
                                                 {/if}
                                             </div>

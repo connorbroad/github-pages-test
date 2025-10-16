@@ -160,9 +160,9 @@
     }
 
     function handleRollCheck(event: CustomEvent) {
-        const { characterId, characterName, checkName, diceFormula, modifier, rollType } = event.detail;
+        const { characterId, characterName, checkName, diceFormula, modifier, resultOption } = event.detail;
         
-        // Parse the dice formula (e.g., "1d20" -> numDice=1, numSides=20)
+        // Parse the dice formula (e.g., "1d20" or "2d20" -> numDice, numSides)
         const match = diceFormula.match(/^(\d+)d(\d+)$/i);
         if (!match) {
             console.error("Invalid dice formula:", diceFormula);
@@ -171,6 +171,14 @@
         
         const numDice = parseInt(match[1], 10);
         const numSides = parseInt(match[2], 10);
+        
+        // Convert resultOption to rollType for backward compatibility
+        let rollType: "normal" | "advantage" | "disadvantage" = "normal";
+        if (resultOption === "Maximum") {
+            rollType = "advantage";
+        } else if (resultOption === "Minimum") {
+            rollType = "disadvantage";
+        }
         
         // Store the preset data
         diceRollPreset = {
