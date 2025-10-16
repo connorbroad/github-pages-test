@@ -1228,6 +1228,15 @@
                                                 </div>
                                                 {#if editedCharacter.skillCheckDice}
                                                     <div class="roll-buttons">
+                                                        {#if editedCharacter.skillCheckDice === "1d20"}
+                                                            <button
+                                                                class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
+                                                                on:click={() => rollSkill(skill, "Maximum")}
+                                                                title="Roll with advantage"
+                                                            >
+                                                                <span class="result-icon"><ResultOptionIcon option="Maximum" size="1.5em" /></span>
+                                                            </button>
+                                                        {/if}
                                                         <button
                                                             class="srpg-b srpg-b-sm srpg-b-normal roll-btn"
                                                             on:click={() => rollSkill(skill, "Sum")}
@@ -1242,18 +1251,11 @@
                                                         </button>
                                                         {#if editedCharacter.skillCheckDice === "1d20"}
                                                             <button
-                                                                class="srpg-b srpg-b-sm srpg-b-simple roll-btn-adv"
-                                                                on:click={() => rollSkill(skill, "Maximum")}
-                                                                title="Roll with advantage"
-                                                            >
-                                                                Adv
-                                                            </button>
-                                                            <button
                                                                 class="srpg-b srpg-b-sm srpg-b-simple roll-btn-dis"
                                                                 on:click={() => rollSkill(skill, "Minimum")}
                                                                 title="Roll with disadvantage"
                                                             >
-                                                                Dis
+                                                                <span class="result-icon"><ResultOptionIcon option="Minimum" size="1.5em" /></span>
                                                             </button>
                                                         {/if}
                                                     </div>
