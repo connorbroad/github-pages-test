@@ -93,6 +93,11 @@
     let tool: "paint" | "object" | "move" | "erase" = "paint";
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     let color = "#2980b9";
+
+    // When switching to play mode, automatically equip move tool
+    $: if (mode === "play") {
+        tool = "move";
+    }
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -120,7 +125,7 @@
             on:close={closeMap}
         />
         <TertiarySidebar 
-            show={true}
+            show={mode === "edit"}
             mode="map"
             {tool} 
             {currentShape} 
@@ -139,7 +144,7 @@
         </div>
         <FloatingOracleButton 
             hasSecondarySidebar={true}
-            hasTertiarySidebar={true}
+            hasTertiarySidebar={mode === "edit"}
             on:navigateToStory 
         />
     {/if}
