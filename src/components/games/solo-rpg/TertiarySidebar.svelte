@@ -69,32 +69,6 @@
                     <!-- Tools -->
                     <button
                         class="nav-item"
-                        class:active={tool === 'paint'}
-                        on:click={() => setTool('paint')}
-                        aria-label="Paint"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"></path>
-                            <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
-                            <path d="M14.5 17.5 4.5 15"></path>
-                        </svg>
-                        <span class="label">Paint</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
-                        class:active={tool === 'object'}
-                        on:click={() => setTool('object')}
-                        aria-label="Object"
-                    >
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        </svg>
-                        <span class="label">Object</span>
-                    </button>
-
-                    <button
-                        class="nav-item"
                         class:active={tool === 'move'}
                         on:click={() => setTool('move')}
                         aria-label="Move"
@@ -112,6 +86,20 @@
 
                     <button
                         class="nav-item"
+                        class:active={tool === 'paint'}
+                        on:click={() => setTool('paint')}
+                        aria-label="Paint"
+                    >
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"></path>
+                            <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
+                            <path d="M14.5 17.5 4.5 15"></path>
+                        </svg>
+                        <span class="label">Paint</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
                         class:active={tool === 'erase'}
                         on:click={() => setTool('erase')}
                         aria-label="Erase"
@@ -122,6 +110,18 @@
                             <path d="m5 11 9 9"></path>
                         </svg>
                         <span class="label">Erase</span>
+                    </button>
+
+                    <button
+                        class="nav-item"
+                        class:active={tool === 'object'}
+                        on:click={() => setTool('object')}
+                        aria-label="Object"
+                    >
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        </svg>
+                        <span class="label">Object</span>
                     </button>
 
                     {#if tool === 'object'}
