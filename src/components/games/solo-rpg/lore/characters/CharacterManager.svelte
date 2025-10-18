@@ -115,29 +115,6 @@
         });
     }
 
-    function editCharacter() {
-        isEditing = true;
-        isEditingSections = false;
-        dispatch('characterSelected', {
-            character: selectedCharacter,
-            isEditing,
-            isEditingSections,
-            selectedSections,
-            visibleSections: selectedCharacter?.visibleSections || ["information"]
-        });
-    }
-
-    function editCharacterSections() {
-        isEditingSections = !isEditingSections;
-        dispatch('characterSelected', {
-            character: selectedCharacter,
-            isEditing,
-            isEditingSections,
-            selectedSections,
-            visibleSections: selectedCharacter?.visibleSections || ["information"]
-        });
-    }
-
     function saveCharacter(event: CustomEvent<Character>) {
         const updatedCharacter = event.detail;
         const allCharacters = loadCharacters();
@@ -436,7 +413,7 @@
         </div>
     {:else}
         <div class="character-list-view">
-            <div class="list-header">
+            <div class="srpg-header-actions">
                 <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateModal}>
                     + Create Character
                 </button>
@@ -660,15 +637,7 @@
         .character-sheet-container {
             padding-bottom: 0;
         }
-    }
-
-    .list-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        flex-shrink: 0;
-    }
+    } 
 
     .group-filter {
         margin-bottom: 1.5rem;

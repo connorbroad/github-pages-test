@@ -364,7 +364,6 @@
         <!-- List View -->
         <div class="codex-list-view">
             <div class="srpg-header-actions">
-                <h2 class="srpg-header-title">Codex</h2>
                 <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
                     + New Note
                 </button>
@@ -564,8 +563,7 @@
 
     .codex-list-view {
         flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
+        overflow-y: auto; 
     }
 
     .note-view {

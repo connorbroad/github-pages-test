@@ -2,7 +2,6 @@
     import DataManager from "./data/DataManager.svelte";
     import Sidebar from "./Sidebar.svelte";
     import TertiarySidebar from "./TertiarySidebar.svelte";
-    import StoryView from "./lore/StoryView.svelte"; // now Codex-only
     import Chronicle from "./lore/chronicle/Chronicle.svelte";
     import CharacterManager from "./lore/characters/CharacterManager.svelte";
     import FloatingOracleButton from "./shared/FloatingOracleButton.svelte";
@@ -15,6 +14,7 @@
     import { onMount } from "svelte";
     import "./solo-rpg-styles.css";
     import HomeView from "./home/HomeView.svelte";
+    import Codex from "./lore/codex/Codex.svelte";
 
     type View = "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle" | "characters";
     let currentView: View = "home";
@@ -26,9 +26,7 @@
     let tertiaryIsEditingSections: boolean = false;
     let currentCharacter: any = null;
     let selectedCharacterId: string | null = null;
-
-    let showDiceRoller = false;
-    let showCardDealer = false;
+ 
     let chronicleComponent: any;
     let characterManagerComponent: any;
     let mapViewComponent: any;
@@ -66,8 +64,7 @@
 
     function handleCharacterSelected(event: CustomEvent) {
         const {
-            character,
-            isEditing,
+            character, 
             isEditingSections,
             selectedSections,
             visibleSections,
@@ -105,9 +102,7 @@
         characterManagerComponent?.toggleSectionFromExternal?.(section);
     }
 
-    function handleDataImported() {
-        // After import, user can navigate back to Home to see refreshed data
-        currentView = "settings";
+    function handleDataImported() {  
     }
 
     function handleHomeLoadCampaign(event: CustomEvent<Campaign>) {
@@ -141,7 +136,54 @@
     data-theme={$theme}
 >
     {#if currentView === "home"}
-        <HomeView on:loadCampaign={handleHomeLoadCampaign} />
+        <div class="tab-content">
+            <HomeView on:loadCampaign={handleHomeLoadCampaign} />
+        </div>
+    {:else if currentView === "chronicle"}
+        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        {#if $activeCampaign} 
+            <h4>{$activeCampaign.title}</h4>
+            <div class="tab-content">
+                <Chronicle bind:this={chronicleComponent} />
+            </div> 
+        {:else}
+            <h1>No Active Campaign</h1>
+            <em>Select or create a campaign to start recording your adventure.</em>
+        {/if}
+    {:else if currentView === "characters"}
+        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        {#if $activeCampaign}
+            <h4>{$activeCampaign.title}</h4>
+            <div class="tab-content">
+                <CharacterManager
+                    bind:this={characterManagerComponent}
+                    on:characterSelected={handleCharacterSelected}
+                    on:characterDeselected={handleCharacterDeselected}
+                    on:rollCheck={handleRollCheck}
+                />
+            </div>
+        {:else}
+            <h1>No Active Campaign</h1>
+            <em>Select or create a campaign to start managing characters.</em>
+        {/if}
+    {:else if currentView === "story"}
+        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        
+        {#if $activeCampaign}
+            <h4>{$activeCampaign.title}</h4>
+            <div class="tab-content">            
+                <Codex />
+            </div>
+        {:else}
+            <h1>No Active Campaign</h1>
+            <em>Select or create a campaign to use this page.</em>
+        {/if}
+    {:else if currentView === "map"}
+        <MapView 
+            bind:this={mapViewComponent}
+            on:navigateHome={() => handleNavigate("home")}
+            on:navigateToStory={() => handleNavigate("chronicle")}
+        />
     {:else if currentView === "settings"}
         <div class="settings-view">
             <h1>Settings</h1>
@@ -157,41 +199,6 @@
                 <DataManager onDataImported={handleDataImported} />
             </div>
         </div>
-    {:else if currentView === "map"}
-        <MapView 
-            bind:this={mapViewComponent}
-            on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={() => handleNavigate("chronicle")}
-        />
-    {:else if currentView === "chronicle"}
-        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign}
-            <div class="story-view">
-                <h4>{$activeCampaign.title}</h4>
-                <div class="tab-content">
-                    <Chronicle bind:this={chronicleComponent} />
-                </div>
-            </div>
-        {:else}
-            <h1>No Active Campaign</h1>
-            <em>Select or create a campaign to start recording your adventure.</em>
-        {/if}
-    {:else if currentView === "characters"}
-        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign}
-            <CharacterManager
-                bind:this={characterManagerComponent}
-                on:characterSelected={handleCharacterSelected}
-                on:characterDeselected={handleCharacterDeselected}
-                on:rollCheck={handleRollCheck}
-            />
-        {:else}
-            <h1>No Active Campaign</h1>
-            <em>Select or create a campaign to start managing characters.</em>
-        {/if}
-    {:else if currentView === "story"}
-        <!-- Codex only -->
-        <StoryView on:navigateHome={() => handleNavigate("home")} />
     {/if}
 
     {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
@@ -210,69 +217,23 @@
     .content { 
         padding: 1rem;
         padding-top: 0;
-        box-sizing: border-box;
-        min-height: 100vh;
-        max-height: 100vh;
+        padding-bottom: 0;
+        box-sizing: border-box; 
         background-color: var(--bg-primary);
         color: var(--text-primary);
-    }
-
-    /* Desktop - account for left sidebar */
-    @media (min-width: 769px) {
-        .content {
-            margin-left: 80px;
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
-
-        /* When only tertiary is present (no secondary sidebar) */
-        .content.has-tertiary-only {
-            margin-left: 160px; /* primary (80) + tertiary (80) */
-        }
-    }
-
-    /* Mobile   */
-    @media (max-width: 768px) {
-        .content { 
-            /* Use dynamic viewport to avoid browser UI issues */
-            min-height: 100dvh;
-            max-height: none;
-            padding-bottom: 0;
-        }
-
-        /* Add bottom padding for non-fullscreen views (settings only) */
-        .settings-view {
-            padding-bottom: calc(90px + env(safe-area-inset-bottom));
-        }
+        min-height: 100dvh; 
     }
 
     /* Views */
     h1 {
         text-align: center;
         margin-bottom: 1.5rem;
-    }
+    }  
 
-    .story-view {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Desktop - fixed viewport height for story containers */
-    @media (min-width: 769px) {
-        .story-view {
-            height: 100vh;
-            overflow: hidden;
-        }
-    }
-
-    /* Mobile - height accounting for bottom bar */
-    @media (max-width: 768px) {
-        .story-view {
-            height: calc(100dvh - 70px - env(safe-area-inset-bottom));
-            overflow: hidden;
-        }
+    h4 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
     }
 
     .tab-content {
@@ -280,6 +241,19 @@
         overflow-y: auto;
         min-height: 0;
         padding: 0;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        
+        /* Adapt padding to sidebar, secondary sidebar and tertiary sidebar visibility */
+        padding-bottom: calc(
+            1rem + 
+            (var(--secondary-sidebar-visible, 0) * 90px) + 
+            (var(--tertiary-sidebar-visible, 0) * 90px) + 
+            env(safe-area-inset-bottom)
+        );
     }
 
     .settings-view {
@@ -305,4 +279,31 @@
         padding: 1.5rem; 
         padding-top: 0;
     } 
+
+    /* Desktop - account for left sidebar */
+    @media (min-width: 769px) {
+        .content {
+            margin-left: 80px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        /* When only tertiary is present (no secondary sidebar) */
+        .content.has-tertiary-only {
+            margin-left: 160px; /* primary (80) + tertiary (80) */
+        }
+
+        .tab-content { 
+            height: calc(100vh - 2rem - 1.5rem); /* full viewport minus padding and h4 */
+            padding-bottom: 1.5rem;
+        }
+    }
+
+    /* Mobile   */
+    @media (max-width: 768px) {
+        /* Add bottom padding for non-fullscreen views (settings only) */
+        .settings-view {
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+        }
+    }
 </style>
