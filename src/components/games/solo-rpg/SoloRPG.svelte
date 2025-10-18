@@ -1,9 +1,12 @@
 <script lang="ts">
     import DataManager from "./data/DataManager.svelte";
     import Sidebar from "./Sidebar.svelte";
-    import SecondarySidebar from "./SecondarySidebar.svelte";
     import TertiarySidebar from "./TertiarySidebar.svelte";
-    import StoryView from "./lore/StoryView.svelte";
+    import StoryView from "./lore/StoryView.svelte"; // now Codex-only
+    import Chronicle from "./lore/chronicle/Chronicle.svelte";
+    import CharacterManager from "./lore/characters/CharacterManager.svelte";
+    import FloatingOracleButton from "./shared/FloatingOracleButton.svelte";
+    import NoCampaignOverlay from "./NoCampaignOverlay.svelte";
     import MapView from "./map/MapView.svelte";
     import ThemeToggle from "./theme/ThemeToggle.svelte";
     import { type Campaign } from "./data/storage-utils";
@@ -13,9 +16,8 @@
     import "./solo-rpg-styles.css";
     import HomeView from "./home/HomeView.svelte";
 
-    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle";
+    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle" | "characters";
     let currentView: View = "home";
-    let activeStoryTab: "chronicle" | "characters" | "codex" = "chronicle";
 
     // Tertiary sidebar state (for character sheet controls)
     let showTertiarySidebar = false;
@@ -23,10 +25,12 @@
     let tertiarySelectedSections: Set<string> = new Set();
     let tertiaryIsEditingSections: boolean = false;
     let currentCharacter: any = null;
+    let selectedCharacterId: string | null = null;
 
     let showDiceRoller = false;
     let showCardDealer = false;
-    let storyViewComponent: any;
+    let chronicleComponent: any;
+    let characterManagerComponent: any;
     let mapViewComponent: any;
 
     // Dice roll preset data for ability/skill checks
@@ -47,60 +51,17 @@
     });
 
     function handleNavigate(view: View) {
-        const wasOnStory = currentView === "story";
-        
-        // Handle map toggle behavior: if already on map, return to landing
+        // Map special-case: toggle to landing when already on map
         if (view === "map" && currentView === "map") {
-            if (mapViewComponent && mapViewComponent.returnToLanding) {
-                mapViewComponent.returnToLanding();
-            }
+            mapViewComponent?.returnToLanding?.();
             return;
         }
-        
+        // Set view and reset per-view UI
         currentView = view;
-        // Reset story tab when leaving story view or chronicle view
-        if (view !== "story" && view !== "chronicle") {
-            activeStoryTab = "chronicle";
-            // Hide tertiary sidebar when leaving story view
-            showTertiarySidebar = false;
-        } else if (view === "story") {
-            // When navigating to story, set to characters tab
-            activeStoryTab = "characters";
-            // Hide tertiary sidebar when switching tabs
-            showTertiarySidebar = false;
-            // Use setTimeout to ensure component is mounted
-            setTimeout(() => {
-                if (storyViewComponent && storyViewComponent.resetCharacterView) {
-                    storyViewComponent.resetCharacterView();
-                }
-            }, 0);
-        } else if (view === "chronicle") {
-            // When navigating to chronicle, set to chronicle tab
-            activeStoryTab = "chronicle";
-            showTertiarySidebar = false;
-            // Use setTimeout to ensure component is mounted
-            setTimeout(() => {
-                if (storyViewComponent && storyViewComponent.reloadChronicle) {
-                    storyViewComponent.reloadChronicle();
-                }
-            }, 0);
-        }
-    }
-
-    function handleStoryTabChange(tab: "characters" | "codex") {
-        activeStoryTab = tab;
-
-        // Clear tertiary sidebar when switching tabs
-        if (tab !== "characters") {
-            showTertiarySidebar = false;
-        } else {
-            // When switching to characters tab, reset to the character list view
-            setTimeout(() => {
-                if (storyViewComponent && storyViewComponent.resetCharacterView) {
-                    storyViewComponent.resetCharacterView();
-                }
-            }, 0);
-        }
+        showTertiarySidebar = false;
+        selectedCharacterId = null;
+        // Clear any dice preset when changing primary views
+        diceRollPreset = null;
     }
 
     function handleCharacterSelected(event: CustomEvent) {
@@ -112,56 +73,36 @@
             visibleSections,
         } = event.detail;
         currentCharacter = character;
+        selectedCharacterId = character?.id ?? null;
         tertiaryVisibleSections = visibleSections;
         tertiarySelectedSections = selectedSections;
         tertiaryIsEditingSections = isEditingSections;
-        showTertiarySidebar = character.visibleSections.length > 1; 
+        showTertiarySidebar = character?.visibleSections?.length > 1;
     }
 
     function handleCharacterDeselected() {
         showTertiarySidebar = false;
         currentCharacter = null;
+        selectedCharacterId = null;
     }
 
     function handleRollCheck(event: CustomEvent) {
         const { characterId, characterName, checkName, diceFormula, modifier, resultOption } = event.detail;
-        
-        // Parse the dice formula (e.g., "1d20" or "2d20" -> numDice, numSides)
         const match = diceFormula.match(/^(\d+)d(\d+)$/i);
         if (!match) {
             console.error("Invalid dice formula:", diceFormula);
             return;
         }
-        
         const numDice = parseInt(match[1], 10);
         const numSides = parseInt(match[2], 10);
-        
-        // Convert resultOption to rollType for backward compatibility
         let rollType: "normal" | "advantage" | "disadvantage" = "normal";
-        if (resultOption === "Maximum") {
-            rollType = "advantage";
-        } else if (resultOption === "Minimum") {
-            rollType = "disadvantage";
-        }
-        
-        // Store the preset data
-        diceRollPreset = {
-            characterId,
-            characterName,
-            checkName,
-            numDice,
-            numSides,
-            modifier,
-            rollType,
-        };
-        
-        // The FloatingOracleButton will automatically open when preset is set
+        if (resultOption === "Maximum") rollType = "advantage";
+        else if (resultOption === "Minimum") rollType = "disadvantage";
+        diceRollPreset = { characterId, characterName, checkName, numDice, numSides, modifier, rollType };
     }
 
     function handleTertiaryToggleSection(section: string) {
-        if (storyViewComponent && storyViewComponent.toggleCharacterSection) {
-            storyViewComponent.toggleCharacterSection(section);
-        }
+        characterManagerComponent?.toggleSectionFromExternal?.(section);
     }
 
     function handleDataImported() {
@@ -172,7 +113,6 @@
     function handleHomeLoadCampaign(event: CustomEvent<Campaign>) {
         const campaign = event.detail;
         activeCampaign.load(campaign);
-        // Switch to chronicle view
         currentView = "chronicle";
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -180,17 +120,11 @@
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
 
-<!-- Use app sidebars only on Story view; Map view uses its own map sidebars -->
-<SecondarySidebar
-    show={currentView === "story"}
-    mode="story"
-    activeTab={activeStoryTab === "chronicle" ? "characters" : activeStoryTab}
-    onTabChange={handleStoryTabChange}
-/>
-
+<!-- Tertiary sidebar only for Characters view -->
 <TertiarySidebar
     show={showTertiarySidebar}
     mode="story"
+    hasSecondarySidebar={currentView === "story"}
     tool="paint"
     currentShape="square"
     color="#2980b9"
@@ -203,7 +137,7 @@
 <main
     class="content"
     class:has-secondary={currentView === "story"}
-    class:has-tertiary={showTertiarySidebar}
+    class:has-tertiary-only={currentView === "characters" && showTertiarySidebar}
     data-theme={$theme}
 >
     {#if currentView === "home"}
@@ -229,21 +163,44 @@
             on:navigateHome={() => handleNavigate("home")}
             on:navigateToStory={() => handleNavigate("chronicle")}
         />
-    {:else if currentView === "chronicle" || currentView === "story"}
-        <StoryView
-            bind:this={storyViewComponent}
-            activeTab={activeStoryTab}
-            showSecondarySidebar={currentView === "story"}
-            showTertiarySidebar={showTertiarySidebar}
+    {:else if currentView === "chronicle"}
+        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        {#if $activeCampaign}
+            <div class="story-view">
+                <h4>{$activeCampaign.title}</h4>
+                <div class="tab-content">
+                    <Chronicle bind:this={chronicleComponent} />
+                </div>
+            </div>
+        {:else}
+            <h1>No Active Campaign</h1>
+            <em>Select or create a campaign to start recording your adventure.</em>
+        {/if}
+    {:else if currentView === "characters"}
+        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        {#if $activeCampaign}
+            <CharacterManager
+                bind:this={characterManagerComponent}
+                on:characterSelected={handleCharacterSelected}
+                on:characterDeselected={handleCharacterDeselected}
+                on:rollCheck={handleRollCheck}
+            />
+        {:else}
+            <h1>No Active Campaign</h1>
+            <em>Select or create a campaign to start managing characters.</em>
+        {/if}
+    {:else if currentView === "story"}
+        <!-- Codex only -->
+        <StoryView on:navigateHome={() => handleNavigate("home")} />
+    {/if}
+
+    {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
+        <FloatingOracleButton 
+            hasSecondarySidebar={false}
+            hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
             {diceRollPreset}
-            on:openDiceRoller={() => (showDiceRoller = true)}
-            on:openCardDealer={() => (showCardDealer = true)}
-            on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={() => handleNavigate("chronicle")}
-            on:characterSelected={handleCharacterSelected}
-            on:characterDeselected={handleCharacterDeselected}
-            on:rollCheck={handleRollCheck}
             on:clearPreset={() => (diceRollPreset = null)}
+            currentCharacterId={selectedCharacterId}
         />
     {/if}
 </main>
@@ -268,14 +225,9 @@
             padding-right: 2rem;
         }
 
-        /* Account for secondary sidebar when shown */
-        .content.has-secondary {
-            margin-left: 165px;
-        }
-
-        /* Account for tertiary sidebar when shown */
-        .content.has-tertiary {
-            margin-left: 250px;
+        /* When only tertiary is present (no secondary sidebar) */
+        .content.has-tertiary-only {
+            margin-left: 160px; /* primary (80) + tertiary (80) */
         }
     }
 
@@ -298,6 +250,36 @@
     h1 {
         text-align: center;
         margin-bottom: 1.5rem;
+    }
+
+    .story-view {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Desktop - fixed viewport height for story containers */
+    @media (min-width: 769px) {
+        .story-view {
+            height: 100vh;
+            overflow: hidden;
+        }
+    }
+
+    /* Mobile - height accounting for bottom bar */
+    @media (max-width: 768px) {
+        .story-view {
+            height: calc(100dvh - 70px - env(safe-area-inset-bottom));
+            overflow: hidden;
+        }
+    }
+
+    .tab-content {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding: 0;
     }
 
     .settings-view {

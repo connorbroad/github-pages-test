@@ -111,6 +111,11 @@
             height: 56px;
         }
 
+        /* When only tertiary is present (no secondary) */
+        .floating-oracle-button.has-tertiary {
+            bottom: calc(70px + 60px + env(safe-area-inset-bottom) + 1rem);
+        }
+
         /* On mobile, secondary/tertiary sidebars are also at the bottom */
         .floating-oracle-button.has-secondary {
             bottom: calc(70px + 60px + env(safe-area-inset-bottom) + 1rem);

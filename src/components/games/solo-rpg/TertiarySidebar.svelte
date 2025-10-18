@@ -7,6 +7,9 @@
     export let show: boolean = false;
     export let mode: "story" | "map" = "story"; // Which context are we in?
     
+    // New: whether a secondary sidebar is present; affects positioning
+    export let hasSecondarySidebar: boolean = false;
+    
     // Story mode props
     export let visibleSections: string[] = ["information"];
     export let selectedSections: Set<string> = new Set();
@@ -17,6 +20,10 @@
     export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     export let color: string = "#2980b9";
+
+    // Track whether tertiary should be visible on map tools
+    export let autoShowOnMapTools: boolean = true;
+    $: showTertiaryOnMap = autoShowOnMapTools && mode === 'map' && (tool === 'paint' || tool === 'object');
 
     const dispatch = createEventDispatcher();
 
@@ -46,9 +53,10 @@
 
 </script>
 
-{#if show}
+{#if show || showTertiaryOnMap}
     <aside
         class="tertiary-sidebar"
+        class:with-secondary={hasSecondarySidebar || mode === 'map'}
         style="--tertiary-height: 60px;"
         transition:fly={{
             duration: 300,
@@ -164,7 +172,7 @@
         background-color: var(--sidebar-bg);
         color: var(--sidebar-text);
         box-shadow: 2px 0 5px var(--shadow-md);
-        z-index: 98;
+        z-index: 98; /* below primary (100) and secondary (99) sidebars */
         display: flex;
         flex-direction: column;
     }
@@ -273,14 +281,18 @@
         box-shadow: 0 0 0 2px var(--sidebar-active);
     }
 
-    /* Desktop - Left sidebar (third from left) */
+    /* Desktop - Left sidebar */
     @media (min-width: 769px) {
         .tertiary-sidebar {
             position: fixed;
-            left: 170px;
+            left: 80px; /* default: just to the right of primary sidebar */
             top: 0;
             width: 80px;
             height: 100vh;
+        }
+
+        .tertiary-sidebar.with-secondary {
+            left: 170px; /* primary (80) + secondary (90) */
         }
 
         .tertiary-sidebar :global(.section-filter-icons) {
@@ -309,16 +321,20 @@
         }
     }
 
-    /* Mobile - Bottom bar (above secondary sidebar) */
+    /* Mobile - Bottom bar */
     @media (max-width: 768px) {
         .tertiary-sidebar {
             position: fixed;
-            bottom: calc(130px + env(safe-area-inset-bottom)); /* primary 70 + secondary 60 */
+            bottom: calc(70px + env(safe-area-inset-bottom)); /* just above primary bottom bar */
             left: 0;
             right: 0;
             width: 100%;
             height: var(--tertiary-height, 60px);
             box-shadow: 0 -2px 5px var(--shadow-md);
+        }
+
+        .tertiary-sidebar.with-secondary {
+            bottom: calc(130px + env(safe-area-inset-bottom)); /* above secondary + primary */
         }
 
         /* Override CharacterSheetControls styles for mobile */
