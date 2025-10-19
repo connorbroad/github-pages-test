@@ -13,6 +13,7 @@
     import { createEventDispatcher } from "svelte";
     import SectionPickerModal from "./SectionPickerModal.svelte";
     import TagPickerModal from "./TagPickerModal.svelte";
+    import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -329,90 +330,44 @@
     }
 </script>
 
-<div class="character-manager">
-    {#if selectedCharacter}
-        <div class="character-view">
-            {#if !isEditing}
-                <div class="view-header">
-                    <button class="srpg-b srpg-b-simple" on:click={backToList}>
-                        ←
+<SrpgListPage className="character-manager">
+    <div slot="header">
+        {#if selectedCharacter && !isEditing}
+            <div class="view-header">
+                <button class="srpg-b srpg-b-simple" on:click={backToList}>
+                    ←
+                </button>
+                <h3>{selectedCharacter.name}</h3>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                    <button id="edit-tags-button" class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={openTagPickerModal} aria-label="Edit Tags" title="Edit Tags">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.5em"
+                            height="1.5em"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42"
+                            />
+                        </svg>
                     </button>
-
-                    <h3>{selectedCharacter.name}</h3>
-
-                    <div
-                        style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;"
-                    >
-                        <button
-                            id="edit-tags-button"
-                            class="srpg-b srpg-b-normal"
-                            style="padding: 0.5rem; display: flex; align-items: center;"
-                            on:click={openTagPickerModal}
-                            aria-label="Edit Tags"
-                            title="Edit Tags"
+                    <button id="edit-sections-button" class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={openSectionPickerModal} aria-label="Edit Sections" title="Edit Sections">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.5em"
+                            height="1.5em"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="1.5em"
-                                height="1.5em"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42"
-                                />
-                            </svg>
-                        </button>
-                        <button
-                            id="edit-sections-button"
-                            class="srpg-b srpg-b-normal"
-                            style="padding: 0.5rem; display: flex; align-items: center;"
-                            on:click={openSectionPickerModal}
-                            aria-label="Edit Sections"
-                            title="Edit Sections"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="1.5em"
-                                height="1.5em"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+                            <path
+                                fill="currentColor"
+                                d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"
+                            />
+                        </svg>
+                    </button>
                 </div>
-            {/if}
-
-            <div class="character-sheet-container">
-                <CharacterSheet
-                    character={selectedCharacter}
-                    {isEditing}
-                    {isEditingSections}
-                    {selectedSections}
-                    on:save={saveCharacter}
-                    on:cancel={cancelEdit}
-                    on:rollCheck={handleRollCheck}
-                />
-
-                <br />
-
-                {#if isEditing}
-                    <button
-                        class="srpg-b srpg-b-sm srpg-b-w-full srpg-b-danger"
-                        on:click={deleteCharacter}
-                        aria-label="Delete Character"
-                    >
-                        Delete character
-                    </button>
-                {/if}
             </div>
-        </div>
-    {:else}
-        <div class="character-list-view">
+        {:else}
             <div class="srpg-header-actions">
                 <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateModal}>
                     + Create Character
@@ -470,62 +425,72 @@
                     </button>
                 </div>
             {/if}
+        {/if}
+    </div>
 
-            <div class="character-list-scroll">
-                {#if filteredCharacters.length > 0}
-                    <div class="character-list">
-                    {#each filteredCharacters as character}
-                        <button
-                            class="srpg-b srpg-b-overview character-card"
-                            on:click={() => selectCharacter(character)}
-                        >
-                            <h3 class="character-title">
-                                {character.name}
-                            </h3>
-                            <div class="character-summary">
-                                {#if character.race || character.class}
-                                    <p>
-                                        {#if character.race}{character.race}{/if}
-                                        {#if character.race && character.class}
-                                            •
-                                        {/if}
-                                        {#if character.class}{character.class}{/if}
-                                        {#if character.level}
-                                            (Level {character.level})
-                                        {/if}
-                                    </p>
-                                {/if}
-                                {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
-                                    <p class="hp-bar">
-                                        <span
-                                            >HP: {character.currentHitPoints} / {character.hitPointMaximum}</span
-                                        >
-                                    </p>
-                                {/if}
-                            </div>
-                            {#if character.tags && character.tags.length > 0}
-                                <div class="tag-list">
-                                    {#each character.tags as tag}
-                                        <span class="tag-badge">{tag}</span>
-                                    {/each}
-                                </div>
+    {#if selectedCharacter}
+        <CharacterSheet
+            character={selectedCharacter}
+            {isEditing}
+            {isEditingSections}
+            {selectedSections}
+            on:save={saveCharacter}
+            on:cancel={cancelEdit}
+            on:rollCheck={handleRollCheck}
+        />
+    {:else}    
+        {#if filteredCharacters.length > 0}
+            <div class="character-list">
+                {#each filteredCharacters as character}
+                    <button
+                        class="srpg-b srpg-b-overview character-card"
+                        on:click={() => selectCharacter(character)}
+                    >
+                        <h3 class="character-title">
+                            {character.name}
+                        </h3>
+                        <div class="character-summary">
+                            {#if character.race || character.class}
+                                <p>
+                                    {#if character.race}{character.race}{/if}
+                                    {#if character.race && character.class}
+                                        •
+                                    {/if}
+                                    {#if character.class}{character.class}{/if}
+                                    {#if character.level}
+                                        (Level {character.level})
+                                    {/if}
+                                </p>
                             {/if}
-                        </button>
-                    {/each}
-                </div>
-            {:else}
-                <div class="empty-state">
-                    <p>No characters created yet.</p>
-                    <p class="hint">
-                        Create a character to start tracking their stats and
-                        abilities.
-                    </p>
-                </div>
-            {/if}
+                            {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
+                                <p class="hp-bar">
+                                    <span
+                                        >HP: {character.currentHitPoints} / {character.hitPointMaximum}</span
+                                    >
+                                </p>
+                            {/if}
+                        </div>
+                        {#if character.tags && character.tags.length > 0}
+                            <div class="tag-list">
+                                {#each character.tags as tag}
+                                    <span class="tag-badge">{tag}</span>
+                                {/each}
+                            </div>
+                        {/if}
+                    </button>
+                {/each}
             </div>
-        </div>
+        {:else}
+            <div class="empty-state">
+                <p>No characters created yet.</p>
+                <p class="hint">
+                    Create a character to start tracking their stats and
+                    abilities.
+                </p>
+            </div>
+        {/if}
     {/if}
-</div>
+</SrpgListPage>
 
 <SrpgModal
     bind:show={showCreateModal}
@@ -595,49 +560,7 @@
 />
 
 <style>
-    .character-manager {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .character-view {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .character-sheet-container {
-        flex: 1; 
-        min-height: 0;
-    }
-
-    .character-list-view {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .character-list-scroll {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-        padding-top: 0.2rem;
-    }
-
-    @media (min-width: 768px) {
-        .character-manager {
-            padding-bottom: 0;
-        }
-
-        .character-sheet-container {
-            padding-bottom: 0;
-        }
-    } 
+    @media (min-width: 768px) { /* ...existing code... */ }
 
     .group-filter {
         margin-bottom: 1.5rem;
@@ -794,8 +717,9 @@
 
     .character-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 1rem;
+        padding: 0.5rem 0;
     }
 
     .character-card {
@@ -808,7 +732,7 @@
         border-radius: 8px;
         box-shadow: 0 1px 3px var(--shadow-sm);
         transition: all 0.2s ease;
-        width: 100%;
+        width: 100%; 
         min-height: 120px;
     }
 

@@ -17,6 +17,7 @@
     import "../../solo-rpg-styles.css";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
     import EntryCard from "./EntryCard.svelte";
+    import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -336,122 +337,121 @@
     }
 </script>
 
-<div class="chronicle">
-    <div class="chronicle-sticky-header">
-        <div class="chronicle-header">
-            <div class="header-actions">
-                <button class="srpg-b srpg-b-simple" on:click={toggleChaptersList}>
-                    📚 {showChaptersList ? "Hide" : "View"} Chapters
-                </button>
-            </div>
+<SrpgListPage className="chronicle" headerClass="" contentClass="">
+    <div slot="header" class="chronicle-header">
+        <div class="header-actions">
+            <button class="srpg-b srpg-b-simple" on:click={toggleChaptersList}>
+                📚 {showChaptersList ? "Hide" : "View"} Chapters
+            </button>
         </div>
+    </div>
 
-        {#if showChaptersList}
-            <div class="chapters-list-panel">
-            <div class="chapters-header">
-                <h3>Chapters</h3>
-                <button
-                    class="close-btn"
-                    on:click={toggleChaptersList}
-                    title="Close chapters list"
-                    aria-label="Close chapters list"
+    {#if showChaptersList}
+        <div class="chapters-list-panel">
+        <div class="chapters-header">
+            <h3>Chapters</h3>
+            <button
+                class="close-btn"
+                on:click={toggleChaptersList}
+                title="Close chapters list"
+                aria-label="Close chapters list"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="1em"
+                    height="1em"
+                    {...$$props}
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="1em"
-                        height="1em"
-                        {...$$props}
-                    >
-                        <path
-                            fill="currentColor"
-                            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
-                        />
-                    </svg>
+                    <path
+                        fill="currentColor"
+                        d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
+                    />
+                </svg>
+            </button>
+        </div>
+        <div class="chapters-content">
+            <div class="current-chapter-item-wrapper">
+                <button
+                    class="chapter-item {viewingChapterId === null
+                        ? 'active'
+                        : ''}"
+                    on:click={() => viewChapter(null)}
+                >
+                    <div>
+                        <div class="chapter-name">📖 Current Chapter</div>
+                        <div class="chapter-meta">
+                            {loadChronicleEntries().filter(
+                                (e) =>
+                                    e.campaignId === $activeCampaign?.id &&
+                                    !e.chapterId,
+                            ).length} entries
+                        </div>
+                    </div>
                 </button>
-            </div>
-            <div class="chapters-content">
-                <div class="current-chapter-item-wrapper">
+                {#if entries.length > 0 && viewingChapterId === null}
                     <button
-                        class="chapter-item {viewingChapterId === null
+                        class="srpg-b srpg-b-create"
+                        on:click={openCreateChapter}
+                        aria-label="Finish Chapter"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="2em"
+                            height="2em"
+                        >
+                            <path
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"
+                            />
+                        </svg>
+                    </button>
+                {/if}
+            </div>
+            {#each chapters as chapter (chapter.id)}
+                <div class="chapter-item-wrapper">
+                    <button
+                        class="chapter-item {viewingChapterId === chapter.id
                             ? 'active'
                             : ''}"
-                        on:click={() => viewChapter(null)}
+                        on:click={() => viewChapter(chapter.id)}
                     >
-                        <div>
-                            <div class="chapter-name">📖 Current Chapter</div>
-                            <div class="chapter-meta">
-                                {loadChronicleEntries().filter(
-                                    (e) =>
-                                        e.campaignId === $activeCampaign?.id &&
-                                        !e.chapterId,
-                                ).length} entries
-                            </div>
+                        <div class="chapter-name">
+                            📜 {getChapterDisplayName(chapter)}
+                        </div>
+                        <div class="chapter-meta">
+                            {loadChronicleEntries().filter(
+                                (e) => e.chapterId === chapter.id,
+                            ).length} entries
                         </div>
                     </button>
-                    {#if entries.length > 0 && viewingChapterId === null}
-                        <button
-                            class="srpg-b srpg-b-create"
-                            on:click={openCreateChapter}
-                            aria-label="Finish Chapter"
+                    <button
+                        class="chapter-delete-btn srpg-b srpg-b-icon"
+                        on:click|stopPropagation={() =>
+                            deleteChapter(chapter.id)}
+                        title="Delete chapter"
+                        aria-label="Delete chapter"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="16"
+                            height="16"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="2em"
-                                height="2em"
-                            >
-                                <path
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"
-                                />
-                            </svg>
-                        </button>
-                    {/if}
+                            <path
+                                fill="currentColor"
+                                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                            />
+                        </svg>
+                    </button>
                 </div>
-                {#each chapters as chapter (chapter.id)}
-                    <div class="chapter-item-wrapper">
-                        <button
-                            class="chapter-item {viewingChapterId === chapter.id
-                                ? 'active'
-                                : ''}"
-                            on:click={() => viewChapter(chapter.id)}
-                        >
-                            <div class="chapter-name">
-                                📜 {getChapterDisplayName(chapter)}
-                            </div>
-                            <div class="chapter-meta">
-                                {loadChronicleEntries().filter(
-                                    (e) => e.chapterId === chapter.id,
-                                ).length} entries
-                            </div>
-                        </button>
-                        <button
-                            class="chapter-delete-btn srpg-b srpg-b-icon"
-                            on:click|stopPropagation={() =>
-                                deleteChapter(chapter.id)}
-                            title="Delete chapter"
-                            aria-label="Delete chapter"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="16"
-                                height="16"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-                {/each}
-            </div>
+            {/each}
+        </div>
         </div>
     {/if}
 
@@ -518,8 +518,6 @@
         </div>
     {/if}
 
-    </div>
-
     <div class="entries-list">
         {#if entries.length === 0}
             <div class="no-entries">
@@ -550,8 +548,7 @@
             {/each}
         {/if}
     </div>
-</div>
-
+</SrpgListPage>
 
 <SrpgModal
     bind:show={showAddEntry}
@@ -652,9 +649,7 @@
         overflow: hidden;
     }
 
-    .chronicle-sticky-header {
-        flex-shrink: 0;
-    }
+    .chronicle-sticky-header { flex-shrink: 0; }
 
     .chronicle-header {
         display: flex;
@@ -899,7 +894,6 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-        padding-bottom: 10rem;
     }
 
     .no-entries {

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { activeCampaign } from "../../game-management/campaign-store";
     import {
         loadCodexNotes,
@@ -9,6 +8,7 @@
         type Character,
     } from "../../data/storage-utils";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
+    import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
     import "../../solo-rpg-styles.css";
 
     const DEFAULT_GROUPS = ["Game Rules", "Characters", "Locations", "Items", "NPCs", "Factions", "Lore"];
@@ -22,7 +22,6 @@
 
     // Modal state
     let showCreateModal: boolean = false;
-    let showGroupModal: boolean = false;
     let newNoteTitle: string = "";
     let newNoteContent: string = "";
     let newNoteGroup: string = "";
@@ -283,38 +282,40 @@
     }
 </script>
 
-<div class="codex">
-    {#if selectedNote}
-        <!-- Note Detail View -->
-        <div class="note-view">
-            <div class="srpg-header-actions">
-                <button class="srpg-b srpg-b-simple" on:click={backToList}>
-                    ← Back to List
-                </button>
-                <div class="srpg-b-group">
-                    {#if !isEditing}
-                        <button class="srpg-b srpg-b-normal" on:click={editNote}>
-                            Edit
-                        </button>
-                        {#if !selectedNote.characterId}
-                            <button
-                                class="srpg-b srpg-b-danger"
-                                on:click={deleteNote}
-                            >
-                                Delete
-                            </button>
-                        {/if}
-                    {:else}
-                        <button class="srpg-b srpg-b-create" on:click={saveNote}>
-                            Save
-                        </button>
-                        <button class="srpg-b srpg-b-simple" on:click={cancelEdit}>
-                            Cancel
+<SrpgListPage className="codex">
+    <div slot="header" class="srpg-header-actions">
+        {#if selectedNote}
+            <button class="srpg-b srpg-b-simple" on:click={backToList}>
+                ← Back to List
+            </button>
+            <div class="srpg-b-group">
+                {#if !isEditing}
+                    <button class="srpg-b srpg-b-normal" on:click={editNote}>
+                        Edit
+                    </button>
+                    {#if !selectedNote.characterId}
+                        <button class="srpg-b srpg-b-danger" on:click={deleteNote}>
+                            Delete
                         </button>
                     {/if}
-                </div>
+                {:else}
+                    <button class="srpg-b srpg-b-create" on:click={saveNote}>
+                        Save
+                    </button>
+                    <button class="srpg-b srpg-b-simple" on:click={cancelEdit}>
+                        Cancel
+                    </button>
+                {/if}
             </div>
+        {:else}
+            <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
+                + New Note
+            </button>
+        {/if}
+    </div>
 
+    {#if selectedNote}
+        <div class="note-view">
             <div class="note-header">
                 <div class="note-meta-row">
                     <span class="srpg-badge">{getGroupIcon(selectedNote.noteGroup)} {selectedNote.noteGroup}</span>
@@ -360,103 +361,92 @@
                 {/if}
             </div>
         </div>
-    {:else}
-        <!-- List View -->
-        <div class="codex-list-view">
-            <div class="srpg-header-actions">
-                <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
-                    + New Note
-                </button>
+    {:else} 
+        {#if codexNotes.length === 0}
+            <div class="srpg-empty-message">
+                <p>No codex entries yet.</p>
+                <p class="hint">Create a new entry to start documenting your adventure.</p>
             </div>
-
-            {#if codexNotes.length === 0}
-                <div class="srpg-empty-message">
-                    <p>No codex entries yet.</p>
-                    <p class="hint">Create a new entry to start documenting your adventure.</p>
-                </div>
-            {:else}
-                <div class="srpg-nested-list">
-                    {#each Object.entries(groupedNotes).sort(([a], [b]) => a.localeCompare(b)) as [group, subGroups]}
-                        <div class="group-section">
-                            <div 
-                                class="srpg-group-header" 
-                                role="button"
-                                tabindex="0"
-                                on:click={() => toggleGroup(group)}
-                                on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleGroup(group)}
-                            >
-                                <div class="srpg-group-title">
-                                    <span class="srpg-expand-icon" class:expanded={expandedGroups.has(group)}>
-                                        ▶
-                                    </span>
-                                    <span>{getGroupIcon(group)} {group}</span>
-                                    <span class="srpg-group-count">
-                                        {Object.values(subGroups).flat().length}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {#if expandedGroups.has(group)}
-                                <div class="srpg-subgroup-container">
-                                    {#each Object.entries(subGroups).sort(([a], [b]) => a.localeCompare(b)) as [subGroup, notes]}
-                                        <div class="subgroup-section">
-                                            <div
-                                                class="srpg-subgroup-header"
-                                                role="button"
-                                                tabindex="0"
-                                                on:click={() => toggleSubGroup(`${group}-${subGroup}`)}
-                                                on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSubGroup(`${group}-${subGroup}`)}
-                                            >
-                                                <div class="srpg-subgroup-title">
-                                                    <span
-                                                        class="srpg-expand-icon"
-                                                        class:expanded={expandedSubGroups.has(`${group}-${subGroup}`)}
-                                                    >
-                                                        ▶
-                                                    </span>
-                                                    <span>{subGroup}</span>
-                                                    <span class="srpg-group-count">{notes.length}</span>
-                                                </div>
-                                            </div>
-
-                                            {#if expandedSubGroups.has(`${group}-${subGroup}`)}
-                                                <div class="srpg-notes-container">
-                                                    <div class="srpg-list">
-                                                        {#each notes as note}
-                                                            <div
-                                                                class="srpg-list-item"
-                                                                role="button"
-                                                                tabindex="0"
-                                                                on:click={() => selectNote(note)}
-                                                                on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectNote(note)}
-                                                            >
-                                                                <div class="srpg-list-item-header">
-                                                                    <span class="srpg-list-item-title">
-                                                                        {note.title}
-                                                                    </span>
-                                                                    {#if note.characterId}
-                                                                        <span class="character-badge">👤</span>
-                                                                    {/if}
-                                                                </div>
-                                                                <div class="srpg-list-item-meta">
-                                                                    Updated {formatDate(note.updatedAt)}
-                                                                </div>
-                                                            </div>
-                                                        {/each}
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                    {/each}
-                                </div>
-                            {/if}
+        {:else}
+            <div class="srpg-nested-list">
+                {#each Object.entries(groupedNotes).sort(([a], [b]) => a.localeCompare(b)) as [group, subGroups]} 
+                    <div 
+                        class="srpg-group-header" 
+                        role="button"
+                        tabindex="0"
+                        on:click={() => toggleGroup(group)}
+                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleGroup(group)}
+                    >
+                        <div class="srpg-group-title">
+                            <span class="srpg-expand-icon" class:expanded={expandedGroups.has(group)}>
+                                ▶
+                            </span>
+                            <span>{getGroupIcon(group)} {group}</span>
+                            <span class="srpg-group-count">
+                                {Object.values(subGroups).flat().length}
+                            </span>
                         </div>
-                    {/each}
-                </div>
-            {/if}
-        </div>
+                    </div>
+
+                    {#if expandedGroups.has(group)}
+                        <div class="srpg-subgroup-container">
+                            {#each Object.entries(subGroups).sort(([a], [b]) => a.localeCompare(b)) as [subGroup, notes]}
+                                <div class="subgroup-section">
+                                    <div
+                                        class="srpg-subgroup-header"
+                                        role="button"
+                                        tabindex="0"
+                                        on:click={() => toggleSubGroup(`${group}-${subGroup}`)}
+                                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSubGroup(`${group}-${subGroup}`)}
+                                    >
+                                        <div class="srpg-subgroup-title">
+                                            <span
+                                                class="srpg-expand-icon"
+                                                class:expanded={expandedSubGroups.has(`${group}-${subGroup}`)}
+                                            >
+                                                ▶
+                                            </span>
+                                            <span>{subGroup}</span>
+                                            <span class="srpg-group-count">{notes.length}</span>
+                                        </div>
+                                    </div>
+
+                                    {#if expandedSubGroups.has(`${group}-${subGroup}`)}
+                                        <div class="srpg-notes-container">
+                                            <div class="srpg-list">
+                                                {#each notes as note}
+                                                    <div
+                                                        class="srpg-list-item"
+                                                        role="button"
+                                                        tabindex="0"
+                                                        on:click={() => selectNote(note)}
+                                                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectNote(note)}
+                                                    >
+                                                        <div class="srpg-list-item-header">
+                                                            <span class="srpg-list-item-title">
+                                                                {note.title}
+                                                            </span>
+                                                            {#if note.characterId}
+                                                                <span class="character-badge">👤</span>
+                                                            {/if}
+                                                        </div>
+                                                        <div class="srpg-list-item-meta">
+                                                            Updated {formatDate(note.updatedAt)}
+                                                        </div>
+                                                    </div>
+                                                {/each}
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </div>
+                            {/each}
+                        </div>
+                    {/if} 
+                {/each}
+            </div>
+        {/if} 
     {/if}
-</div>
+</SrpgListPage>
 
 <!-- Create Note Modal -->
 <SrpgModal
@@ -554,25 +544,11 @@
 </SrpgModal>
 
 <style>
-    .codex {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .codex-list-view {
-        flex: 1;
-        overflow-y: auto; 
-    }
-
-    .note-view {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
+    .note-view { 
+        padding: 1rem; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 1.5rem; 
     }
 
     .note-header {

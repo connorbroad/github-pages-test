@@ -1063,3 +1063,33 @@
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;
 }
+
+/* Shared sticky header and scroll utilities for list pages */
+.srpg-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-primary);
+    /* subtle divider below sticky header */
+    box-shadow: 0 1px 0 var(--border-primary);
+}
+
+/* Apply to scrollable containers to keep content clear of bottom sidebars on mobile */
+.srpg-scroll-with-sidebars {
+    /* default primary bar height: desktop 0 */
+    --srpg-primary-bar-height: 0px;
+    padding-bottom: calc(
+        1rem +
+        var(--srpg-primary-bar-height) +
+        (var(--secondary-sidebar-visible, 0) * var(--secondary-sidebar-height, 60px)) +
+        (var(--tertiary-sidebar-visible, 0) * var(--tertiary-sidebar-height, 60px)) +
+        env(safe-area-inset-bottom)
+    );
+}
+
+@media (max-width: 768px) {
+    .srpg-scroll-with-sidebars {
+        /* On mobile, account for primary bottom nav (70px by default) */
+        --srpg-primary-bar-height: var(--primary-bottom-bar-height, 70px);
+    }
+}

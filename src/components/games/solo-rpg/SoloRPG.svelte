@@ -134,6 +134,7 @@
     class:has-secondary={currentView === "story"}
     class:has-tertiary-only={currentView === "characters" && showTertiarySidebar}
     data-theme={$theme}
+    style="--secondary-sidebar-visible: 0; --tertiary-sidebar-visible: {showTertiarySidebar ? 1 : 0};"
 >
     {#if currentView === "home"}
         <div class="tab-content">
@@ -142,7 +143,6 @@
     {:else if currentView === "chronicle"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign} 
-            <h4>{$activeCampaign.title}</h4>
             <div class="tab-content">
                 <Chronicle bind:this={chronicleComponent} />
             </div> 
@@ -153,7 +153,6 @@
     {:else if currentView === "characters"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign}
-            <h4>{$activeCampaign.title}</h4>
             <div class="tab-content">
                 <CharacterManager
                     bind:this={characterManagerComponent}
@@ -170,7 +169,6 @@
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
         
         {#if $activeCampaign}
-            <h4>{$activeCampaign.title}</h4>
             <div class="tab-content">            
                 <Codex />
             </div>
@@ -230,12 +228,6 @@
         margin-bottom: 1.5rem;
     }  
 
-    h4 {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-
     .tab-content {
         flex: 1;
         overflow-y: auto;
@@ -246,14 +238,6 @@
         display: flex;
         flex-direction: column;
         height: 100dvh;
-        
-        /* Adapt padding to sidebar, secondary sidebar and tertiary sidebar visibility */
-        padding-bottom: calc(
-            1rem + 
-            (var(--secondary-sidebar-visible, 0) * 90px) + 
-            (var(--tertiary-sidebar-visible, 0) * 90px) + 
-            env(safe-area-inset-bottom)
-        );
     }
 
     .settings-view {
@@ -288,6 +272,11 @@
             padding-right: 2rem;
         }
 
+        /* When secondary sidebar is present */
+        .content.has-secondary {
+            margin-left: 170px; /* primary (80) + secondary (90) */
+        }
+
         /* When only tertiary is present (no secondary sidebar) */
         .content.has-tertiary-only {
             margin-left: 160px; /* primary (80) + tertiary (80) */
@@ -295,7 +284,6 @@
 
         .tab-content { 
             height: calc(100vh - 2rem - 1.5rem); /* full viewport minus padding and h4 */
-            padding-bottom: 1.5rem;
         }
     }
 
