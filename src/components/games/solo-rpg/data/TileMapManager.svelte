@@ -1,74 +1,51 @@
 <script lang="ts">
-    import { 
-        importData,
-        downloadDataFile, 
-    } from "./storage-utils";
     import "../solo-rpg-styles.css";
 
     let fileInput: HTMLInputElement;
     let importError = "";
     let importSuccess = false;
 
-    function handleExport() {
-        downloadDataFile();
+    function handleFileSelect(event: Event) {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            importTilemapData(file)
+                .then(() => {
+                    importSuccess = true;
+                    importError = "";
+                })
+                .catch((error) => {
+                    importError = "Failed to import tilemap data: " + error.message;
+                    importSuccess = false;
+                });
+        }
     }
 
     function handleImportClick() {
-        fileInput.click();
+        // Placeholder for import click handling
+        alert("Import Tilemap Data functionality is not yet implemented.");
     }
 
-    function handleFileSelect(event: Event) {
-        const target = event.target as HTMLInputElement;
-        const file = target.files?.[0];
-
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target?.result as string;
-            const success = importData(content);
-
-            if (success) {
-                importError = "";
-                importSuccess = true;
-                setTimeout(() => {
-                    importSuccess = false;
-                }, 1500);
-            } else {
-                importError =
-                    "Failed to import file. Please ensure it is a valid Solo RPG data file.";
-                importSuccess = false;
-            }
-        };
-
-        reader.onerror = () => {
-            importError = "Failed to read file.";
-            importSuccess = false;
-        };
-
-        reader.readAsText(file);
-
-        // Reset the input so the same file can be selected again
-        target.value = "";
+    function importTilemapData(file: File): Promise<void> {
+        alert("Import Tilemap Data functionality is not yet implemented.");
+        return Promise.resolve();
     }
+
 </script>
 
+ 
 <div class="info-card content">
     <div class="header">
-        <h2>Data Manager</h2>
+        <h2>Tilemap Manager</h2>
     </div>
 
     <div class="body">
         <p class="description">
-            Export your Solo RPG data to a file or import data from another
-            device. Importing will overwrite your current data.
-        </p>
+            Import a tilesheet for use in the Map tool.
+            <br />
+            Supported formats are PNG and JPEG.
+        </p> 
 
         <div class="srpg-b-group-vertical">
-            <button class="srpg-b srpg-b-normal" on:click={handleExport}>
-                📥 Export Data
-            </button>
-
             <button
                 class="srpg-b srpg-b-create"
                 on:click={handleImportClick}
@@ -79,7 +56,7 @@
 
         <input
             type="file"
-            accept=".json"
+            accept=".jpg,.jpeg,.png"
             bind:this={fileInput}
             on:change={handleFileSelect}
             style="display: none;"
@@ -95,7 +72,9 @@
             <div class="success-message">✓ Data imported successfully!</div>
         {/if}
     </div>
-</div>
+</div> 
+
+
 
 <style> 
     .content {

@@ -123,7 +123,7 @@
                             <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
                             <path d="M14.5 17.5 4.5 15"></path>
                         </svg>
-                        <span class="label">Paint</span>
+                        <span class="label">Background</span>
                     </button>
 
                     <button

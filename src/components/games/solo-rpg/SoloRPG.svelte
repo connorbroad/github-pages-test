@@ -1,5 +1,5 @@
 <script lang="ts">
-    import DataManager from "./data/DataManager.svelte";
+    import SettingsView from "./data/SettingsView.svelte";
     import Sidebar from "./Sidebar.svelte";
     import TertiarySidebar from "./TertiarySidebar.svelte";
     import Chronicle from "./lore/chronicle/Chronicle.svelte";
@@ -7,7 +7,6 @@
     import FloatingOracleButton from "./shared/FloatingOracleButton.svelte";
     import NoCampaignOverlay from "./NoCampaignOverlay.svelte";
     import MapView from "./map/MapView.svelte";
-    import ThemeToggle from "./theme/ThemeToggle.svelte";
     import { type Campaign } from "./data/storage-utils";
     import { activeCampaign } from "./game-management/campaign-store";
     import { theme } from "./theme/theme-store";
@@ -183,20 +182,7 @@
             on:navigateToStory={() => handleNavigate("chronicle")}
         />
     {:else if currentView === "settings"}
-        <div class="settings-view">
-            <h1>Settings</h1>
-            <div class="settings-description">
-                <p>Manage your Solo RPG data and application settings.</p>
-            </div>
-            
-            <div class="settings-section">
-                <ThemeToggle />
-            </div>
-            
-            <div class="settings-section">
-                <DataManager onDataImported={handleDataImported} />
-            </div>
-        </div>
+        <SettingsView />
     {/if}
 
     {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
@@ -240,30 +226,6 @@
         height: 100dvh;
     }
 
-    .settings-view {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .settings-view h1 {
-        margin-bottom: 1rem;
-    }
-
-    .settings-description {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .settings-description p {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-    }
-
-    .settings-section { 
-        padding: 1.5rem; 
-        padding-top: 0;
-    } 
-
     /* Desktop - account for left sidebar */
     @media (min-width: 769px) {
         .content {
@@ -284,14 +246,6 @@
 
         .tab-content { 
             height: calc(100vh - 2rem - 1.5rem); /* full viewport minus padding and h4 */
-        }
-    }
-
-    /* Mobile   */
-    @media (max-width: 768px) {
-        /* Add bottom padding for non-fullscreen views (settings only) */
-        .settings-view {
-            padding-bottom: calc(90px + env(safe-area-inset-bottom));
         }
     }
 </style>
