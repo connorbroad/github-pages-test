@@ -18,12 +18,7 @@
                     importSuccess = false;
                 });
         }
-    }
-
-    function handleImportClick() {
-        // Placeholder for import click handling
-        alert("Import Tilemap Data functionality is not yet implemented.");
-    }
+    } 
 
     function importTilemapData(file: File): Promise<void> {
         alert("Import Tilemap Data functionality is not yet implemented.");
@@ -46,13 +41,7 @@
         </p> 
 
         <div class="srpg-b-group-vertical">
-            <button
-                class="srpg-b srpg-b-create"
-                on:click={handleImportClick}
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em' {...$$props}><path fill="currentColor" d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7zm-6 .67l2.59-2.58L17 11.5l-5 5l-5-5l1.41-1.41L11 12.67V3h2z"/></svg>
-                Choose Image
-            </button>
+            <!-- TODO --> 
         </div>
 
         <input
