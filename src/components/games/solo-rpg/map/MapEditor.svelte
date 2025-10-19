@@ -138,21 +138,23 @@
         const endTy = Math.ceil((camera.y + viewH) / ts) + 1;
 
         // Grid
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
         ctxBg.save();
-        ctxBg.scale(camera.zoom, camera.zoom);
+        ctxBg.scale(dpr * camera.zoom, dpr * camera.zoom);
         ctxBg.translate(-camera.x, -camera.y); 
         ctxBg.imageSmoothingEnabled = false; // Disable smoothing for pixel art tiles
         ctxBg.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctxBg.lineWidth = 1 / camera.zoom;
+        ctxBg.lineWidth = 1 / (camera.zoom * dpr);
 
         const left = startTx * ts;
         const right = endTx * ts;
         const top = startTy * ts;
         const bottom = endTy * ts;
+        const px = 0.5 / dpr; // align 1px lines on high-DPI
 
         // Vertical lines
         for (let tx = startTx; tx <= endTx; tx++) {
-            const gx = Math.round(tx * ts) + 0.5;
+            const gx = Math.round(tx * ts) + px;
             ctxBg.beginPath();
             ctxBg.moveTo(gx, top);
             ctxBg.lineTo(gx, bottom);
@@ -161,7 +163,7 @@
 
         // Horizontal lines
         for (let ty = startTy; ty <= endTy; ty++) {
-            const gy = Math.round(ty * ts) + 0.5;
+            const gy = Math.round(ty * ts) + px;
             ctxBg.beginPath();
             ctxBg.moveTo(left, gy);
             ctxBg.lineTo(right, gy);
@@ -220,9 +222,10 @@
         const right = camera.x + viewW;
         const top = camera.y;
         const bottom = camera.y + viewH;
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
         ctxFg.save();
         ctxFg.globalCompositeOperation = 'source-over';
-        ctxFg.scale(camera.zoom, camera.zoom);
+        ctxFg.scale(dpr * camera.zoom, dpr * camera.zoom);
         ctxFg.translate(-camera.x, -camera.y); 
         ctxFg.imageSmoothingEnabled = false; // Disable smoothing for pixel art tiles
 
@@ -247,7 +250,7 @@
                         drawTintedSprite(ctxFg, sprite as any, x, y, o.w, o.h, tint);
                         // Outline for square tile objects
                         ctxFg.strokeStyle = '#000000';
-                        ctxFg.lineWidth = 2 / camera.zoom;
+                        ctxFg.lineWidth = 2 / (camera.zoom * dpr);
                         ctxFg.strokeRect(x, y, o.w, o.h);
                     } else {
                         // Masked draw with shape, then outline
@@ -263,7 +266,7 @@
                         ctxFg.translate(o.x, o.y);
                         beginShapePath(ctxFg, shape, o.w, o.h);
                         ctxFg.strokeStyle = '#000000';
-                        ctxFg.lineWidth = 2 / camera.zoom;
+                        ctxFg.lineWidth = 2 / (camera.zoom * dpr);
                         ctxFg.stroke();
                         ctxFg.restore();
                     }
@@ -277,7 +280,7 @@
             else {
                 ctxFg.fillStyle = o.color;
                 ctxFg.strokeStyle = '#000000'; // Black outline
-                ctxFg.lineWidth = 2 / camera.zoom; // Scale-aware outline width
+                ctxFg.lineWidth = 2 / (camera.zoom * dpr); // Scale-aware outline width
                 ctxFg.save();
                 ctxFg.translate(o.x, o.y);
                 if (o.rotation) ctxFg.rotate(o.rotation);
@@ -291,8 +294,8 @@
 
         // Draw selection handle if in move tool and an object is selected
         if (selectedObject && tool === 'move') {
-            const handleSize = 16 / camera.zoom; // Fixed screen size
-            const handleOffset = 8 / camera.zoom; // Distance from object edge
+            const handleSize = 16 / (camera.zoom * dpr); // Fixed screen size
+            const handleOffset = 8 / (camera.zoom * dpr); // Distance from object edge
             
             // Position handle at bottom-right of object
             const handleX = selectedObject.x + selectedObject.w/2 + handleOffset;
@@ -304,13 +307,13 @@
             
             // Draw handle border (blue)
             ctxFg.strokeStyle = '#3498db';
-            ctxFg.lineWidth = 2 / camera.zoom;
+            ctxFg.lineWidth = 2 / (camera.zoom * dpr);
             ctxFg.strokeRect(handleX - handleSize/2, handleY - handleSize/2, handleSize, handleSize);
             
             // Draw selection outline around object
             ctxFg.strokeStyle = '#3498db';
-            ctxFg.lineWidth = 2 / camera.zoom;
-            ctxFg.setLineDash([8 / camera.zoom, 4 / camera.zoom]);
+            ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+            ctxFg.setLineDash([8 / (camera.zoom * dpr), 4 / (camera.zoom * dpr)]);
             ctxFg.strokeRect(
                 selectedObject.x - selectedObject.w/2,
                 selectedObject.y - selectedObject.h/2,
@@ -368,8 +371,9 @@
     }
 
     function isPointInHandle(wx: number, wy: number, obj: MapObject): boolean {
-        const handleSize = 16 / camera.zoom;
-        const handleOffset = 8 / camera.zoom;
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        const handleSize = 16 / (camera.zoom * dpr);
+        const handleOffset = 8 / (camera.zoom * dpr);
         const handleX = obj.x + obj.w/2 + handleOffset;
         const handleY = obj.y + obj.h/2 + handleOffset;
         return Math.abs(wx - handleX) <= handleSize/2 && Math.abs(wy - handleY) <= handleSize/2;
@@ -1093,7 +1097,7 @@
     .map-editor {
         position: relative;
         width: 100%;
-        height: calc(100dvh - 90px); /* mobile baseline; accounted by sidebars outside */
+        height: 100dvh; /* fill full viewport height (mobile + desktop) */
     }
 
     .canvas-wrap { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
