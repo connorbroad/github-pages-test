@@ -67,8 +67,6 @@
     const palette = [
         "#f5eee4",
         "#000000",
-        "#632a7b",
-        "#c247b8",
         "#4e3d3b",
         "#544d54",
         "#786c64",
@@ -87,6 +85,8 @@
         "#2b4a3c",
         "#e99b7c",
         "#825341",
+        "#632a7b",
+        "#c247b8",
     ];
     const CLEAR_COLOR = "clear"; // Special value for erasing/clearing tiles
 
@@ -196,13 +196,7 @@
                                                 {#if t.id === selectedTile.tileId}
                                                     <div
                                                         class="tile-swatch"
-                                                        style={tilePreviewStyle(
-                                                            {
-                                                                image: tm.image
-                                                                    .value,
-                                                                tile: t,
-                                                            },
-                                                        )}
+                                                        style={`${tilePreviewStyle({ image: tm.image.value, tile: t })} transform: scale(${24 / t.w}, ${24 / t.h});`}
                                                     ></div>
                                                 {/if}
                                             {/each}
@@ -284,13 +278,13 @@
                                             })}
                                         aria-label={`Tile ${opt.tile.col},${opt.tile.row}`}
                                     >
-                                        <div
-                                            class="tile-swatch"
-                                            style={tilePreviewStyle(opt)}
-                                        ></div>
-                                        <span class="label visually-hidden"
-                                            >Tile</span
-                                        >
+                                        <div class="tile-swatch-frame">
+                                            <div
+                                                class="tile-swatch"
+                                                style={`${tilePreviewStyle(opt)} transform: scale(${24 / opt.tile.w}, ${24 / opt.tile.h});`}
+                                            ></div>
+                                        </div>
+                                        <span class="label visually-hidden">Tile</span>
                                     </button>
                                 {/each}
                             {/if}
@@ -499,6 +493,30 @@
         width: 24px;
         height: 24px;
     }
+
+    /* Frame to center list swatches and crop content */
+    .tile-swatch-frame {
+        width: 24px;
+        height: 24px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--sidebar-border);
+        border-radius: 4px;
+        image-rendering: pixelated;
+    }
+    .tile-swatch-frame > .tile-swatch {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform-origin: top left;
+        border: none; /* avoid double border inside frame */
+        border-radius: 0;
+    }
+
+    /* Ensure preview swatch crops and inner sprite can scale to fill */
+    .tile-swatch.preview { position: relative; overflow: hidden; }
+    .tile-swatch.preview > .tile-swatch { transform-origin: top left; border: none; }
+    .nav-item.tile-item .tile-swatch { transform-origin: top left; }
 
     /* Desktop - Left sidebar */
     @media (min-width: 769px) {
