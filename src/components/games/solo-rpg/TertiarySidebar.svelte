@@ -500,8 +500,6 @@
         height: 24px;
     }
 
-    .shape-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.25rem; width: 100%; }
-
     /* Desktop - Left sidebar */
     @media (min-width: 769px) {
         .tertiary-sidebar {
