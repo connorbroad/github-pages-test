@@ -186,10 +186,5 @@
 
 <style>
     .map-view { max-width: 1200px; margin: 0 auto; }
-    .map-view-full { position: relative; width: 100%; height: 100%; }
-
-    /* Shift content to account for sidebars on desktop */
-    @media (min-width: 769px) {
-        .map-view-full.has-sidebars { margin-left: 250px; }
-    }
+    .map-view-full { position: relative; width: 100%; height: 100%; } 
 </style>
