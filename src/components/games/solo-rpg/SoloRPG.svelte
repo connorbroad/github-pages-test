@@ -101,9 +101,6 @@
         characterManagerComponent?.toggleSectionFromExternal?.(section);
     }
 
-    function handleDataImported() {  
-    }
-
     function handleHomeLoadCampaign(event: CustomEvent<Campaign>) {
         const campaign = event.detail;
         activeCampaign.load(campaign);
@@ -114,11 +111,10 @@
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
 
-<!-- Tertiary sidebar only for Characters view -->
 <TertiarySidebar
     show={showTertiarySidebar}
     mode="story"
-    hasSecondarySidebar={currentView === "story"}
+    hasSecondarySidebar={false}
     tool="paint"
     currentShape="square"
     color="#2980b9"
@@ -130,36 +126,30 @@
 
 <main
     class="content"
-    class:has-secondary={currentView === "story"}
+    class:has-secondary={currentView === "map"}
     class:has-tertiary-only={currentView === "characters" && showTertiarySidebar}
     data-theme={$theme}
     style="--secondary-sidebar-visible: 0; --tertiary-sidebar-visible: {showTertiarySidebar ? 1 : 0};"
 >
-    {#if currentView === "home"}
-        <div class="tab-content">
-            <HomeView on:loadCampaign={handleHomeLoadCampaign} />
-        </div>
+    {#if currentView === "home"} 
+        <HomeView on:loadCampaign={handleHomeLoadCampaign} /> 
     {:else if currentView === "chronicle"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign} 
-            <div class="tab-content">
-                <Chronicle bind:this={chronicleComponent} />
-            </div> 
+        {#if $activeCampaign}  
+            <Chronicle bind:this={chronicleComponent} /> 
         {:else}
             <h1>No Active Campaign</h1>
             <em>Select or create a campaign to start recording your adventure.</em>
         {/if}
     {:else if currentView === "characters"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign}
-            <div class="tab-content">
-                <CharacterManager
-                    bind:this={characterManagerComponent}
-                    on:characterSelected={handleCharacterSelected}
-                    on:characterDeselected={handleCharacterDeselected}
-                    on:rollCheck={handleRollCheck}
-                />
-            </div>
+        {#if $activeCampaign} 
+            <CharacterManager
+                bind:this={characterManagerComponent}
+                on:characterSelected={handleCharacterSelected}
+                on:characterDeselected={handleCharacterDeselected}
+                on:rollCheck={handleRollCheck}
+            /> 
         {:else}
             <h1>No Active Campaign</h1>
             <em>Select or create a campaign to start managing characters.</em>
@@ -167,10 +157,8 @@
     {:else if currentView === "story"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
         
-        {#if $activeCampaign}
-            <div class="tab-content">            
-                <Codex />
-            </div>
+        {#if $activeCampaign}       
+            <Codex /> 
         {:else}
             <h1>No Active Campaign</h1>
             <em>Select or create a campaign to use this page.</em>
@@ -182,7 +170,7 @@
             on:navigateToStory={() => handleNavigate("chronicle")}
         />
     {:else if currentView === "settings"}
-        <SettingsView />
+        <SettingsView /> 
     {/if}
 
     {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
@@ -214,18 +202,6 @@
         margin-bottom: 1.5rem;
     }  
 
-    .tab-content {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-        padding: 0;
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        height: 100dvh;
-    }
-
     /* Desktop - account for left sidebar */
     @media (min-width: 769px) {
         .content {
@@ -242,10 +218,6 @@
         /* When only tertiary is present (no secondary sidebar) */
         .content.has-tertiary-only {
             margin-left: 160px; /* primary (80) + tertiary (80) */
-        }
-
-        .tab-content { 
-            height: calc(100vh - 2rem - 1.5rem); /* full viewport minus padding and h4 */
         }
     }
 </style>

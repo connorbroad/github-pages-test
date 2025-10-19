@@ -2,9 +2,7 @@
     import { activeCampaign } from "../../game-management/campaign-store";
     import {
         loadCharacters,
-        saveCharacters,
-        loadActiveCharacterId,
-        saveActiveCharacterId,
+        saveCharacters, 
     } from "../../data/storage-utils";
     import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";

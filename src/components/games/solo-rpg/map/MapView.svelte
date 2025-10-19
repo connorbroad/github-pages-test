@@ -150,7 +150,6 @@
         </div>
         <FloatingOracleButton on:navigateToStory />
     {:else}
-        <!-- Sidebars for consistent tool UI -->
         <SecondarySidebar 
             show={showSecondarySidebar} 
             mode="map"

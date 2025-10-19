@@ -57,16 +57,20 @@
     --srpg-note-text-color: #fcd34d;
 }
 /* Base Button Styles */
-.srpg-b {
+.srpg-b { 
+    cursor: pointer;
     padding: 0.75rem 1rem;
+
     font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+
     border-radius: 6px;
     border: 1px solid var(--border-primary);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
     box-shadow: 0 2px 4px var(--shadow-md);
-    text-align: center;
+    transition: all 0.2s ease;
+
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
