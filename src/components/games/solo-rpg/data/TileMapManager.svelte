@@ -247,7 +247,9 @@
                     <div class="tiles-grid" style="--tile-size: {tileSize}px;">
                         {#each tiles as t}
                             <div class="tile-card">
-                                <div class="tile-preview" style="background-image: url('{imageValue}'); background-position: {-t.x}px {-t.y}px; width: {tileSize}px; height: {tileSize}px;"></div>
+                                <div class="tile-preview-frame">
+                                    <div class="tile-preview" style="background-image: url('{imageValue}'); background-position: {-t.x}px {-t.y}px; width: {tileSize}px; height: {tileSize}px; transform: scale({24 / tileSize});"></div>
+                                </div>
                                 <div class="tile-flags">
                                     <label><input type="checkbox" bind:checked={t.include} /> Include</label>
                                     <label><input type="checkbox" bind:checked={t.allowBackground} /> BG</label>
@@ -309,6 +311,11 @@
     .tiles-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
     .tile-card { border:1px solid var(--border-primary); border-radius:6px; padding:0.5rem; display:flex; gap:0.5rem; align-items:center; }
     .tile-preview { image-rendering: pixelated; background-repeat: no-repeat; border:1px solid var(--border-primary); border-radius:4px; flex-shrink:0; }
+
+    /* 24px preview frame and inner sprite anchoring */
+    .tile-preview-frame { width:24px; height:24px; position:relative; overflow:hidden; border:1px solid var(--border-primary); border-radius:4px; flex-shrink:0; }
+    .tile-preview-frame > .tile-preview { position:absolute; top:0; left:0; transform-origin: top left; border:none; border-radius:0; }
+
     .tile-flags { display:flex; gap:0.5rem; align-items:center; }
 
     .tilemaps-list { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; }
