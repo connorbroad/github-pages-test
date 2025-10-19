@@ -8,7 +8,7 @@
     export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
-    // New: selected tile from tertiary sidebar
+    // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
 
     const dispatch = createEventDispatcher();
@@ -47,6 +47,25 @@
     const FRICTION = 0.008; // higher = quicker stop
     const VELOCITY_EPS = 0.02; // world units per ms
     function clamp(v: number, min: number, max: number) { return Math.min(max, Math.max(min, v)); }
+
+    // cap device pixel ratio and provide helper
+    const MAX_DPR = 2; // cap to reduce fill-rate cost on mobile
+    function getDpr() {
+        const raw = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        return Math.min(raw, MAX_DPR);
+    }
+
+    // coalesce draw calls to one per frame
+    let renderQueued = false;
+    function scheduleRender() {
+        if (renderQueued) return;
+        renderQueued = true;
+        requestAnimationFrame(() => {
+            renderQueued = false;
+            drawGrid();
+            drawObjects();
+        });
+    }
 
     // Soft-bounds configuration (in tiles)
     const SAFE_MARGIN_TILES = 20;
@@ -138,7 +157,7 @@
         const endTy = Math.ceil((camera.y + viewH) / ts) + 1;
 
         // Grid
-        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        const dpr = getDpr();
         ctxBg.save();
         ctxBg.scale(dpr * camera.zoom, dpr * camera.zoom);
         ctxBg.translate(-camera.x, -camera.y); 
@@ -152,22 +171,30 @@
         const bottom = endTy * ts;
         const px = 0.5 / dpr; // align 1px lines on high-DPI
 
-        // Vertical lines
-        for (let tx = startTx; tx <= endTx; tx++) {
-            const gx = Math.round(tx * ts) + px;
-            ctxBg.beginPath();
-            ctxBg.moveTo(gx, top);
-            ctxBg.lineTo(gx, bottom);
-            ctxBg.stroke();
-        }
+        // sparsify/hide grid when zoomed out
+        let gridStep = 1;
+        if (camera.zoom < 0.35) gridStep = 0; // hide grid
+        else if (camera.zoom < 0.5) gridStep = 4;
+        else if (camera.zoom < 0.75) gridStep = 2;
 
-        // Horizontal lines
-        for (let ty = startTy; ty <= endTy; ty++) {
-            const gy = Math.round(ty * ts) + px;
-            ctxBg.beginPath();
-            ctxBg.moveTo(left, gy);
-            ctxBg.lineTo(right, gy);
-            ctxBg.stroke();
+        if (gridStep > 0) {
+            // Vertical lines
+            for (let tx = startTx; tx <= endTx; tx += gridStep) {
+                const gx = Math.round(tx * ts) + px;
+                ctxBg.beginPath();
+                ctxBg.moveTo(gx, top);
+                ctxBg.lineTo(gx, bottom);
+                ctxBg.stroke();
+            }
+
+            // Horizontal lines
+            for (let ty = startTy; ty <= endTy; ty += gridStep) {
+                const gy = Math.round(ty * ts) + px;
+                ctxBg.beginPath();
+                ctxBg.moveTo(left, gy);
+                ctxBg.lineTo(right, gy);
+                ctxBg.stroke();
+            }
         }
 
         // Paint background colors (existing)...
@@ -179,13 +206,18 @@
             ctxBg.fillRect(tx * ts, ty * ts, ts, ts);
         }
 
-        // Paint background tiles
+        // Paint background tiles (choose strategy based on sparsity)
         if (map.backgroundTiles) {
-            for (let ty = startTy; ty <= endTy; ty++) {
-                for (let tx = startTx; tx <= endTx; tx++) {
-                    const key = `${tx},${ty}`;
-                    const ref = map.backgroundTiles[key];
+            const dict = map.backgroundTiles;
+            const total = Object.keys(dict).length;
+            const visibleCount = (endTx - startTx + 1) * (endTy - startTy + 1);
+            if (total < visibleCount) {
+                // Sparse: iterate keys and cull to viewport
+                for (const key in dict) {
+                    const ref = dict[key];
                     if (!ref) continue;
+                    const [tx, ty] = key.split(',').map(Number);
+                    if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
                     const sprite = getCachedTileSprite(ref);
                     const x = tx * ts;
                     const y = ty * ts;
@@ -194,9 +226,30 @@
                         drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
                     } else {
                         // Trigger async load and schedule redraw when done
-                        getTileSprite(ref).then(() => { drawGrid(); }).catch(() => {
+                        getTileSprite(ref).then(() => { scheduleRender(); }).catch(() => {
                             ctxBg.save(); ctxBg.fillStyle = '#ff00ff'; ctxBg.fillRect(x, y, ts, ts); ctxBg.restore();
                         });
+                    }
+                }
+            } else {
+                // Dense: scan visible rect and read dict
+                for (let ty = startTy; ty <= endTy; ty++) {
+                    for (let tx = startTx; tx <= endTx; tx++) {
+                        const key = `${tx},${ty}`;
+                        const ref = dict[key];
+                        if (!ref) continue;
+                        const sprite = getCachedTileSprite(ref);
+                        const x = tx * ts;
+                        const y = ty * ts;
+                        const tint = map.backgroundTileTints?.[key] ?? null;
+                        if (sprite) {
+                            drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
+                        } else {
+                            // Trigger async load and schedule redraw when done
+                            getTileSprite(ref).then(() => { scheduleRender(); }).catch(() => {
+                                ctxBg.save(); ctxBg.fillStyle = '#ff00ff'; ctxBg.fillRect(x, y, ts, ts); ctxBg.restore();
+                            });
+                        }
                     }
                 }
             }
@@ -222,7 +275,7 @@
         const right = camera.x + viewW;
         const top = camera.y;
         const bottom = camera.y + viewH;
-        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        const dpr = getDpr();
         ctxFg.save();
         ctxFg.globalCompositeOperation = 'source-over';
         ctxFg.scale(dpr * camera.zoom, dpr * camera.zoom);
@@ -271,7 +324,7 @@
                         ctxFg.restore();
                     }
                 } else {
-                    getTileSprite(ref).then(() => drawObjects()).catch(() => {
+                    getTileSprite(ref).then(() => scheduleRender()).catch(() => {
                         ctxFg.save(); ctxFg.fillStyle = '#ff00ff'; ctxFg.fillRect(x, y, o.w, o.h); ctxFg.restore();
                     });
                 }
@@ -371,7 +424,7 @@
     }
 
     function isPointInHandle(wx: number, wy: number, obj: MapObject): boolean {
-        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        const dpr = getDpr();
         const handleSize = 16 / (camera.zoom * dpr);
         const handleOffset = 8 / (camera.zoom * dpr);
         const handleX = obj.x + obj.w/2 + handleOffset;
@@ -406,8 +459,11 @@
             if (map.backgroundTileTints && map.backgroundTileTints[key]) delete map.backgroundTileTints[key];
         }
         queueSave();
-        drawGrid();
+        scheduleRender();
     }
+
+    // cached tinted sprites per base sprite and size
+    const tintCache: WeakMap<object, Map<string, HTMLCanvasElement>> = new WeakMap();
 
     // Reusable offscreen canvas for tinting to avoid per-draw allocations
     let tintOffscreen: HTMLCanvasElement | null = null;
@@ -418,32 +474,39 @@
             ctx.drawImage(sprite as any, x, y, w, h);
             return;
         }
-        // Reuse a single offscreen canvas to isolate compositing and reduce GC pressure
-        if (!tintOffscreen) tintOffscreen = document.createElement('canvas');
-        const off = tintOffscreen;
-        off.width = Math.max(1, Math.floor(w));
-        off.height = Math.max(1, Math.floor(h));
-        const octx = off.getContext('2d')!;
-        // Disable smoothing for pixel art
-        octx.imageSmoothingEnabled = false;
-        // Clear previous contents
-        octx.setTransform(1,0,0,1,0,0);
-        octx.clearRect(0, 0, off.width, off.height);
-        // Base sprite
-        // @ts-ignore
-        octx.drawImage(sprite as any, 0, 0, w, h);
-        // Multiply tint over it
-        octx.globalCompositeOperation = 'multiply';
-        octx.fillStyle = tint;
-        octx.fillRect(0, 0, off.width, off.height);
-        // Mask to sprite alpha
-        octx.globalCompositeOperation = 'destination-atop';
-        // @ts-ignore
-        octx.drawImage(sprite as any, 0, 0, w, h);
-        // Draw result to main canvas using normal compositing
+        const keyW = Math.max(1, Math.floor(w));
+        const keyH = Math.max(1, Math.floor(h));
+        const base = sprite as any as object;
+        let perSprite = tintCache.get(base);
+        if (!perSprite) { perSprite = new Map(); tintCache.set(base, perSprite); }
+        const cacheKey = `${keyW}x${keyH}|${tint}`;
+        let off = perSprite.get(cacheKey);
+        if (!off) {
+            off = document.createElement('canvas');
+            off.width = keyW;
+            off.height = keyH;
+            const octx = off.getContext('2d')!;
+            // Disable smoothing for pixel art
+            octx.imageSmoothingEnabled = false;
+            // Clear previous contents
+            octx.setTransform(1,0,0,1,0,0);
+            octx.clearRect(0, 0, off.width, off.height);
+            // Base sprite
+            // @ts-ignore
+            octx.drawImage(sprite as any, 0, 0, w, h);
+            // Multiply tint over it
+            octx.globalCompositeOperation = 'multiply';
+            octx.fillStyle = tint;
+            octx.fillRect(0, 0, off.width, off.height);
+            // Mask to sprite alpha
+            octx.globalCompositeOperation = 'destination-atop';
+            // @ts-ignore
+            octx.drawImage(sprite as any, 0, 0, w, h);
+            // Reset for safety
+            octx.globalCompositeOperation = 'source-over';
+            perSprite.set(cacheKey, off);
+        }
         ctx.drawImage(off, x, y, w, h);
-        // Reset for safety
-        octx.globalCompositeOperation = 'source-over';
     }
 
     function beginShapePath(ctx: CanvasRenderingContext2D, shape: 'square'|'circle'|'triangle'|'star', w: number, h: number) {
@@ -489,7 +552,7 @@
     $: if (tool !== 'move') {
         if (selectedObject) {
             selectedObject = null;
-            if (map) drawObjects();
+            if (map) scheduleRender();
         }
     }
     
@@ -563,8 +626,7 @@
         camera.y = worldBefore.y - wy;
         clampCameraToBounds();
         map.view = { ...camera };
-        drawGrid();
-        drawObjects();
+        scheduleRender();
         queueSave();
     }
 
@@ -646,7 +708,7 @@
             const hit = objs.find(o => isPointInObject(x, y, o));
             if (hit) {
                 selectedObject = hit;
-                drawObjects();
+                scheduleRender();
                 return;
             }
 
@@ -655,7 +717,7 @@
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
-            drawObjects();
+            scheduleRender();
             return;
         }
 
@@ -665,7 +727,7 @@
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
-            drawObjects();
+            scheduleRender();
             return;
         }
 
@@ -718,7 +780,7 @@
                     invalidateBounds();
                 }
                 queueSave();
-                drawObjects();
+                scheduleRender();
                 return;
             }
             const newObj: MapObject = {
@@ -742,7 +804,7 @@
                 invalidateBounds();
             }
             queueSave();
-            drawObjects();
+            scheduleRender();
             return;
         }
     }
@@ -782,8 +844,7 @@
                 camera.y = manualZoomBase.anchorWorld.y - (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
                 clampCameraToBounds();
                 if (map) map.view = { ...camera };
-                drawGrid();
-                drawObjects();
+                scheduleRender();
             }
             return;
         }
@@ -805,8 +866,7 @@
                 camera.y = pinchBase.centerWorld.y - (midY - rect.top) / camera.zoom;
                 clampCameraToBounds();
                 map.view = { ...camera };
-                drawGrid();
-                drawObjects();
+                scheduleRender();
             }
             return;
         }
@@ -826,8 +886,7 @@
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
             if (map) map.view = { ...camera };
-            drawGrid();
-            drawObjects();
+            scheduleRender();
             return;
         }
 
@@ -835,7 +894,7 @@
             const { x, y } = screenToWorld(e.clientX, e.clientY);
             draggingObj.x = x - dragOffset.x;
             draggingObj.y = y - dragOffset.y;
-            drawObjects();
+            scheduleRender();
         } else if (tool === 'paint' && (e.buttons & 1)) {
             paintAt(e.clientX, e.clientY);
         }
@@ -861,8 +920,7 @@
                 camera.y = manualZoomBase.anchorWorld.y - (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
                 clampCameraToBounds();
                 if (map) map.view = { ...camera };
-                drawGrid();
-                drawObjects();
+                scheduleRender();
             }
             manualZoomActive = false;
             manualZoomPointerId = null;
@@ -924,7 +982,7 @@
     async function preloadMapAssets(m: MapEntity) {
         const refs = collectAllTileRefs(m);
         // If nothing to load, finish quickly
-        if (refs.length === 0) { isLoading = false; drawGrid(); drawObjects(); return; }
+        if (refs.length === 0) { isLoading = false; scheduleRender(); return; }
         loadTotal = refs.length; loadDone = 0;
         // Preload distinct base images first
         const mapIds = Array.from(new Set(refs.map(r => r.tileMapId)));
@@ -947,8 +1005,7 @@
         });
         await Promise.all(workers);
         isLoading = false;
-        drawGrid();
-        drawObjects();
+        scheduleRender();
     }
 
     onMount(() => {
@@ -1005,7 +1062,7 @@
         if (!canvasBg || !canvasFg) return;
         const wrap = canvasBg.parentElement as HTMLElement;
         const rect = wrap.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = getDpr();
         // Set CSS size
         canvasBg.style.width = rect.width + 'px';
         canvasBg.style.height = rect.height + 'px';
@@ -1016,8 +1073,7 @@
         canvasBg.height = Math.max(1, Math.floor(rect.height * dpr));
         canvasFg.width = Math.max(1, Math.floor(rect.width * dpr));
         canvasFg.height = Math.max(1, Math.floor(rect.height * dpr));
-        drawGrid();
-        drawObjects();
+        scheduleRender();
     }
 
     function getViewSize() {
