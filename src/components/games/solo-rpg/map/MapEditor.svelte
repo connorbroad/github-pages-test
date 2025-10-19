@@ -1,12 +1,15 @@
 <script lang="ts">
+    import { getTileMapById, loadMaps, loadTileMaps, saveMaps, type MapEntity, type MapObject, type MapObject as MO, type TileMap, type TileRef } from "../data/storage-utils";
+    import { ensureTileMapLoaded, getCachedTileSprite, getTileMapLoadState, getTileSprite } from "./tilemap-cache";
     import { onMount, onDestroy, createEventDispatcher } from "svelte";
-    import { loadMaps, saveMaps, type MapEntity, type MapObject } from "../data/storage-utils"; 
 
     export let mapId: string;
     // Receive editor UI state from sidebars
     export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
+    // New: selected tile from tertiary sidebar
+    export let selectedTile: { tileMapId: string; tileId: string } | null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -112,8 +115,14 @@
         camera.y = clamp(camera.y, minCamY, maxCamY);
     }
 
+    // Render background tiles in drawGrid
     function drawGrid() {
         if (!map || !ctxBg) return;
+        if (isLoading) { // Fill background while loading
+            const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
+            clearCanvas(ctxBg, canvasBg, bgFill);
+            return;
+        }
         const ts = map.tileSize;
         const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
         // Clear and fill full canvas in device pixels
@@ -131,7 +140,8 @@
         // Grid
         ctxBg.save();
         ctxBg.scale(camera.zoom, camera.zoom);
-        ctxBg.translate(-camera.x, -camera.y);
+        ctxBg.translate(-camera.x, -camera.y); 
+        ctxBg.imageSmoothingEnabled = false; // Disable smoothing for pixel art tiles
         ctxBg.strokeStyle = 'rgba(255,255,255,0.1)';
         ctxBg.lineWidth = 1 / camera.zoom;
 
@@ -148,6 +158,7 @@
             ctxBg.lineTo(gx, bottom);
             ctxBg.stroke();
         }
+
         // Horizontal lines
         for (let ty = startTy; ty <= endTy; ty++) {
             const gy = Math.round(ty * ts) + 0.5;
@@ -157,7 +168,7 @@
             ctxBg.stroke();
         }
 
-        // Paint background tiles (only visible region)
+        // Paint background colors (existing)...
         for (const key in map.background) {
             const [tx, ty] = key.split(',').map(Number);
             if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
@@ -165,15 +176,43 @@
             ctxBg.fillStyle = fill;
             ctxBg.fillRect(tx * ts, ty * ts, ts, ts);
         }
+
+        // Paint background tiles
+        if (map.backgroundTiles) {
+            for (let ty = startTy; ty <= endTy; ty++) {
+                for (let tx = startTx; tx <= endTx; tx++) {
+                    const key = `${tx},${ty}`;
+                    const ref = map.backgroundTiles[key];
+                    if (!ref) continue;
+                    const sprite = getCachedTileSprite(ref);
+                    const x = tx * ts;
+                    const y = ty * ts;
+                    const tint = map.backgroundTileTints?.[key] ?? null;
+                    if (sprite) {
+                        drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
+                    } else {
+                        // Trigger async load and schedule redraw when done
+                        getTileSprite(ref).then(() => { drawGrid(); }).catch(() => {
+                            ctxBg.save(); ctxBg.fillStyle = '#ff00ff'; ctxBg.fillRect(x, y, ts, ts); ctxBg.restore();
+                        });
+                    }
+                }
+            }
+        }
         ctxBg.restore();
+        // Reset composite to default for safety
+        ctxBg.globalCompositeOperation = 'source-over';
     }
 
+    // Draw objects including tile objects
     function drawObjects() {
         if (!map || !ctxFg) return;
-        // Clear full canvas (no fill background on fg layer)
+        if (isLoading) { 
+            clearCanvas(ctxFg, canvasFg); 
+            return; 
+        }
         clearCanvas(ctxFg, canvasFg);
 
-        // Compute visible world rect
         const rect = canvasFg.getBoundingClientRect();
         const viewW = rect.width / camera.zoom;
         const viewH = rect.height / camera.zoom;
@@ -181,53 +220,76 @@
         const right = camera.x + viewW;
         const top = camera.y;
         const bottom = camera.y + viewH;
-
         ctxFg.save();
+        ctxFg.globalCompositeOperation = 'source-over';
         ctxFg.scale(camera.zoom, camera.zoom);
-        ctxFg.translate(-camera.x, -camera.y);
-        const objs = [...map.objects]
-            .sort((a,b) => (a.z ?? 0) - (b.z ?? 0))
-            .filter(o => {
-                const ox1 = o.x - o.w/2, ox2 = o.x + o.w/2;
-                const oy1 = o.y - o.h/2, oy2 = o.y + o.h/2;
-                return ox2 >= left && ox1 <= right && oy2 >= top && oy1 <= bottom;
-            });
+        ctxFg.translate(-camera.x, -camera.y); 
+        ctxFg.imageSmoothingEnabled = false; // Disable smoothing for pixel art tiles
+
+        const objs = [...map.objects];
         for (const o of objs) {
-            ctxFg.fillStyle = o.color;
-            ctxFg.strokeStyle = '#000000'; // Black outline
-            ctxFg.lineWidth = 2 / camera.zoom; // Scale-aware outline width
-            ctxFg.save();
-            ctxFg.translate(o.x, o.y);
-            if (o.rotation) ctxFg.rotate(o.rotation);
-            switch (o.type) {
-                case 'square':
-                    ctxFg.fillRect(-o.w/2, -o.h/2, o.w, o.h);
-                    ctxFg.strokeRect(-o.w/2, -o.h/2, o.w, o.h);
-                    break;
-                case 'circle':
-                    ctxFg.beginPath();
-                    ctxFg.arc(0, 0, Math.min(o.w, o.h)/2, 0, Math.PI*2);
-                    ctxFg.fill();
-                    ctxFg.stroke();
-                    break;
-                case 'triangle':
-                    ctxFg.beginPath();
-                    ctxFg.moveTo(0, -o.h/2);
-                    ctxFg.lineTo(-o.w/2, o.h/2);
-                    ctxFg.lineTo(o.w/2, o.h/2);
-                    ctxFg.closePath();
-                    ctxFg.fill();
-                    ctxFg.stroke();
-                    break;
-                case 'star':
-                    drawStar(ctxFg, 0, 0, 5, Math.min(o.w,o.h)/2, Math.min(o.w,o.h)/4);
-                    ctxFg.stroke();
-                    break;
+            // Ignore objects outside the viewport
+            if (o.x + o.w/2 < left || o.x - o.w/2 > right || o.y + o.h/2 < top || o.y - o.h/2 > bottom) {
+                continue;
+            } 
+
+            // Handle tile objects
+            if (o.kind === 'tile' && o.tile) {
+                const ref = o.tile;
+                const sprite = getCachedTileSprite(ref);
+                const x = o.x - o.w/2;
+                const y = o.y - o.h/2;
+                // Use per-object tint and shape
+                const tint = (!o.color || o.color === 'clear') ? null : o.color;
+                const shape = (o.type ?? 'square') as 'square'|'circle'|'triangle'|'star';
+                if (sprite) {
+                    if (shape === 'square') {
+                        drawTintedSprite(ctxFg, sprite as any, x, y, o.w, o.h, tint);
+                        // Outline for square tile objects
+                        ctxFg.strokeStyle = '#000000';
+                        ctxFg.lineWidth = 2 / camera.zoom;
+                        ctxFg.strokeRect(x, y, o.w, o.h);
+                    } else {
+                        // Masked draw with shape, then outline
+                        ctxFg.save();
+                        ctxFg.translate(o.x, o.y);
+                        beginShapePath(ctxFg, shape, o.w, o.h);
+                        ctxFg.clip();
+                        ctxFg.translate(-o.x, -o.y);
+                        drawTintedSprite(ctxFg, sprite as any, x, y, o.w, o.h, tint);
+                        ctxFg.restore();
+                        // Draw outline of the shape
+                        ctxFg.save();
+                        ctxFg.translate(o.x, o.y);
+                        beginShapePath(ctxFg, shape, o.w, o.h);
+                        ctxFg.strokeStyle = '#000000';
+                        ctxFg.lineWidth = 2 / camera.zoom;
+                        ctxFg.stroke();
+                        ctxFg.restore();
+                    }
+                } else {
+                    getTileSprite(ref).then(() => drawObjects()).catch(() => {
+                        ctxFg.save(); ctxFg.fillStyle = '#ff00ff'; ctxFg.fillRect(x, y, o.w, o.h); ctxFg.restore();
+                    });
+                }
+            } 
+            // Handle shape objects
+            else {
+                ctxFg.fillStyle = o.color;
+                ctxFg.strokeStyle = '#000000'; // Black outline
+                ctxFg.lineWidth = 2 / camera.zoom; // Scale-aware outline width
+                ctxFg.save();
+                ctxFg.translate(o.x, o.y);
+                if (o.rotation) ctxFg.rotate(o.rotation);
+                // Unified path-based rendering for all shapes
+                beginShapePath(ctxFg, o.type, o.w, o.h);
+                ctxFg.fill();
+                ctxFg.stroke();
+                ctxFg.restore();
             }
-            ctxFg.restore();
         }
 
-        // Draw selection handle if an object is selected (move tool only)
+        // Draw selection handle if in move tool and an object is selected
         if (selectedObject && tool === 'move') {
             const handleSize = 16 / camera.zoom; // Fixed screen size
             const handleOffset = 8 / camera.zoom; // Distance from object edge
@@ -257,8 +319,9 @@
             );
             ctxFg.setLineDash([]);
         }
-
         ctxFg.restore();
+        // Reset composite to default for safety
+        ctxFg.globalCompositeOperation = 'source-over';
     }
 
     function clearCanvas(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, fill?: string) {
@@ -321,33 +384,88 @@
         const { x, y } = screenToWorld(sx, sy);
         const { tx, ty } = worldToTile(x, y);
         const key = `${tx},${ty}`;
-        const existed = Object.prototype.hasOwnProperty.call(map.background, key);
         if (color === 'clear') {
-            // Clear/erase the tile
-            if (existed) {
-                delete map.background[key];
-                // Erase can shrink bounds; mark dirty to recompute lazily
-                invalidateBounds();
-            }
+            if (map.backgroundTiles && map.backgroundTiles[key]) delete map.backgroundTiles[key];
+            if (map.backgroundTileTints && map.backgroundTileTints[key]) delete map.backgroundTileTints[key];
+            if (map.background[key]) delete map.background[key];
+        } else if (selectedTile) {
+            if (!map.backgroundTiles) map.backgroundTiles = {};
+            map.backgroundTiles[key] = { ...selectedTile };
+            // overwrite any background color
+            if (map.background[key]) delete map.background[key];
+            if (!map.backgroundTileTints) map.backgroundTileTints = {};
+            map.backgroundTileTints[key] = color;
         } else {
-            // Paint with the selected color
+            // fallback to color fill background
             map.background[key] = color;
-            if (!existed) {
-                // Expand cached bounds if present, else mark dirty
-                if (cachedBounds && !boundsDirty) {
-                    const ts = map.tileSize;
-                    const x1 = tx * ts, y1 = ty * ts, x2 = x1 + ts, y2 = y1 + ts;
-                    cachedBounds.minX = Math.min(cachedBounds.minX, x1);
-                    cachedBounds.minY = Math.min(cachedBounds.minY, y1);
-                    cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
-                    cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
-                } else {
-                    invalidateBounds();
-                }
-            }
+            if (map.backgroundTiles && map.backgroundTiles[key]) delete map.backgroundTiles[key];
+            if (map.backgroundTileTints && map.backgroundTileTints[key]) delete map.backgroundTileTints[key];
         }
         queueSave();
         drawGrid();
+    }
+
+    // Reusable offscreen canvas for tinting to avoid per-draw allocations
+    let tintOffscreen: HTMLCanvasElement | null = null;
+
+    function drawTintedSprite(ctx: CanvasRenderingContext2D, sprite: CanvasImageSource, x: number, y: number, w: number, h: number, tint: string | null) {
+        if (!tint || tint === 'clear') {
+            // @ts-ignore
+            ctx.drawImage(sprite as any, x, y, w, h);
+            return;
+        }
+        // Reuse a single offscreen canvas to isolate compositing and reduce GC pressure
+        if (!tintOffscreen) tintOffscreen = document.createElement('canvas');
+        const off = tintOffscreen;
+        off.width = Math.max(1, Math.floor(w));
+        off.height = Math.max(1, Math.floor(h));
+        const octx = off.getContext('2d')!;
+        // Disable smoothing for pixel art
+        octx.imageSmoothingEnabled = false;
+        // Clear previous contents
+        octx.setTransform(1,0,0,1,0,0);
+        octx.clearRect(0, 0, off.width, off.height);
+        // Base sprite
+        // @ts-ignore
+        octx.drawImage(sprite as any, 0, 0, w, h);
+        // Multiply tint over it
+        octx.globalCompositeOperation = 'multiply';
+        octx.fillStyle = tint;
+        octx.fillRect(0, 0, off.width, off.height);
+        // Mask to sprite alpha
+        octx.globalCompositeOperation = 'destination-atop';
+        // @ts-ignore
+        octx.drawImage(sprite as any, 0, 0, w, h);
+        // Draw result to main canvas using normal compositing
+        ctx.drawImage(off, x, y, w, h);
+        // Reset for safety
+        octx.globalCompositeOperation = 'source-over';
+    }
+
+    function beginShapePath(ctx: CanvasRenderingContext2D, shape: 'square'|'circle'|'triangle'|'star', w: number, h: number) {
+        ctx.beginPath();
+        if (shape === 'square') {
+            ctx.rect(-w/2, -h/2, w, h);
+        } else if (shape === 'circle') {
+            ctx.arc(0, 0, Math.min(w, h)/2, 0, Math.PI*2);
+        } else if (shape === 'triangle') {
+            ctx.moveTo(0, -h/2);
+            ctx.lineTo(w/2, h/2);
+            ctx.lineTo(-w/2, h/2);
+            ctx.closePath();
+        } else if (shape === 'star') {
+            const spikes = 5, outer = Math.min(w,h)/2, inner = outer/2; // match non-tile star style
+            let rot = Math.PI / 2 * 3; let cx = 0; let cy = 0; let step = Math.PI / spikes;
+            ctx.moveTo(cx, cy - outer);
+            for (let i = 0; i < spikes; i++) {
+                ctx.lineTo(cx + Math.cos(rot)*outer, cy + Math.sin(rot)*outer);
+                rot += step;
+                ctx.lineTo(cx + Math.cos(rot)*inner, cy + Math.sin(rot)*inner);
+                rot += step;
+            }
+            ctx.lineTo(cx, cy - outer);
+            ctx.closePath();
+        }
     }
 
     // Interaction state
@@ -447,14 +565,14 @@
     }
 
     function onWheel(e: WheelEvent) {
-        if (!map) return;
+        if (!map || isLoading) return;
         e.preventDefault();
         const factor = Math.pow(1.0015, -e.deltaY);
         setZoomAround(camera.zoom * factor, e.clientX, e.clientY);
     }
 
     function onPointerDown(e: PointerEvent) {
-        if (!map) return;
+        if (isLoading) return; // Block all interactions during load
         cancelInertia();
         const target = e.currentTarget as HTMLElement;
         target.setPointerCapture(e.pointerId);
@@ -565,6 +683,40 @@
         // Object placement with object tool
         // Touch events have button === -1 or 0, mouse left-click is 0
         if (tool === 'object' && (e.button === 0 || e.button === -1)) {
+            if (selectedTile) {
+                const id = generateUUID();
+                const ts = map.tileSize;
+                const obj: MapObject = {
+                    id,
+                    kind: 'tile',
+                    // Persist shape for tile objects
+                    type: currentShape,
+                    // Free placement at cursor
+                    x: x,
+                    y: y,
+                    w: ts,
+                    h: ts,
+                    // Persist tint color for tile objects
+                    color: color,
+                    tile: { ...selectedTile },
+                    z: (map.objects.reduce((m, o) => Math.max(m, o.z ?? 0), 0) + 1)
+                };
+                map.objects.push(obj);
+                // Expand cached bounds quickly
+                if (cachedBounds && !boundsDirty) {
+                    const x1 = obj.x - obj.w/2, y1 = obj.y - obj.h/2;
+                    const x2 = obj.x + obj.w/2, y2 = obj.y + obj.h/2;
+                    cachedBounds.minX = Math.min(cachedBounds.minX, x1);
+                    cachedBounds.minY = Math.min(cachedBounds.minY, y1);
+                    cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
+                    cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
+                } else {
+                    invalidateBounds();
+                }
+                queueSave();
+                drawObjects();
+                return;
+            }
             const newObj: MapObject = {
                 id: generateUUID(),
                 type: currentShape,
@@ -592,7 +744,7 @@
     }
 
     function onPointerMove(e: PointerEvent) {
-        if (!map) return;
+        if (isLoading) return; // Block all interactions during load
         // Update pointer
         if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -686,6 +838,7 @@
     }
 
     function onPointerUp(e?: PointerEvent) {
+        if (isLoading) return; // Block all interactions during load
         if (e) {
             const target = e.currentTarget as HTMLElement;
             if (target.hasPointerCapture(e.pointerId)) target.releasePointerCapture(e.pointerId);
@@ -742,19 +895,98 @@
         });
     }
 
+    // Loading state and progress
+    let isLoading = true;
+    let loadTotal = 0;
+    let loadDone = 0;
+
+    function collectAllTileRefs(m: MapEntity): TileRef[] {
+        const set = new Map<string, TileRef>();
+        if (m.backgroundTiles) {
+            for (const key in m.backgroundTiles) {
+                const ref = m.backgroundTiles[key];
+                if (ref) set.set(`${ref.tileMapId}:${ref.tileId}`, ref);
+            }
+        }
+        for (const o of m.objects) {
+            if (o.kind === 'tile' && o.tile) {
+                const ref = o.tile;
+                set.set(`${ref.tileMapId}:${ref.tileId}`, ref);
+            }
+        }
+        return Array.from(set.values());
+    }
+
+    async function preloadMapAssets(m: MapEntity) {
+        const refs = collectAllTileRefs(m);
+        // If nothing to load, finish quickly
+        if (refs.length === 0) { isLoading = false; drawGrid(); drawObjects(); return; }
+        loadTotal = refs.length; loadDone = 0;
+        // Preload distinct base images first
+        const mapIds = Array.from(new Set(refs.map(r => r.tileMapId)));
+        await Promise.all(mapIds.map(id => {
+            const tm = getTileMapById(id);
+            return tm ? ensureTileMapLoaded(tm).catch(() => {}) : Promise.resolve();
+        }));
+        // Limit concurrency to keep UI responsive
+        const CONCURRENCY = Math.min(16, refs.length);
+        let i = 0;
+        const workers = Array.from({ length: CONCURRENCY }, async () => {
+            while (i < refs.length) {
+                const idx = i++;
+                const ref = refs[idx];
+                await getTileSprite(ref).catch(() => {});
+                loadDone++;
+                // Yield occasionally to allow paint
+                if (loadDone % 20 === 0) await new Promise(requestAnimationFrame);
+            }
+        });
+        await Promise.all(workers);
+        isLoading = false;
+        drawGrid();
+        drawObjects();
+    }
+
     onMount(() => {
         ctxBg = canvasBg.getContext('2d')!;
         ctxFg = canvasFg.getContext('2d')!;
-        // Load map entity from storage
         const all = loadMaps();
         map = all.find(m => m.id === mapId) || null;
-        if (!map) return;
-        camera = map.view || { x: 0, y: 0, zoom: 1 };
-        // Set canvas size to container size
-        resizeCanvas();
-        drawGrid();
-        drawObjects();
+        // Cleanup missing tilemaps
+        if (map) {
+            const refByMapId = new Map<string, boolean>();
+            // collect refs from backgroundTiles
+            if (map.backgroundTiles) {
+                for (const key in map.backgroundTiles) {
+                    const ref = map.backgroundTiles[key];
+                    if (ref) refByMapId.set(ref.tileMapId, true);
+                }
+            }
+            // collect from objects
+            for (const o of map.objects) {
+                if (o.kind === 'tile' && o.tile) refByMapId.set(o.tile.tileMapId, true);
+            }
+            const missing: string[] = [];
+            for (const id of refByMapId.keys()) {
+                if (!getTileMapById(id)) missing.push(id);
+            }
+            if (missing.length) {
+                alert('A tilemap used by this map is missing. Tile references will be removed.');
+                // purge
+                if (map.backgroundTiles) {
+                    for (const key in map.backgroundTiles) {
+                        const ref = map.backgroundTiles[key];
+                        if (ref && missing.includes(ref.tileMapId)) delete map.backgroundTiles[key];
+                    }
+                }
+                map.objects = map.objects.filter(o => !(o.kind === 'tile' && o.tile && missing.includes(o.tile.tileMapId)));
+                // saving moved earlier
+            }
+        }
         window.addEventListener('resize', resizeCanvas, { passive: true });
+        // Initial size
+        resizeCanvas();
+        if (map) preloadMapAssets(map);
     });
 
     onDestroy(() => {
@@ -766,19 +998,20 @@
     });
 
     function resizeCanvas() {
-        const parent = canvasFg.parentElement!;
+        if (!canvasBg || !canvasFg) return;
+        const wrap = canvasBg.parentElement as HTMLElement;
+        const rect = wrap.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        const w = parent.clientWidth;
-        const h = parent.clientHeight;
-        for (const c of [canvasBg, canvasFg]) {
-            c.width = Math.floor(w * dpr);
-            c.height = Math.floor(h * dpr);
-            c.style.width = w + 'px';
-            c.style.height = h + 'px';
-            const ctx = c.getContext('2d')!;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-        clampCameraToBounds();
+        // Set CSS size
+        canvasBg.style.width = rect.width + 'px';
+        canvasBg.style.height = rect.height + 'px';
+        canvasFg.style.width = rect.width + 'px';
+        canvasFg.style.height = rect.height + 'px';
+        // Set actual pixel buffer size
+        canvasBg.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvasBg.height = Math.max(1, Math.floor(rect.height * dpr));
+        canvasFg.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvasFg.height = Math.max(1, Math.floor(rect.height * dpr));
         drawGrid();
         drawObjects();
     }
@@ -793,6 +1026,38 @@
         }
         const rect = canvasFg.getBoundingClientRect();
         return { vw: rect.width / zoom, vh: rect.height / zoom };
+    }
+
+    // Cleanup missing tilemaps
+    if (map) {
+        const refByMapId = new Map<string, boolean>();
+        // collect refs from backgroundTiles
+        if (map.backgroundTiles) {
+            for (const key in map.backgroundTiles) {
+                const ref = map.backgroundTiles[key];
+                if (ref) refByMapId.set(ref.tileMapId, true);
+            }
+        }
+        // collect from objects
+        for (const o of map.objects) {
+            if (o.kind === 'tile' && o.tile) refByMapId.set(o.tile.tileMapId, true);
+        }
+        const missing: string[] = [];
+        for (const id of refByMapId.keys()) {
+            if (!getTileMapById(id)) missing.push(id);
+        }
+        if (missing.length) {
+            alert('A tilemap used by this map is missing. Tile references will be removed.');
+            // purge
+            if (map.backgroundTiles) {
+                for (const key in map.backgroundTiles) {
+                    const ref = map.backgroundTiles[key];
+                    if (ref && missing.includes(ref.tileMapId)) delete map.backgroundTiles[key];
+                }
+            }
+            map.objects = map.objects.filter(o => !(o.kind === 'tile' && o.tile && missing.includes(o.tile.tileMapId)));
+            // saving moved earlier
+        }
     }
 </script>
 
@@ -809,6 +1074,16 @@
     >
         <canvas bind:this={canvasBg} class="layer layer-bg"></canvas>
         <canvas bind:this={canvasFg} class="layer layer-fg"></canvas>
+        {#if isLoading}
+        <div class="loading-overlay" aria-busy="true">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading tiles… {loadDone}/{loadTotal}</div>
+                <div class="loading-bar"><div class="fill" style="width: {loadTotal ? (loadDone/loadTotal*100) : 0}%"></div></div>
+                <div class="loading-note">Large maps may take a moment.</div>
+            </div>
+        </div>
+        {/if}
     </div>
 
     <!-- Inline toolbar removed; sidebars provide controls -->
@@ -821,14 +1096,20 @@
         height: calc(100dvh - 90px); /* mobile baseline; accounted by sidebars outside */
     }
 
-    .canvas-wrap {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        touch-action: none; /* pinch/pan handled manually */
-    }
+    .canvas-wrap { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+    .layer { position: absolute; inset: 0; width: 100%; height: 100%;
+        image-rendering: pixelated; image-rendering: crisp-edges; }
 
-    .layer { position: absolute; inset: 0; }
-    .layer-bg { z-index: 0; }
-    .layer-fg { z-index: 1; }
+    .loading-overlay {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        background: rgba(17,17,17,0.6); backdrop-filter: blur(2px);
+        pointer-events: all; /* block interactions while loading */
+    }
+    .loading-box { background: rgba(0,0,0,0.7); color: #fff; padding: 16px 20px; border-radius: 8px; min-width: 240px; text-align: center; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; margin: 0 auto 10px; animation: spin 1s linear infinite; }
+    .loading-text { font-size: 14px; margin-bottom: 8px; }
+    .loading-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+    .loading-bar .fill { height: 100%; background: #4aa3ff; width: 0%; transition: width 0.2s ease; }
+    .loading-note { font-size: 12px; opacity: 0.8; margin-top: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 </style>

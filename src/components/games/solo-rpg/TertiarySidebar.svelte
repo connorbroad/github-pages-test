@@ -1,15 +1,21 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import CharacterSheetControls from "./lore/characters/CharacterSheetControls.svelte";
+    import {
+        loadTileMaps,
+        type TileRef,
+        type TileMap,
+        type TileMapTile,
+    } from "./data/storage-utils";
 
     export let show: boolean = false;
     export let mode: "story" | "map" = "story"; // Which context are we in?
-    
+
     // New: whether a secondary sidebar is present; affects positioning
     export let hasSecondarySidebar: boolean = false;
-    
+
     // Story mode props
     export let visibleSections: string[] = ["information"];
     export let selectedSections: Set<string> = new Set();
@@ -18,25 +24,35 @@
 
     // Map mode props
     export let tool: "paint" | "object" | "move" = "move";
-    export let currentShape: "square" | "circle" | "triangle" | "star" = "square";
+    export let currentShape: "square" | "circle" | "triangle" | "star" =
+        "square";
     export let color: string = "#2980b9";
+    // Selected tile for map tools
+    export let selectedTile: TileRef | null = null;
 
     // Track whether tertiary should be visible on map tools
     export let autoShowOnMapTools: boolean = true;
-    $: showTertiaryOnMap = autoShowOnMapTools && mode === 'map' && (tool === 'paint' || tool === 'object');
+    $: showTertiaryOnMap =
+        autoShowOnMapTools &&
+        mode === "map" &&
+        (tool === "paint" || tool === "object");
 
     const dispatch = createEventDispatcher();
 
-    function setTool(t: typeof tool) { 
-        if (tool !== t) dispatch('toolChange', t); 
+    function setTool(t: typeof tool) {
+        if (tool !== t) dispatch("toolChange", t);
     }
-    
-    function setShape(s: typeof currentShape) { 
-        if (currentShape !== s) dispatch('shapeChange', s); 
+
+    function setShape(s: typeof currentShape) {
+        if (currentShape !== s) dispatch("shapeChange", s);
     }
-    
-    function setColor(c: string) { 
-        if (color !== c) dispatch('colorChange', c); 
+
+    function setColor(c: string) {
+        if (color !== c) dispatch("colorChange", c);
+    }
+
+    function selectTile(ref: TileRef) {
+        dispatch("tileSelect", ref);
     }
 
     // Detect if we're on mobile
@@ -48,26 +64,103 @@
         });
     }
 
-    const palette = ["#222","#555","#888","#c0392b","#27ae60","#2980b9","#f1c40f","#8e44ad"];
+    const palette = [
+        "#f5eee4",
+        "#000000",
+        "#632a7b",
+        "#c247b8",
+        "#4e3d3b",
+        "#544d54",
+        "#786c64",
+        "#a09a92",
+        "#64d5df",
+        "#478fca",
+        "#2f588d",
+        "#252f40",
+        "#63250e",
+        "#9e3227",
+        "#d87945",
+        "#f4dc6d",
+        "#89aa55",
+        "#4e8357",
+        "#386956",
+        "#2b4a3c",
+        "#e99b7c",
+        "#825341",
+    ];
     const CLEAR_COLOR = "clear"; // Special value for erasing/clearing tiles
 
     // --- Sticky filter state for Map mode ---
-    type MapCategory = 'tile' | 'shape' | 'color';
-    $: isObjectMode = tool === 'object';
-    $: availableCategories = (isObjectMode ? (['tile', 'shape', 'color'] as MapCategory[]) : (['tile', 'color'] as MapCategory[]));
-    let activeCategory: MapCategory = isObjectMode ? 'shape' : 'color';
+    type MapCategory = "tile" | "shape" | "color";
+    $: isObjectMode = tool === "object";
+    $: availableCategories = isObjectMode
+        ? (["tile", "shape", "color"] as MapCategory[])
+        : (["tile", "color"] as MapCategory[]);
+    let activeCategory: MapCategory = isObjectMode ? "shape" : "color";
     $: if (!availableCategories.includes(activeCategory)) {
         activeCategory = availableCategories[0];
     }
     function setCategory(cat: MapCategory) {
         if (availableCategories.includes(cat)) activeCategory = cat;
     }
+
+    // Tile list for Tile category
+    let tileMaps: TileMap[] = [];
+    let tileOptions: Array<{
+        tileMapId: string;
+        image: string;
+        tile: TileMapTile;
+    }> = [];
+    onMount(() => {
+        try {
+            tileMaps = loadTileMaps();
+            rebuildTileOptions();
+        } catch {}
+    });
+
+    $: if (tool && mode === "map") {
+        rebuildTileOptions();
+    }
+
+    function rebuildTileOptions() {
+        const allowField =
+            tool === "paint" ? "allowBackground" : "allowForeground";
+        const opts: Array<{
+            tileMapId: string;
+            image: string;
+            tile: TileMapTile;
+        }> = [];
+        for (const tm of tileMaps) {
+            const img = tm.image?.value;
+            if (!img) continue;
+            for (const t of tm.tiles) {
+                if (!t.include) continue;
+                // @ts-ignore index type
+                if (!t[allowField]) continue;
+                opts.push({ tileMapId: tm.id, image: img, tile: t });
+            }
+        }
+        tileOptions = opts;
+    }
+
+    function tilePreviewStyle(opt: { image: string; tile: TileMapTile }) {
+        const { image, tile } = opt;
+        return `background-image:url(${image}); background-position:-${tile.x}px -${tile.y}px; width:${tile.w}px; height:${tile.h}px;`;
+    }
+
+    const shapeOptions: Array<{ id: 'square'|'circle'|'triangle'|'star'; label: string }> = [
+        { id: 'square', label: 'Square' },
+        { id: 'circle', label: 'Circle' },
+        { id: 'triangle', label: 'Triangle' },
+        { id: 'star', label: 'Star' },
+    ];
+    function selectShape(shape: typeof currentShape) { setShape(shape); }
 </script>
 
 {#if show || showTertiaryOnMap}
     <aside
         class="tertiary-sidebar"
-        class:with-secondary={hasSecondarySidebar || mode === 'map'}
+        class:with-secondary={hasSecondarySidebar || mode === "map"}
         style="--tertiary-height: 60px;"
         transition:fly={{
             duration: 300,
@@ -87,28 +180,46 @@
             <!-- Map mode: Sticky category buttons + filtered scrollable options -->
             <nav>
                 <div class="sticky-group">
-                    <!-- Tile category -->
+                    <!-- Tile category button -->
                     <button
                         class="nav-item"
-                        class:active={activeCategory === 'tile'}
-                        on:click={() => setCategory('tile')}
+                        class:active={activeCategory === "tile"}
+                        on:click={() => setCategory("tile")}
                         aria-label="Tile"
                     >
-                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="3" y="3" width="8" height="8"></rect>
-                            <rect x="13" y="3" width="8" height="8"></rect>
-                            <rect x="3" y="13" width="8" height="8"></rect>
-                            <rect x="13" y="13" width="8" height="8"></rect>
-                        </svg>
+                        <div class="tile-swatch preview" title="Selected tile">
+                            {#if selectedTile}
+                                {#if tileMaps.length}
+                                    {#each tileMaps as tm}
+                                        {#if tm.id === selectedTile.tileMapId}
+                                            {#each tm.tiles as t}
+                                                {#if t.id === selectedTile.tileId}
+                                                    <div
+                                                        class="tile-swatch"
+                                                        style={tilePreviewStyle(
+                                                            {
+                                                                image: tm.image
+                                                                    .value,
+                                                                tile: t,
+                                                            },
+                                                        )}
+                                                    ></div>
+                                                {/if}
+                                            {/each}
+                                        {/if}
+                                    {/each}
+                                {/if}
+                            {/if}
+                        </div>
                         <span class="label">Tile</span>
                     </button>
 
                     {#if isObjectMode}
-                        <!-- Shape category (shows current shape icon) -->
+                        <!-- Shape category button remains available in object mode -->
                         <button
                             class="nav-item"
-                            class:active={activeCategory === 'shape'}
-                            on:click={() => setCategory('shape')}
+                            class:active={activeCategory === "shape"}
+                            on:click={() => setCategory("shape")}
                             aria-label="Shape"
                         >
                             {#if currentShape === 'square'}
@@ -135,31 +246,55 @@
                     <!-- Color category (shows selected color/clear) -->
                     <button
                         class="nav-item color-item"
-                        class:active={activeCategory === 'color'}
-                        on:click={() => setCategory('color')}
+                        class:active={activeCategory === "color"}
+                        on:click={() => setCategory("color")}
                         aria-label="Color"
                     >
                         {#if color === CLEAR_COLOR}
-                            <div class="color-swatch clear-swatch">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </div>
+                            <div class="color-swatch clear-swatch"></div>
                         {:else}
-                            <div class="color-swatch" style="background: {color}"></div>
+                            <div
+                                class="color-swatch"
+                                style="background: {color}"
+                            ></div>
                         {/if}
                         <span class="label">Color</span>
                     </button>
-                </div> 
+                </div>
 
                 <div class="divider"></div>
 
                 <div class="scrollable-options">
                     <div class="nav-items">
-                        {#if activeCategory === 'tile'}
-                            <!-- Tile options will be implemented later -->
-                        {:else if activeCategory === 'shape'}
+                        {#if activeCategory === "tile"}
+                            {#if tileOptions.length === 0}
+                                <em class="hint">No tiles available</em>
+                            {:else}
+                                {#each tileOptions as opt}
+                                    <button
+                                        class="nav-item tile-item"
+                                        class:active={selectedTile &&
+                                            selectedTile.tileMapId ===
+                                                opt.tileMapId &&
+                                            selectedTile.tileId === opt.tile.id}
+                                        on:click={() =>
+                                            selectTile({
+                                                tileMapId: opt.tileMapId,
+                                                tileId: opt.tile.id,
+                                            })}
+                                        aria-label={`Tile ${opt.tile.col},${opt.tile.row}`}
+                                    >
+                                        <div
+                                            class="tile-swatch"
+                                            style={tilePreviewStyle(opt)}
+                                        ></div>
+                                        <span class="label visually-hidden"
+                                            >Tile</span
+                                        >
+                                    </button>
+                                {/each}
+                            {/if}
+                        {:else if activeCategory === "shape"}
                             {#if isObjectMode}
                                 <!-- Shapes (only shown when object tool is active) -->
                                 <button
@@ -206,7 +341,7 @@
                                     </svg> 
                                 </button>
                             {/if}
-                        {:else if activeCategory === 'color'}
+                        {:else if activeCategory === "color"}
                             <!-- Colors (clear + palette) -->
                             <button
                                 class="nav-item color-item"
@@ -214,12 +349,7 @@
                                 on:click={() => setColor(CLEAR_COLOR)}
                                 aria-label="Clear"
                             >
-                                <div class="color-swatch clear-swatch">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
-                                </div> 
+                                <div class="color-swatch clear-swatch"></div>
                             </button>
                             {#each palette as c}
                                 <button
@@ -228,8 +358,13 @@
                                     on:click={() => setColor(c)}
                                     aria-label={c}
                                 >
-                                    <div class="color-swatch" style="background: {c}"></div>
-                                    <span class="label visually-hidden">{c}</span>
+                                    <div
+                                        class="color-swatch"
+                                        style="background: {c}"
+                                    ></div>
+                                    <span class="label visually-hidden"
+                                        >{c}</span
+                                    >
                                 </button>
                             {/each}
                         {/if}
@@ -267,7 +402,7 @@
 
     .scrollable-options {
         flex: 1;
-        overflow-y: auto; 
+        overflow-y: auto;
     }
 
     .nav-items {
@@ -300,12 +435,6 @@
         background-color: var(--sidebar-active);
         color: var(--sidebar-text);
         border-left: 3px solid var(--accent-primary);
-    }
-
-    .icon {
-        width: 24px;
-        height: 24px;
-        flex-shrink: 0;
     }
 
     .label {
@@ -357,16 +486,21 @@
         justify-content: center;
     }
 
-    .clear-swatch .icon {
-        width: 16px;
-        height: 16px;
-        color: var(--sidebar-text);
-    }
-
     .color-item.active .color-swatch {
         border-color: var(--accent-primary);
         box-shadow: 0 0 0 2px var(--sidebar-active);
     }
+
+    .tile-swatch {
+        background-repeat: no-repeat;
+        image-rendering: pixelated;
+        border: 1px solid var(--sidebar-border);
+        border-radius: 4px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .shape-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.25rem; width: 100%; }
 
     /* Desktop - Left sidebar */
     @media (min-width: 769px) {
@@ -420,49 +554,45 @@
     @media (max-width: 768px) {
         .tertiary-sidebar {
             position: fixed;
-            bottom: calc(70px + env(safe-area-inset-bottom)); /* just above primary bottom bar */
+            bottom: calc(70px + env(safe-area-inset-bottom));
             left: 0;
             right: 0;
             width: 100%;
             height: var(--tertiary-height, 60px);
             box-shadow: 0 -2px 5px var(--shadow-md);
         }
-
         .tertiary-sidebar.with-secondary {
-            bottom: calc(130px + env(safe-area-inset-bottom)); /* above secondary + primary */
+            bottom: calc(
+                130px + env(safe-area-inset-bottom)
+            ); /* above secondary + primary */
         }
-
+        
         /* Override CharacterSheetControls styles for mobile */
         .tertiary-sidebar :global(.section-filter) {
             position: static;
         }
-
         nav {
             flex-direction: row;
             padding: 0;
             width: 100%;
         }
-
         .sticky-group {
             position: sticky;
             left: 0;
             flex-direction: row;
         }
-
         .scrollable-options {
             flex: 1;
             overflow-x: auto;
             overflow-y: hidden;
             height: 100%;
         }
-
         .nav-items {
             flex-direction: row;
             flex: 1;
             overflow-x: auto;
             height: 100%;
         }
-
         .nav-item {
             padding: 0.5rem;
             height: 100%;
@@ -470,22 +600,14 @@
             flex: 0 0 auto;
             min-width: 60px;
         }
-
         .nav-item.active {
             border-left: none;
             border-top: 3px solid var(--accent-primary);
             padding-top: calc(0.5rem - 3px);
         }
-
         .label {
             font-size: 0.7rem;
         }
-
-        .icon {
-            width: 20px;
-            height: 20px;
-        }
-
         .divider {
             width: 2px;
             height: 100%;

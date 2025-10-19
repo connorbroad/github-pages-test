@@ -19,6 +19,8 @@ export interface SoloRPGData {
     // Map data
     maps?: MapEntity[];
     activeMapId?: string;
+    // Tile maps (image-based tilesets)
+    tileMaps?: TileMap[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -193,14 +195,25 @@ type Outcome = {
 
 // Map types
 export type MapObject = {
+    /** Unique identifier for the object */
     id: string;
+    /**
+     * Optional discriminator for forward compatibility with tile objects.
+     * When omitted or 'shape', this represents a shape object (legacy behavior).
+     * When 'tile', the `tile` field should be present and `type`/`color` may be ignored by renderers.
+     */
+    kind?: 'shape' | 'tile';
+    /** Shape type (used when kind !== 'tile') */
     type: "square" | "circle" | "triangle" | "star";
     x: number; // world px
     y: number; // world px
     w: number; // px
     h: number; // px
     rotation?: number;
+    /** Color for shape objects. Tile objects may ignore this. */
     color: string; // palette key or hex
+    /** Tile reference (used when kind === 'tile') */
+    tile?: TileRef;
     z?: number;
     locked?: boolean;
 };
@@ -215,8 +228,45 @@ export type MapEntity = {
     height: number; // tiles
     tileSize: number; // px
     background: Record<string, string>; // key "x,y" -> color
+    /** Optional background tile placements keyed by "x,y" */
+    backgroundTiles?: Record<string, TileRef>;
+    /** Optional background tile tint colors keyed by "x,y" */
+    backgroundTileTints?: Record<string, string>;
     objects: MapObject[];
     view?: { x: number; y: number; zoom: number };
+};
+
+/**
+ * Tile map models
+ */
+export type TileRef = {
+    tileMapId: string;
+    tileId: string; // unique tile id within the tile map
+};
+
+export type TileMapTile = {
+    id: string; // unique identifier for the tile entry
+    col: number;
+    row: number;
+    x: number; // px within source image
+    y: number; // px within source image
+    w: number; // px
+    h: number; // px
+    include: boolean; // selectable/available in UI
+    allowBackground: boolean;
+    allowForeground: boolean;
+};
+
+export type TileMap = {
+    id: string;
+    name: string;
+    image: { kind: 'data-url' | 'url'; value: string };
+    tileSize: number; // px, assumed square
+    columns: number;
+    rows: number;
+    tiles: TileMapTile[];
+    createdAt: number;
+    updatedAt: number;
 };
 
 /**
@@ -367,6 +417,24 @@ export function saveActiveMapId(mapId: string | null): void {
     } catch (error) {
         console.error('Failed to save active map:', error);
     }
+}
+
+/**
+ * Tile map storage helpers
+ */
+export function loadTileMaps(): TileMap[] {
+    const data = loadData();
+    return data.tileMaps || [];
+}
+
+export function saveTileMaps(tileMaps: TileMap[]): void {
+    const data = loadData();
+    data.tileMaps = tileMaps;
+    saveData(data);
+}
+
+export function getTileMapById(id: string): TileMap | undefined {
+    return loadTileMaps().find(tm => tm.id === id);
 }
 
 /**

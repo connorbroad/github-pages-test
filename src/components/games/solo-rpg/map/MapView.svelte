@@ -107,6 +107,8 @@
     let tool: "paint" | "object" | "move" = "move";
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     let color = "#2980b9";
+    // Selected tile reference for map tools
+    let selectedTileRef: { tileMapId: string; tileId: string } | null = null;
 
     // Track sidebar visibility for smooth animations
     let showSecondarySidebar = false;
@@ -165,16 +167,18 @@
             {tool} 
             {currentShape} 
             {color}
+            selectedTile={selectedTileRef}
             visibleSections={[]}
             selectedSections={new Set()}
             isEditingSections={false}
             onToggleSection={() => {}}
             on:shapeChange={(e) => currentShape = e.detail}
             on:colorChange={(e) => color = e.detail}
+            on:tileSelect={(e) => selectedTileRef = e.detail}
         />
 
         <div class="map-view-full has-sidebars">
-            <MapEditor mapId={currentMapId} {tool} {currentShape} {color} />
+            <MapEditor mapId={currentMapId} {tool} {currentShape} {color} selectedTile={selectedTileRef} />
         </div>
         <FloatingOracleButton 
             hasSecondarySidebar={showSecondarySidebar}
