@@ -78,7 +78,7 @@
     function computeContentBounds() {
         const ts = map!.tileSize;
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        // Background tiles
+        // Background colors
         for (const key in map!.background) {
             const [tx, ty] = key.split(',').map(Number);
             const x1 = tx * ts, y1 = ty * ts, x2 = x1 + ts, y2 = y1 + ts;
@@ -86,6 +86,17 @@
             if (y1 < minY) minY = y1;
             if (x2 > maxX) maxX = x2;
             if (y2 > maxY) maxY = y2;
+        }
+        // Background tiles 
+        if (map!.backgroundTiles) {
+            for (const key in map!.backgroundTiles) {
+                const [tx, ty] = key.split(',').map(Number);
+                const x1 = tx * ts, y1 = ty * ts, x2 = x1 + ts, y2 = y1 + ts;
+                if (x1 < minX) minX = x1;
+                if (y1 < minY) minY = y1;
+                if (x2 > maxX) maxX = x2;
+                if (y2 > maxY) maxY = y2;
+            }
         }
         // Foreground objects
         for (const o of map!.objects) {
