@@ -293,39 +293,40 @@
             if (o.kind === 'tile' && o.tile) {
                 const ref = o.tile;
                 const sprite = getCachedTileSprite(ref);
-                const x = o.x - o.w/2;
-                const y = o.y - o.h/2;
                 // Use per-object tint and shape
                 const tint = (!o.color || o.color === 'clear') ? null : o.color;
                 const shape = (o.type ?? 'square') as 'square'|'circle'|'triangle'|'star';
+                const flipX = (o as any).flipX === true;
                 if (sprite) {
+                    ctxFg.save();
+                    ctxFg.translate(o.x, o.y);
+                    if (flipX) ctxFg.scale(-1, 1);
                     if (shape === 'square') {
-                        drawTintedSprite(ctxFg, sprite as any, x, y, o.w, o.h, tint);
+                        // draw centered so flipping is around center
+                        drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
                         // Outline for square tile objects
                         ctxFg.strokeStyle = '#000000';
                         ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-                        ctxFg.strokeRect(x, y, o.w, o.h);
+                        ctxFg.strokeRect(-o.w/2, -o.h/2, o.w, o.h);
                     } else {
                         // Masked draw with shape, then outline
-                        ctxFg.save();
-                        ctxFg.translate(o.x, o.y);
                         beginShapePath(ctxFg, shape, o.w, o.h);
                         ctxFg.clip();
-                        ctxFg.translate(-o.x, -o.y);
-                        drawTintedSprite(ctxFg, sprite as any, x, y, o.w, o.h, tint);
-                        ctxFg.restore();
+                        drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
                         // Draw outline of the shape
+                        ctxFg.restore();
                         ctxFg.save();
                         ctxFg.translate(o.x, o.y);
+                        if (flipX) ctxFg.scale(-1, 1);
                         beginShapePath(ctxFg, shape, o.w, o.h);
                         ctxFg.strokeStyle = '#000000';
                         ctxFg.lineWidth = 2 / (camera.zoom * dpr);
                         ctxFg.stroke();
-                        ctxFg.restore();
                     }
+                    ctxFg.restore();
                 } else {
                     getTileSprite(ref).then(() => scheduleRender()).catch(() => {
-                        ctxFg.save(); ctxFg.fillStyle = '#ff00ff'; ctxFg.fillRect(x, y, o.w, o.h); ctxFg.restore();
+                        ctxFg.save(); ctxFg.fillStyle = '#ff00ff'; ctxFg.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h); ctxFg.restore();
                     });
                 }
             } 
@@ -548,11 +549,54 @@
     let selectedObject: MapObject | null = null;
     let isDraggingHandle = false;
 
+    // Helper to notify parent of selection state
+    function emitSelection() {
+        const obj = selectedObject;
+        dispatch('selectionChange', obj ? {
+            selected: true,
+            object: {
+                id: obj.id,
+                color: obj.color,
+                canFlip: obj.kind === 'tile'
+            }
+        } : { selected: false, object: null });
+    }
+
+    // Public API for TertiarySidebar actions in Move tool
+    export function setSelectedObjectColor(newColor: string) {
+        if (!selectedObject) return;
+        selectedObject.color = newColor;
+        scheduleRender();
+        queueSave();
+        emitSelection();
+    }
+
+    export function flipSelectedObject() {
+        if (!selectedObject) return;
+        if (selectedObject.kind !== 'tile') return; // only meaningful for tile sprites
+        // Store a flip flag in a loose property to avoid changing shared types
+        (selectedObject as any).flipX = !(selectedObject as any).flipX;
+        scheduleRender();
+        queueSave();
+    }
+
+    export function deleteSelectedObject() {
+        if (!selectedObject || !map) return;
+        const id = selectedObject.id;
+        map.objects = map.objects.filter(o => o.id !== id);
+        selectedObject = null;
+        invalidateBounds();
+        scheduleRender();
+        queueSave();
+        emitSelection();
+    }
+
     // Clear selection when switching away from move tool
     $: if (tool !== 'move') {
         if (selectedObject) {
             selectedObject = null;
             if (map) scheduleRender();
+            emitSelection();
         }
     }
     
@@ -709,6 +753,7 @@
             if (hit) {
                 selectedObject = hit;
                 scheduleRender();
+                emitSelection();
                 return;
             }
 
@@ -718,6 +763,7 @@
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
             scheduleRender();
+            emitSelection();
             return;
         }
 
@@ -935,6 +981,7 @@
             // Object move may expand or shrink bounds; recompute lazily
             invalidateBounds();
             queueSave();
+            emitSelection();
         }
         if (pointers.size < 2) {
             pinchBase.distance = 0;

@@ -125,9 +125,30 @@
         showTertiarySidebar = false;
     }
 
+    // Editor selection state for Move tool controls
+    let moveHasSelection = false;
+    let moveSelectedColor: string | null = null;
+    let moveCanFlip = false;
+
+    // Reference to MapEditor to call exported methods
+    let editorRef: any;
+
+    function handleEditorSelectionChange(e: CustomEvent<{ selected: boolean; object: { id: string; color: string; canFlip: boolean } | null }>) {
+        moveHasSelection = !!e.detail?.selected;
+        moveSelectedColor = e.detail?.object?.color ?? null;
+        moveCanFlip = !!e.detail?.object?.canFlip;
+    }
+
+    function handleMoveColorChange(e: CustomEvent<string>) {
+        editorRef?.setSelectedObjectColor?.(e.detail);
+        moveSelectedColor = e.detail;
+    }
+    function handleMoveFlip() { editorRef?.flipSelectedObject?.(); }
+    function handleMoveDelete() { editorRef?.deleteSelectedObject?.(); }
+
     // Update tertiary sidebar visibility based on tool
     $: if (currentMapId) {
-        showTertiarySidebar = tool === "paint" || tool === "object";
+        showTertiarySidebar = tool === "paint" || tool === "object" || (tool === 'move' && moveHasSelection);
     }
 
     // Public method to close the current map and return to landing
@@ -175,10 +196,18 @@
             on:shapeChange={(e) => currentShape = e.detail}
             on:colorChange={(e) => color = e.detail}
             on:tileSelect={(e) => selectedTileRef = e.detail}
+            moveHasSelection={moveHasSelection}
+            moveSelectedColor={moveSelectedColor}
+            moveCanFlip={moveCanFlip}
+            on:moveColorChange={handleMoveColorChange}
+            on:moveFlip={handleMoveFlip}
+            on:moveDelete={handleMoveDelete}
         />
 
         <div class="map-view-full has-sidebars">
-            <MapEditor mapId={currentMapId} {tool} {currentShape} {color} selectedTile={selectedTileRef} />
+            <MapEditor bind:this={editorRef} mapId={currentMapId} {tool} {currentShape} {color} selectedTile={selectedTileRef}
+                on:selectionChange={handleEditorSelectionChange}
+            />
         </div>
         <FloatingOracleButton 
             hasSecondarySidebar={showSecondarySidebar}

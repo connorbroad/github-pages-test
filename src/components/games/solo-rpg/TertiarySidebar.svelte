@@ -37,6 +37,11 @@
         mode === "map" &&
         (tool === "paint" || tool === "object");
 
+    // Move tool selection props
+    export let moveHasSelection: boolean = false;
+    export let moveSelectedColor: string | null = null; // current selected object's color/tint
+    export let moveCanFlip: boolean = false; // only tile objects can flip
+
     const dispatch = createEventDispatcher();
 
     function setTool(t: typeof tool) {
@@ -155,6 +160,13 @@
         { id: 'star', label: 'Star' },
     ];
     function selectShape(shape: typeof currentShape) { setShape(shape); }
+
+    // Events for move-tool actions
+    function moveSetColor(c: string) {
+        dispatch("moveColorChange", c);
+    }
+    function moveFlip() { dispatch("moveFlip"); }
+    function moveDelete() { dispatch("moveDelete"); }
 </script>
 
 {#if show || showTertiaryOnMap}
@@ -177,194 +189,257 @@
                 on:toggleSection={(e) => onToggleSection(e.detail)}
             />
         {:else}
-            <!-- Map mode: Sticky category buttons + filtered scrollable options -->
-            <nav>
-                <div class="sticky-group">
-                    <!-- Tile category button -->
-                    <button
-                        class="nav-item"
-                        class:active={activeCategory === "tile"}
-                        on:click={() => setCategory("tile")}
-                        aria-label="Tile"
-                    >
-                        <div class="tile-swatch preview" title="Selected tile">
-                            {#if selectedTile}
-                                {#if tileMaps.length}
-                                    {#each tileMaps as tm}
-                                        {#if tm.id === selectedTile.tileMapId}
-                                            {#each tm.tiles as t}
-                                                {#if t.id === selectedTile.tileId}
-                                                    <div
-                                                        class="tile-swatch"
-                                                        style={`${tilePreviewStyle({ image: tm.image.value, tile: t })} transform: scale(${24 / t.w}, ${24 / t.h});`}
-                                                    ></div>
-                                                {/if}
-                                            {/each}
-                                        {/if}
-                                    {/each}
-                                {/if}
-                            {/if}
-                        </div>
-                        <span class="label">Tile</span>
-                    </button>
-
-                    {#if isObjectMode}
-                        <!-- Shape category button remains available in object mode -->
-                        <button
-                            class="nav-item"
-                            class:active={activeCategory === "shape"}
-                            on:click={() => setCategory("shape")}
-                            aria-label="Shape"
-                        >
-                            {#if currentShape === 'square'}
-                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <rect x="4" y="4" width="16" height="16"></rect>
-                                </svg>
-                            {:else if currentShape === 'circle'}
-                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <circle cx="12" cy="12" r="8"></circle>
-                                </svg>
-                            {:else if currentShape === 'triangle'}
-                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4 4 20 h16 Z"></path>
-                                </svg>
-                            {:else}
-                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <polygon points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10"></polygon>
-                                </svg>
-                            {/if}
-                            <span class="label">Shape</span>
-                        </button>
-                    {/if}
-
-                    <!-- Color category (shows selected color/clear) -->
-                    <button
-                        class="nav-item color-item"
-                        class:active={activeCategory === "color"}
-                        on:click={() => setCategory("color")}
-                        aria-label="Color"
-                    >
-                        {#if color === CLEAR_COLOR}
-                            <div class="color-swatch clear-swatch"></div>
-                        {:else}
-                            <div
-                                class="color-swatch"
-                                style="background: {color}"
-                            ></div>
-                        {/if}
-                        <span class="label">Color</span>
-                    </button>
-                </div>
-
-                <div class="divider"></div>
-
-                <div class="scrollable-options">
-                    <div class="nav-items">
-                        {#if activeCategory === "tile"}
-                            {#if tileOptions.length === 0}
-                                <em class="hint">No tiles available</em>
-                            {:else}
-                                {#each tileOptions as opt}
-                                    <button
-                                        class="nav-item tile-item"
-                                        class:active={selectedTile &&
-                                            selectedTile.tileMapId ===
-                                                opt.tileMapId &&
-                                            selectedTile.tileId === opt.tile.id}
-                                        on:click={() =>
-                                            selectTile({
-                                                tileMapId: opt.tileMapId,
-                                                tileId: opt.tile.id,
-                                            })}
-                                        aria-label={`Tile ${opt.tile.col},${opt.tile.row}`}
-                                    >
-                                        <div class="tile-swatch-frame">
-                                            <div
-                                                class="tile-swatch"
-                                                style={`${tilePreviewStyle(opt)} transform: scale(${24 / opt.tile.w}, ${24 / opt.tile.h});`}
-                                            ></div>
-                                        </div>
-                                        <span class="label visually-hidden">Tile</span>
-                                    </button>
-                                {/each}
-                            {/if}
-                        {:else if activeCategory === "shape"}
-                            {#if isObjectMode}
-                                <!-- Shapes (only shown when object tool is active) -->
-                                <button
-                                    class="nav-item"
-                                    class:active={currentShape === 'square'}
-                                    on:click={() => setShape('square')}
-                                    aria-label="Square"
-                                >
-                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                        <rect x="4" y="4" width="16" height="16"></rect>
-                                    </svg> 
-                                </button>
-
-                                <button
-                                    class="nav-item"
-                                    class:active={currentShape === 'circle'}
-                                    on:click={() => setShape('circle')}
-                                    aria-label="Circle"
-                                >
-                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                        <circle cx="12" cy="12" r="8"></circle>
-                                    </svg> 
-                                </button>
-
-                                <button
-                                    class="nav-item"
-                                    class:active={currentShape === 'triangle'}
-                                    on:click={() => setShape('triangle')}
-                                    aria-label="Triangle"
-                                >
-                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 4 4 20 h16 Z"></path>
-                                    </svg> 
-                                </button>
-
-                                <button
-                                    class="nav-item"
-                                    class:active={currentShape === 'star'}
-                                    on:click={() => setShape('star')}
-                                    aria-label="Star"
-                                >
-                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                        <polygon points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10"></polygon>
-                                    </svg> 
-                                </button>
-                            {/if}
-                        {:else if activeCategory === "color"}
-                            <!-- Colors (clear + palette) -->
+            {#if tool === 'move' && moveHasSelection}
+                <!-- Move mode controls when an object is selected -->
+                <nav>
+                    <div class="sticky-group">
+                        <div class="nav-items">
                             <button
-                                class="nav-item color-item"
-                                class:active={color === CLEAR_COLOR}
-                                on:click={() => setColor(CLEAR_COLOR)}
-                                aria-label="Clear"
+                                class="nav-item"
+                                on:click={moveDelete}
+                                aria-label="Delete object"
                             >
-                                <div class="color-swatch clear-swatch"></div>
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                                    <path d="M10 11v6"></path>
+                                    <path d="M14 11v6"></path>
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                </svg>
+                                <span class="label">Delete</span>
                             </button>
+                            <button
+                                class="nav-item"
+                                on:click={moveFlip}
+                                aria-label="Flip horizontal"
+                                disabled={!moveCanFlip}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1.5em' height='1.5em'>
+                                    <path fill="currentColor" d="M15 21h2v-2h-2zm4-12h2V7h-2zM3 5v14c0 1.1.9 2 2 2h4v-2H5V5h4V3H5c-1.1 0-2 .9-2 2m16-2v2h2c0-1.1-.9-2-2-2m-8 20h2V1h-2zm8-6h2v-2h-2zM15 5h2V3h-2zm4 8h2v-2h-2zm0 8c1.1 0 2-.9 2-2h-2z"/>
+                                </svg>
+                                <span class="label">Flip</span>
+                            </button>
+                        </div> 
+                    </div>
+                    <div class="divider"></div>
+                    <div class="scrollable-options">
+                        <div class="nav-items">
+                            {#if moveCanFlip}
+                                <!-- Provide CLEAR for tile-object tint removal -->
+                                <button
+                                    class="nav-item color-item"
+                                    class:active={moveSelectedColor === CLEAR_COLOR}
+                                    on:click={() => moveSetColor(CLEAR_COLOR)}
+                                    aria-label="Clear tint"
+                                >
+                                    <div class="color-swatch clear-swatch"></div>
+                                </button>
+                            {/if}
                             {#each palette as c}
                                 <button
                                     class="nav-item color-item"
-                                    class:active={color === c}
-                                    on:click={() => setColor(c)}
+                                    class:active={moveSelectedColor === c}
+                                    on:click={() => moveSetColor(c)}
                                     aria-label={c}
                                 >
-                                    <div
-                                        class="color-swatch"
-                                        style="background: {c}"
-                                    ></div>
-                                    <span class="label visually-hidden"
-                                        >{c}</span
-                                    >
+                                    <div class="color-swatch" style="background: {c}"></div>
+                                    <span class="label visually-hidden">{c}</span>
                                 </button>
                             {/each}
-                        {/if}
+                        </div>
                     </div>
-                </div>
-            </nav>
+                    <div class="divider"></div>
+                </nav>
+            {:else}
+                <!-- Map mode: Sticky category buttons + filtered scrollable options -->
+                <nav>
+                    <div class="sticky-group">
+                        <!-- Tile category button -->
+                        <button
+                            class="nav-item"
+                            class:active={activeCategory === "tile"}
+                            on:click={() => setCategory("tile")}
+                            aria-label="Tile"
+                        >
+                            <div class="tile-swatch preview" title="Selected tile">
+                                {#if selectedTile}
+                                    {#if tileMaps.length}
+                                        {#each tileMaps as tm}
+                                            {#if tm.id === selectedTile.tileMapId}
+                                                {#each tm.tiles as t}
+                                                    {#if t.id === selectedTile.tileId}
+                                                        <div
+                                                            class="tile-swatch"
+                                                            style={`${tilePreviewStyle({ image: tm.image.value, tile: t })} transform: scale(${24 / t.w}, ${24 / t.h});`}
+                                                        ></div>
+                                                    {/if}
+                                                {/each}
+                                            {/if}
+                                        {/each}
+                                    {/if}
+                                {/if}
+                            </div>
+                            <span class="label">Tile</span>
+                        </button>
+
+                        {#if isObjectMode}
+                            <!-- Shape category button remains available in object mode -->
+                            <button
+                                class="nav-item"
+                                class:active={activeCategory === "shape"}
+                                on:click={() => setCategory("shape")}
+                                aria-label="Shape"
+                            >
+                                {#if currentShape === 'square'}
+                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <rect x="4" y="4" width="16" height="16"></rect>
+                                    </svg>
+                                {:else if currentShape === 'circle'}
+                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <circle cx="12" cy="12" r="8"></circle>
+                                    </svg>
+                                {:else if currentShape === 'triangle'}
+                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 4 4 20 h16 Z"></path>
+                                    </svg>
+                                {:else}
+                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10"></polygon>
+                                    </svg>
+                                {/if}
+                                <span class="label">Shape</span>
+                            </button>
+                        {/if}
+
+                        <!-- Color category (shows selected color/clear) -->
+                        <button
+                            class="nav-item color-item"
+                            class:active={activeCategory === "color"}
+                            on:click={() => setCategory("color")}
+                            aria-label="Color"
+                        >
+                            {#if color === CLEAR_COLOR}
+                                <div class="color-swatch clear-swatch"></div>
+                            {:else}
+                                <div
+                                    class="color-swatch"
+                                    style="background: {color}"
+                                ></div>
+                            {/if}
+                            <span class="label">Color</span>
+                        </button>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="scrollable-options">
+                        <div class="nav-items">
+                            {#if activeCategory === "tile"}
+                                {#if tileOptions.length === 0}
+                                    <em class="hint">No tiles available</em>
+                                {:else}
+                                    {#each tileOptions as opt}
+                                        <button
+                                            class="nav-item tile-item"
+                                            class:active={selectedTile &&
+                                                selectedTile.tileMapId ===
+                                                    opt.tileMapId &&
+                                                selectedTile.tileId === opt.tile.id}
+                                            on:click={() =>
+                                                selectTile({
+                                                    tileMapId: opt.tileMapId,
+                                                    tileId: opt.tile.id,
+                                                })}
+                                            aria-label={`Tile ${opt.tile.col},${opt.tile.row}`}
+                                        >
+                                            <div class="tile-swatch-frame">
+                                                <div
+                                                    class="tile-swatch"
+                                                    style={`${tilePreviewStyle(opt)} transform: scale(${24 / opt.tile.w}, ${24 / opt.tile.h});`}
+                                                ></div>
+                                            </div>
+                                            <span class="label visually-hidden">Tile</span>
+                                        </button>
+                                    {/each}
+                                {/if}
+                            {:else if activeCategory === "shape"}
+                                {#if isObjectMode}
+                                    <!-- Shapes (only shown when object tool is active) -->
+                                    <button
+                                        class="nav-item"
+                                        class:active={currentShape === 'square'}
+                                        on:click={() => setShape('square')}
+                                        aria-label="Square"
+                                    >
+                                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="4" y="4" width="16" height="16"></rect>
+                                        </svg> 
+                                    </button>
+
+                                    <button
+                                        class="nav-item"
+                                        class:active={currentShape === 'circle'}
+                                        on:click={() => setShape('circle')}
+                                        aria-label="Circle"
+                                    >
+                                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <circle cx="12" cy="12" r="8"></circle>
+                                        </svg> 
+                                    </button>
+
+                                    <button
+                                        class="nav-item"
+                                        class:active={currentShape === 'triangle'}
+                                        on:click={() => setShape('triangle')}
+                                        aria-label="Triangle"
+                                    >
+                                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 4 4 20 h16 Z"></path>
+                                        </svg> 
+                                    </button>
+
+                                    <button
+                                        class="nav-item"
+                                        class:active={currentShape === 'star'}
+                                        on:click={() => setShape('star')}
+                                        aria-label="Star"
+                                    >
+                                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <polygon points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10"></polygon>
+                                        </svg> 
+                                    </button>
+                                {/if}
+                            {:else if activeCategory === "color"}
+                                <!-- Colors (clear + palette) -->
+                                <button
+                                    class="nav-item color-item"
+                                    class:active={color === CLEAR_COLOR}
+                                    on:click={() => setColor(CLEAR_COLOR)}
+                                    aria-label="Clear"
+                                >
+                                    <div class="color-swatch clear-swatch"></div>
+                                </button>
+                                {#each palette as c}
+                                    <button
+                                        class="nav-item color-item"
+                                        class:active={color === c}
+                                        on:click={() => setColor(c)}
+                                        aria-label={c}
+                                    >
+                                        <div
+                                            class="color-swatch"
+                                            style="background: {c}"
+                                        ></div>
+                                        <span class="label visually-hidden"
+                                            >{c}</span
+                                        >
+                                    </button>
+                                {/each}
+                            {/if}
+                        </div>
+                    </div>
+                </nav>
+            {/if}
         {/if}
     </aside>
 {/if}
