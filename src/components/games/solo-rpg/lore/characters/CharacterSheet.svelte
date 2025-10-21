@@ -1363,7 +1363,7 @@
             {#if showItems}
                 <CharacterSheetSection
                     id="section-items"
-                    title="Items"
+                    title="Inventory"
                     isEditing={isSectionEditing("items")}
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("items")}
@@ -1372,7 +1372,7 @@
                 >
                     <div class="srpg-form-grid">
                         <div class="srpg-form-field">
-                            <label for="currency-gp">Money</label>
+                            <h4>Money</h4>
                             {#if isSectionEditing("items") || isEditing}
                                 <div class="currency-inputs">
                                     <input id="currency-gp" type="number" min="0" bind:value={editedCharacter.currency.gp} placeholder="GP" aria-label="Gold Pieces" />
@@ -1389,29 +1389,54 @@
                         </div>
                     </div>
                     <div class="inventory-section">
-                        <div class="inventory-header">
-                            <h4>Inventory</h4>
+                        <div class="inventory-header"> 
                             <button class="srpg-b srpg-b-icon" aria-label="Add Item" title="Add Item" on:click={handleAddItemClick}>
                                 <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                             </button>
                         </div>
                         {#if editedCharacter.inventory && editedCharacter.inventory.length > 0}
                             <div class="inventory-list">
-                                {#each editedCharacter.inventory as invItem}
-                                    <div class="inventory-item-row">
-                                        <span>{campaignItems.find(i => i.id === invItem.itemId)?.name || invItem.itemId}</span>
-                                        <span>Qty: {invItem.quantity}</span>
-                                        {#if campaignItems.find(i => i.id === invItem.itemId)}
-                                            {#if campaignItems.find(i => i.id === invItem.itemId).type != "simple"}
-                                                <span class="srpg-badge srpg-badge-sm">{campaignItems.find(i => i.id === invItem.itemId).type}</span>
+                                {#if editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "simple").length > 0}
+                                    <h4>General items</h4>
+                                    {#each editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "simple") as invItem}
+                                        <div class="inventory-item-row">
+                                            <span>{campaignItems.find(i => i.id === invItem.itemId)?.name || invItem.itemId}</span>
+                                            <span>Qty: {invItem.quantity}</span>
+                                            {#if campaignItems.find(i => i.id === invItem.itemId)} 
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).weight}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).weight} wt</span>
+                                                {/if}
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).cost}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).cost} gp</span>
+                                                {/if}
+                                                {#if ['weapon','armor'].includes(campaignItems.find(i => i.id === invItem.itemId).type)}
+                                                    <button class="srpg-b srpg-b-icon" aria-label={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                        title={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                        on:click={() => toggleEquip(invItem)}>
+                                                        {#if invItem.equipped}
+                                                            <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                                                        {:else}
+                                                            <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                                                        {/if}
+                                                    </button>
+                                                {/if}
                                             {/if}
-                                            {#if campaignItems.find(i => i.id === invItem.itemId).weight}
-                                                <span>{campaignItems.find(i => i.id === invItem.itemId).weight} wt</span>
-                                            {/if}
-                                            {#if campaignItems.find(i => i.id === invItem.itemId).cost}
-                                                <span>{campaignItems.find(i => i.id === invItem.itemId).cost} gp</span>
-                                            {/if}
-                                            {#if ['weapon','armor'].includes(campaignItems.find(i => i.id === invItem.itemId).type)}
+                                        </div>
+                                    {/each}
+                                {/if}
+                                {#if editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "weapon").length > 0}
+                                    <h4>Weapons</h4>
+                                    {#each editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "weapon") as invItem}
+                                        <div class="inventory-item-row">
+                                            <span>{campaignItems.find(i => i.id === invItem.itemId)?.name || invItem.itemId}</span>
+                                            <span>Qty: {invItem.quantity}</span>
+                                            {#if campaignItems.find(i => i.id === invItem.itemId)} 
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).weight}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).weight} wt</span>
+                                                {/if}
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).cost}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).cost} gp</span>
+                                                {/if}
                                                 <button class="srpg-b srpg-b-icon" aria-label={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
                                                     title={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
                                                     on:click={() => toggleEquip(invItem)}>
@@ -1422,9 +1447,35 @@
                                                     {/if}
                                                 </button>
                                             {/if}
-                                        {/if}
-                                    </div>
-                                {/each}
+                                        </div>
+                                    {/each}
+                                {/if}
+                                {#if editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "armor").length > 0}
+                                    <h4>Armor</h4>
+                                    {#each editedCharacter.inventory.filter(invItem => campaignItems.find(i => i.id === invItem.itemId).type == "armor") as invItem}
+                                        <div class="inventory-item-row">
+                                            <span>{campaignItems.find(i => i.id === invItem.itemId)?.name || invItem.itemId}</span>
+                                            <span>Qty: {invItem.quantity}</span>
+                                            {#if campaignItems.find(i => i.id === invItem.itemId)} 
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).weight}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).weight} wt</span>
+                                                {/if}
+                                                {#if campaignItems.find(i => i.id === invItem.itemId).cost}
+                                                    <span>{campaignItems.find(i => i.id === invItem.itemId).cost} gp</span>
+                                                {/if}
+                                                <button class="srpg-b srpg-b-icon" aria-label={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                    title={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                    on:click={() => toggleEquip(invItem)}>
+                                                    {#if invItem.equipped}
+                                                        <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                                                    {:else}
+                                                        <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                                                    {/if}
+                                                </button>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                {/if}
                             </div>
                         {:else}
                             <p class="srpg-empty-message">No items in inventory.</p>
