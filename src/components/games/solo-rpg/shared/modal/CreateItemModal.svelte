@@ -1,0 +1,153 @@
+<script lang="ts">
+    import { createEventDispatcher } from "svelte";
+    import SrpgModal from "./SrpgModal.svelte";
+    import type { CampaignItem, ItemType, AttackSpec } from "../../data/storage-utils";
+
+    export let show = false;
+    export let campaignId: string;
+
+    const dispatch = createEventDispatcher();
+
+    let name = "";
+    let type: ItemType = "simple";
+    let weight: number | null = null;
+    let cost: number | null = null;
+    let tags = "";
+
+    // Weapon fields
+    let range = "";
+    let toHit = "1d20+0";
+    let attacks: AttackSpec[] = [];
+
+    // Armor fields
+    let armorClass: number | null = null;
+
+    function addAttack() {
+        attacks = [...attacks, { id: `attack-${Date.now()}`, name: "", dice: "", kind: "B" }];
+    }
+    
+    function removeAttack(idx: number) {
+        attacks = attacks.filter((_, i) => i !== idx);
+    }
+
+    function save() {
+        if (!name.trim()) return;
+
+        const base: any = {
+            id: `item-${Date.now()}`,
+            name,
+            type,
+            weight: weight ?? undefined,
+            cost: cost ?? undefined,
+            tags: tags ? tags.split(",").map(t => t.trim()) : undefined,
+            campaignId,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        };
+
+        let item: CampaignItem;
+        if (type === "weapon") {
+            item = {
+                ...base,
+                type: "weapon",
+                range: range || undefined,
+                toHit: toHit || "1d20+0",
+                attacks: attacks.length ? attacks : [],
+            };
+        } else if (type === "armor") {
+            item = {
+                ...base,
+                type: "armor",
+                armorClass: armorClass ?? 10,
+            };
+        } else {
+            item = {
+                ...base,
+                type: "simple",
+            };
+        }
+
+        dispatch("save", item);
+        show = false;
+    }
+
+    function close() {
+        dispatch("close");
+        show = false;
+    }
+</script>
+
+<SrpgModal bind:show maxWidth="420px" ariaLabel="Create Item" on:close={close}>
+    <div class="modal-content">
+        <h2>Create New Item</h2>
+        <div class="srpg-form-grid">
+            <div class="srpg-form-field">
+                <label for="item-type">Type</label>
+                <select id="item-type" bind:value={type}>
+                    <option value="simple">Simple</option>
+                    <option value="weapon">Weapon</option>
+                    <option value="armor">Armor</option>
+                </select>
+            </div>
+            <div class="srpg-form-field">
+                <label for="item-name">Name</label>
+                <input id="item-name" type="text" bind:value={name} required />
+            </div>
+            <div class="srpg-form-field">
+                <label for="item-weight">Weight</label>
+                <input id="item-weight" type="number" min="0" bind:value={weight} />
+            </div>
+            <div class="srpg-form-field">
+                <label for="item-cost">Cost</label>
+                <input id="item-cost" type="number" min="0" bind:value={cost} />
+            </div>
+            <div class="srpg-form-field">
+                <label for="item-tags">Tags</label>
+                <input id="item-tags" type="text" bind:value={tags} placeholder="comma separated" />
+            </div>
+            {#if type === "weapon"}
+                <div class="srpg-form-field">
+                    <label for="item-range">Range</label>
+                    <input id="item-range" type="text" bind:value={range} placeholder="e.g. 30 ft" />
+                </div>
+                <div class="srpg-form-field">
+                    <label for="item-tohit">To Hit</label>
+                    <input id="item-tohit" type="text" bind:value={toHit} placeholder="e.g. 1d20+0" />
+                </div>
+                <div class="attacks-section">
+                    <span id="attacks-label" class="srpg-label">Attacks</span>
+                    {#each attacks as attack, idx}
+                        <div class="attack-row" aria-labelledby="attacks-label">
+                            <input type="text" bind:value={attack.name} placeholder="Name (optional)" />
+                            <input type="text" bind:value={attack.dice} placeholder="Dice (e.g. 1d6+2)" />
+                            <select bind:value={attack.kind}>
+                                <option value="B">B</option>
+                                <option value="P">P</option>
+                                <option value="S">S</option>
+                            </select>
+                            <button class="srpg-b srpg-b-icon" aria-label="Remove Attack" title="Remove Attack" on:click={() => removeAttack(idx)}>&times;</button>
+                        </div>
+                    {/each}
+                    <button class="srpg-b srpg-b-sm" aria-labelledby="attacks-label" on:click={addAttack}>Add Attack</button>
+                </div>
+            {/if}
+            {#if type === "armor"}
+                <div class="srpg-form-field">
+                    <label for="item-ac">Armor Class (AC)</label>
+                    <input id="item-ac" type="number" min="0" bind:value={armorClass} />
+                </div>
+            {/if}
+        </div>
+        <div class="modal-actions">
+            <button class="srpg-b srpg-b-create" on:click={save}>Save</button>
+            <button class="srpg-b" on:click={close}>Cancel</button>
+        </div>
+    </div>
+</SrpgModal>
+
+<style>
+    .modal-content { padding: 1.5rem; }
+    .attacks-section { margin-top: 1rem; }
+    .attack-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
+</style>

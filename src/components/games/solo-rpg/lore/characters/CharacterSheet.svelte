@@ -3,8 +3,10 @@
     import { createEventDispatcher } from "svelte";
     import TemplateModal from "../../shared/modal/TemplateModal.svelte";
     import CharacterSheetSection from "./CharacterSheetSection.svelte";
-    import { loadCharacters } from "../../data/storage-utils";
+    import { loadCharacters, loadCampaignItems, saveCampaignItems } from "../../data/storage-utils";
     import ResultOptionIcon from "../../oracle/components/dice-roller/components/ResultOptionIcon.svelte";
+    import CreateItemModal from "../../shared/modal/CreateItemModal.svelte";
+    import AddInventoryItemModal from "../../shared/modal/AddInventoryItemModal.svelte";
 
     export let character: Character;
     export let isEditing: boolean = false;
@@ -18,10 +20,19 @@
     let editedCharacter: Character = structuredClone(character);
     let showAbilityTemplateModal: boolean = false;
     let showSkillTemplateModal: boolean = false;
+    let showCreateItemModal = false;
+    let showAddInventoryItemModal = false;
 
     // Keep editedCharacter in sync with character prop when not actively editing
     $: if (!isEditing && !editingSection) {
         editedCharacter = structuredClone(character);
+        // Ensure currency and inventory are always present
+        if (!editedCharacter.currency) {
+            editedCharacter.currency = { gp: 0, sp: 0, cp: 0 };
+        }
+        if (!editedCharacter.inventory) {
+            editedCharacter.inventory = [];
+        }
     }
 
     $: if (editedCharacter && !editedCharacter.visibleSections) {
@@ -510,6 +521,80 @@
     $: isHealthEditable = isEditing || isSectionEditing("health");
     $: isAbilitiesEditable = isEditing || isSectionEditing("abilities");
     $: isCombatEditable = isEditing || isSectionEditing("combat");
+
+    // Assume campaignId is available via character.campaignId
+    const campaignId = character.campaignId;
+
+    let campaignItems = loadCampaignItems().filter(i => i.campaignId === character.campaignId);
+
+    function handleAddItemClick() {
+        // Prompt user: create new or add from library
+        if (campaignItems.length > 0) {
+            if (confirm("Add from library? (Cancel to create new item)")) {
+                showAddInventoryItemModal = true;
+                return;
+            }
+        }
+        showCreateItemModal = true;
+    }
+    function handleCreateItemSave(event: CustomEvent) {
+        const newItem = event.detail;
+        let items = loadCampaignItems();
+        items.push(newItem);
+        saveCampaignItems(items);
+        showCreateItemModal = false;
+        saveSection();
+    }
+    function handleCreateItemClose() {
+        showCreateItemModal = false;
+    }
+    function handleAddInventoryItemSave(event: CustomEvent) {
+        const { itemId, quantity } = event.detail;
+        // Add to inventory (if already present, increase quantity)
+        let inv = editedCharacter.inventory || [];
+        const idx = inv.findIndex(i => i.itemId === itemId);
+        if (idx >= 0) {
+            inv[idx].quantity += quantity;
+        } else {
+            inv.push({ itemId, quantity });
+        }
+        editedCharacter.inventory = inv;
+        showAddInventoryItemModal = false;
+        saveSection();
+    }
+    function handleAddInventoryItemClose() {
+        showAddInventoryItemModal = false;
+    }
+
+    // Equip/unequip logic for inventory
+    function toggleEquip(invItem) {
+        const item = campaignItems.find(i => i.id === invItem.itemId);
+        if (!item) return;
+        if (!editedCharacter.equipped) {
+            editedCharacter.equipped = { weapons: [], armors: [] };
+        }
+        if (item.type === 'weapon') {
+            invItem.equipped = !invItem.equipped;
+            if (invItem.equipped) {
+                if (!editedCharacter.equipped.weapons.includes(invItem.itemId)) {
+                    editedCharacter.equipped.weapons.push(invItem.itemId);
+                }
+            } else {
+                editedCharacter.equipped.weapons = editedCharacter.equipped.weapons.filter(id => id !== invItem.itemId);
+            }
+        } else if (item.type === 'armor') {
+            // Only one armor can be equipped at a time
+            editedCharacter.inventory.forEach(ii => {
+                const it = campaignItems.find(i => i.id === ii.itemId);
+                if (it && it.type === 'armor') {
+                    ii.equipped = false;
+                }
+            });
+            invItem.equipped = true;
+            editedCharacter.equipped.armors = [invItem.itemId];
+        }
+        saveSection();
+    }
 </script>
 
 <div class="character-sheet-wrapper">
@@ -1285,7 +1370,79 @@
                     on:save={saveSection}
                     on:cancel={cancelSectionEdit}
                 >
+                    <div class="srpg-form-grid">
+                        <div class="srpg-form-field">
+                            <label for="currency-gp">Money</label>
+                            {#if isSectionEditing("items") || isEditing}
+                                <div class="currency-inputs">
+                                    <input id="currency-gp" type="number" min="0" bind:value={editedCharacter.currency.gp} placeholder="GP" aria-label="Gold Pieces" />
+                                    <input type="number" min="0" bind:value={editedCharacter.currency.sp} placeholder="SP" aria-label="Silver Pieces" />
+                                    <input type="number" min="0" bind:value={editedCharacter.currency.cp} placeholder="CP" aria-label="Copper Pieces" />
+                                </div>
+                            {:else}
+                                <div class="currency-badges">
+                                    <span class="srpg-badge srpg-badge-info">{editedCharacter.currency.gp} GP</span>
+                                    <span class="srpg-badge srpg-badge-info">{editedCharacter.currency.sp} SP</span>
+                                    <span class="srpg-badge srpg-badge-info">{editedCharacter.currency.cp} CP</span>
+                                </div>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="inventory-section">
+                        <div class="inventory-header">
+                            <h4>Inventory</h4>
+                            <button class="srpg-b srpg-b-icon" aria-label="Add Item" title="Add Item" on:click={handleAddItemClick}>
+                                <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            </button>
+                        </div>
+                        {#if editedCharacter.inventory && editedCharacter.inventory.length > 0}
+                            <div class="inventory-list">
+                                {#each editedCharacter.inventory as invItem}
+                                    <div class="inventory-item-row">
+                                        <span>{campaignItems.find(i => i.id === invItem.itemId)?.name || invItem.itemId}</span>
+                                        <span>Qty: {invItem.quantity}</span>
+                                        {#if campaignItems.find(i => i.id === invItem.itemId)}
+                                            {#if campaignItems.find(i => i.id === invItem.itemId).type != "simple"}
+                                                <span class="srpg-badge srpg-badge-sm">{campaignItems.find(i => i.id === invItem.itemId).type}</span>
+                                            {/if}
+                                            {#if campaignItems.find(i => i.id === invItem.itemId).weight}
+                                                <span>{campaignItems.find(i => i.id === invItem.itemId).weight} wt</span>
+                                            {/if}
+                                            {#if campaignItems.find(i => i.id === invItem.itemId).cost}
+                                                <span>{campaignItems.find(i => i.id === invItem.itemId).cost} gp</span>
+                                            {/if}
+                                            {#if ['weapon','armor'].includes(campaignItems.find(i => i.id === invItem.itemId).type)}
+                                                <button class="srpg-b srpg-b-icon" aria-label={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                    title={invItem.equipped ? `Unequip ${campaignItems.find(i => i.id === invItem.itemId).type}` : `Equip ${campaignItems.find(i => i.id === invItem.itemId).type}`}
+                                                    on:click={() => toggleEquip(invItem)}>
+                                                    {#if invItem.equipped}
+                                                        <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                                                    {:else}
+                                                        <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                                                    {/if}
+                                                </button>
+                                            {/if}
+                                        {/if}
+                                    </div>
+                                {/each}
+                            </div>
+                        {:else}
+                            <p class="srpg-empty-message">No items in inventory.</p>
+                        {/if}
+                    </div>
                 </CharacterSheetSection>
+                <CreateItemModal
+                    bind:show={showCreateItemModal}
+                    campaignId={character.campaignId}
+                    on:save={handleCreateItemSave}
+                    on:close={handleCreateItemClose}
+                />
+                <AddInventoryItemModal
+                    bind:show={showAddInventoryItemModal}
+                    campaignItems={campaignItems}
+                    on:save={handleAddInventoryItemSave}
+                    on:close={handleAddInventoryItemClose}
+                />
             {/if}
 
             <!-- Combat Stats Section -->
@@ -1734,5 +1891,40 @@
         font-size: 0.8125rem;
         color: var(--text-muted);
         font-style: italic;
+    }
+
+    .currency-inputs {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .currency-badges {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .inventory-section {
+        margin-top: 1.5rem;
+    }
+
+    .inventory-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .inventory-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .inventory-item-row {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--divider);
     }
 </style>
