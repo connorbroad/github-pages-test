@@ -21,6 +21,8 @@ export interface SoloRPGData {
     activeMapId?: string;
     // Tile maps (image-based tilesets)
     tileMaps?: TileMap[];
+    // New: shared campaign item library
+    campaignItems?: CampaignItem[];
     // Future additions:
     // notes?: GameNote[];
     // fortuneOutcomes?: FortuneOutcome[];
@@ -90,6 +92,10 @@ export type Character = {
     skills: Skill[];
     abilityCheckDice?: string; // Dice formula for all ability checks (e.g., "1d20")
     skillCheckDice?: string; // Dice formula for all skill checks (e.g., "1d20")
+    // Inventory & Equipment
+    currency?: Currency;
+    inventory?: CharacterInventoryItem[];
+    equipped?: { weapons: string[]; armors: string[] };
     // Combat Stats
     armorClass?: number;
     initiative?: number;
@@ -270,6 +276,58 @@ export type TileMap = {
 };
 
 /**
+ * Inventory & Items models
+ */
+export type Currency = { gp: number; sp: number; cp: number };
+
+export type ItemType = 'simple' | 'weapon' | 'armor';
+
+export type AttackSpec = {
+    id: string;
+    name?: string;
+    dice: string; // e.g. "1d8+2"
+    kind: 'B' | 'P' | 'S';
+};
+
+export type ItemBase = {
+    id: string;
+    name: string;
+    type: ItemType;
+    weight?: number; // in whatever units you prefer
+    cost?: number; // cost in gp units
+    tags?: string[];
+};
+
+export type WeaponItem = ItemBase & {
+    type: 'weapon';
+    range?: string; // e.g. "30/120 ft"
+    toHit: string; // e.g. "1d20+0"
+    attacks: AttackSpec[]; // one or more damage rolls
+};
+
+export type ArmorItem = ItemBase & {
+    type: 'armor';
+    armorClass: number; // DC override
+};
+
+export type SimpleItem = ItemBase & {
+    type: 'simple';
+};
+
+export type CampaignItem = (WeaponItem | ArmorItem | SimpleItem) & {
+    campaignId: string;
+    createdAt: number;
+    updatedAt: number;
+};
+
+export type CharacterInventoryItem = {
+    itemId: string; // ref to CampaignItem.id
+    quantity: number;
+    equipped?: boolean;
+    equippedSlot?: 'weapon' | 'armor';
+};
+
+/**
  * Load all Solo RPG data from localStorage
  */
 export function loadData(): SoloRPGData {
@@ -435,6 +493,28 @@ export function saveTileMaps(tileMaps: TileMap[]): void {
 
 export function getTileMapById(id: string): TileMap | undefined {
     return loadTileMaps().find(tm => tm.id === id);
+}
+
+/**
+ * Campaign items storage helpers
+ */
+export function loadCampaignItems(): CampaignItem[] {
+    const data = loadData();
+    return data.campaignItems || [];
+}
+
+export function saveCampaignItems(items: CampaignItem[]): void {
+    const data = loadData();
+    data.campaignItems = items;
+    saveData(data);
+}
+
+export function loadCampaignItemsByCampaign(campaignId: string): CampaignItem[] {
+    return loadCampaignItems().filter((i) => i.campaignId === campaignId);
+}
+
+export function getCampaignItemById(id: string): CampaignItem | undefined {
+    return loadCampaignItems().find((i) => i.id === id);
 }
 
 /**
