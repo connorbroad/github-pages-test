@@ -63,7 +63,7 @@
         requestAnimationFrame(() => {
             renderQueued = false;
             drawGrid();
-            drawObjects();
+            drawFgObjects();
         });
     }
 
@@ -153,6 +153,7 @@
             clearCanvas(ctxBg, canvasBg, bgFill);
             return;
         }
+
         const ts = map.tileSize;
         const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
         // Clear and fill full canvas in device pixels
@@ -271,21 +272,14 @@
     }
 
     // Draw objects including tile objects
-    function drawObjects() {
+    function drawFgObjects() {
         if (!map || !ctxFg) return;
-        if (isLoading) { 
-            clearCanvas(ctxFg, canvasFg); 
-            return; 
-        }
-        clearCanvas(ctxFg, canvasFg);
 
-        const rect = canvasFg.getBoundingClientRect();
-        const viewW = rect.width / camera.zoom;
-        const viewH = rect.height / camera.zoom;
-        const left = camera.x;
-        const right = camera.x + viewW;
-        const top = camera.y;
-        const bottom = camera.y + viewH;
+        clearCanvas(ctxFg, canvasFg); 
+        if (isLoading) { 
+            return; 
+        } 
+
         const dpr = getDpr();
         ctxFg.save();
         ctxFg.globalCompositeOperation = 'source-over';
@@ -293,10 +287,22 @@
         ctxFg.translate(-camera.x, -camera.y); 
         ctxFg.imageSmoothingEnabled = false; // Disable smoothing for pixel art tiles
 
+        const rect = canvasFg.getBoundingClientRect();
+        const viewW = rect.width / camera.zoom;
+        const viewH = rect.height / camera.zoom;
+        const cameraLeft = camera.x;
+        const cameraRight = camera.x + viewW;
+        const cameraTop = camera.y;
+        const cameraBottom = camera.y + viewH;
+
         const objs = [...map.objects];
         for (const o of objs) {
             // Ignore objects outside the viewport
-            if (o.x + o.w/2 < left || o.x - o.w/2 > right || o.y + o.h/2 < top || o.y - o.h/2 > bottom) {
+            const objectRight = o.x + o.w / 2;
+            const objectBottom = o.y + o.h / 2;
+            const objectLeft = o.x - o.w / 2;
+            const objectTop = o.y - o.h / 2;
+            if (objectRight < cameraLeft || objectLeft > cameraRight || objectBottom < cameraTop || objectTop > cameraBottom) {
                 continue;
             } 
 
@@ -315,6 +321,7 @@
                     if (shape === 'square') {
                         // draw centered so flipping is around center
                         drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
+
                         // Outline for square tile objects
                         ctxFg.strokeStyle = '#000000';
                         ctxFg.lineWidth = 2 / (camera.zoom * dpr);
@@ -324,6 +331,7 @@
                         beginShapePath(ctxFg, shape, o.w, o.h);
                         ctxFg.clip();
                         drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
+
                         // Draw outline of the shape
                         ctxFg.restore();
                         ctxFg.save();
@@ -337,19 +345,22 @@
                     ctxFg.restore();
                 } else {
                     getTileSprite(ref).then(() => scheduleRender()).catch(() => {
-                        ctxFg.save(); ctxFg.fillStyle = '#ff00ff'; ctxFg.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h); ctxFg.restore();
+                        ctxFg.save(); 
+                        ctxFg.fillStyle = '#ff00ff'; 
+                        ctxFg.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h); 
+                        ctxFg.restore();
                     });
                 }
             } 
-            // Handle shape objects
             else {
+                // Handle tile-less shape objects
                 ctxFg.fillStyle = o.color;
                 ctxFg.strokeStyle = '#000000'; // Black outline
                 ctxFg.lineWidth = 2 / (camera.zoom * dpr); // Scale-aware outline width
                 ctxFg.save();
                 ctxFg.translate(o.x, o.y);
                 if (o.rotation) ctxFg.rotate(o.rotation);
-                // Unified path-based rendering for all shapes
+                 
                 beginShapePath(ctxFg, o.type, o.w, o.h);
                 ctxFg.fill();
                 ctxFg.stroke();
@@ -388,6 +399,7 @@
             ctxFg.setLineDash([]);
         }
         ctxFg.restore();
+
         // Reset composite to default for safety
         ctxFg.globalCompositeOperation = 'source-over';
     }
@@ -402,24 +414,6 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         ctx.restore();
-    }
-
-    function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, spikes: number, outerRadius: number, innerRadius: number) {
-        let rot = Math.PI / 2 * 3;
-        let cx = x;
-        let cy = y;
-        let step = Math.PI / spikes;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - outerRadius);
-        for (let i = 0; i < spikes; i++) {
-            ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
-            rot += step;
-            ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
-            rot += step;
-        }
-        ctx.lineTo(cx, cy - outerRadius);
-        ctx.closePath();
-        ctx.fill();
     }
 
     function worldToTile(wx: number, wy: number) {
@@ -477,48 +471,51 @@
     // cached tinted sprites per base sprite and size
     const tintCache: WeakMap<object, Map<string, HTMLCanvasElement>> = new WeakMap();
 
-    // Reusable offscreen canvas for tinting to avoid per-draw allocations
-    let tintOffscreen: HTMLCanvasElement | null = null;
-
     function drawTintedSprite(ctx: CanvasRenderingContext2D, sprite: CanvasImageSource, x: number, y: number, w: number, h: number, tint: string | null) {
         if (!tint || tint === 'clear') {
-            // @ts-ignore
             ctx.drawImage(sprite as any, x, y, w, h);
             return;
         }
+
         const keyW = Math.max(1, Math.floor(w));
         const keyH = Math.max(1, Math.floor(h));
-        const base = sprite as any as object;
-        let perSprite = tintCache.get(base);
-        if (!perSprite) { perSprite = new Map(); tintCache.set(base, perSprite); }
+        const imageSource = sprite as any as object;
+
+        let cachedImage = tintCache.get(imageSource);
+        if (!cachedImage) { 
+            cachedImage = new Map(); 
+            tintCache.set(imageSource, cachedImage); 
+        }
+
         const cacheKey = `${keyW}x${keyH}|${tint}`;
-        let off = perSprite.get(cacheKey);
-        if (!off) {
-            off = document.createElement('canvas');
-            off.width = keyW;
-            off.height = keyH;
-            const octx = off.getContext('2d')!;
+        let cachedSprite = cachedImage.get(cacheKey);
+        if (!cachedSprite) {
+            cachedSprite = document.createElement('canvas');
+            cachedSprite.width = keyW;
+            cachedSprite.height = keyH;
+            const octx = cachedSprite.getContext('2d')!;
             // Disable smoothing for pixel art
             octx.imageSmoothingEnabled = false;
             // Clear previous contents
             octx.setTransform(1,0,0,1,0,0);
-            octx.clearRect(0, 0, off.width, off.height);
+            octx.clearRect(0, 0, cachedSprite.width, cachedSprite.height);
             // Base sprite
             // @ts-ignore
             octx.drawImage(sprite as any, 0, 0, w, h);
             // Multiply tint over it
             octx.globalCompositeOperation = 'multiply';
             octx.fillStyle = tint;
-            octx.fillRect(0, 0, off.width, off.height);
+            octx.fillRect(0, 0, cachedSprite.width, cachedSprite.height);
             // Mask to sprite alpha
             octx.globalCompositeOperation = 'destination-atop';
             // @ts-ignore
             octx.drawImage(sprite as any, 0, 0, w, h);
             // Reset for safety
             octx.globalCompositeOperation = 'source-over';
-            perSprite.set(cacheKey, off);
+            // Store in cache
+            cachedImage.set(cacheKey, cachedSprite);
         }
-        ctx.drawImage(off, x, y, w, h);
+        ctx.drawImage(cachedSprite, x, y, w, h);
     }
 
     function beginShapePath(ctx: CanvasRenderingContext2D, shape: 'square'|'circle'|'triangle'|'star', w: number, h: number) {
@@ -654,7 +651,7 @@
             clampCameraToBounds();
             if (map) map.view = { ...camera };
             drawGrid();
-            drawObjects();
+            drawFgObjects();
             // Decay
             const decay = Math.exp(-FRICTION * dt);
             velocity.x *= decay;
