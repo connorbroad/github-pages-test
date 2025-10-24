@@ -2,12 +2,12 @@
     export let className: string = "";
     export let headerClass: string = "";
     export let contentClass: string = "";
-    import { activeCampaign } from "../../game-management/campaign-store";
+    import { activeCampaign } from "../../game-management/campaign-store";  
 
     export let showActiveCampaign: boolean = true;
 </script>
 
-<div class="tab-content">
+<div class="srpg-data-page tab-content">
     <div class="srpg-list-page {className}">
         {#if showActiveCampaign}
             <h4>{$activeCampaign.title}</h4>
@@ -26,7 +26,7 @@
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-        padding: 0;
+        padding: 1rem;
         max-width: 1200px;
         margin: 0 auto;
         display: flex;
@@ -56,7 +56,7 @@
 
     @media (min-width: 769px) { 
         .tab-content { 
-            height: calc(100vh - 2rem - 1.5rem); 
+            height: 100vh; 
         }
     }
 </style>

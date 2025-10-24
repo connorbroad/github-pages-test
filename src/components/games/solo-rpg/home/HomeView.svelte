@@ -13,6 +13,7 @@
         type Campaign,
     } from "../data/storage-utils";
     import { generateId } from "../oracle/scripts/oracleTypes";
+    import SrpgListPage from "../shared/layout/SrpgListPage.svelte";
 
     const dispatch = createEventDispatcher<{
         loadCampaign: Campaign;
@@ -140,105 +141,109 @@
     }
 </script>
 
-<div class="home-view">
-    <h1>Solo RPG</h1>
-    <p>Welcome to your Solo RPG companion!</p>
+<SrpgListPage showActiveCampaign={false}>
+    <div slot="header" >
+        <h1>Solo RPG</h1>
+    </div>
+    <div class="home-view">
+        <p>Welcome to your Solo RPG companion!</p>
 
-    {#if $activeCampaign}
-        <div class="banner">
-            <div class="banner-content">
-                <div class="banner-info">
-                    <span class="banner-label">Active Campaign:</span>
-                    <span class="banner-title">{$activeCampaign.title}</span>
-                    <span class="banner-meta">{$activeCampaign.blueprintTitle}</span>
+        {#if $activeCampaign}
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="banner-info">
+                        <span class="banner-label">Active Campaign:</span>
+                        <span class="banner-title">{$activeCampaign.title}</span>
+                        <span class="banner-meta">{$activeCampaign.blueprintTitle}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    {/if}
-
-    <div class="new-game-section">
-        <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateBlueprint}>
-            + Create Game Blueprint
-        </button>
-
-        {#if gameBlueprints.length > 0}
-            <h2>Your Games</h2>
-
-            <div class="blueprints-list">
-                {#each gameBlueprints as blueprint (blueprint.id)}
-                    {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
-                    {@const isExpanded = expandedBlueprints.has(blueprint.id)}
-
-                    <div class="blueprint-section">
-                        <div class="blueprint-header">
-                            <button class="blueprint-toggle" on:click={() => toggleBlueprint(blueprint.id)}>
-                                <span class="collapse-icon" class:expanded={isExpanded}>▶</span>
-                                <span class="blueprint-title">{blueprint.title}</span>
-                            </button>
-                            <div class="blueprint-actions">
-                                <button
-                                    class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-sm"
-                                    on:click={() => openEditBlueprint(blueprint)}
-                                    title="Edit blueprint"
-                                    aria-label="Edit blueprint"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
-                                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                    </svg>
-                                </button>
-                                <button
-                                    class="add-campaign-btn srpg-b srpg-b-create srpg-b-sm"
-                                    on:click={() => openCampaignCreator(blueprint)}
-                                    title="Create new campaign"
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
-
-                        {#if isExpanded}
-                            <div class="campaigns-container">
-                                {#if blueprintCampaigns.length > 0}
-                                    <div class="campaigns-grid">
-                                        {#each blueprintCampaigns as campaign}
-                                            <div class="info-card campaign-card">
-                                                <div class="campaign-info">
-                                                    <strong class="campaign-name">{campaign.title}</strong>
-                                                    <span class="campaign-date">{formatDate(campaign.createdAt)}</span>
-                                                </div>
-                                                <div class="campaign-actions">
-                                                    <button
-                                                        class="srpg-b srpg-b-normal campaign-play-button"
-                                                        class:active={$activeCampaign?.id === campaign.id}
-                                                        on:click={() => openCampaignLoadConfirm(campaign)}
-                                                        disabled={$activeCampaign?.id === campaign.id}
-                                                        aria-label="Load campaign"
-                                                    >
-                                                        {#if $activeCampaign?.id === campaign.id}
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" {...$$props}>
-                                                                <path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196" />
-                                                            </svg>
-                                                        {:else}
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.5em" height="1.5em" {...$$props}>
-                                                                <path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804" />
-                                                            </svg>
-                                                        {/if}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        {/each}
-                                    </div>
-                                {:else}
-                                    <p class="no-campaigns">No campaigns yet. Click the + button to create one.</p>
-                                {/if}
-                            </div>
-                        {/if}
-                    </div>
-                {/each}
-            </div>
         {/if}
+
+        <div class="new-game-section">
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateBlueprint}>
+                + Create Game Blueprint
+            </button>
+
+            {#if gameBlueprints.length > 0}
+                <h2>Your Games</h2>
+
+                <div class="blueprints-list">
+                    {#each gameBlueprints as blueprint (blueprint.id)}
+                        {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
+                        {@const isExpanded = expandedBlueprints.has(blueprint.id)}
+
+                        <div class="blueprint-section">
+                            <div class="blueprint-header">
+                                <button class="blueprint-toggle" on:click={() => toggleBlueprint(blueprint.id)}>
+                                    <span class="collapse-icon" class:expanded={isExpanded}>▶</span>
+                                    <span class="blueprint-title">{blueprint.title}</span>
+                                </button>
+                                <div class="blueprint-actions">
+                                    <button
+                                        class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-sm"
+                                        on:click={() => openEditBlueprint(blueprint)}
+                                        title="Edit blueprint"
+                                        aria-label="Edit blueprint"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
+                                            <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        class="add-campaign-btn srpg-b srpg-b-create srpg-b-sm"
+                                        on:click={() => openCampaignCreator(blueprint)}
+                                        title="Create new campaign"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+
+                            {#if isExpanded}
+                                <div class="campaigns-container">
+                                    {#if blueprintCampaigns.length > 0}
+                                        <div class="campaigns-grid">
+                                            {#each blueprintCampaigns as campaign}
+                                                <div class="info-card campaign-card">
+                                                    <div class="campaign-info">
+                                                        <strong class="campaign-name">{campaign.title}</strong>
+                                                        <span class="campaign-date">{formatDate(campaign.createdAt)}</span>
+                                                    </div>
+                                                    <div class="campaign-actions">
+                                                        <button
+                                                            class="srpg-b srpg-b-normal campaign-play-button"
+                                                            class:active={$activeCampaign?.id === campaign.id}
+                                                            on:click={() => openCampaignLoadConfirm(campaign)}
+                                                            disabled={$activeCampaign?.id === campaign.id}
+                                                            aria-label="Load campaign"
+                                                        >
+                                                            {#if $activeCampaign?.id === campaign.id}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" {...$$props}>
+                                                                    <path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196" />
+                                                                </svg>
+                                                            {:else}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.5em" height="1.5em" {...$$props}>
+                                                                    <path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804" />
+                                                                </svg>
+                                                            {/if}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {/each}
+                                        </div>
+                                    {:else}
+                                        <p class="no-campaigns">No campaigns yet. Click the + button to create one.</p>
+                                    {/if}
+                                </div>
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+        </div>
     </div>
-</div>
+</SrpgListPage>
 
 <GameBlueprintEditor
     show={showBlueprintEditor}

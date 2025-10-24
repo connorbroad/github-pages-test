@@ -117,18 +117,29 @@
                 <div class="attacks-section">
                     <span id="attacks-label" class="srpg-label">Attacks</span>
                     {#each attacks as attack, idx}
-                        <div class="attack-row" aria-labelledby="attacks-label">
-                            <input type="text" bind:value={attack.name} placeholder="Name (optional)" />
-                            <input type="text" bind:value={attack.dice} placeholder="Dice (e.g. 1d6+2)" />
-                            <select bind:value={attack.kind}>
-                                <option value="B">B</option>
-                                <option value="P">P</option>
-                                <option value="S">S</option>
-                            </select>
-                            <button class="srpg-b srpg-b-icon" aria-label="Remove Attack" title="Remove Attack" on:click={() => removeAttack(idx)}>&times;</button>
+                        <div class="srpg-card attack-row responsive-attack-row" aria-labelledby="attacks-label">
+                            <div class="attack-fields">
+                                <div class="srpg-form-field">
+                                    <label for={`attack-name-${idx}`}>Name</label>
+                                    <input id={`attack-name-${idx}`} type="text" bind:value={attack.name} placeholder="Name (optional)" />
+                                </div>
+                                <div class="srpg-form-field">
+                                    <label for={`attack-dice-${idx}`}>Dice</label>
+                                    <input id={`attack-dice-${idx}`} type="text" bind:value={attack.dice} placeholder="e.g. 1d6+2" />
+                                </div>
+                                <div class="srpg-form-field">
+                                    <label for={`attack-kind-${idx}`}>Type</label>
+                                    <select id={`attack-kind-${idx}`} bind:value={attack.kind} aria-label="Damage Type" class="srpg-select">
+                                        <option value="B">B</option>
+                                        <option value="P">P</option>
+                                        <option value="S">S</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="remove-attack-btn"><button class="srpg-b srpg-b-delete remove-attack-btn" aria-label="Remove Attack" title="Remove Attack" on:click={() => removeAttack(idx)}>Remove</button></div>
                         </div>
                     {/each}
-                    <button class="srpg-b srpg-b-sm" aria-labelledby="attacks-label" on:click={addAttack}>Add Attack</button>
+                    <button class="srpg-b srpg-b-simple srpg-b-w-full" aria-labelledby="attacks-label" on:click={addAttack}>+ Add Attack</button>
                 </div>
             {/if}
             {#if type === "armor"}
@@ -148,6 +159,34 @@
 <style>
     .modal-content { padding: 1.5rem; }
     .attacks-section { margin-top: 1rem; }
-    .attack-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
-    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
+    .attack-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--srpg-card-bg);
+        border: 1px solid var(--srpg-border-color);
+        border-radius: 6px;
+        box-shadow: 0 2px 4px var(--shadow-sm);
+    }
+    .attack-fields {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .attack-fields .srpg-form-field {
+        flex: 1 1 0%;
+        min-width: 0;
+    } 
+    .responsive-attack-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    .remove-attack-btn {
+        align-self: center;
+        margin-top: 0.5rem; 
+    }
+    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; } 
 </style>

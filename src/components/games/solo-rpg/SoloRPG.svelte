@@ -186,14 +186,12 @@
  
 <style>
     /* Layout */
-    .content { 
-        padding: 1rem;
+    .content {  
         padding-top: 0;
         padding-bottom: 0;
         box-sizing: border-box; 
         background-color: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100dvh; 
+        color: var(--text-primary); 
     }
 
     /* Views */

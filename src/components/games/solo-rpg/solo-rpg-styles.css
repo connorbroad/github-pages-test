@@ -536,6 +536,7 @@
 
 /* Section Styles */
 .srpg-section {
+    margin-top: 1rem;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
@@ -1019,8 +1020,7 @@
 @media (max-width: 767px) {
     .srpg-textarea {
         min-height: 150px;
-        font-size: 16px;
-        /* Prevents zoom on iOS */
+        font-size: 16px; 
     }
 }
 
@@ -1068,6 +1068,13 @@
     outline-offset: 2px;
 }
 
+.srpg-data-page {
+    padding: 1rem;
+    box-sizing: border-box;
+    min-height: 100dvh; /* Ensure full height for background colors */ 
+    background: var(--bg-primary);
+}
+
 /* Shared sticky header and scroll utilities for list pages */
 .srpg-sticky-header {
     position: sticky;
@@ -1082,18 +1089,20 @@
 .srpg-scroll-with-sidebars {
     /* default primary bar height: desktop 0 */
     --srpg-primary-bar-height: 0px;
-    padding-bottom: calc(
+    padding-bottom: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .srpg-scroll-with-sidebars {
+        /* , account for primary bottom nav */
+        --srpg-primary-bar-height: var(--primary-bottom-bar-height, 40px);
+        padding-bottom: calc(
         1rem +
         var(--srpg-primary-bar-height) +
         (var(--secondary-sidebar-visible, 0) * var(--secondary-sidebar-height, 60px)) +
         (var(--tertiary-sidebar-visible, 0) * var(--tertiary-sidebar-height, 60px)) +
         env(safe-area-inset-bottom)
     );
-}
-
-@media (max-width: 768px) {
-    .srpg-scroll-with-sidebars {
-        /* On mobile, account for primary bottom nav (70px by default) */
-        --srpg-primary-bar-height: var(--primary-bottom-bar-height, 70px);
     }
 }
