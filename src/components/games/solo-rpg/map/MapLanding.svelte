@@ -57,7 +57,7 @@
     </div>
 
     {#if sortedMaps.length > 0}
-        <div class="maps-grid">
+        <div class="maps-list">
             {#each sortedMaps as map (map.id)}
                 <div
                     class="map-card srpg-card"
@@ -86,7 +86,7 @@
 <style>
     .map-landing { 
         max-width: 900px; 
-        margin: 0 auto;
+        margin: 0 1rem;
         padding-bottom: calc(90px + env(safe-area-inset-bottom));
     }
 
@@ -107,9 +107,9 @@
         color: var(--text-primary);
     }
 
-    .maps-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    .maps-list {
+        display: flex;
+        flex-wrap: wrap;
         gap: 0.75rem;
     }
 
@@ -140,4 +140,9 @@
     .icon-btn.danger { color: #e74c3c; border-color: rgba(231,76,60,0.35); }
 
     .empty { text-align: center; color: var(--text-muted); font-style: italic; }
+
+    @media (min-width: 600px) {
+        .maps-list { justify-content: flex-start; }
+        .map-card { width: calc(50% - 0.375rem); } 
+    }
 </style>
