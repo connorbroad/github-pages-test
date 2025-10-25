@@ -53,6 +53,11 @@
             mapViewComponent?.returnToLanding?.();
             return;
         }
+        // Characters special-case: return to character list when already on characters
+        if (view === "characters" && currentView === "characters") {
+            characterManagerComponent?.resetToList?.();
+            return;
+        }
         // Set view and reset per-view UI
         currentView = view;
         showTertiarySidebar = false;
