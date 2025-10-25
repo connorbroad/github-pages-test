@@ -96,8 +96,7 @@
         saveCharacters(allCharacters);
 
         loadCampaignCharacters();
-        selectedCharacter = newCharacter;
-        isEditing = true;
+        isEditing = false; 
         showCreateModal = false;
     }
 

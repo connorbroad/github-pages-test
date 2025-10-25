@@ -6,9 +6,8 @@
     export let activeTab: "characters" | "codex" = "characters";
     export let onTabChange: (tab: "characters" | "codex") => void;
     export let show: boolean = false;
-    
-    // Map-specific props
-    export let mode: "story" | "map" = "story"; // Which context are we in?
+     
+    export let mode: "story" | "map" = "story"; 
     export let tool: "paint" | "object" | "move" = "move";
 
     const dispatch = createEventDispatcher();
@@ -40,27 +39,6 @@
         <nav>
             <div class="nav-items">
                 {#if mode === "story"}
-                    <!-- Story mode: Characters and Codex tabs -->
-                    <button
-                        class="nav-item"
-                        class:active={activeTab === "characters"}
-                        on:click={() => onTabChange("characters")}
-                        aria-label="Characters"
-                    >
-                        <svg
-                            class="icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                            ></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span class="label">Characters</span>
-                    </button>
-
                     <button
                         class="nav-item"
                         class:active={activeTab === "codex"}
