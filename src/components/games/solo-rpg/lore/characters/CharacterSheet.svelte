@@ -461,7 +461,6 @@
                 }
             }, 100);
         }
-        console.log(editedCharacter.visibleSections);
     }
 
     // Reactive values for each section visibility
@@ -539,6 +538,7 @@
         let items = loadCampaignItems();
         items.push(newItem);
         saveCampaignItems(items);
+        campaignItems = loadCampaignItems().filter(i => i.campaignId === character.campaignId); // Reactivity: update campaignItems
         showCreateItemModal = false;
         saveSection();
     }
@@ -547,7 +547,6 @@
     }
     function handleAddInventoryItemSave(event: CustomEvent) {
         const { itemId, quantity } = event.detail;
-        // Add to inventory (if already present, increase quantity)
         let inv = editedCharacter.inventory || [];
         const idx = inv.findIndex(i => i.itemId === itemId);
         if (idx >= 0) {
@@ -556,6 +555,7 @@
             inv.push({ itemId, quantity });
         }
         editedCharacter.inventory = inv;
+        campaignItems = loadCampaignItems().filter(i => i.campaignId === character.campaignId); // Reactivity: update campaignItems
         showAddInventoryItemModal = false;
         saveSection();
     }
