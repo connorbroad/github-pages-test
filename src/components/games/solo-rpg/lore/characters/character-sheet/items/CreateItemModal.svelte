@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import SrpgModal from "./SrpgModal.svelte";
-    import type { CampaignItem, ItemType, AttackSpec } from "../../data/storage-utils";
+    import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
+    import type { CampaignItem, ItemType, AttackSpec } from "../../../../data/storage-utils";
 
     export let show = false;
     export let campaignId: string;
