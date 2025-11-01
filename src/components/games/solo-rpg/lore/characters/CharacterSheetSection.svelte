@@ -73,16 +73,6 @@
         position: relative;
         margin-bottom: 1.5rem;
         padding: 1.5rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border-primary);
-        border-radius: 12px;
-        box-shadow: 0 1px 3px var(--shadow-sm);
-        transition: all 0.2s ease;
-    }
-
-    .srpg-section:hover {
-        box-shadow: 0 2px 6px var(--shadow-md);
-        border-color: var(--border-secondary);
     }
 
     .section-header {

@@ -538,8 +538,7 @@
 .srpg-section {
     margin-top: 1rem;
     margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem; 
 }
 
 @media (min-width: 768px) {
@@ -920,8 +919,7 @@
         border: 1px solid var(--border-primary);
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 0.5rem;
+    transition: all 0.2s ease; 
 }
 
 .srpg-group-header:hover {
