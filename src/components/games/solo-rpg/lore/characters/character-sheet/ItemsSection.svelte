@@ -26,6 +26,21 @@
     $: weaponItems = invWithItem.filter((x: any) => x.item?.type === "weapon");
     $: armorItems = invWithItem.filter((x: any) => x.item?.type === "armor");
 
+    // Keep invItem.equipped in sync with editedCharacter.equipped arrays
+    $: {
+        const eq = editedCharacter?.equipped;
+        if (eq && editedCharacter?.inventory) {
+            for (const { invItem, item } of invWithItem) {
+                if (!item) continue;
+                if (item.type === "weapon") {
+                    invItem.equipped = !!eq.weapons?.includes(invItem.itemId);
+                } else if (item.type === "armor") {
+                    invItem.equipped = !!eq.armors?.includes(invItem.itemId);
+                }
+            }
+        }
+    }
+
     function handleItemLibraryClick() { showItemLibraryModal = true; }
     function handleAddItemClick() { showAddInventoryItemModal = true; }
 
@@ -76,12 +91,20 @@
     }
     function handleAddInventoryItemClose() { showAddInventoryItemModal = false; }
 
+    function ensureEquippedArrays() {
+        if (!editedCharacter.equipped) {
+            editedCharacter.equipped = { weapons: [], armors: [] } as any;
+        } else {
+            editedCharacter.equipped.weapons = editedCharacter.equipped.weapons || [];
+            editedCharacter.equipped.armors = editedCharacter.equipped.armors || [];
+        }
+    }
+
     function toggleEquip(entry: any) {
         const { invItem, item } = entry.item ? entry : { invItem: entry, item: getItem(entry.itemId) };
         if (!item) return;
-        if (!editedCharacter.equipped) {
-            editedCharacter.equipped = { weapons: [], armors: [] } as any;
-        }
+        ensureEquippedArrays();
+
         if (item.type === "weapon") {
             invItem.equipped = !invItem.equipped;
             if (invItem.equipped) {
@@ -92,14 +115,15 @@
                 editedCharacter.equipped.weapons = editedCharacter.equipped.weapons.filter((id) => id !== invItem.itemId);
             }
         } else if (item.type === "armor") {
-            editedCharacter.inventory.forEach((ii) => {
-                const it = getItem(ii.itemId);
-                if (it && it.type === "armor") {
-                    ii.equipped = false;
+            // Allow multiple armors: toggle this one without touching others
+            invItem.equipped = !invItem.equipped;
+            if (invItem.equipped) {
+                if (!editedCharacter.equipped.armors.includes(invItem.itemId)) {
+                    editedCharacter.equipped.armors.push(invItem.itemId);
                 }
-            });
-            invItem.equipped = true;
-            editedCharacter.equipped.armors = [invItem.itemId];
+            } else {
+                editedCharacter.equipped.armors = editedCharacter.equipped.armors.filter((id) => id !== invItem.itemId);
+            }
         }
         saveSection();
     }
@@ -138,6 +162,52 @@
 
     {#if editedCharacter.inventory && editedCharacter.inventory.length > 0}
         <div class="inventory-list">
+            {#if weaponItems.length > 0}
+                <h4>Weapons</h4>
+                {#each weaponItems as row}
+                    <div class="inventory-item-row">
+                        <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
+                            {#if row.invItem.equipped}
+                                <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                            {:else}
+                                <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                            {/if}
+                        </button> 
+                        <span>{row.item?.name || row.invItem.itemId}</span>
+                        <span>Qty: {row.invItem.quantity}</span> 
+                        {#if row.item.weight}
+                            <span>{row.item.weight} wt</span>
+                        {/if}
+                        {#if row.item.cost}
+                            <span>{row.item.cost} gp</span>
+                        {/if}
+                    </div>
+                {/each}
+            {/if}
+
+            {#if armorItems.length > 0}
+                <h4>Armor</h4>
+                {#each armorItems as row}
+                    <div class="inventory-item-row">
+                        <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
+                            {#if row.invItem.equipped}
+                                <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+                            {:else}
+                                <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                            {/if}
+                        </button> 
+                        <span>{row.item?.name || row.invItem.itemId}</span>
+                        <span>Qty: {row.invItem.quantity}</span> 
+                        {#if row.item.weight}
+                            <span>{row.item.weight} wt</span>
+                        {/if}
+                        {#if row.item.cost}
+                            <span>{row.item.cost} gp</span>
+                        {/if}
+                    </div>
+                {/each}
+            {/if}
+
             {#if generalItems.length > 0}
                 <h4>General items</h4>
                 {#each generalItems as row}
@@ -151,56 +221,6 @@
                             {#if row.item.cost}
                                 <span>{row.item.cost} gp</span>
                             {/if}
-                        {/if}
-                    </div>
-                {/each}
-            {/if}
-
-            {#if weaponItems.length > 0}
-                <h4>Weapons</h4>
-                {#each weaponItems as row}
-                    <div class="inventory-item-row">
-                        <span>{row.item?.name || row.invItem.itemId}</span>
-                        <span>Qty: {row.invItem.quantity}</span>
-                        {#if row.item}
-                            {#if row.item.weight}
-                                <span>{row.item.weight} wt</span>
-                            {/if}
-                            {#if row.item.cost}
-                                <span>{row.item.cost} gp</span>
-                            {/if}
-                            <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
-                                {#if row.invItem.equipped}
-                                    <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-                                {:else}
-                                    <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
-                                {/if}
-                            </button>
-                        {/if}
-                    </div>
-                {/each}
-            {/if}
-
-            {#if armorItems.length > 0}
-                <h4>Armor</h4>
-                {#each armorItems as row}
-                    <div class="inventory-item-row">
-                        <span>{row.item?.name || row.invItem.itemId}</span>
-                        <span>Qty: {row.invItem.quantity}</span>
-                        {#if row.item}
-                            {#if row.item.weight}
-                                <span>{row.item.weight} wt</span>
-                            {/if}
-                            {#if row.item.cost}
-                                <span>{row.item.cost} gp</span>
-                            {/if}
-                            <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
-                                {#if row.invItem.equipped}
-                                    <svg class="srpg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-                                {:else}
-                                    <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
-                                {/if}
-                            </button>
                         {/if}
                     </div>
                 {/each}

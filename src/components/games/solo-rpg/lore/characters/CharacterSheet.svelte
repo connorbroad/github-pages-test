@@ -264,6 +264,7 @@
                         {character}
                         {editedCharacter}
                         isEditable={isCombatEditable}
+                        on:rollCheck={(e) => dispatch('rollCheck', e.detail)}
                     />
                 </CharacterSheetSection>
             {/if}
