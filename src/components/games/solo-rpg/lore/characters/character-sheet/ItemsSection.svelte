@@ -237,7 +237,7 @@
     {#if editedCharacter.inventory && editedCharacter.inventory.length > 0}
         <div class="inventory-list">
             {#if weaponItems.length > 0}
-                <h4>Weapons</h4>
+                <h3>Weapons</h3>
                 {#each weaponItems as row}
                     <div class="inventory-item-row">
                         <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
@@ -262,13 +262,13 @@
                                 </div>
                             {/if}
                         </div>
-                        <span class="qty">Qty: {row.invItem.quantity}</span> 
+                        <span class="qty">{row.invItem.quantity}</span> 
                     </div>
                 {/each}
             {/if}
 
             {#if armorItems.length > 0}
-                <h4>Armor</h4>
+                <h3>Armor</h3>
                 {#each armorItems as row}
                     <div class="inventory-item-row">
                         <button class="srpg-b srpg-b-icon" aria-label={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} title={row.invItem.equipped ? `Unequip ${row.item.type}` : `Equip ${row.item.type}`} on:click={() => toggleEquip(row)}>
@@ -293,13 +293,13 @@
                                 </div>
                             {/if}
                         </div>
-                        <span class="qty">Qty: {row.invItem.quantity}</span> 
+                        <span class="qty">{row.invItem.quantity}</span> 
                     </div>
                 {/each}
             {/if}
 
             {#if generalItems.length > 0}
-                <h4>Other items</h4>
+                <h3>Other items</h3>
                 {#each generalItems as row}
                     <div class="inventory-item-row">
                         <div class="item-info">
@@ -317,7 +317,7 @@
                                 </div>
                             {/if}
                         </div>
-                        <span class="qty">Qty: {row.invItem.quantity}</span>
+                        <span class="qty">{row.invItem.quantity}</span>
                     </div>
                 {/each}
             {/if}
@@ -344,7 +344,7 @@
 />
 
 <style>
-    h4 { margin-top: 1rem; margin-bottom: 0.5rem; }
+    h3 { margin-top: 1rem; margin-bottom: 0.5rem; }
     .currency-inputs { display: flex; gap: 0.5rem; }
     .currency-badges { display: flex; gap: 0.5rem; }
     
