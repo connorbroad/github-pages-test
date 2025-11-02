@@ -203,19 +203,11 @@
     on:close={handleCreateItemClose}
 />
 
-<style>
-    .modal-content {
-        padding: 0;
-        max-height: 80vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
+<style> 
     .modal-header-sticky {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 1;
         background: var(--modal-bg);
         padding: 1.5rem 1.5rem 1rem;
         border-bottom: 1px solid var(--border-primary);
@@ -369,19 +361,10 @@
     }
 
     /* Mobile optimizations */
-    @media (max-width: 767px) {
-        .modal-content {
-            max-height: 85vh;
-        }
-
+    @media (max-width: 767px) { 
         .modal-header-sticky {
             padding: 1rem 1rem 0.75rem;
-        }
-
-        .modal-header-sticky h2 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
+        } 
 
         .library-header {
             flex-direction: row;
@@ -408,7 +391,7 @@
 
         .item-header-row {
             gap: 0.5rem;
-            margin-bottom: 0.125rem;
+            margin-bottom: 0.125rem; 
         }
 
         .item-name {

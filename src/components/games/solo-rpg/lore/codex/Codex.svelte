@@ -370,78 +370,78 @@
         {:else}
             <div class="srpg-nested-list">
                 {#each Object.entries(groupedNotes).sort(([a], [b]) => a.localeCompare(b)) as [group, subGroups]} 
-                    <div 
-                        class="srpg-group-header" 
-                        role="button"
-                        tabindex="0"
-                        on:click={() => toggleGroup(group)}
-                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleGroup(group)}
-                    >
-                        <div class="srpg-group-title">
-                            <span class="srpg-expand-icon" class:expanded={expandedGroups.has(group)}>
-                                ▶
-                            </span>
-                            <span>{getGroupIcon(group)} {group}</span>
-                            <span class="srpg-group-count">
-                                {Object.values(subGroups).flat().length}
-                            </span>
+                    <div class="group-section">
+                        <div
+                            class="srpg-group-header"
+                            role="button"
+                            tabindex="0"
+                            on:click={() => toggleGroup(group)}
+                            on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleGroup(group)}
+                        >
+                            <div class="srpg-group-title">
+                                <span class="srpg-expand-icon" class:expanded={expandedGroups.has(group)}>
+                                    ▶
+                                </span>
+                                <span>{getGroupIcon(group)} {group}</span>
+                                <span class="srpg-group-count">
+                                    {Object.values(subGroups).flat().length}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-
-                    {#if expandedGroups.has(group)}
-                        <div class="srpg-subgroup-container">
-                            {#each Object.entries(subGroups).sort(([a], [b]) => a.localeCompare(b)) as [subGroup, notes]}
-                                <div class="subgroup-section">
-                                    <div
-                                        class="srpg-subgroup-header"
-                                        role="button"
-                                        tabindex="0"
-                                        on:click={() => toggleSubGroup(`${group}-${subGroup}`)}
-                                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSubGroup(`${group}-${subGroup}`)}
-                                    >
-                                        <div class="srpg-subgroup-title">
-                                            <span
-                                                class="srpg-expand-icon"
-                                                class:expanded={expandedSubGroups.has(`${group}-${subGroup}`)}
-                                            >
-                                                ▶
-                                            </span>
-                                            <span>{subGroup}</span>
-                                            <span class="srpg-group-count">{notes.length}</span>
-                                        </div>
-                                    </div>
-
-                                    {#if expandedSubGroups.has(`${group}-${subGroup}`)}
-                                        <div class="srpg-notes-container">
-                                            <div class="srpg-list">
-                                                {#each notes as note}
-                                                    <div
-                                                        class="srpg-list-item"
-                                                        role="button"
-                                                        tabindex="0"
-                                                        on:click={() => selectNote(note)}
-                                                        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectNote(note)}
-                                                    >
-                                                        <div class="srpg-list-item-header">
-                                                            <span class="srpg-list-item-title">
-                                                                {note.title}
-                                                            </span>
-                                                            {#if note.characterId}
-                                                                <span class="character-badge">👤</span>
-                                                            {/if}
-                                                        </div>
-                                                        <div class="srpg-list-item-meta">
-                                                            Updated {formatDate(note.updatedAt)}
-                                                        </div>
-                                                    </div>
-                                                {/each}
+                        {#if expandedGroups.has(group)}
+                            <div class="srpg-subgroup-container">
+                                {#each Object.entries(subGroups).sort(([a], [b]) => a.localeCompare(b)) as [subGroup, notes]}
+                                    <div class="subgroup-section">
+                                        <div
+                                            class="srpg-subgroup-header"
+                                            role="button"
+                                            tabindex="0"
+                                            on:click={() => toggleSubGroup(`${group}-${subGroup}`)}
+                                            on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSubGroup(`${group}-${subGroup}`)}
+                                        >
+                                            <div class="srpg-subgroup-title">
+                                                <span
+                                                    class="srpg-expand-icon"
+                                                    class:expanded={expandedSubGroups.has(`${group}-${subGroup}`)}
+                                                >
+                                                    ▶
+                                                </span>
+                                                <span>{subGroup}</span>
+                                                <span class="srpg-group-count">{notes.length}</span>
                                             </div>
                                         </div>
-                                    {/if}
-                                </div>
-                            {/each}
-                        </div>
-                    {/if} 
+                                        {#if expandedSubGroups.has(`${group}-${subGroup}`)}
+                                            <div class="srpg-notes-container">
+                                                <div class="srpg-list">
+                                                    {#each notes as note}
+                                                        <div
+                                                            class="srpg-list-item"
+                                                            role="button"
+                                                            tabindex="0"
+                                                            on:click={() => selectNote(note)}
+                                                            on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectNote(note)}
+                                                        >
+                                                            <div class="srpg-list-item-header">
+                                                                <span class="srpg-list-item-title">
+                                                                    {note.title}
+                                                                </span>
+                                                                {#if note.characterId}
+                                                                    <span class="character-badge">👤</span>
+                                                                {/if}
+                                                            </div>
+                                                            <div class="srpg-list-item-meta">
+                                                                Updated {formatDate(note.updatedAt)}
+                                                            </div>
+                                                        </div>
+                                                    {/each}
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                {/each}
+                            </div>
+                        {/if}
+                    </div>
                 {/each}
             </div>
         {/if} 
@@ -544,6 +544,10 @@
 </SrpgModal>
 
 <style>
+    .group-section {
+        margin-bottom: 1rem;
+    }
+    
     .note-view { 
         padding: 1rem; 
         display: flex; 
