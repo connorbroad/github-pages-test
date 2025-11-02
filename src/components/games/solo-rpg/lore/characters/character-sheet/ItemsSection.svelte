@@ -127,6 +127,41 @@
         }
         saveSection();
     }
+
+    // ----- Item details + icons (shared with ItemLibraryModal pattern) -----
+    type ItemDetail = { icon: string; text: string };
+    function formatItemDetails(item: any): ItemDetail[] {
+        if (!item) return [];
+        const details: ItemDetail[] = [];
+        if (item.weight) details.push({ icon: 'weight', text: `${item.weight} wt` });
+        if (item.cost) details.push({ icon: 'coin', text: `${item.cost} gp` });
+
+        if (item.type === 'weapon') {
+            if (item.range) details.push({ icon: 'range', text: item.range });
+            if (item.toHit) details.push({ icon: 'target', text: `To Hit: ${item.toHit}` });
+            if (item.attacks?.length) {
+                item.attacks.forEach((atk: any) => {
+                    details.push({ icon: 'sword', text: `${atk.name || 'Attack'}: ${atk.dice} (${atk.kind})` });
+                });
+            }
+        }
+        if (item.type === 'armor' && item.armorClass !== undefined) {
+            details.push({ icon: 'shield', text: `AC: ${item.armorClass}` });
+        }
+        return details;
+    }
+
+    function getIconSvg(iconType: string): string {
+        const icons: Record<string, string> = {
+            weight: 'M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l7.5 3.75v7.34L12 19.02l-7.5-3.75V7.93L12 4.18z',
+            coin: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z',
+            range: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+            target: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z',
+            sword: "M7.116 16.5v-1h7.134q-.85-.617-1.255-1.406t-.472-1.594H8.885v-1h3.638q.106-.844.51-1.633q.406-.788 1.217-1.367H3.5v-1H17q1.868 0 3.184 1.316Q21.5 10.13 21.5 11.997t-1.316 3.185T17 16.5zm9.884-1q1.442 0 2.471-1.029T20.5 12t-1.029-2.471T17 8.5t-2.471 1.029T13.5 12t1.029 2.471T17 15.5m-14.5-3v-1h5.385v1zm1 4v-1h2.616v1z",
+            shield: 'M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm6 9.09c0 4-2.55 7.7-6 8.83-3.45-1.13-6-4.82-6-8.83V6.31l6-2.12 6 2.12v4.78z',
+        };
+        return icons[iconType] || icons.weight;
+    }
 </script>
 
 <div class="srpg-form-grid">
@@ -173,14 +208,22 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em'><g fill="none" fill-rule="evenodd"><path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M19.071 3.93a1 1 0 0 1 .993.883l.007.116v5.657a1 1 0 0 1-.315.729l-.09.075l-7.198 5.32l.946.947a1 1 0 0 1 .084 1.32l-.084.094L12 20.485a1 1 0 0 1-1.036.238l-.118-.05l-2.184-1.092l-1.612 1.612a1 1 0 0 1-1.32.083l-.094-.083l-2.828-2.829a1 1 0 0 1-.083-1.32l.083-.094l1.611-1.612l-1.091-2.183a1 1 0 0 1 .102-1.059L3.515 12l1.414-1.414a1 1 0 0 1 1.32-.083l.094.083l.947.947l5.32-7.198a1 1 0 0 1 .687-.399l.117-.007h5.657ZM5.636 12.706l-.197.198l1.092 2.184a1 1 0 0 1-.188 1.154L4.93 17.657l1.414 1.414l1.415-1.414a1 1 0 0 1 1.154-.187l2.184 1.092l.197-.198l-5.657-5.657ZM18.071 5.93H13.92l-5.2 7.033l2.318 2.317l7.033-5.198z"/></g></svg>                            
                             {/if}
                         </button> 
-                        <span>{row.item?.name || row.invItem.itemId}</span>
-                        <span>Qty: {row.invItem.quantity}</span> 
-                        {#if row.item.weight}
-                            <span>{row.item.weight} wt</span>
-                        {/if}
-                        {#if row.item.cost}
-                            <span>{row.item.cost} gp</span>
-                        {/if}
+                        <div class="item-info">
+                            <div class="item-name">{row.item?.name || row.invItem.itemId}</div>
+                            {#if row.item && formatItemDetails(row.item).length > 0}
+                                <div class="item-details">
+                                    {#each formatItemDetails(row.item) as detail}
+                                        <span class="item-detail">
+                                            <svg class="detail-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d={getIconSvg(detail.icon)} />
+                                            </svg>
+                                            <span class="detail-text">{detail.text}</span>
+                                        </span>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
+                        <span class="qty">Qty: {row.invItem.quantity}</span> 
                     </div>
                 {/each}
             {/if}
@@ -196,32 +239,46 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width='1em' height='1em'><g fill="none" fill-rule="evenodd"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M7.121 5.293L3.414 9l1.478 1.478l.788-1.052c.598-.797 1.867-.339 1.817.657l-.393 7.867A1 1 0 0 0 8.102 19h7.796a1 1 0 0 0 .998-1.05l-.393-7.867c-.05-.996 1.219-1.454 1.817-.657l.788 1.052L20.586 9l-3.707-3.707C16.5 4.915 15.95 5 15.465 5A4 4 0 0 1 12 7a4 4 0 0 1-3.465-2c-.486 0-1.036-.085-1.414.293M5.707 3.879A3 3 0 0 1 7.828 3H9.1c.472 0 .872.297 1.03.71a2.001 2.001 0 0 0 3.74 0c.158-.413.558-.71 1.03-.71h1.272a3 3 0 0 1 2.12.879L22 7.586a2 2 0 0 1 0 2.828l-1.478 1.478c-.52.52-1.246.689-1.9.526l.272 5.432A3 3 0 0 1 15.898 21H8.102a3 3 0 0 1-2.996-3.15l.272-5.432a2 2 0 0 1-1.9-.526L2 10.414a2 2 0 0 1 0-2.828z"/></g></svg>
                             {/if}
                         </button>
-                        <span>{row.item?.name || row.invItem.itemId}</span>
-                        <span>Qty: {row.invItem.quantity}</span> 
-                        {#if row.item.weight}
-                            <span>{row.item.weight} wt</span>
-                        {/if}
-                        {#if row.item.cost}
-                            <span>{row.item.cost} gp</span>
-                        {/if}
+                        <div class="item-info">
+                            <div class="item-name">{row.item?.name || row.invItem.itemId}</div>
+                            {#if row.item && formatItemDetails(row.item).length > 0}
+                                <div class="item-details">
+                                    {#each formatItemDetails(row.item) as detail}
+                                        <span class="item-detail">
+                                            <svg class="detail-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d={getIconSvg(detail.icon)} />
+                                            </svg>
+                                            <span class="detail-text">{detail.text}</span>
+                                        </span>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
+                        <span class="qty">Qty: {row.invItem.quantity}</span> 
                     </div>
                 {/each}
             {/if}
 
             {#if generalItems.length > 0}
-                <h4>General items</h4>
+                <h4>Other items</h4>
                 {#each generalItems as row}
                     <div class="inventory-item-row">
-                        <span>{row.item?.name || row.invItem.itemId}</span>
-                        <span>Qty: {row.invItem.quantity}</span>
-                        {#if row.item}
-                            {#if row.item.weight}
-                                <span>{row.item.weight} wt</span>
+                        <div class="item-info">
+                            <div class="item-name">{row.item?.name || row.invItem.itemId}</div>
+                            {#if row.item && formatItemDetails(row.item).length > 0}
+                                <div class="item-details">
+                                    {#each formatItemDetails(row.item) as detail}
+                                        <span class="item-detail">
+                                            <svg class="detail-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d={getIconSvg(detail.icon)} />
+                                            </svg>
+                                            <span class="detail-text">{detail.text}</span>
+                                        </span>
+                                    {/each}
+                                </div>
                             {/if}
-                            {#if row.item.cost}
-                                <span>{row.item.cost} gp</span>
-                            {/if}
-                        {/if}
+                        </div>
+                        <span class="qty">Qty: {row.invItem.quantity}</span>
                     </div>
                 {/each}
             {/if}
@@ -254,5 +311,18 @@
     .inventory-section { margin-top: 1.5rem; }
     .inventory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .inventory-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .inventory-item-row { display: flex; gap: 1.5rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--divider); }
+    .inventory-item-row { display: flex; gap: 1rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px solid var(--divider); }
+    .item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+    .item-name { font-weight: 600; color: var(--text-primary); line-height: 1.3; word-break: break-word; }
+    .item-details { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; font-size: 0.875rem; color: var(--text-muted); line-height: 1.4; }
+    .item-detail { display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
+    .detail-icon { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.75; }
+    .detail-text { line-height: 1; }
+    .qty { margin-left: auto; white-space: nowrap; align-self: center; }
+
+    @media (max-width: 767px) {
+        .inventory-item-row { gap: 0.75rem; }
+        .item-details { font-size: 0.8rem; gap: 0.35rem 0.5rem; }
+        .detail-icon { width: 12px; height: 12px; }
+    }
 </style>
