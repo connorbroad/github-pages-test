@@ -42,7 +42,7 @@ function handleClose() {
         </div>
         <div class="modal-actions">
             <button class="srpg-b srpg-b-create" on:click={handleSave} disabled={!selectedItemId}>Add</button>
-            <button class="srpg-b" on:click={handleClose}>Cancel</button>
+            <button class="srpg-b srpg-b-simple" on:click={handleClose}>Cancel</button>
         </div>
     </div>
 </SrpgModal>

@@ -110,7 +110,7 @@
                     <svg class="srpg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 5v14M5 12h14"/>
                     </svg>
-                    <span class="button-text">Create New Item</span>
+                    <span class="button-text">Create</span>
                 </button>
                 {#if campaignItems.length > 0}
                     <span class="item-count-badge">
@@ -191,7 +191,7 @@
         </div>
 
         <div class="modal-actions">
-            <button class="srpg-b" on:click={close}>Close</button>
+            <button class="srpg-b srpg-b-simple" on:click={close}>Close</button>
         </div>
     </div>
 </SrpgModal>
@@ -386,11 +386,7 @@
         .library-header {
             flex-direction: row;
             justify-content: space-between;
-        }
-
-        .button-text {
-            display: none;
-        }
+        } 
 
         .srpg-b-create {
             padding: 0.5rem 0.75rem;

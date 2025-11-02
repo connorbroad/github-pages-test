@@ -423,7 +423,7 @@
 /* Common Form Styles */
 .srpg-form-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
@@ -869,6 +869,20 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+.srpg-list-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.srpg-list-page-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .srpg-list-item {

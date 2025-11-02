@@ -191,7 +191,7 @@
     <div class="header">
         <h2>Tilemap Manager</h2>
         <div class="srpg-b-group-horizontal">
-            <button class="srpg-b" on:click={startCreate}>Create Tilemap</button>
+            <button class="srpg-b srpg-b-create" on:click={startCreate}>Create Tilemap</button>
         </div>
     </div>
 
@@ -265,27 +265,29 @@
                 {/if}
 
                 <div class="srpg-b-group-horizontal" style="margin-top:1rem;">
-                    <button class="srpg-b primary" on:click={saveTileMap}>{editingId ? 'Save Changes' : 'Save Tilemap'}</button>
-                    <button class="srpg-b" on:click={cancelCreate}>Cancel</button>
+                    <button class="srpg-b srpg-b-normal" on:click={saveTileMap}>{editingId ? 'Save Changes' : 'Save Tilemap'}</button>
+                    <button class="srpg-b srpg-b-simple" on:click={cancelCreate}>Cancel</button>
                 </div>
             </div>
         {/if}
-
-        <h3 style="margin-top: 1.5rem;">Existing Tilemaps</h3>
+ 
         {#if tileMaps.length === 0}
             <em>No tilemaps yet.</em>
         {:else}
             <div class="tilemaps-list">
                 {#each tileMaps as tm}
                     <div class="tilemap-row">
+                        <button class="srpg-b srpg-b-icon srpg-b-danger" aria-label="Delete tilemap" on:click={() => deleteTileMap(tm.id)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0                             0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                        </button> 
                         <div class="meta">
                             <strong>{tm.name}</strong>
                             <div class="sub">{tm.columns}×{tm.rows} @ {tm.tileSize}px • {tm.tiles.filter(t=>t.include).length} included</div>
-                        </div>
-                        <div class="actions">
-                            <button class="srpg-b" on:click={() => editTileMap(tm.id)}>Edit</button>
-                            <button class="srpg-b danger" on:click={() => deleteTileMap(tm.id)}>Delete</button>
-                        </div>
+                        </div> 
+                        <button class="srpg-b srpg-b-normal" on:click={() => editTileMap(tm.id)}>Edit</button>
                     </div>
                 {/each}
             </div>
@@ -298,7 +300,7 @@
 </div>
 
 <style>
-    .content { padding: 0; max-width: 900px; width: 100%; }
+    .content { padding: 0; max-width: 500px; width: 100%; }
     .header { display:flex; justify-content: space-between; align-items:center; padding:1.5rem; border-bottom:1px solid var(--border-primary); }
     .header h2 { margin:0; font-size:1.5rem; color: var(--text-primary); }
     .body { padding:1.5rem; }
@@ -321,8 +323,4 @@
     .tilemaps-list { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; }
     .tilemap-row { display:flex; justify-content:space-between; gap:1rem; border:1px solid var(--border-primary); border-radius:6px; padding:0.75rem 1rem; }
     .tilemap-row .sub { color: var(--text-secondary); font-size: 0.9rem; }
-
-    .srpg-b { cursor:pointer; }
-    .srpg-b.primary { background: var(--accent-primary); color: #fff; }
-    .srpg-b.danger { background: var(--danger); color: var(--danger-text-contrast, #fff); }
 </style>

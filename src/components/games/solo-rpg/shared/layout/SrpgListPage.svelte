@@ -34,20 +34,6 @@
         height: 100dvh;
     }
 
-    .srpg-list-page {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .srpg-list-page-scroll {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-    }
-
     h4 {
         margin-top: 1rem;
         margin-bottom: 1rem;

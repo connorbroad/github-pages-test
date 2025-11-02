@@ -33,19 +33,6 @@
     </div>
 
     <div class="srpg-form-field">
-        <label for="class">Class</label>
-        {#if isEditable}
-            <input
-                type="text"
-                id="class"
-                bind:value={editedCharacter.class}
-            />
-        {:else}
-            <p>{character.class || "—"}</p>
-        {/if}
-    </div>
-
-    <div class="srpg-form-field">
         <label for="race">Race</label>
         {#if isEditable}
             <input
@@ -55,6 +42,19 @@
             />
         {:else}
             <p>{character.race || "—"}</p>
+        {/if}
+    </div>
+
+    <div class="srpg-form-field">
+        <label for="class">Class</label>
+        {#if isEditable}
+            <input
+                type="text"
+                id="class"
+                bind:value={editedCharacter.class}
+            />
+        {:else}
+            <p>{character.class || "—"}</p>
         {/if}
     </div>
 

@@ -151,7 +151,7 @@
         </div>
         <div class="modal-actions">
             <button class="srpg-b srpg-b-create" on:click={save}>Save</button>
-            <button class="srpg-b" on:click={close}>Cancel</button>
+            <button class="srpg-b srpg-b-simple" on:click={close}>Cancel</button>
         </div>
     </div>
 </SrpgModal>
