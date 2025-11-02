@@ -184,6 +184,7 @@
             hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
             {diceRollPreset}
             on:clearPreset={() => (diceRollPreset = null)}
+            on:navigateToStory={() => handleNavigate("chronicle")}
             currentCharacterId={selectedCharacterId}
         />
     {/if}
