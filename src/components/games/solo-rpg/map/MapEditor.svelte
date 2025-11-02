@@ -557,6 +557,9 @@
     let selectedObject: MapObject | null = null;
     let isDraggingHandle = false;
 
+    // Pending selection when initial press lands on an object; will turn into a pan if moved past slop
+    let pendingSelect: { obj: MapObject; startX: number; startY: number; pointerId: number } | null = null;
+
     // Helper to notify parent of selection state
     function emitSelection() {
         const obj = selectedObject;
@@ -606,6 +609,8 @@
             if (map) scheduleRender();
             emitSelection();
         }
+        // Also cancel any pending selection from a down-on-object
+        pendingSelect = null;
     }
     
     // Multi-touch pointer tracking
@@ -617,6 +622,9 @@
     const DOUBLE_TAP_SLOP = 24;   // px
     const DOUBLE_TAP_ZOOM = 1.8;  // zoom-in factor on quick double-tap
     const MANUAL_ZOOM_RATE = 0.004; // per-pixel exponential rate for double-tap+drag
+
+    // Distance in screen pixels to distinguish tap vs. drag when starting over an object
+    const DRAG_SLOP = 8;
 
     let lastTapTime = 0;
     let lastTapPos = { x: 0, y: 0 };
@@ -698,6 +706,8 @@
 
         // Multi-touch pinch shortcut
         if (pointers.size >= 2) {
+            // Cancel any pending tap-to-select
+            pendingSelect = null;
             // Start pinch
             const pts = Array.from(pointers.values()) as { x: number; y: number }[];
             const dx = pts[1].x - pts[0].x;
@@ -755,13 +765,14 @@
                 return;
             }
 
-            // Check if clicking on any object to select it
+            // Check if clicking on any object; defer selection until pointerup unless the user drags past slop
             const objs = [...map.objects].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
             const hit = objs.find(o => isPointInObject(x, y, o));
             if (hit) {
-                selectedObject = hit;
-                scheduleRender();
-                emitSelection();
+                pendingSelect = { obj: hit, startX: e.clientX, startY: e.clientY, pointerId: e.pointerId };
+                // Prepare for potential pan if user moves
+                lastPan = { x: e.clientX, y: e.clientY };
+                lastPanTime = e.timeStamp;
                 return;
             }
 
@@ -868,6 +879,11 @@
         // Update pointer
         if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+        // If two pointers become active, cancel any pending select so it won't trigger on release
+        if (pointers.size >= 2) {
+            pendingSelect = null;
+        }
+
         // Update cursor based on hover state (only in move tool)
         if (tool === 'move' && !isDraggingHandle && !isPanning) {
             const { x, y } = screenToWorld(e.clientX, e.clientY);
@@ -925,6 +941,21 @@
             return;
         }
 
+        // Convert a pending tap-on-object into a pan if the movement exceeds slop
+        if (tool === 'move' && pendingSelect && e.pointerId === pendingSelect.pointerId) {
+            const dx0 = e.clientX - pendingSelect.startX;
+            const dy0 = e.clientY - pendingSelect.startY;
+            if (Math.hypot(dx0, dy0) > DRAG_SLOP) {
+                // Start panning instead of selecting the object
+                selectedObject = null;
+                isPanning = true;
+                // Seed pan starting point so the very first pan step includes all movement so far
+                lastPan = { x: pendingSelect.startX, y: pendingSelect.startY };
+                lastPanTime = e.timeStamp;
+                pendingSelect = null;
+            }
+        }
+
         if (isPanning) {
             const dx = e.clientX - lastPan.x;
             const dy = e.clientY - lastPan.y;
@@ -960,6 +991,14 @@
             const target = e.currentTarget as HTMLElement;
             if (target.hasPointerCapture(e.pointerId)) target.releasePointerCapture(e.pointerId);
             pointers.delete(e.pointerId);
+        }
+
+        // If we had a pending selection and no pan occurred beyond slop, treat it as a tap: select the object
+        if (pendingSelect && e && e.pointerId === pendingSelect.pointerId) {
+            selectedObject = pendingSelect.obj;
+            scheduleRender();
+            emitSelection();
+            pendingSelect = null;
         }
 
         // Finish manual zoom gesture
