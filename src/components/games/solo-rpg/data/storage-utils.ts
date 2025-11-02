@@ -96,6 +96,7 @@ export type Character = {
     currency?: Currency;
     inventory?: CharacterInventoryItem[];
     equipped?: { weapons: string[]; armors: string[] };
+    maxCarryWeight?: number;
     // Combat Stats
     armorClass?: number;
     initiative?: number;
