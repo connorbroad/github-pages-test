@@ -41,6 +41,18 @@
         }
     }
 
+    // Calculate total weight carried
+    $: totalWeight = invWithItem.reduce((sum, { invItem, item }) => {
+        if (item?.weight) {
+            return sum + (item.weight * invItem.quantity);
+        }
+        return sum;
+    }, 0);
+
+    // Check if over weight limit
+    $: maxCarryWeight = editedCharacter?.maxCarryWeight ?? 0;
+    $: isOverWeight = maxCarryWeight > 0 && totalWeight > maxCarryWeight;
+
     function handleItemLibraryClick() { showItemLibraryModal = true; }
     function handleAddItemClick() { showAddInventoryItemModal = true; }
 
@@ -181,6 +193,33 @@
             </div>
         {/if}
     </div>
+    
+    <div class="srpg-form-field">
+        <h4>Carry Weight</h4>
+        <div class="weight-display">
+            <div class="weight-info" class:over-weight={isOverWeight}>
+                <svg class="weight-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l7.5 3.75v7.34L12 19.02l-7.5-3.75V7.93L12 4.18z"/>
+                </svg>
+                <span class="weight-value">{totalWeight.toFixed(1)}</span>
+                {#if maxCarryWeight > 0}
+                    <span class="weight-separator">/</span>
+                    <span class="weight-max">{maxCarryWeight}</span>
+                {/if}
+            </div>
+            {#if isEditable}
+                <input 
+                    type="number" 
+                    min="0" 
+                    step="0.5"
+                    bind:value={editedCharacter.maxCarryWeight} 
+                    placeholder="Max" 
+                    aria-label="Maximum Carry Weight"
+                    class="weight-input"
+                />
+            {/if}
+        </div>
+    </div>
 </div>
 
 <div class="inventory-section">
@@ -308,6 +347,43 @@
     h4 { margin-top: 1rem; margin-bottom: 0.5rem; }
     .currency-inputs { display: flex; gap: 0.5rem; }
     .currency-badges { display: flex; gap: 0.5rem; }
+    
+    .weight-display { display: flex; align-items: center; gap: 0.75rem; }
+    .weight-info { 
+        display: flex; 
+        align-items: center; 
+        gap: 0.35rem; 
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        transition: color 0.2s ease;
+    }
+    .weight-info.over-weight {
+        color: #ef4444;
+    }
+    .weight-icon { 
+        width: 1.25em; 
+        height: 1.25em; 
+        flex-shrink: 0;
+        opacity: 0.8;
+    }
+    .weight-value {
+        font-variant-numeric: tabular-nums;
+    }
+    .weight-separator {
+        opacity: 0.5;
+        margin: 0 0.15rem;
+    }
+    .weight-max {
+        opacity: 0.7;
+        font-variant-numeric: tabular-nums;
+    }
+    .weight-input {
+        width: 80px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
     .inventory-section { margin-top: 1.5rem; }
     .inventory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .inventory-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -324,5 +400,7 @@
         .inventory-item-row { gap: 0.75rem; }
         .item-details { font-size: 0.8rem; gap: 0.35rem 0.5rem; }
         .detail-icon { width: 12px; height: 12px; }
+        .weight-display { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .weight-input { width: 100%; }
     }
 </style>
