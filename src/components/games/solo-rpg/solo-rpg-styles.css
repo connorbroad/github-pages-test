@@ -186,6 +186,10 @@
     width: 100%;
 }
 
+.srpg-b-w-fill {
+    flex-grow: 1;
+}
+
 .srpg-b-w-lg {
     width: 300px;
 }
@@ -334,6 +338,10 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+
+.srpg-nowrap {
+    flex-wrap: nowrap;
 }
 
 /* Grid Layout for Tool Buttons */
@@ -929,9 +937,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease; 
 }
@@ -980,9 +985,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0.75rem;
-    background: var(--card-bg);
-        border: 1px solid var(--border-primary);
-    border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-bottom: 0.5rem;

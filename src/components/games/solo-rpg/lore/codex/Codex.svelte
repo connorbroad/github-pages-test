@@ -287,26 +287,26 @@
         {#if selectedNote}
             <button class="srpg-b srpg-b-simple" on:click={backToList}>
                 ← Back to List
-            </button>
-            <div class="srpg-b-group">
-                {#if !isEditing}
-                    <button class="srpg-b srpg-b-normal" on:click={editNote}>
-                        Edit
-                    </button>
-                    {#if !selectedNote.characterId}
-                        <button class="srpg-b srpg-b-danger" on:click={deleteNote}>
-                            Delete
-                        </button>
-                    {/if}
-                {:else}
-                    <button class="srpg-b srpg-b-create" on:click={saveNote}>
+            </button> 
+            {#if isEditing}
+                <div class="srpg-b-group srpg-nowrap">
+                    <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={saveNote}>
                         Save
                     </button>
                     <button class="srpg-b srpg-b-simple" on:click={cancelEdit}>
                         Cancel
                     </button>
+                </div>
+            {:else}
+                <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={editNote}>
+                    Edit
+                </button>
+                {#if !selectedNote.characterId}
+                    <button class="srpg-b srpg-b-danger" on:click={deleteNote}>
+                        Delete
+                    </button>
                 {/if}
-            </div>
+            {/if} 
         {:else}
             <button class="srpg-b srpg-b-create" on:click={openCreateModal}>
                 + New Note

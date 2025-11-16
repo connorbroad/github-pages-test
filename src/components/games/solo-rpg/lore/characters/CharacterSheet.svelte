@@ -146,8 +146,6 @@
     $: isAbilitiesEditable = isEditing || isSectionEditing("abilities");
     $: isCombatEditable = isEditing || isSectionEditing("combat");
     $: isItemsEditable = isEditing || isSectionEditing("items");
-
-    // (inventory methods and modals moved to ItemsSection)
 </script>
 
 <div class="character-sheet-wrapper">
