@@ -6,15 +6,13 @@
         createDie,
         createDieBody,
         getDieResult,
+        getUprightQuaternion,
         type DieType,
     } from "../scripts/dice3d";
 
     export let numDice: number = 1;
     export let numSides: number = 6;
     export let rolling: boolean = false;
-    // diceResults is now an output, not input for physics mode
-    // But we might want to keep it as a prop if we want to force results?
-    // No, user wants physics based.
 
     const dispatch = createEventDispatcher();
 
@@ -161,9 +159,22 @@
         world.addBody(bottomWall);
         wallBodies.push(bottomWall);
 
+        // Arrange dice in a spiral (Phyllotaxis)
+        // This packs them efficiently around the center
+        const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+        
         for (let i = 0; i < numDice; i++) {
             const size = 1.5;
-            const x = startX + i * spacing;
+            
+            // Calculate position
+            // Radius grows with sqrt of index to maintain constant density
+            // Scale factor determines spacing
+            const dist = numDice > 1 ? Math.sqrt(i) * 2.5 : 0;
+            const angle = i * goldenAngle;
+            
+            const x = Math.cos(angle) * dist;
+            const z = Math.sin(angle) * dist;
+            const y = size / 2; // On the floor
 
             // Mesh
             const dieMesh = createDie(type, {
@@ -171,6 +182,12 @@
                 labelColor: 0xffffff,
                 size,
             });
+            dieMesh.position.set(x, y, z);
+            
+            // Set initial rotation to show max number up
+            const uprightQuat = getUprightQuaternion(type);
+            dieMesh.quaternion.copy(uprightQuat);
+
             scene.add(dieMesh);
             diceMeshes.push(dieMesh);
 
@@ -178,8 +195,10 @@
             const dieBody = createDieBody(
                 type,
                 size,
-                new THREE.Vector3(x, 5 + Math.random() * 2, 0),
+                new THREE.Vector3(x, y, z),
             );
+            dieBody.quaternion.copy(uprightQuat as any); 
+            
             world.addBody(dieBody);
             diceBodies.push(dieBody);
         }

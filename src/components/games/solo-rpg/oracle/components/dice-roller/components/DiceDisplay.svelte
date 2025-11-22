@@ -14,7 +14,7 @@
 <div class="dice-results">
     <DiceScene 
         {numDice} 
-        numSides={rolledNumSides} 
+        numSides={rolling ? rolledNumSides : numSides} 
         {rolling}
         on:rollComplete
     />

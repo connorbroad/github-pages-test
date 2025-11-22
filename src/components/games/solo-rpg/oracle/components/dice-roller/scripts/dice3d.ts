@@ -27,7 +27,7 @@ const DEFAULT_CONFIG: DieConfig = {
     d10FontSize: 100,
     d12FontSize: 200,
     d20FontSize: 80,
-    d100FontSize: 100,
+    d100FontSize: 80,
     fontSize: 100
 };
 
@@ -615,20 +615,81 @@ export function getDieResult(mesh: THREE.Mesh): number {
         const map = [1, 6, 2, 5, 3, 4];
         return map[bestFaceIndex];
     } else if (type === 10 || type === 100) {
-        // Map face index to result based on geometry generation order.
-        // Top faces (0-4) map to 1, 3, 5, 7, 9
-        // Bottom faces (5-9) map to 2, 4, 6, 8, 0
+        if (type === 100) {
+            const map = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9];
+            const val = map[bestFaceIndex];
+            if (val === 0) return 100; // 00 is 100
+            return val * 10;
+        }
+
         const map = [1, 3, 5, 7, 9, 2, 4, 6, 8, 0];
         let val = map[bestFaceIndex];
 
-        if (type === 100) {
-            if (val === 0) return 0; // 00 is 0
-            return val * 10;
-        }
         if (val === 0) return 10;
         return val;
     } else {
         // D12 and others (1-based index)
         return bestFaceIndex + 1;
     }
+}
+
+export function getUprightQuaternion(type: DieType): THREE.Quaternion {
+    const geometry = getGeometry(type, 1);
+    const posAttribute = geometry.getAttribute('position');
+    const count = posAttribute.count;
+
+    let targetFaceIndex = 0;
+    let verticesPerFace = 3;
+    let isD4 = false;
+
+    if (type === 4) {
+        isD4 = true;
+        // D4: Result 4 is when Face 0 is DOWN.
+        // Face 0 is opposite Vertex 4 (top).
+        // So we want Face 0 normal to point DOWN (0, -1, 0).
+        targetFaceIndex = 0;
+    } else if (type === 6) {
+        verticesPerFace = 6;
+        // D6: Result 6 is Face 1 (index 1 in map logic)
+        // map = [1, 6, 2, 5, 3, 4]
+        // Index 1 -> 6.
+        targetFaceIndex = 1;
+    } else if (type === 8) {
+        // D8: Result 8 is Face 7 (index 7)
+        targetFaceIndex = 7;
+    } else if (type === 10 || type === 100) {
+        verticesPerFace = 6;
+        // D10: Result 0 (10) is Face 9 (index 9)
+        // map = [1, 3, 5, 7, 9, 2, 4, 6, 8, 0]
+        // Index 9 -> 0.
+        targetFaceIndex = 9;
+
+        if (type === 100) {
+            // D100: Result 00 (100) is Face 0
+            targetFaceIndex = 0;
+        }
+    } else if (type === 12) {
+        verticesPerFace = 9;
+        // D12: Result 12 is Face 11
+        targetFaceIndex = 11;
+    } else if (type === 20) {
+        // D20: Result 20 is Face 19
+        targetFaceIndex = 19;
+    }
+
+    const startVertex = targetFaceIndex * verticesPerFace;
+    const v1 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex);
+    const v2 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 1);
+    const v3 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 2);
+
+    const localNormal = new THREE.Vector3().subVectors(v2, v1).cross(new THREE.Vector3().subVectors(v3, v1)).normalize();
+
+    const targetNormal = new THREE.Vector3(0, 1, 0);
+    if (isD4) {
+        targetNormal.set(0, -1, 0);
+    }
+
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(localNormal, targetNormal);
+
+    return quaternion;
 }
