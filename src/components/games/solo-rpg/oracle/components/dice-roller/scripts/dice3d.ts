@@ -21,11 +21,11 @@ const DEFAULT_CONFIG: DieConfig = {
     color: 0xff4444,
     labelColor: 0xffffff,
     size: 1,
-    d4FontSize: 100,
+    d4FontSize: 110,
     d6FontSize: 200,
     d8FontSize: 100,
     d10FontSize: 100,
-    d12FontSize: 100,
+    d12FontSize: 200,
     d20FontSize: 80,
     d100FontSize: 100,
     fontSize: 100
@@ -162,7 +162,7 @@ function getMaterials(type: DieType, config: DieConfig): THREE.Material[] {
             mats.push(new THREE.MeshPhongMaterial({
                 map: createD4Texture(nums[0], nums[1], nums[2], labelColorHex, colorHex, config.d4FontSize),
                 color: 0xffffff,
-                shininess: 30,
+                shininess: 100,
                 flatShading: true
             }));
         });
@@ -181,7 +181,7 @@ function getMaterials(type: DieType, config: DieConfig): THREE.Material[] {
             mats.push(new THREE.MeshPhongMaterial({
                 map: createTextTexture(label, labelColorHex, colorHex, type),
                 color: 0xffffff,
-                shininess: 30,
+                shininess: 100,
                 flatShading: true
             }));
         });
@@ -282,8 +282,10 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
                 // Vertices are roughly 0.5 to 1.0 apart.
                 // Let's try scaling by 0.8 and offsetting by 0.5.
 
-                uvArray[(start + j) * 2] = 0.5 - x * 0.8;
-                uvArray[(start + j) * 2 + 1] = 0.5 + y * 0.8;
+                const scale = 0.8;
+                const offset = 0.5;
+                uvArray[(start + j) * 2] = offset - x * scale;
+                uvArray[(start + j) * 2 + 1] = offset + y * scale;
             }
 
             geometry.addGroup(start, vertsPerFace, i);
@@ -319,7 +321,7 @@ function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
     let geometry: THREE.BufferGeometry;
 
     switch (type) {
-        case 4: geometry = new THREE.TetrahedronGeometry(size); break;
+        case 4: geometry = new THREE.TetrahedronGeometry(size * 1.3); break;
         case 6: geometry = new THREE.BoxGeometry(size, size, size); break;
         case 8: geometry = new THREE.OctahedronGeometry(size); break;
         case 10:

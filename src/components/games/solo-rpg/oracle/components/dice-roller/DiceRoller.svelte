@@ -100,7 +100,7 @@
         rolling = false;
         checkName = "";
 
-        onClose && onClose();
+        onClose();
     }
 
     $: recalculateResult();
