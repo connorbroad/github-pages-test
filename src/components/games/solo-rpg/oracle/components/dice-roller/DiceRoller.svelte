@@ -192,8 +192,8 @@
                 </div>
             </div>
         </div>
-        <button class="srpg-b srpg-b-normal srpg-b-w-lg" on:click={onRollButtonClick}>Roll</button> 
-        <div class="result-calculator-container" transition:slide> 
+        <div class="result-buttons" transition:slide>
+            <button class="srpg-b srpg-b-normal srpg-b-w-lg" on:click={onRollButtonClick}>Roll</button>  
             <button id="take-result-button" class="srpg-b srpg-b-create srpg-b-w-lg"
                 on:click={onClickTakeResult}
                 disabled={diceResults.length === 0 || finalResult === null || rolling}>
@@ -209,7 +209,7 @@
                     </div>
                 {/if}
             </button>
-        </div> 
+        </div>
     </div> 
 {/if}
 
@@ -299,7 +299,7 @@
     }
 
     #take-result-button {
-        margin-top: 1rem;
+        margin-top: 0;
         margin-bottom: 0;
         padding: 0;
         position: relative;
@@ -346,15 +346,13 @@
         margin-bottom: 1rem;
         flex-wrap: wrap;
     }
-    .result-calculator-container {
-        overflow: hidden;
-        max-height: 1000px;
-        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: max-height, padding;
-    }
-    .result-calculator-container:not(:has(*)) {
-        max-height: 0;
-        padding: 0;
+    .result-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center; 
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
     }
 
     .check-name-container {
