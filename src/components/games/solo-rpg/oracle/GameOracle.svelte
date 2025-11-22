@@ -1,3 +1,8 @@
+<script context="module" lang="ts">
+    export type OracleView = "oracle" | "dice" | "cards";
+    let lastView: OracleView = "dice";
+</script>
+
 <script lang="ts">
     import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries, loadActiveCharacterId } from "../data/storage-utils";
     import type { FortuneResultData } from "../data/storage-utils";
@@ -35,9 +40,14 @@
     let customFortunes: Fortune[] = [];
     let selectedFortune: Fortune | null = null;
 
-    // View state for in-modal navigation
-    type OracleView = "oracle" | "dice" | "cards";
-    let view: OracleView = "dice";
+    // Persist view selection
+    function updateLastView(v: OracleView) {
+        lastView = v;
+    }
+    $: updateLastView(view);
+
+    // View state for in-modal navigation 
+    let view: OracleView = lastView;
     
     // Track the currently displayed character in the selector
     let currentDisplayedCharacterId: string | null = null;
