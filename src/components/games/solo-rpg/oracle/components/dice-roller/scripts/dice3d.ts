@@ -57,7 +57,7 @@ function createTextTexture(text: string, color: string, bgColor: string, fontSiz
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    ctx.font = `bold ${getFontSizeForDiceType(fontSize, DEFAULT_CONFIG)}px Arial`;
+    ctx.font = `bold ${getFontSizeForDiceType(fontSize, DEFAULT_CONFIG)}px Merriweather, Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = color;
@@ -94,7 +94,7 @@ function createD4Texture(top: string, left: string, right: string, color: string
     ctx.shadowBlur = 0;
 
     const fontSize = baseFontSize * 0.6; // Scale down for D4
-    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.font = `bold ${fontSize}px Merriweather, Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = color;
