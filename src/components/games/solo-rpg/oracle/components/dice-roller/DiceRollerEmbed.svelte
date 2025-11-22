@@ -4,8 +4,6 @@
     import {
         type ResultOption,
         calculateResult,
-        createDiceRollerAnimation,
-        DEFAULT_ANIMATION_CONFIG,
     } from "./scripts/diceRollerLogic";
 
     // Props for embedded mode
@@ -26,34 +24,28 @@
     let rolledNumSides = numSides;
     let rolling = false;
     let hasRolled = false;
-    let diceOffsets: { x: number; y: number; r: number }[] = [];
- 
-
 
     function onRollButtonClick() {
+        if (rolling) return;
+        
         hasRolled = true;
-        const animation = createDiceRollerAnimation(
-            numDice,
-            numSides,
-            DEFAULT_ANIMATION_CONFIG,
-            (state) => {
-                if (state.results !== undefined) diceResults = state.results;
-                if (state.offsets !== undefined) diceOffsets = state.offsets;
-                if (state.rolling !== undefined) rolling = state.rolling;
-                if (state.rolledNumSides !== undefined)
-                    rolledNumSides = state.rolledNumSides;
-            },
-            () => {
-                recalculateResult();
-                if (finalResult !== null) {
-                    dispatch("result", finalResult);
-                    if (onResult) {
-                        onResult(finalResult);
-                    }
-                }
-            },
-        );
-        animation.start(diceResults);
+        rolling = true;
+        rolledNumSides = numSides;
+        diceResults = [];
+        finalResult = null;
+    }
+
+    function onRollComplete(event: CustomEvent<number[]>) {
+        diceResults = event.detail;
+        rolling = false;
+        recalculateResult();
+        
+        if (finalResult !== null) {
+            dispatch("result", finalResult);
+            if (onResult) {
+                onResult(finalResult);
+            }
+        }
     }
 
     function recalculateResult() {
@@ -72,9 +64,9 @@
     <DiceDisplay
         {numDice}
         {numSides}
-        {diceResults}
-        {diceOffsets}
         {rolledNumSides}
+        {rolling}
+        on:rollComplete={onRollComplete}
     />
     {#if showModifier}
         <div class="modifier-input-group" style="margin-bottom: 0.5rem;">

@@ -5,8 +5,6 @@
     import {
         type ResultOption,
         calculateResult,
-        createDiceRollerAnimation,
-        DEFAULT_ANIMATION_CONFIG,
     } from "./scripts/diceRollerLogic";
     import { createEventDispatcher } from "svelte";
     import "../../../solo-rpg-styles.css";
@@ -33,7 +31,6 @@
     let finalResult: number | null = null;
     let rolledNumSides = numSides;
     let rolling = false;
-    let diceOffsets: { x: number; y: number; r: number }[] = [];
     let showResultCalculator = true;
     let checkName = ""; // Editable check name
 
@@ -57,22 +54,18 @@
     }
 
     function onRollButtonClick() {
-        const animation = createDiceRollerAnimation(
-            numDice,
-            numSides,
-            DEFAULT_ANIMATION_CONFIG,
-            (state) => {
-                if (state.results !== undefined) diceResults = state.results;
-                if (state.offsets !== undefined) diceOffsets = state.offsets;
-                if (state.rolling !== undefined) rolling = state.rolling;
-                if (state.rolledNumSides !== undefined)
-                    rolledNumSides = state.rolledNumSides;
-            },
-            () => {
-                recalculateResult();
-            },
-        );
-        animation.start(diceResults);
+        if (rolling) return;
+        
+        rolling = true;
+        rolledNumSides = numSides;
+        diceResults = []; // Clear results while rolling
+        finalResult = null;
+    }
+
+    function onRollComplete(event: CustomEvent<number[]>) {
+        diceResults = event.detail;
+        rolling = false;
+        recalculateResult();
     }
 
     function recalculateResult() {
@@ -105,7 +98,6 @@
         diceResults = [];
         finalResult = null;
         rolling = false;
-        diceOffsets = [];
         checkName = "";
 
         onClose && onClose();
@@ -132,9 +124,9 @@
         <DiceDisplay
             {numDice}
             {numSides}
-            {diceResults}
-            {diceOffsets}
             {rolledNumSides}
+            {rolling}
+            on:rollComplete={onRollComplete}
         />
         <hr class="dice-roller-divider" />
         <div id="dice-options">
