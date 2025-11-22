@@ -112,6 +112,14 @@
         currentView = "chronicle";
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    function handleNavigateToChronicle() {
+        if (currentView === "chronicle") {
+            // If already on chronicle, force reload to show new entries
+            chronicleComponent?.reloadEntries?.();
+        } else {
+            handleNavigate("chronicle");
+        }
+    }
 </script>
 
 <Sidebar {currentView} onNavigate={handleNavigate} />
@@ -172,7 +180,7 @@
         <MapView 
             bind:this={mapViewComponent}
             on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={() => handleNavigate("chronicle")}
+            on:navigateToStory={handleNavigateToChronicle}
         />
     {:else if currentView === "settings"}
         <SettingsView /> 
@@ -184,7 +192,7 @@
             hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
             {diceRollPreset}
             on:clearPreset={() => (diceRollPreset = null)}
-            on:navigateToStory={() => handleNavigate("chronicle")}
+            on:navigateToStory={handleNavigateToChronicle}
             currentCharacterId={selectedCharacterId}
         />
     {/if}
