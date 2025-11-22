@@ -210,8 +210,6 @@
     @media (min-width: 769px) {
         .content {
             margin-left: 80px;
-            padding-left: 2rem;
-            padding-right: 2rem;
         }
 
         /* When secondary sidebar is present */

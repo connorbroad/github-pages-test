@@ -6,6 +6,7 @@
 	import LoadingOverlay from "./LoadingOverlay.svelte";
 	import { generateUUID } from "./uuid";
 	import { drawGrid as renderGrid, drawFgObjects as renderFg } from './renderer';
+    import { activeCampaign } from '../game-management/campaign-store' 
 
 	export let mapId: string;
 	export let tool: "paint" | "object" | "move" = "move";
@@ -837,6 +838,11 @@
 </script>
 
 <div class="map-editor">
+    {#if map}
+        <div class="map-header">
+            <h4>{map.name}</h4>
+        </div>
+    {/if}
     <div class="canvas-wrap"
          role="button"
          tabindex="0"
@@ -859,7 +865,26 @@
     .map-editor {
         position: relative;
         width: 100%;
-        height: 100dvh;  
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-primary);
+        pointer-events: none;
+    }
+
+    .map-header h4 {
+        margin: 1rem;
+        text-align: center;
+        color: var(--text-primary);
     }
 
     .canvas-wrap { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
