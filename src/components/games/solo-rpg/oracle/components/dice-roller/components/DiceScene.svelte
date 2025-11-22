@@ -58,10 +58,10 @@
         container.appendChild(renderer.domElement);
 
         // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 3);
         dirLight.position.set(5, 20, 10);
         dirLight.castShadow = true;
         dirLight.shadow.mapSize.width = 1024;

@@ -232,13 +232,11 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
         geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
         return;
     } else if (type === 12) {
-        // Dodecahedron: 12 faces, 3 triangles each (usually) -> 9 vertices per face.
-        // Total vertices = 12 * 9 = 108.
-        // We need to generate UVs for each pentagonal face.
-        // Planar projection for each face.
+        // Dodecahedron: 12 faces, 3 triangles each (9 vertices per face).
+        // Generate UVs for each pentagonal face using planar projection.
 
         const numFaces = 12;
-        const vertsPerFace = 9; // 3 triangles
+        const vertsPerFace = 9;
 
         for (let i = 0; i < numFaces; i++) {
             const start = i * vertsPerFace;
@@ -255,37 +253,17 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
             const right = new THREE.Vector3().crossVectors(normal, up).normalize();
             up.crossVectors(right, normal).normalize();
 
-            // Project vertices
+            // Project vertices to 2D plane and map to UV space
             for (let j = 0; j < vertsPerFace; j++) {
                 const v = new THREE.Vector3().fromBufferAttribute(pos, start + j);
-
-                // Project to 2D plane relative to center of face?
-                // We need the center of the face.
-                // Let's just project and normalize.
 
                 const x = v.dot(right);
                 const y = v.dot(up);
 
-                // We need to map these x,y to 0..1 UV space.
-                // Dodecahedron face size?
-                // We can find min/max X/Y for this face and scale.
-                // But we do this per vertex, so we need to know the bounds beforehand or do two passes.
-                // Since it's a regular dodecahedron, the bounds are constant relative to center.
-                // Distance from center to vertex is roughly constant.
-                // Let's assume center is (0,0) in projected space (if we subtract face center).
-                // But we didn't calculate face center.
-
-                // Simpler: Just use the raw projection and scale/offset.
-                // For a unit dodecahedron, face radius is approx...
-                // Let's just do a quick min/max search for this face? No, expensive.
-                // Hardcode scale?
-                // Vertices are roughly 0.5 to 1.0 apart.
-                // Let's try scaling by 0.8 and offsetting by 0.5.
-
-                const scale = 0.8;
-                const offset = 0.5;
-                uvArray[(start + j) * 2] = offset - x * scale;
-                uvArray[(start + j) * 2 + 1] = offset + y * scale;
+                // Scale and offset to fit in 0..1 UV space
+                // Flip X to fix mirrored text
+                uvArray[(start + j) * 2] = 0.5 - x * 0.8;
+                uvArray[(start + j) * 2 + 1] = 0.5 + y * 0.8;
             }
 
             geometry.addGroup(start, vertsPerFace, i);
@@ -314,18 +292,102 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
     geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
 }
 
+function createD10Geometry(size: number): THREE.BufferGeometry {
+    const radius = size;
+    const height = size;
+    const k = height * 0.2; // Vertical offset for rings
+
+    const vertices: number[] = [];
+    const uvs: number[] = [];
+    const groups: { start: number, count: number, mat: number }[] = [];
+
+    // Top and Bottom vertices
+    const top = new THREE.Vector3(0, height, 0);
+    const bottom = new THREE.Vector3(0, -height, 0);
+
+    // Ring 1 (Upper) - 5 vertices
+    const ring1: THREE.Vector3[] = [];
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 72) * Math.PI / 180;
+        ring1.push(new THREE.Vector3(Math.cos(angle) * radius, k, Math.sin(angle) * radius));
+    }
+
+    // Ring 2 (Lower) - 5 vertices, rotated by 36 deg
+    const ring2: THREE.Vector3[] = [];
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 72 + 36) * Math.PI / 180;
+        ring2.push(new THREE.Vector3(Math.cos(angle) * radius, -k, Math.sin(angle) * radius));
+    }
+
+    // Helper to add triangle
+    const addTriangle = (v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, uv1: number[], uv2: number[], uv3: number[]) => {
+        vertices.push(v1.x, v1.y, v1.z);
+        vertices.push(v2.x, v2.y, v2.z);
+        vertices.push(v3.x, v3.y, v3.z);
+        uvs.push(...uv1, ...uv2, ...uv3);
+    };
+
+    // UV coordinates for kite face
+    const uvTop = [0.5, 0.85];
+    const uvBottom = [0.5, 0.15];
+    const uvLeft = [0.15, 0.5];
+    const uvRight = [0.85, 0.5];
+
+    // Top Faces (5)
+    // Face i connects Top, Ring1[i] (Right), Ring2[i] (Bottom), Ring1[i+1] (Left)
+    for (let i = 0; i < 5; i++) {
+        const r1_right = ring1[i];
+        const r2_bottom = ring2[i];
+        const r1_left = ring1[(i + 1) % 5];
+
+        // Tri 1: Top, Bottom, Right (CCW)
+        addTriangle(top, r2_bottom, r1_right, uvTop, uvBottom, uvRight);
+        // Tri 2: Top, Left, Bottom (CCW)
+        addTriangle(top, r1_left, r2_bottom, uvTop, uvLeft, uvBottom);
+
+        groups.push({ start: vertices.length / 3 - 6, count: 6, mat: i * 2 });
+    }
+
+    // Bottom Faces (5)
+    // Face i connects Bottom, Ring2[i] (Right), Ring1[i+1] (Top), Ring2[i+1] (Left)
+    for (let i = 0; i < 5; i++) {
+        const r2_right = ring2[i];
+        const r1_top = ring1[(i + 1) % 5];
+        const r2_left = ring2[(i + 1) % 5];
+
+        // Tri 1: Bottom, Right, Top (Fixed Winding)
+        addTriangle(bottom, r2_right, r1_top, uvBottom, uvRight, uvTop);
+        // Tri 2: Bottom, Top, Left (Fixed Winding)
+        addTriangle(bottom, r1_top, r2_left, uvBottom, uvTop, uvLeft);
+
+        groups.push({ start: vertices.length / 3 - 6, count: 6, mat: i * 2 + 1 });
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    groups.forEach(g => geo.addGroup(g.start, g.count, g.mat));
+    geo.computeVertexNormals();
+
+    return geo;
+}
+
 function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
     const key = `${type}-${size}`;
     if (geometries[key]) return geometries[key].clone();
 
     let geometry: THREE.BufferGeometry;
 
+    if (type === 10 || type === 100) {
+        geometry = createD10Geometry(size);
+        geometries[key] = geometry;
+        return geometry;
+    }
+
     switch (type) {
         case 4: geometry = new THREE.TetrahedronGeometry(size * 1.3); break;
         case 6: geometry = new THREE.BoxGeometry(size, size, size); break;
         case 8: geometry = new THREE.OctahedronGeometry(size); break;
-        case 10:
-        case 100: geometry = new THREE.IcosahedronGeometry(size); break;
         case 12: geometry = new THREE.DodecahedronGeometry(size); break;
         case 20: geometry = new THREE.IcosahedronGeometry(size); break;
         default: geometry = new THREE.BoxGeometry(size, size, size);
@@ -524,9 +586,11 @@ export function getDieResult(mesh: THREE.Mesh): number {
     // Determine vertices per face for result calculation
     // D6: 6 verts (2 tris)
     // D12: 9 verts (3 tris)
+    // D10/D100: 6 verts (2 tris)
     // Others: 3 verts (1 tri)
     let verticesPerFace = 3;
     if (type === 6) verticesPerFace = 6;
+    if (type === 10 || type === 100) verticesPerFace = 6;
     if (type === 12) verticesPerFace = 9;
 
     const numFaces = count / verticesPerFace;
@@ -551,12 +615,18 @@ export function getDieResult(mesh: THREE.Mesh): number {
         const map = [1, 6, 2, 5, 3, 4];
         return map[bestFaceIndex];
     } else if (type === 10 || type === 100) {
-        let val = (bestFaceIndex % 10) + 1;
+        // Map face index to result based on geometry generation order.
+        // Top faces (0-4) map to 1, 3, 5, 7, 9
+        // Bottom faces (5-9) map to 2, 4, 6, 8, 0
+        const map = [1, 3, 5, 7, 9, 2, 4, 6, 8, 0];
+        let val = map[bestFaceIndex];
+
         if (type === 100) {
-            return (bestFaceIndex % 10) * 10;
+            if (val === 0) return 0; // 00 is 0
+            return val * 10;
         }
-        if ((bestFaceIndex % 10) === 9) return 0;
-        return (bestFaceIndex % 10) + 1;
+        if (val === 0) return 10;
+        return val;
     } else {
         // D12 and others (1-based index)
         return bestFaceIndex + 1;

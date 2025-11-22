@@ -31,8 +31,7 @@
     let finalResult: number | null = null;
     let rolledNumSides = numSides;
     let rolling = false;
-    let showResultCalculator = true;
-    let checkName = ""; // Editable check name
+    let checkName = ""; // Editable name for the check, e.g. "Strength Check"
 
     // Apply preset when provided
     $: if (preset) {
