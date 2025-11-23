@@ -2,32 +2,25 @@
     import ThemeToggle from "../theme/ThemeToggle.svelte";
     import DataManager from "./DataManager.svelte";
     import TileMapManager from "./TileMapManager.svelte";
-    import "../solo-rpg-styles.css";
+
     import SrpgListPage from "../shared/layout/SrpgListPage.svelte";
 </script>
 
-
-
-
 <SrpgListPage className="settings" showActiveCampaign={false}>
     <div slot="header">
-        <h2>Settings</h2>
+        <h2 class="mb-4 text-center text-2xl">Settings</h2>
     </div>
-     
-    <div class="settings-section">
+
+    <div class="pt-6">
         <ThemeToggle />
     </div>
-    <div class="settings-section">
+    <div class="pt-6">
         <DataManager />
     </div>
-    <div class="settings-section">
+    <div class="pt-6">
         <TileMapManager />
-    </div>  
+    </div>
 </SrpgListPage>
 
-
-<style>   
-    .settings-section { 
-        padding-top: 1.5rem;  
-    }  
+<style>
 </style>

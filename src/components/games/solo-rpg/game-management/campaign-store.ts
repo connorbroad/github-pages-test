@@ -2,9 +2,9 @@
  * Svelte store for managing the active campaign
  * This allows all components to access and react to the currently loaded campaign
  */
-import { writable } from 'svelte/store';
-import type { Campaign } from '../data/storage-utils';
-import { loadActiveCampaignId, saveActiveCampaignId, loadCampaigns } from '../data/storage-utils';
+import { writable } from "svelte/store";
+import type { Campaign } from "../data/storage-utils";
+import { loadActiveCampaignId, saveActiveCampaignId, loadCampaigns } from "../data/storage-utils";
 
 function createActiveCampaignStore() {
     const { subscribe, set, update } = writable<Campaign | null>(null);
@@ -23,7 +23,7 @@ function createActiveCampaignStore() {
             const activeCampaignId = loadActiveCampaignId();
             if (activeCampaignId) {
                 const campaigns = loadCampaigns();
-                const campaign = campaigns.find(c => c.id === activeCampaignId);
+                const campaign = campaigns.find((c) => c.id === activeCampaignId);
                 if (campaign) {
                     set(campaign);
                 } else {
@@ -31,7 +31,7 @@ function createActiveCampaignStore() {
                     saveActiveCampaignId(null);
                 }
             }
-        }
+        },
     };
 }
 

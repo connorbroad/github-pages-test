@@ -121,29 +121,21 @@
 
         // Left Wall
         const leftWall = new CANNON.Body({ mass: 0, material: wallMaterial });
-        leftWall.addShape(
-            new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 10)),
-        );
+        leftWall.addShape(new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 10)));
         leftWall.position.set(-wallOffset - wallThickness, 0, 0);
         world.addBody(leftWall);
         wallBodies.push(leftWall);
 
         // Right Wall
         const rightWall = new CANNON.Body({ mass: 0, material: wallMaterial });
-        rightWall.addShape(
-            new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 10)),
-        );
+        rightWall.addShape(new CANNON.Box(new CANNON.Vec3(wallThickness, wallHeight, 10)));
         rightWall.position.set(wallOffset + wallThickness, 0, 0);
         world.addBody(rightWall);
         wallBodies.push(rightWall);
 
         // Top Wall (Back)
         const topWall = new CANNON.Body({ mass: 0, material: wallMaterial });
-        topWall.addShape(
-            new CANNON.Box(
-                new CANNON.Vec3(visibleWidth, wallHeight, wallThickness),
-            ),
-        );
+        topWall.addShape(new CANNON.Box(new CANNON.Vec3(visibleWidth, wallHeight, wallThickness)));
         topWall.position.set(0, 0, -5 - wallThickness); // Fixed depth for now
         world.addBody(topWall);
         wallBodies.push(topWall);
@@ -151,9 +143,7 @@
         // Bottom Wall (Front)
         const bottomWall = new CANNON.Body({ mass: 0, material: wallMaterial });
         bottomWall.addShape(
-            new CANNON.Box(
-                new CANNON.Vec3(visibleWidth, wallHeight, wallThickness),
-            ),
+            new CANNON.Box(new CANNON.Vec3(visibleWidth, wallHeight, wallThickness))
         );
         bottomWall.position.set(0, 0, 5 + wallThickness);
         world.addBody(bottomWall);
@@ -162,16 +152,16 @@
         // Arrange dice in a spiral (Phyllotaxis)
         // This packs them efficiently around the center
         const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-        
+
         for (let i = 0; i < numDice; i++) {
             const size = 1.5;
-            
+
             // Calculate position
             // Radius grows with sqrt of index to maintain constant density
             // Scale factor determines spacing
             const dist = numDice > 1 ? Math.sqrt(i) * 2.5 : 0;
             const angle = i * goldenAngle;
-            
+
             const x = Math.cos(angle) * dist;
             const z = Math.sin(angle) * dist;
             const y = size / 2; // On the floor
@@ -183,7 +173,7 @@
                 size,
             });
             dieMesh.position.set(x, y, z);
-            
+
             // Set initial rotation to show max number up
             const uprightQuat = getUprightQuaternion(type);
             dieMesh.quaternion.copy(uprightQuat);
@@ -192,13 +182,9 @@
             diceMeshes.push(dieMesh);
 
             // Body
-            const dieBody = createDieBody(
-                type,
-                size,
-                new THREE.Vector3(x, y, z),
-            );
-            dieBody.quaternion.copy(uprightQuat as any); 
-            
+            const dieBody = createDieBody(type, size, new THREE.Vector3(x, y, z));
+            dieBody.quaternion.copy(uprightQuat as any);
+
             world.addBody(dieBody);
             diceBodies.push(dieBody);
         }
@@ -224,16 +210,16 @@
                 new CANNON.Vec3(
                     (Math.random() - 0.5) * force,
                     -force,
-                    (Math.random() - 0.5) * force,
+                    (Math.random() - 0.5) * force
                 ),
-                new CANNON.Vec3(0, 0, 0),
+                new CANNON.Vec3(0, 0, 0)
             );
 
             // Apply random rotation
             body.angularVelocity.set(
                 (Math.random() - 0.5) * 50,
                 (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 50
             );
         });
 
@@ -247,8 +233,7 @@
         // Check if all bodies are sleeping or slow
         const allStopped = diceBodies.every((body) => {
             return (
-                body.velocity.lengthSquared() < 0.01 &&
-                body.angularVelocity.lengthSquared() < 0.01
+                body.velocity.lengthSquared() < 0.01 && body.angularVelocity.lengthSquared() < 0.01
             );
         });
 
@@ -258,9 +243,7 @@
                 if (isSimulating) {
                     // Double check
                     isSimulating = false;
-                    const results = diceMeshes.map((mesh) =>
-                        getDieResult(mesh),
-                    );
+                    const results = diceMeshes.map((mesh) => getDieResult(mesh));
                     dispatch("rollComplete", results);
                 }
             }, 500);
@@ -324,19 +307,10 @@
     });
 </script>
 
-<div class="dice-scene-container" bind:this={container}></div>
+<div
+    class="h-[200px] w-full overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
+    bind:this={container}>
+</div>
 
 <style>
-    .dice-scene-container {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        border-radius: 12px;
-        background: radial-gradient(
-            circle at center,
-            var(--bg-secondary) 0%,
-            var(--bg-primary) 100%
-        );
-        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-    }
 </style>

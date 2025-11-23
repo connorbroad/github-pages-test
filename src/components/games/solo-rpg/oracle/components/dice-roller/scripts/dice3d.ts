@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
+import * as THREE from "three";
+import * as CANNON from "cannon-es";
 
 export type DieType = 4 | 6 | 8 | 10 | 12 | 20 | 100;
 
@@ -28,7 +28,7 @@ const DEFAULT_CONFIG: DieConfig = {
     d12FontSize: 200,
     d20FontSize: 80,
     d100FontSize: 80,
-    fontSize: 100
+    fontSize: 100,
 };
 
 // Geometry cache
@@ -37,17 +37,22 @@ const materials: Record<string, THREE.Material[]> = {};
 const shapes: Record<string, CANNON.Shape> = {};
 
 // Helper to create text texture
-function createTextTexture(text: string, color: string, bgColor: string, fontSize: DieType): THREE.Texture {
-    const canvas = document.createElement('canvas');
+function createTextTexture(
+    text: string,
+    color: string,
+    bgColor: string,
+    fontSize: DieType
+): THREE.Texture {
+    const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 256;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return new THREE.CanvasTexture(canvas);
 
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, 256, 256);
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
     ctx.lineWidth = 10;
     ctx.strokeRect(0, 0, 256, 256);
 
@@ -58,16 +63,16 @@ function createTextTexture(text: string, color: string, bgColor: string, fontSiz
     ctx.shadowOffsetY = 0;
 
     ctx.font = `bold ${getFontSizeForDiceType(fontSize, DEFAULT_CONFIG)}px Merriweather, Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = color;
 
     // Move text down further to visually center it better
     // Previous was 148. User says 160 is too low. Reverting to 148.
     ctx.fillText(text, 128, 148);
 
-    if (['6', '9'].includes(text)) {
-        ctx.fillText('.', 128, 148 + fontSize * 0.5);
+    if (["6", "9"].includes(text)) {
+        ctx.fillText(".", 128, 148 + fontSize * 0.5);
     }
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -75,17 +80,24 @@ function createTextTexture(text: string, color: string, bgColor: string, fontSiz
 }
 
 // Helper for D4 texture (3 numbers)
-function createD4Texture(top: string, left: string, right: string, color: string, bgColor: string, baseFontSize: number): THREE.Texture {
-    const canvas = document.createElement('canvas');
+function createD4Texture(
+    top: string,
+    left: string,
+    right: string,
+    color: string,
+    bgColor: string,
+    baseFontSize: number
+): THREE.Texture {
+    const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 256;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return new THREE.CanvasTexture(canvas);
 
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, 256, 256);
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
     ctx.lineWidth = 10;
     ctx.strokeRect(0, 0, 256, 256);
 
@@ -95,8 +107,8 @@ function createD4Texture(top: string, left: string, right: string, color: string
 
     const fontSize = baseFontSize * 0.6; // Scale down for D4
     ctx.font = `bold ${fontSize}px Merriweather, Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = color;
 
     // Calculated positions along medians (50% from vertex to centroid)
@@ -115,14 +127,14 @@ function createD4Texture(top: string, left: string, right: string, color: string
     // Let's keep rotation, just update position.
     ctx.save();
     ctx.translate(76, 196);
-    ctx.rotate(240 * Math.PI / 180);
+    ctx.rotate((240 * Math.PI) / 180);
     ctx.fillText(left, 0, 0);
     ctx.restore();
 
     // Right Number (Rotated 210 deg? No, 120 deg)
     ctx.save();
     ctx.translate(179, 196);
-    ctx.rotate(120 * Math.PI / 180);
+    ctx.rotate((120 * Math.PI) / 180);
     ctx.fillText(right, 0, 0);
     ctx.restore();
 
@@ -132,13 +144,20 @@ function createD4Texture(top: string, left: string, right: string, color: string
 
 function getFontSizeForDiceType(type: DieType, config: DieConfig): number {
     switch (type) {
-        case 4: return config.d4FontSize;
-        case 6: return config.d6FontSize;
-        case 8: return config.d8FontSize;
-        case 10: return config.d10FontSize;
-        case 12: return config.d12FontSize;
-        case 20: return config.d20FontSize;
-        case 100: return config.d100FontSize;
+        case 4:
+            return config.d4FontSize;
+        case 6:
+            return config.d6FontSize;
+        case 8:
+            return config.d8FontSize;
+        case 10:
+            return config.d10FontSize;
+        case 12:
+            return config.d12FontSize;
+        case 20:
+            return config.d20FontSize;
+        case 100:
+            return config.d100FontSize;
     }
 }
 
@@ -147,43 +166,54 @@ function getMaterials(type: DieType, config: DieConfig): THREE.Material[] {
     if (materials[key]) return materials[key];
 
     const mats: THREE.Material[] = [];
-    const colorHex = '#' + config.color.toString(16).padStart(6, '0');
-    const labelColorHex = '#' + config.labelColor.toString(16).padStart(6, '0');
+    const colorHex = "#" + config.color.toString(16).padStart(6, "0");
+    const labelColorHex = "#" + config.labelColor.toString(16).padStart(6, "0");
 
     if (type === 4) {
         const faces = [
-            ['1', '2', '3'],
-            ['1', '4', '2'],
-            ['1', '3', '4'],
-            ['2', '4', '3']
+            ["1", "2", "3"],
+            ["1", "4", "2"],
+            ["1", "3", "4"],
+            ["2", "4", "3"],
         ];
 
-        faces.forEach(nums => {
-            mats.push(new THREE.MeshPhongMaterial({
-                map: createD4Texture(nums[0], nums[1], nums[2], labelColorHex, colorHex, config.d4FontSize),
-                color: 0xffffff,
-                shininess: 100,
-                flatShading: true
-            }));
+        faces.forEach((nums) => {
+            mats.push(
+                new THREE.MeshPhongMaterial({
+                    map: createD4Texture(
+                        nums[0],
+                        nums[1],
+                        nums[2],
+                        labelColorHex,
+                        colorHex,
+                        config.d4FontSize
+                    ),
+                    color: 0xffffff,
+                    shininess: 100,
+                    flatShading: true,
+                })
+            );
         });
-
     } else {
         let labels: string[] = [];
 
-        if (type === 6) labels = ['1', '2', '3', '4', '5', '6'];
-        else if (type === 8) labels = ['1', '2', '3', '4', '5', '6', '7', '8'];
-        else if (type === 10) labels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+        if (type === 6) labels = ["1", "2", "3", "4", "5", "6"];
+        else if (type === 8) labels = ["1", "2", "3", "4", "5", "6", "7", "8"];
+        else if (type === 10) labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
         else if (type === 12) labels = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
         else if (type === 20) labels = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
-        else if (type === 100) labels = ['00', '10', '20', '30', '40', '50', '60', '70', '80', '90'];
+        else if (type === 100)
+            labels = ["00", "10", "20", "30", "40", "50", "60", "70", "80", "90"];
 
-        labels.forEach(label => {
-            mats.push(new THREE.MeshPhongMaterial({
-                map: createTextTexture(label, labelColorHex, colorHex, type),
-                color: 0xffffff,
-                shininess: 100,
-                flatShading: true
-            }));
+        labels.forEach((label) => {
+            mats.push(
+                new THREE.MeshPhongMaterial({
+                    map: createTextTexture(label, labelColorHex, colorHex, type),
+                    color: 0xffffff,
+                    shininess: 100,
+                    flatShading: true,
+                })
+            );
         });
     }
 
@@ -192,7 +222,7 @@ function getMaterials(type: DieType, config: DieConfig): THREE.Material[] {
 }
 
 function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
-    const pos = geometry.getAttribute('position');
+    const pos = geometry.getAttribute("position");
     const count = pos.count;
 
     geometry.clearGroups();
@@ -202,16 +232,22 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
     // UVs for Polyhedrons
     // Top(0.5, 0.9), BL(0.15, 0.25), BR(0.85, 0.25)
     const uvsPoly = [
-        0.5, 0.9, // Top
-        0.15, 0.25, // Bottom Left
-        0.85, 0.25  // Bottom Right
+        0.5,
+        0.9, // Top
+        0.15,
+        0.25, // Bottom Left
+        0.85,
+        0.25, // Bottom Right
     ];
 
     // D4 UVs
     const uvsD4 = [
-        0.5, 0.9,  // Top Vertex
-        0.1, 0.1,  // Left Vertex
-        0.9, 0.1   // Right Vertex
+        0.5,
+        0.9, // Top Vertex
+        0.1,
+        0.1, // Left Vertex
+        0.9,
+        0.1, // Right Vertex
     ];
 
     if (type === 6) {
@@ -229,7 +265,7 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
             }
             geometry.addGroup(i * 3, 3, i);
         }
-        geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
+        geometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
         return;
     } else if (type === 12) {
         // Dodecahedron: 12 faces, 3 triangles each (9 vertices per face).
@@ -245,7 +281,10 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
             const v1 = new THREE.Vector3().fromBufferAttribute(pos, start);
             const v2 = new THREE.Vector3().fromBufferAttribute(pos, start + 1);
             const v3 = new THREE.Vector3().fromBufferAttribute(pos, start + 2);
-            const normal = new THREE.Vector3().subVectors(v2, v1).cross(new THREE.Vector3().subVectors(v3, v1)).normalize();
+            const normal = new THREE.Vector3()
+                .subVectors(v2, v1)
+                .cross(new THREE.Vector3().subVectors(v3, v1))
+                .normalize();
 
             // Calculate Up and Right vectors for projection
             let up = new THREE.Vector3(0, 1, 0);
@@ -268,7 +307,7 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
 
             geometry.addGroup(start, vertsPerFace, i);
         }
-        geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
+        geometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
         return;
     }
 
@@ -289,7 +328,7 @@ function applyUVsAndGroups(geometry: THREE.BufferGeometry, type: DieType) {
         geometry.addGroup(i * 3, 3, matIndex);
     }
 
-    geometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
+    geometry.setAttribute("uv", new THREE.BufferAttribute(uvArray, 2));
 }
 
 function createD10Geometry(size: number): THREE.BufferGeometry {
@@ -299,7 +338,7 @@ function createD10Geometry(size: number): THREE.BufferGeometry {
 
     const vertices: number[] = [];
     const uvs: number[] = [];
-    const groups: { start: number, count: number, mat: number }[] = [];
+    const groups: { start: number; count: number; mat: number }[] = [];
 
     // Top and Bottom vertices
     const top = new THREE.Vector3(0, height, 0);
@@ -308,19 +347,26 @@ function createD10Geometry(size: number): THREE.BufferGeometry {
     // Ring 1 (Upper) - 5 vertices
     const ring1: THREE.Vector3[] = [];
     for (let i = 0; i < 5; i++) {
-        const angle = (i * 72) * Math.PI / 180;
+        const angle = (i * 72 * Math.PI) / 180;
         ring1.push(new THREE.Vector3(Math.cos(angle) * radius, k, Math.sin(angle) * radius));
     }
 
     // Ring 2 (Lower) - 5 vertices, rotated by 36 deg
     const ring2: THREE.Vector3[] = [];
     for (let i = 0; i < 5; i++) {
-        const angle = (i * 72 + 36) * Math.PI / 180;
+        const angle = ((i * 72 + 36) * Math.PI) / 180;
         ring2.push(new THREE.Vector3(Math.cos(angle) * radius, -k, Math.sin(angle) * radius));
     }
 
     // Helper to add triangle
-    const addTriangle = (v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, uv1: number[], uv2: number[], uv3: number[]) => {
+    const addTriangle = (
+        v1: THREE.Vector3,
+        v2: THREE.Vector3,
+        v3: THREE.Vector3,
+        uv1: number[],
+        uv2: number[],
+        uv3: number[]
+    ) => {
         vertices.push(v1.x, v1.y, v1.z);
         vertices.push(v2.x, v2.y, v2.z);
         vertices.push(v3.x, v3.y, v3.z);
@@ -364,9 +410,9 @@ function createD10Geometry(size: number): THREE.BufferGeometry {
     }
 
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    groups.forEach(g => geo.addGroup(g.start, g.count, g.mat));
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    groups.forEach((g) => geo.addGroup(g.start, g.count, g.mat));
     geo.computeVertexNormals();
 
     return geo;
@@ -385,30 +431,48 @@ function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
     }
 
     switch (type) {
-        case 4: geometry = new THREE.TetrahedronGeometry(size * 1.3); break;
-        case 6: geometry = new THREE.BoxGeometry(size, size, size); break;
-        case 8: geometry = new THREE.OctahedronGeometry(size); break;
-        case 12: geometry = new THREE.DodecahedronGeometry(size); break;
-        case 20: geometry = new THREE.IcosahedronGeometry(size); break;
-        default: geometry = new THREE.BoxGeometry(size, size, size);
+        case 4:
+            geometry = new THREE.TetrahedronGeometry(size * 1.3);
+            break;
+        case 6:
+            geometry = new THREE.BoxGeometry(size, size, size);
+            break;
+        case 8:
+            geometry = new THREE.OctahedronGeometry(size);
+            break;
+        case 12:
+            geometry = new THREE.DodecahedronGeometry(size);
+            break;
+        case 20:
+            geometry = new THREE.IcosahedronGeometry(size);
+            break;
+        default:
+            geometry = new THREE.BoxGeometry(size, size, size);
     }
 
     geometry = geometry.toNonIndexed();
 
     if (type === 4) {
         // ... (D4 logic unchanged)
-        const pos = geometry.getAttribute('position');
-        const uniqueVerts: { x: number, y: number, z: number, id: number }[] = [];
+        const pos = geometry.getAttribute("position");
+        const uniqueVerts: { x: number; y: number; z: number; id: number }[] = [];
 
         for (let i = 0; i < pos.count; i++) {
             const v = { x: pos.getX(i), y: pos.getY(i), z: pos.getZ(i) };
-            if (!uniqueVerts.some(uv => Math.abs(uv.x - v.x) < 0.01 && Math.abs(uv.y - v.y) < 0.01 && Math.abs(uv.z - v.z) < 0.01)) {
+            if (
+                !uniqueVerts.some(
+                    (uv) =>
+                        Math.abs(uv.x - v.x) < 0.01 &&
+                        Math.abs(uv.y - v.y) < 0.01 &&
+                        Math.abs(uv.z - v.z) < 0.01
+                )
+            ) {
                 uniqueVerts.push({ ...v, id: 0 });
             }
         }
 
         uniqueVerts.sort((a, b) => b.y - a.y);
-        uniqueVerts.forEach((v, i) => v.id = (i + 1));
+        uniqueVerts.forEach((v, i) => (v.id = i + 1));
 
         const newPos = [];
         const newUVs = [];
@@ -418,12 +482,12 @@ function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
             { verts: [1, 2, 3], mat: 0 },
             { verts: [1, 4, 2], mat: 1 },
             { verts: [1, 3, 4], mat: 2 },
-            { verts: [2, 4, 3], mat: 3 }
+            { verts: [2, 4, 3], mat: 3 },
         ];
 
-        const getV = (id: number) => uniqueVerts.find(v => v.id == id);
+        const getV = (id: number) => uniqueVerts.find((v) => v.id == id);
 
-        targetFaces.forEach(tf => {
+        targetFaces.forEach((tf) => {
             const vA = getV(tf.verts[0]);
             const vB = getV(tf.verts[1]);
             const vC = getV(tf.verts[2]);
@@ -442,9 +506,9 @@ function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
         });
 
         const newGeo = new THREE.BufferGeometry();
-        newGeo.setAttribute('position', new THREE.Float32BufferAttribute(newPos, 3));
-        newGeo.setAttribute('uv', new THREE.Float32BufferAttribute(newUVs, 2));
-        newGroups.forEach(g => newGeo.addGroup(g.start, g.count, g.mat));
+        newGeo.setAttribute("position", new THREE.Float32BufferAttribute(newPos, 3));
+        newGeo.setAttribute("uv", new THREE.Float32BufferAttribute(newUVs, 2));
+        newGroups.forEach((g) => newGeo.addGroup(g.start, g.count, g.mat));
         newGeo.computeVertexNormals();
 
         geometries[key] = newGeo;
@@ -469,7 +533,7 @@ function getPhysicsShape(type: DieType, size: number): CANNON.Shape {
         shape = new CANNON.Box(halfExtents);
     } else {
         const geometry = getGeometry(type, size);
-        const posAttr = geometry.getAttribute('position');
+        const posAttr = geometry.getAttribute("position");
         const vertices: CANNON.Vec3[] = [];
         const faces: number[][] = [];
 
@@ -488,7 +552,7 @@ function getPhysicsShape(type: DieType, size: number): CANNON.Shape {
             if (!found) uniqueVertices.push(v);
         }
 
-        uniqueVertices.forEach(v => vertices.push(new CANNON.Vec3(v.x, v.y, v.z)));
+        uniqueVertices.forEach((v) => vertices.push(new CANNON.Vec3(v.x, v.y, v.z)));
 
         for (let i = 0; i < posAttr.count; i += 3) {
             const face: number[] = [];
@@ -532,7 +596,7 @@ export function createDieBody(type: DieType, size: number, position: THREE.Vecto
         mass: 1,
         shape,
         position: new CANNON.Vec3(position.x, position.y, position.z),
-        material: new CANNON.Material({ friction: 0.1, restitution: 0.5 })
+        material: new CANNON.Material({ friction: 0.1, restitution: 0.5 }),
     });
 
     body.quaternion.setFromEuler(
@@ -547,7 +611,7 @@ export function createDieBody(type: DieType, size: number, position: THREE.Vecto
 export function getDieResult(mesh: THREE.Mesh): number {
     const type = mesh.userData.type as DieType;
     const geometry = mesh.geometry;
-    const posAttribute = geometry.getAttribute('position');
+    const posAttribute = geometry.getAttribute("position");
     const count = posAttribute.count;
 
     const normalMatrix = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
@@ -565,7 +629,10 @@ export function getDieResult(mesh: THREE.Mesh): number {
             const v2 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 1);
             const v3 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 2);
 
-            const localNormal = new THREE.Vector3().subVectors(v2, v1).cross(new THREE.Vector3().subVectors(v3, v1)).normalize();
+            const localNormal = new THREE.Vector3()
+                .subVectors(v2, v1)
+                .cross(new THREE.Vector3().subVectors(v3, v1))
+                .normalize();
             const worldNormal = localNormal.clone().applyMatrix3(normalMatrix).normalize();
 
             const dot = worldNormal.dot(worldDown);
@@ -601,7 +668,10 @@ export function getDieResult(mesh: THREE.Mesh): number {
         const v2 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 1);
         const v3 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 2);
 
-        const localNormal = new THREE.Vector3().subVectors(v2, v1).cross(new THREE.Vector3().subVectors(v3, v1)).normalize();
+        const localNormal = new THREE.Vector3()
+            .subVectors(v2, v1)
+            .cross(new THREE.Vector3().subVectors(v3, v1))
+            .normalize();
         const worldNormal = localNormal.clone().applyMatrix3(normalMatrix).normalize();
 
         const dot = worldNormal.dot(worldUp);
@@ -635,7 +705,7 @@ export function getDieResult(mesh: THREE.Mesh): number {
 
 export function getUprightQuaternion(type: DieType): THREE.Quaternion {
     const geometry = getGeometry(type, 1);
-    const posAttribute = geometry.getAttribute('position');
+    const posAttribute = geometry.getAttribute("position");
     const count = posAttribute.count;
 
     let targetFaceIndex = 0;
@@ -682,7 +752,10 @@ export function getUprightQuaternion(type: DieType): THREE.Quaternion {
     const v2 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 1);
     const v3 = new THREE.Vector3().fromBufferAttribute(posAttribute, startVertex + 2);
 
-    const localNormal = new THREE.Vector3().subVectors(v2, v1).cross(new THREE.Vector3().subVectors(v3, v1)).normalize();
+    const localNormal = new THREE.Vector3()
+        .subVectors(v2, v1)
+        .cross(new THREE.Vector3().subVectors(v3, v1))
+        .normalize();
 
     const targetNormal = new THREE.Vector3(0, 1, 0);
     if (isD4) {

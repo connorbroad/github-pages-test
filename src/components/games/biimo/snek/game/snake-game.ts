@@ -2,7 +2,7 @@
 import { Board } from "../board/board";
 import { PreyController } from "../prey/prey-controller";
 import { Snake } from "../player/player";
-import * as THREE from 'three';
+import * as THREE from "three";
 import { UiController } from "../ui/ui.ts";
 import { GameState } from "../utils/utils.ts";
 import { BiimoButton } from "../../_utils/game-utils.ts";
@@ -69,10 +69,7 @@ export class SnakeGame implements BiimoGame {
 
     // TODO: why are there two update mechanisms?
     private startUpdateLoop() {
-        this.gameIntervalId = window.setInterval(
-            () => this.doGameUpdate(),
-            this.updateFreqMs
-        );
+        this.gameIntervalId = window.setInterval(() => this.doGameUpdate(), this.updateFreqMs);
     }
 
     private doGameUpdate() {

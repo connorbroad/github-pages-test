@@ -1,4 +1,10 @@
-import {CorridorShape, DoorStatus, FloorSize, RoomShape, SegmentShape} from "../entities/dungeon-enums.ts";
+import {
+    CorridorShape,
+    DoorStatus,
+    FloorSize,
+    RoomShape,
+    SegmentShape,
+} from "../entities/dungeon-enums.ts";
 
 export const numFloorsChance = [1, 1, 1, 2, 2, 3];
 
@@ -15,7 +21,6 @@ export const floorSizeChance = [
 ];
 
 export const segmentSizeChance = [2, 4, 6, 6, 8, 10];
-
 
 // Basic = rectangle for rooms, straight line for corridors
 export const segmentBasicShapeChance = [

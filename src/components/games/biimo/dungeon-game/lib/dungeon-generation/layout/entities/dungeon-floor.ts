@@ -1,6 +1,6 @@
-import {FloorSize} from "./dungeon-enums.ts";
-import {DungeonCorridor, DungeonRoom, type DungeonSegment} from "./dungeon-segment.ts";
-import {DungeonDoor} from "./dungeon-door.ts";
+import { FloorSize } from "./dungeon-enums.ts";
+import { DungeonCorridor, DungeonRoom, type DungeonSegment } from "./dungeon-segment.ts";
+import { DungeonDoor } from "./dungeon-door.ts";
 
 export class DungeonFloor {
     size: FloorSize;

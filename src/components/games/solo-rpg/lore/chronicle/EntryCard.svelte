@@ -74,8 +74,7 @@
             placeholder={typeConfig.editPlaceholder}
             compact={typeConfig.compact}
             on:save={handleSave}
-            on:cancel={handleCancelEdit}
-        />
+            on:cancel={handleCancelEdit} />
     {/if}
 
     <!-- Actions (always shown) -->
@@ -88,8 +87,7 @@
         compact={typeConfig.compact}
         on:assignCharacter={handleAssignCharacter}
         on:edit={handleEdit}
-        on:delete={handleDelete}
-    />
+        on:delete={handleDelete} />
 </div>
 
 <style>
@@ -167,5 +165,5 @@
         font-size: 0.7rem;
         color: var(--srpg-text-tertiary);
         font-weight: 400;
-    } 
+    }
 </style>

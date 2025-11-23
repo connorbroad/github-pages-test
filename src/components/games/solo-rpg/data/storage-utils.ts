@@ -3,10 +3,10 @@
  * Handles saving and loading game data to/from localStorage
  */
 
-const STORAGE_KEY = 'solo-rpg-data';
-const ACTIVE_CAMPAIGN_KEY = 'solo-rpg-active-campaign';
-const ACTIVE_CHARACTER_KEY = 'solo-rpg-active-character';
-const ACTIVE_MAP_KEY = 'solo-rpg-active-map';
+const STORAGE_KEY = "solo-rpg-data";
+const ACTIVE_CAMPAIGN_KEY = "solo-rpg-active-campaign";
+const ACTIVE_CHARACTER_KEY = "solo-rpg-active-character";
+const ACTIVE_MAP_KEY = "solo-rpg-active-map";
 
 export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
@@ -209,7 +209,7 @@ export type MapObject = {
      * When omitted or 'shape', this represents a shape object (legacy behavior).
      * When 'tile', the `tile` field should be present and `type`/`color` may be ignored by renderers.
      */
-    kind?: 'shape' | 'tile';
+    kind?: "shape" | "tile";
     /** Shape type (used when kind !== 'tile') */
     type: "square" | "circle" | "triangle" | "star";
     x: number; // world px
@@ -267,7 +267,7 @@ export type TileMapTile = {
 export type TileMap = {
     id: string;
     name: string;
-    image: { kind: 'data-url' | 'url'; value: string };
+    image: { kind: "data-url" | "url"; value: string };
     tileSize: number; // px, assumed square
     columns: number;
     rows: number;
@@ -281,13 +281,13 @@ export type TileMap = {
  */
 export type Currency = { gp: number; sp: number; cp: number };
 
-export type ItemType = 'simple' | 'weapon' | 'armor';
+export type ItemType = "simple" | "weapon" | "armor";
 
 export type AttackSpec = {
     id: string;
     name?: string;
     dice: string; // e.g. "1d8+2"
-    kind: 'B' | 'P' | 'S';
+    kind: "B" | "P" | "S";
 };
 
 export type ItemBase = {
@@ -300,19 +300,19 @@ export type ItemBase = {
 };
 
 export type WeaponItem = ItemBase & {
-    type: 'weapon';
+    type: "weapon";
     range?: string; // e.g. "30/120 ft"
     toHit: string; // e.g. "1d20+0"
     attacks: AttackSpec[]; // one or more damage rolls
 };
 
 export type ArmorItem = ItemBase & {
-    type: 'armor';
+    type: "armor";
     armorClass: number; // DC override
 };
 
 export type SimpleItem = ItemBase & {
-    type: 'simple';
+    type: "simple";
 };
 
 export type CampaignItem = (WeaponItem | ArmorItem | SimpleItem) & {
@@ -325,7 +325,7 @@ export type CharacterInventoryItem = {
     itemId: string; // ref to CampaignItem.id
     quantity: number;
     equipped?: boolean;
-    equippedSlot?: 'weapon' | 'armor';
+    equippedSlot?: "weapon" | "armor";
 };
 
 /**
@@ -338,7 +338,7 @@ export function loadData(): SoloRPGData {
             return JSON.parse(stored);
         }
     } catch (error) {
-        console.error('Failed to load Solo RPG data:', error);
+        console.error("Failed to load Solo RPG data:", error);
     }
     return {};
 }
@@ -350,7 +350,7 @@ export function saveData(data: SoloRPGData): void {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-        console.error('Failed to save Solo RPG data:', error);
+        console.error("Failed to save Solo RPG data:", error);
     }
 }
 
@@ -461,7 +461,7 @@ export function loadActiveMapId(): string | null {
     try {
         return localStorage.getItem(ACTIVE_MAP_KEY);
     } catch (error) {
-        console.error('Failed to load active map:', error);
+        console.error("Failed to load active map:", error);
         return null;
     }
 }
@@ -474,7 +474,7 @@ export function saveActiveMapId(mapId: string | null): void {
             localStorage.removeItem(ACTIVE_MAP_KEY);
         }
     } catch (error) {
-        console.error('Failed to save active map:', error);
+        console.error("Failed to save active map:", error);
     }
 }
 
@@ -493,7 +493,7 @@ export function saveTileMaps(tileMaps: TileMap[]): void {
 }
 
 export function getTileMapById(id: string): TileMap | undefined {
-    return loadTileMaps().find(tm => tm.id === id);
+    return loadTileMaps().find((tm) => tm.id === id);
 }
 
 /**
@@ -528,7 +528,7 @@ export function clearData(): void {
         localStorage.removeItem(ACTIVE_CHARACTER_KEY);
         localStorage.removeItem(ACTIVE_MAP_KEY);
     } catch (error) {
-        console.error('Failed to clear Solo RPG data:', error);
+        console.error("Failed to clear Solo RPG data:", error);
     }
 }
 
@@ -539,7 +539,7 @@ export function loadActiveCampaignId(): string | null {
     try {
         return localStorage.getItem(ACTIVE_CAMPAIGN_KEY);
     } catch (error) {
-        console.error('Failed to load active campaign:', error);
+        console.error("Failed to load active campaign:", error);
         return null;
     }
 }
@@ -555,7 +555,7 @@ export function saveActiveCampaignId(campaignId: string | null): void {
             localStorage.removeItem(ACTIVE_CAMPAIGN_KEY);
         }
     } catch (error) {
-        console.error('Failed to save active campaign:', error);
+        console.error("Failed to save active campaign:", error);
     }
 }
 
@@ -566,7 +566,7 @@ export function loadActiveCharacterId(): string | null {
     try {
         return localStorage.getItem(ACTIVE_CHARACTER_KEY);
     } catch (error) {
-        console.error('Failed to load active character:', error);
+        console.error("Failed to load active character:", error);
         return null;
     }
 }
@@ -582,7 +582,7 @@ export function saveActiveCharacterId(characterId: string | null): void {
             localStorage.removeItem(ACTIVE_CHARACTER_KEY);
         }
     } catch (error) {
-        console.error('Failed to save active character:', error);
+        console.error("Failed to save active character:", error);
     }
 }
 
@@ -603,7 +603,7 @@ export function importData(jsonString: string): boolean {
         saveData(data);
         return true;
     } catch (error) {
-        console.error('Failed to import Solo RPG data:', error);
+        console.error("Failed to import Solo RPG data:", error);
         return false;
     }
 }
@@ -613,11 +613,11 @@ export function importData(jsonString: string): boolean {
  */
 export function downloadDataFile(): void {
     const data = exportData();
-    const blob = new Blob([data], { type: 'application/json' });
+    const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `solo-rpg-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `solo-rpg-data-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

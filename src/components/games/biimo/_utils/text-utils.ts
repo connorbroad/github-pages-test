@@ -27,12 +27,16 @@ export class TextUtils {
                 size: 1, // control size via textWidth instead
                 depth: 0.0,
                 curveSegments: 12,
-                bevelEnabled: false
+                bevelEnabled: false,
             });
 
             const maxXWidth = textWidth;
             geometry.computeBoundingBox();
-            geometry.scale(maxXWidth / geometry.boundingBox.max.x, maxXWidth / geometry.boundingBox.max.x, maxXWidth / geometry.boundingBox.max.x);
+            geometry.scale(
+                maxXWidth / geometry.boundingBox.max.x,
+                maxXWidth / geometry.boundingBox.max.x,
+                maxXWidth / geometry.boundingBox.max.x
+            );
             const centerOffsetX = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
             const centerOffsetY = 0.05 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
 

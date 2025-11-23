@@ -11,20 +11,9 @@
     export let rolling: boolean = false;
 </script>
 
-<div class="dice-results">
-    <DiceScene 
-        {numDice} 
-        numSides={rolling ? rolledNumSides : numSides} 
-        {rolling}
-        on:rollComplete
-    />
+<div class="mt-2 flex w-full justify-center">
+    <DiceScene {numDice} numSides={rolling ? rolledNumSides : numSides} {rolling} on:rollComplete />
 </div>
 
 <style>
-    .dice-results {
-        margin-top: 0.5rem;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
 </style>

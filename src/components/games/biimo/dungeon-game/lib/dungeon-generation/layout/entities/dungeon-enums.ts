@@ -2,7 +2,7 @@ export enum DoorLocation {
     North,
     South,
     East,
-    West
+    West,
 }
 
 export enum DoorStatus {
@@ -20,7 +20,7 @@ export enum FloorSize {
 
 export enum SegmentShape {
     Basic,
-    Other
+    Other,
 }
 
 export enum RoomShape {

@@ -7,8 +7,10 @@ import { GameLayer, GameLayerPos, ZDepthHelper } from "../../_utils/game-utils.t
 export class PreyController {
     private preyOnTheBoard: Prey[] = [];
 
-    constructor(private gameControl: SnakeGame, private scene: THREE.Scene) {
-    }
+    constructor(
+        private gameControl: SnakeGame,
+        private scene: THREE.Scene
+    ) {}
 
     public update() {
         this.removeEatenPrey();
@@ -26,9 +28,7 @@ export class PreyController {
                 despawnedPrey.push(prey);
             }
         }
-        this.preyOnTheBoard = this.preyOnTheBoard.filter(
-            (c) => despawnedPrey.indexOf(c) < 0,
-        );
+        this.preyOnTheBoard = this.preyOnTheBoard.filter((c) => despawnedPrey.indexOf(c) < 0);
     }
 
     public spawnNewPrey(): Prey {
@@ -72,7 +72,11 @@ export class Prey {
         return this.mesh !== null;
     }
 
-    constructor(cell: Vector2, private board: Board, scene: THREE.Scene) {
+    constructor(
+        cell: Vector2,
+        private board: Board,
+        scene: THREE.Scene
+    ) {
         this.cell = cell;
         this.timeCreated = Date.now();
         this.createAndAddMesh(scene);
@@ -108,7 +112,9 @@ export class Prey {
 
         // create mesh
         const geometry = new THREE.PlaneGeometry(headWidth, headWidth, 4);
-        const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(this.color.x, this.color.y, this.color.z) });
+        const material = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(this.color.x, this.color.y, this.color.z),
+        });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = 2;
 

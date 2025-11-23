@@ -1,24 +1,24 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 /**
  * Theme type - either 'light' or 'dark'
  */
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 /**
  * Local storage key for theme preference
  */
-const THEME_STORAGE_KEY = 'solo-rpg-theme';
+const THEME_STORAGE_KEY = "solo-rpg-theme";
 
 /**
  * Default theme value
  */
-const DEFAULT_THEME: Theme = 'dark';
+const DEFAULT_THEME: Theme = "dark";
 
 /**
  * Check if we're in a browser environment
  */
-const isBrowser = typeof window !== 'undefined';
+const isBrowser = typeof window !== "undefined";
 
 /**
  * Creates the theme store with localStorage persistence
@@ -38,7 +38,7 @@ function createThemeStore() {
          * @param newTheme - The theme to set ('light' or 'dark')
          */
         setTheme: (newTheme: Theme) => {
-            if (newTheme !== 'light' && newTheme !== 'dark') {
+            if (newTheme !== "light" && newTheme !== "dark") {
                 console.warn(`Invalid theme value: ${newTheme}. Using default.`);
                 newTheme = DEFAULT_THEME;
             }
@@ -48,19 +48,19 @@ function createThemeStore() {
             if (isBrowser) {
                 localStorage.setItem(THEME_STORAGE_KEY, newTheme);
                 // Apply theme to document root for CSS variables
-                document.documentElement.setAttribute('data-theme', newTheme);
+                document.documentElement.setAttribute("data-theme", newTheme);
             }
         },
         /**
          * Toggle between light and dark themes
          */
         toggleTheme: () => {
-            update(currentTheme => {
-                const newTheme: Theme = currentTheme === 'light' ? 'dark' : 'light';
+            update((currentTheme) => {
+                const newTheme: Theme = currentTheme === "light" ? "dark" : "light";
 
                 if (isBrowser) {
                     localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-                    document.documentElement.setAttribute('data-theme', newTheme);
+                    document.documentElement.setAttribute("data-theme", newTheme);
                 }
 
                 return newTheme;
@@ -73,14 +73,13 @@ function createThemeStore() {
         initialize: () => {
             if (isBrowser) {
                 const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
-                const themeToUse = (savedTheme === 'light' || savedTheme === 'dark')
-                    ? savedTheme
-                    : DEFAULT_THEME;
+                const themeToUse =
+                    savedTheme === "light" || savedTheme === "dark" ? savedTheme : DEFAULT_THEME;
 
-                document.documentElement.setAttribute('data-theme', themeToUse);
+                document.documentElement.setAttribute("data-theme", themeToUse);
                 set(themeToUse);
             }
-        }
+        },
     };
 }
 

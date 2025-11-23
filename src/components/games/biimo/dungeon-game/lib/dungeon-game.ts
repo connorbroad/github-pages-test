@@ -55,15 +55,11 @@ export class DungeonGame implements BiimoGame {
         return title;
     }
 
-    update(timeDeltaS: number): void {
-
-    }
+    update(timeDeltaS: number): void {}
 
     private setUpKeyboardListener() {
         window.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 
-    private onKeyDown(e: KeyboardEvent) {
-
-    }
+    private onKeyDown(e: KeyboardEvent) {}
 }

@@ -15,7 +15,15 @@
     import HomeView from "./home/HomeView.svelte";
     import Codex from "./lore/codex/Codex.svelte";
 
-    type View = "home" | "tools" | "oracle" | "settings" | "map" | "story" | "chronicle" | "characters";
+    type View =
+        | "home"
+        | "tools"
+        | "oracle"
+        | "settings"
+        | "map"
+        | "story"
+        | "chronicle"
+        | "characters";
     let currentView: View = "home";
 
     // Tertiary sidebar state (for character sheet controls)
@@ -25,7 +33,7 @@
     let tertiaryIsEditingSections: boolean = false;
     let currentCharacter: any = null;
     let selectedCharacterId: string | null = null;
- 
+
     let chronicleComponent: any;
     let characterManagerComponent: any;
     let mapViewComponent: any;
@@ -67,12 +75,7 @@
     }
 
     function handleCharacterSelected(event: CustomEvent) {
-        const {
-            character, 
-            isEditingSections,
-            selectedSections,
-            visibleSections,
-        } = event.detail;
+        const { character, isEditingSections, selectedSections, visibleSections } = event.detail;
         currentCharacter = character;
         selectedCharacterId = character?.id ?? null;
         tertiaryVisibleSections = visibleSections;
@@ -88,7 +91,8 @@
     }
 
     function handleRollCheck(event: CustomEvent) {
-        const { characterId, characterName, checkName, diceFormula, modifier, resultOption } = event.detail;
+        const { characterId, characterName, checkName, diceFormula, modifier, resultOption } =
+            event.detail;
         const match = diceFormula.match(/^(\d+)d(\d+)$/i);
         if (!match) {
             console.error("Invalid dice formula:", diceFormula);
@@ -99,7 +103,15 @@
         let rollType: "normal" | "advantage" | "disadvantage" = "normal";
         if (resultOption === "Maximum") rollType = "advantage";
         else if (resultOption === "Minimum") rollType = "disadvantage";
-        diceRollPreset = { characterId, characterName, checkName, numDice, numSides, modifier, rollType };
+        diceRollPreset = {
+            characterId,
+            characterName,
+            checkName,
+            numDice,
+            numSides,
+            modifier,
+            rollType,
+        };
     }
 
     function handleTertiaryToggleSection(section: string) {
@@ -134,100 +146,68 @@
     visibleSections={tertiaryVisibleSections}
     selectedSections={tertiarySelectedSections}
     isEditingSections={tertiaryIsEditingSections}
-    onToggleSection={handleTertiaryToggleSection}
-/>
+    onToggleSection={handleTertiaryToggleSection} />
 
 <main
-    class="content"
-    class:has-secondary={currentView === "map"}
-    class:has-tertiary-only={currentView === "characters" && showTertiarySidebar}
+    class="bg-bg-primary text-text-primary box-border py-0 transition-all duration-300
+           md:ml-[80px]
+           {currentView === 'map' ? 'md:ml-[170px]' : ''}
+           {currentView === 'characters' && showTertiarySidebar ? 'md:ml-[160px]' : ''}"
     data-theme={$theme}
-    style="--secondary-sidebar-visible: 0; --tertiary-sidebar-visible: {showTertiarySidebar ? 1 : 0};"
->
-    {#if currentView === "home"} 
-        <HomeView on:loadCampaign={handleHomeLoadCampaign} /> 
+    style="--secondary-sidebar-visible: 0; --tertiary-sidebar-visible: {showTertiarySidebar
+        ? 1
+        : 0};">
+    {#if currentView === "home"}
+        <HomeView on:loadCampaign={handleHomeLoadCampaign} />
     {:else if currentView === "chronicle"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign}  
-            <Chronicle bind:this={chronicleComponent} /> 
+        {#if $activeCampaign}
+            <Chronicle bind:this={chronicleComponent} />
         {:else}
-            <h1>No Active Campaign</h1>
-            <em>Select or create a campaign to start recording your adventure.</em>
+            <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
+            <em class="block text-center">
+                Select or create a campaign to start recording your adventure.
+            </em>
         {/if}
     {:else if currentView === "characters"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        {#if $activeCampaign} 
+        {#if $activeCampaign}
             <CharacterManager
                 bind:this={characterManagerComponent}
                 on:characterSelected={handleCharacterSelected}
                 on:characterDeselected={handleCharacterDeselected}
-                on:rollCheck={handleRollCheck}
-            /> 
+                on:rollCheck={handleRollCheck} />
         {:else}
-            <h1>No Active Campaign</h1>
-            <em>Select or create a campaign to start managing characters.</em>
+            <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
+            <em class="block text-center">
+                Select or create a campaign to start managing characters.
+            </em>
         {/if}
     {:else if currentView === "story"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
-        
-        {#if $activeCampaign}       
-            <Codex /> 
+
+        {#if $activeCampaign}
+            <Codex />
         {:else}
-            <h1>No Active Campaign</h1>
-            <em>Select or create a campaign to use this page.</em>
+            <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
+            <em class="block text-center">Select or create a campaign to use this page.</em>
         {/if}
     {:else if currentView === "map"}
-        <MapView 
+        <MapView
             bind:this={mapViewComponent}
             on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={handleNavigateToChronicle}
-        />
+            on:navigateToStory={handleNavigateToChronicle} />
     {:else if currentView === "settings"}
-        <SettingsView /> 
+        <SettingsView />
     {/if}
 
     {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
-        <FloatingOracleButton 
+        <FloatingOracleButton
             hasSecondarySidebar={false}
             hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
             {diceRollPreset}
             on:clearPreset={() => (diceRollPreset = null)}
             on:navigateToStory={handleNavigateToChronicle}
-            currentCharacterId={selectedCharacterId}
-        />
+            currentCharacterId={selectedCharacterId} />
     {/if}
 </main>
- 
-<style>
-    /* Layout */
-    .content {  
-        padding-top: 0;
-        padding-bottom: 0;
-        box-sizing: border-box; 
-        background-color: var(--bg-primary);
-        color: var(--text-primary); 
-    }
-
-    /* Views */
-    h1 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }  
-
-    /* Desktop - account for left sidebar */
-    @media (min-width: 769px) {
-        .content {
-            margin-left: 80px;
-        }
-
-        /* When secondary sidebar is present */
-        .content.has-secondary {
-            margin-left: 170px; /* primary (80) + secondary (90) */
-        }
-
-        /* When only tertiary is present (no secondary sidebar) */
-        .content.has-tertiary-only {
-            margin-left: 160px; /* primary (80) + tertiary (80) */
-        }
-    }
-</style>

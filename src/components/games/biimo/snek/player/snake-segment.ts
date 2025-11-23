@@ -1,6 +1,6 @@
-import {MyUtils, Vector2} from "../utils/utils";
+import { MyUtils, Vector2 } from "../utils/utils";
 import * as THREE from "three";
-import type {Board} from "../board/board.ts";
+import type { Board } from "../board/board.ts";
 
 // Consider refactoring to have a ControllableSnakeSegment class that extends SnakeSegment
 export class SnakeSegment {
@@ -20,10 +20,8 @@ export class SnakeSegment {
         this.isControllable = isControllable;
 
         this._cell.set(this.attachedTo?.cell ?? this._cell);
-        if (this.attachedTo)
-            this._drawnPos = this.attachedTo?.drawnPos;
-        else
-            this._drawnPos.set(this.getDrawnPos(this._cell));
+        if (this.attachedTo) this._drawnPos = this.attachedTo?.drawnPos;
+        else this._drawnPos.set(this.getDrawnPos(this._cell));
 
         this._lastCell.set(this._cell);
     }
@@ -43,10 +41,9 @@ export class SnakeSegment {
             }
         }
         scene.remove(this.detailMeshGroup);
-         
-        if(this.bodyMesh)
-            MyUtils.removeMeshFromScene(this.bodyMesh, scene);
-        
+
+        if (this.bodyMesh) MyUtils.removeMeshFromScene(this.bodyMesh, scene);
+
         this.detailMeshGroup = null;
         this.bodyMesh = null;
     }
@@ -77,8 +74,7 @@ export class SnakeSegment {
     // The body of the snake. A chain of 2d capsules.
     public setBodyMesh(bodyMesh: THREE.Mesh, zDepthBody: number) {
         this.bodyMesh = bodyMesh;
-        if(this.bodyMesh)
-            this.bodyMesh.position.z = zDepthBody;
+        if (this.bodyMesh) this.bodyMesh.position.z = zDepthBody;
     }
 
     // intended for controllable segments (the head) only
@@ -121,7 +117,8 @@ export class SnakeSegment {
                 // set length to reach the next segment
                 const bodyMeshBaseLength = this.board.cellWidthPc(); // Set on geometry creation. Not sure if we can retrieve it here.
                 let distToNextDrawnPos = diff.x * diff.x + diff.y * diff.y;
-                this.bodyMesh.scale.x = distToNextDrawnPos / this.board.cellWidthPc() / bodyMeshBaseLength;
+                this.bodyMesh.scale.x =
+                    distToNextDrawnPos / this.board.cellWidthPc() / bodyMeshBaseLength;
             }
         }
     }
@@ -130,16 +127,8 @@ export class SnakeSegment {
         if (isNaN(timeDelta)) timeDelta = 0;
 
         let tgtCellDrawnPos = this.getDrawnPos(this._cell);
-        this._drawnPos.x = MyUtils.lerp(
-            this._drawnPos.x,
-            tgtCellDrawnPos.x,
-            timeDelta,
-        );
-        this._drawnPos.y = MyUtils.lerp(
-            this._drawnPos.y,
-            tgtCellDrawnPos.y,
-            timeDelta,
-        );
+        this._drawnPos.x = MyUtils.lerp(this._drawnPos.x, tgtCellDrawnPos.x, timeDelta);
+        this._drawnPos.y = MyUtils.lerp(this._drawnPos.y, tgtCellDrawnPos.y, timeDelta);
     }
 
     private getDrawnPos(cell: Vector2): Vector2 {

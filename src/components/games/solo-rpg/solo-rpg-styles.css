@@ -1,12 +1,14 @@
 /* Import Theme Variables */
-@import './theme/theme-variables.css';
+@import "./theme/theme-variables.css";
 /* Global Theme Application */
 /* Apply theme to any element with data-theme attribute and its descendants */
 [data-theme="light"],
 [data-theme="dark"] {
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
 }
 /* SRPG-specific variable aliases for convenience */
 :root,
@@ -57,7 +59,7 @@
     --srpg-note-text-color: #fcd34d;
 }
 /* Base Button Styles */
-.srpg-b { 
+.srpg-b {
     cursor: pointer;
     padding: 0.75rem 1rem;
 
@@ -216,12 +218,12 @@
 
 .srpg-b-icon.delete-icon:hover {
     color: var(--accent-danger);
-        background: var(--bg-secondary);
+    background: var(--bg-secondary);
 }
 
 .srpg-b-overview {
     background: var(--card-bg);
-        border: 2px solid var(--border-primary);
+    border: 2px solid var(--border-primary);
     border-radius: 8px;
     padding: 1.5rem;
     cursor: pointer;
@@ -233,7 +235,7 @@
 
 .srpg-b-overview:hover {
     border-color: var(--accent-primary);
-        box-shadow: 0 4px 6px var(--shadow-md);
+    box-shadow: 0 4px 6px var(--shadow-md);
     transform: translateY(-2px);
 }
 
@@ -250,8 +252,8 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-        padding: 1rem;
-        box-sizing: border-box;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 /* Desktop - account for left sidebar */
@@ -270,14 +272,14 @@
     min-width: 300px;
     max-width: 500px;
     width: 100%;
-        max-height: 100%;
-        display: flex;
-        flex-direction: column;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
     text-align: center;
     position: relative;
     box-sizing: border-box;
-        overflow: hidden;
-        /* Parent doesn't scroll, scroll container does */
+    overflow: hidden;
+    /* Parent doesn't scroll, scroll container does */
 }
 
 @media (max-width: 768px) {
@@ -314,7 +316,7 @@
 
 .srpg-b-modal-nav:hover {
     background: var(--bg-secondary);
-        color: var(--text-secondary);
+    color: var(--text-secondary);
 }
 
 .srpg-b-modal-nav-close {
@@ -353,7 +355,7 @@
 
 .info-card {
     background: var(--card-bg);
-        color: var(--text-primary);
+    color: var(--text-primary);
 
     margin: 0 auto;
     padding: 1rem 1.5rem;
@@ -373,8 +375,13 @@
     padding: 1.25rem 1.75rem;
     border: 1px solid var(--border-secondary);
     border-radius: 12px;
-    box-shadow: 0 10px 20px var(--shadow-lg), 0 2px 6px var(--shadow-md);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow:
+        0 10px 20px var(--shadow-lg),
+        0 2px 6px var(--shadow-md);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
 }
 
 /* Animated accent stripe */
@@ -385,19 +392,30 @@
     top: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, var(--accent-primary), var(--accent-success), var(--accent-info));
+    background: linear-gradient(
+        90deg,
+        var(--accent-primary),
+        var(--accent-success),
+        var(--accent-info)
+    );
     background-size: 200% 100%;
     animation: banner-stripe 6s linear infinite;
 }
 
 @keyframes banner-stripe {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
 }
 
 .banner:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 28px var(--shadow-lg), 0 4px 10px var(--shadow-md);
+    box-shadow:
+        0 16px 28px var(--shadow-lg),
+        0 4px 10px var(--shadow-md);
     border-color: var(--accent-primary);
 }
 
@@ -466,8 +484,8 @@
     width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--input-border);
-        background-color: var(--input-bg);
-        color: var(--input-text);
+    background-color: var(--input-bg);
+    color: var(--input-text);
     border-radius: 4px;
     font-size: 1rem;
     font-family: inherit;
@@ -479,7 +497,7 @@
 .srpg-form-field textarea:focus {
     outline: none;
     border-color: var(--input-border-focus);
-        box-shadow: 0 0 0 3px var(--shadow-sm);
+    box-shadow: 0 0 0 3px var(--shadow-sm);
 }
 
 .srpg-form-field input[type="number"] {
@@ -504,7 +522,6 @@
 
 /* Mobile-specific form enhancements */
 @media (max-width: 767px) {
-
     .srpg-form-field input,
     .srpg-form-field select,
     .srpg-form-field textarea {
@@ -546,7 +563,7 @@
 .srpg-section {
     margin-top: 1rem;
     margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem; 
+    padding-bottom: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -604,7 +621,7 @@
 /* Card Styles */
 .srpg-card {
     background: var(--card-bg);
-        border: 1px solid var(--card-border);
+    border: 1px solid var(--card-border);
     border-radius: 6px;
     padding: 1rem;
     transition: all 0.2s ease;
@@ -650,7 +667,7 @@
     font-size: 1rem;
     font-family: inherit;
     background-color: var(--input-bg);
-        color: var(--input-text);
+    color: var(--input-text);
     transition: border-color 0.2s ease;
     cursor: pointer;
 }
@@ -658,7 +675,7 @@
 .srpg-select:focus {
     outline: none;
     border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--focus-ring);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .srpg-select:disabled {
@@ -733,7 +750,7 @@
     gap: 0.75rem;
     padding: 0.75rem;
     background: var(--bg-secondary);
-        border: 2px solid var(--border-primary);
+    border: 2px solid var(--border-primary);
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 500;
@@ -746,8 +763,8 @@
 
 .srpg-checkbox-item:hover:not(.disabled) {
     background: var(--bg-tertiary);
-        border-color: var(--accent-primary);
-        box-shadow: 0 2px 4px var(--shadow-sm);
+    border-color: var(--accent-primary);
+    box-shadow: 0 2px 4px var(--shadow-sm);
 }
 
 .srpg-checkbox-item.disabled {
@@ -856,19 +873,19 @@
     background: linear-gradient(135deg, var(--warning) 0%, var(--warning-light) 100%);
     color: #fff;
     border-color: var(--warning);
-        box-shadow: 0 2px 8px var(--shadow-sm);
+    box-shadow: 0 2px 8px var(--shadow-sm);
     font-weight: 600;
 }
 
 .srpg-b-toggle-active:hover:not(:disabled) {
     background: linear-gradient(135deg, var(--warning-light) 0%, var(--warning) 100%);
-        box-shadow: 0 4px 12px var(--shadow-md);
+    box-shadow: 0 4px 12px var(--shadow-md);
     transform: translateY(-1px);
 }
 
 .srpg-b-toggle-active:active:not(:disabled) {
     background: var(--warning);
-        box-shadow: 0 2px 4px var(--shadow-sm);
+    box-shadow: 0 2px 4px var(--shadow-sm);
     transform: translateY(0);
 }
 
@@ -904,7 +921,7 @@
 
 .srpg-list-item:hover {
     border-color: var(--accent-primary);
-        box-shadow: 0 2px 6px var(--shadow-md);
+    box-shadow: 0 2px 6px var(--shadow-md);
     transform: translateY(-1px);
 }
 
@@ -938,12 +955,12 @@
     align-items: center;
     padding: 0.75rem 1rem;
     cursor: pointer;
-    transition: all 0.2s ease; 
+    transition: all 0.2s ease;
 }
 
 .srpg-group-header:hover {
     background: var(--bg-tertiary);
-        border-color: var(--border-secondary);
+    border-color: var(--border-secondary);
 }
 
 .srpg-group-title {
@@ -956,7 +973,7 @@
 
 .srpg-group-count {
     background: var(--bg-tertiary);
-        color: var(--text-secondary);
+    color: var(--text-secondary);
     padding: 0.125rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -992,7 +1009,7 @@
 
 .srpg-subgroup-header:hover {
     background: var(--bg-secondary);
-        border-color: var(--border-secondary);
+    border-color: var(--border-secondary);
 }
 
 .srpg-subgroup-title {
@@ -1022,19 +1039,19 @@
     resize: vertical;
     transition: border-color 0.2s ease;
     background: var(--input-bg);
-        color: var(--input-text);
+    color: var(--input-text);
 }
 
 .srpg-textarea:focus {
     outline: none;
     border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--focus-ring);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 @media (max-width: 767px) {
     .srpg-textarea {
         min-height: 150px;
-        font-size: 16px; 
+        font-size: 16px;
     }
 }
 
@@ -1085,7 +1102,7 @@
 .srpg-data-page {
     padding: 1rem;
     box-sizing: border-box;
-    min-height: 100dvh; /* Ensure full height for background colors */ 
+    min-height: 100dvh; /* Ensure full height for background colors */
     background: var(--bg-primary);
 }
 
@@ -1112,11 +1129,10 @@
         /* , account for primary bottom nav */
         --srpg-primary-bar-height: var(--primary-bottom-bar-height, 40px);
         padding-bottom: calc(
-        1rem +
-        var(--srpg-primary-bar-height) +
-        (var(--secondary-sidebar-visible, 0) * var(--secondary-sidebar-height, 60px)) +
-        (var(--tertiary-sidebar-visible, 0) * var(--tertiary-sidebar-height, 60px)) +
-        env(safe-area-inset-bottom)
-    );
+            1rem + var(--srpg-primary-bar-height) +
+                (var(--secondary-sidebar-visible, 0) * var(--secondary-sidebar-height, 60px)) +
+                (var(--tertiary-sidebar-visible, 0) * var(--tertiary-sidebar-height, 60px)) +
+                env(safe-area-inset-bottom)
+        );
     }
 }

@@ -25,7 +25,7 @@
     function addAttack() {
         attacks = [...attacks, { id: `attack-${Date.now()}`, name: "", dice: "", kind: "B" }];
     }
-    
+
     function removeAttack(idx: number) {
         attacks = attacks.filter((_, i) => i !== idx);
     }
@@ -39,7 +39,7 @@
             type,
             weight: weight ?? undefined,
             cost: cost ?? undefined,
-            tags: tags ? tags.split(",").map(t => t.trim()) : undefined,
+            tags: tags ? tags.split(",").map((t) => t.trim()) : undefined,
             campaignId,
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -108,38 +108,73 @@
             {#if type === "weapon"}
                 <div class="srpg-form-field">
                     <label for="item-range">Range</label>
-                    <input id="item-range" type="text" bind:value={range} placeholder="e.g. 30 ft" />
+                    <input
+                        id="item-range"
+                        type="text"
+                        bind:value={range}
+                        placeholder="e.g. 30 ft" />
                 </div>
                 <div class="srpg-form-field">
                     <label for="item-tohit">To Hit</label>
-                    <input id="item-tohit" type="text" bind:value={toHit} placeholder="e.g. 1d20+0" />
+                    <input
+                        id="item-tohit"
+                        type="text"
+                        bind:value={toHit}
+                        placeholder="e.g. 1d20+0" />
                 </div>
                 <div class="attacks-section">
                     <span id="attacks-label" class="srpg-label">Attacks</span>
                     {#each attacks as attack, idx}
-                        <div class="srpg-card attack-row responsive-attack-row" aria-labelledby="attacks-label">
+                        <div
+                            class="srpg-card attack-row responsive-attack-row"
+                            aria-labelledby="attacks-label">
                             <div class="attack-fields">
                                 <div class="srpg-form-field">
                                     <label for={`attack-name-${idx}`}>Name</label>
-                                    <input id={`attack-name-${idx}`} type="text" bind:value={attack.name} placeholder="Name (optional)" />
+                                    <input
+                                        id={`attack-name-${idx}`}
+                                        type="text"
+                                        bind:value={attack.name}
+                                        placeholder="Name (optional)" />
                                 </div>
                                 <div class="srpg-form-field">
                                     <label for={`attack-dice-${idx}`}>Dice</label>
-                                    <input id={`attack-dice-${idx}`} type="text" bind:value={attack.dice} placeholder="e.g. 1d6+2" />
+                                    <input
+                                        id={`attack-dice-${idx}`}
+                                        type="text"
+                                        bind:value={attack.dice}
+                                        placeholder="e.g. 1d6+2" />
                                 </div>
                                 <div class="srpg-form-field">
                                     <label for={`attack-kind-${idx}`}>Type</label>
-                                    <select id={`attack-kind-${idx}`} bind:value={attack.kind} aria-label="Damage Type" class="srpg-select">
+                                    <select
+                                        id={`attack-kind-${idx}`}
+                                        bind:value={attack.kind}
+                                        aria-label="Damage Type"
+                                        class="srpg-select">
                                         <option value="B">B</option>
                                         <option value="P">P</option>
                                         <option value="S">S</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="remove-attack-btn"><button class="srpg-b srpg-b-delete remove-attack-btn" aria-label="Remove Attack" title="Remove Attack" on:click={() => removeAttack(idx)}>Remove</button></div>
+                            <div class="remove-attack-btn">
+                                <button
+                                    class="srpg-b srpg-b-delete remove-attack-btn"
+                                    aria-label="Remove Attack"
+                                    title="Remove Attack"
+                                    on:click={() => removeAttack(idx)}>
+                                    Remove
+                                </button>
+                            </div>
                         </div>
                     {/each}
-                    <button class="srpg-b srpg-b-simple srpg-b-w-full" aria-labelledby="attacks-label" on:click={addAttack}>+ Add Attack</button>
+                    <button
+                        class="srpg-b srpg-b-simple srpg-b-w-full"
+                        aria-labelledby="attacks-label"
+                        on:click={addAttack}>
+                        + Add Attack
+                    </button>
                 </div>
             {/if}
             {#if type === "armor"}
@@ -157,8 +192,12 @@
 </SrpgModal>
 
 <style>
-    .modal-content { padding: 1.5rem; }
-    .attacks-section { margin-top: 1rem; }
+    .modal-content {
+        padding: 1.5rem;
+    }
+    .attacks-section {
+        margin-top: 1rem;
+    }
     .attack-row {
         display: flex;
         gap: 1rem;
@@ -177,7 +216,7 @@
     .attack-fields .srpg-form-field {
         flex: 1 1 0%;
         min-width: 0;
-    } 
+    }
     .responsive-attack-row {
         flex-direction: column;
         align-items: stretch;
@@ -186,7 +225,12 @@
     }
     .remove-attack-btn {
         align-self: center;
-        margin-top: 0.5rem; 
+        margin-top: 0.5rem;
     }
-    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; } 
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        justify-content: flex-end;
+    }
 </style>

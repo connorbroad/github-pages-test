@@ -1,34 +1,11 @@
 // duplicates increase the chance of that location
-const location = [
-    "Underwater",
-    "Forest",
-    "Forest",
-    "Mountains",
-    "Mountains",
-    "Desert"
-];
+const location = ["Underwater", "Forest", "Forest", "Mountains", "Mountains", "Desert"];
 
-const constructionType = [
-    "Natural formation",
-    "Masonry"
-];
+const constructionType = ["Natural formation", "Masonry"];
 
-const appearance = [
-    "Well-maintained",
-    "Decaying",
-    "Abandoned",
-    "Ruined",
-    "Destroyed"
-];
+const appearance = ["Well-maintained", "Decaying", "Abandoned", "Ruined", "Destroyed"];
 
-const lighting = [
-    "No",
-    "Organic",
-    "Torch",
-    "Torch",
-    "Natural",
-    "Magical"
-];
+const lighting = ["No", "Organic", "Torch", "Torch", "Natural", "Magical"];
 
 export class DungeonFlavor {
     location: string;

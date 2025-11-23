@@ -8,11 +8,7 @@
         loadCharacters,
         loadActiveCharacterId,
     } from "../../data/storage-utils";
-    import type {
-        ChronicleEntry,
-        Chapter,
-        Character,
-    } from "../../data/storage-utils";
+    import type { ChronicleEntry, Chapter, Character } from "../../data/storage-utils";
     import { createEventDispatcher } from "svelte";
     import "../../solo-rpg-styles.css";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
@@ -146,9 +142,7 @@
         if (!assigningToEntryId) return;
 
         const allEntries = loadChronicleEntries();
-        const entryIndex = allEntries.findIndex(
-            (e) => e.id === assigningToEntryId,
-        );
+        const entryIndex = allEntries.findIndex((e) => e.id === assigningToEntryId);
 
         if (entryIndex !== -1) {
             allEntries[entryIndex] = {
@@ -182,7 +176,7 @@
         if (!$activeCampaign) return;
 
         const currentEntries = loadChronicleEntries().filter(
-            (e) => e.campaignId === $activeCampaign.id && !e.chapterId,
+            (e) => e.campaignId === $activeCampaign.id && !e.chapterId
         );
 
         if (currentEntries.length === 0) {
@@ -192,9 +186,7 @@
 
         // Determine next chapter number
         const nextChapterNumber =
-            chapters.length > 0
-                ? Math.max(...chapters.map((c) => c.chapterNumber)) + 1
-                : 1;
+            chapters.length > 0 ? Math.max(...chapters.map((c) => c.chapterNumber)) + 1 : 1;
 
         // Create new chapter
         const newChapter: Chapter = {
@@ -242,7 +234,7 @@
     function deleteChapter(chapterId: string) {
         if (
             !confirm(
-                "Are you sure you want to delete this chapter? All entries in this chapter will also be deleted.",
+                "Are you sure you want to delete this chapter? All entries in this chapter will also be deleted."
             )
         )
             return;
@@ -266,11 +258,7 @@
         loadEntries();
     }
 
-    function openEditEntry(
-        entryId: string,
-        isManual: boolean,
-        currentText?: string,
-    ) {
+    function openEditEntry(entryId: string, isManual: boolean, currentText?: string) {
         editingEntryId = entryId;
         editText = currentText || "";
     }
@@ -320,12 +308,9 @@
         const diffDays = Math.floor(diffMs / 86400000);
 
         if (diffMins < 1) return "Just now";
-        if (diffMins < 60)
-            return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
-        if (diffHours < 24)
-            return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-        if (diffDays < 7)
-            return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
 
         return date.toLocaleDateString("en-US", {
             year: "numeric",
@@ -348,110 +333,91 @@
 
     {#if showChaptersList}
         <div class="chapters-list-panel">
-        <div class="chapters-header">
-            <h3>Chapters</h3>
-            <button
-                class="close-btn"
-                on:click={toggleChaptersList}
-                title="Close chapters list"
-                aria-label="Close chapters list"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width="1em"
-                    height="1em"
-                    {...$$props}
-                >
-                    <path
-                        fill="currentColor"
-                        d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
-                    />
-                </svg>
-            </button>
-        </div>
-        <div class="chapters-content">
-            <div class="current-chapter-item-wrapper">
+            <div class="chapters-header">
+                <h3>Chapters</h3>
                 <button
-                    class="chapter-item {viewingChapterId === null
-                        ? 'active'
-                        : ''}"
-                    on:click={() => viewChapter(null)}
-                >
-                    <div>
-                        <div class="chapter-name">📖 Current Chapter</div>
-                        <div class="chapter-meta">
-                            {loadChronicleEntries().filter(
-                                (e) =>
-                                    e.campaignId === $activeCampaign?.id &&
-                                    !e.chapterId,
-                            ).length} entries
-                        </div>
-                    </div>
+                    class="close-btn"
+                    on:click={toggleChaptersList}
+                    title="Close chapters list"
+                    aria-label="Close chapters list">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="1em"
+                        height="1em"
+                        {...$$props}>
+                        <path
+                            fill="currentColor"
+                            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
+                    </svg>
                 </button>
-                {#if entries.length > 0 && viewingChapterId === null}
-                    <button
-                        class="srpg-b srpg-b-create"
-                        on:click={openCreateChapter}
-                        aria-label="Finish Chapter"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="1.5em"
-                            height="1.5em"
-                        >
-                            <path
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3"
-                            />
-                        </svg>
-                    </button>
-                {/if}
             </div>
-            {#each chapters as chapter (chapter.id)}
-                <div class="chapter-item-wrapper">
+            <div class="chapters-content">
+                <div class="current-chapter-item-wrapper">
                     <button
-                        class="chapter-item {viewingChapterId === chapter.id
-                            ? 'active'
-                            : ''}"
-                        on:click={() => viewChapter(chapter.id)}
-                    >
-                        <div class="chapter-name">
-                            📜 {getChapterDisplayName(chapter)}
-                        </div>
-                        <div class="chapter-meta">
-                            {loadChronicleEntries().filter(
-                                (e) => e.chapterId === chapter.id,
-                            ).length} entries
+                        class="chapter-item {viewingChapterId === null ? 'active' : ''}"
+                        on:click={() => viewChapter(null)}>
+                        <div>
+                            <div class="chapter-name">📖 Current Chapter</div>
+                            <div class="chapter-meta">
+                                {loadChronicleEntries().filter(
+                                    (e) => e.campaignId === $activeCampaign?.id && !e.chapterId
+                                ).length} entries
+                            </div>
                         </div>
                     </button>
-                    <button
-                        class="chapter-delete-btn srpg-b srpg-b-icon"
-                        on:click|stopPropagation={() =>
-                            deleteChapter(chapter.id)}
-                        title="Delete chapter"
-                        aria-label="Delete chapter"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="16"
-                            height="16"
-                        >
-                            <path
-                                fill="currentColor"
-                                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                            />
-                        </svg>
-                    </button>
+                    {#if entries.length > 0 && viewingChapterId === null}
+                        <button
+                            class="srpg-b srpg-b-create"
+                            on:click={openCreateChapter}
+                            aria-label="Finish Chapter">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="1.5em"
+                                height="1.5em">
+                                <path
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m3-4H9a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1m-1 4l-3 3m0 0l-3-3m3 3V3" />
+                            </svg>
+                        </button>
+                    {/if}
                 </div>
-            {/each}
-        </div>
+                {#each chapters as chapter (chapter.id)}
+                    <div class="chapter-item-wrapper">
+                        <button
+                            class="chapter-item {viewingChapterId === chapter.id ? 'active' : ''}"
+                            on:click={() => viewChapter(chapter.id)}>
+                            <div class="chapter-name">
+                                📜 {getChapterDisplayName(chapter)}
+                            </div>
+                            <div class="chapter-meta">
+                                {loadChronicleEntries().filter((e) => e.chapterId === chapter.id)
+                                    .length} entries
+                            </div>
+                        </button>
+                        <button
+                            class="chapter-delete-btn srpg-b srpg-b-icon"
+                            on:click|stopPropagation={() => deleteChapter(chapter.id)}
+                            title="Delete chapter"
+                            aria-label="Delete chapter">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16">
+                                <path
+                                    fill="currentColor"
+                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                            </svg>
+                        </button>
+                    </div>
+                {/each}
+            </div>
         </div>
     {/if}
 
@@ -460,19 +426,17 @@
             <SrpgModal
                 show={showCreateChapter}
                 ariaLabel="Close create chapter dialog"
-                on:close={cancelCreateChapter}
-            >
+                on:close={cancelCreateChapter}>
                 <h3>Finish Chapter</h3>
                 <p class="chapter-help">
-                    All current entries will be saved to this chapter, and
-                    you'll start fresh with a new current chapter.
+                    All current entries will be saved to this chapter, and you'll start fresh with a
+                    new current chapter.
                 </p>
                 <input
                     type="text"
                     bind:value={chapterCustomName}
                     placeholder="Chapter name (optional)"
-                    class="chapter-name-input"
-                />
+                    class="chapter-name-input" />
                 <div class="chapter-preview">
                     {#if chapterCustomName.trim()}
                         Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
@@ -481,10 +445,7 @@
                     {/if}
                 </div>
                 <div class="editor-actions">
-                    <button
-                        class="srpg-b srpg-b-create"
-                        on:click={createChapter}
-                    >
+                    <button class="srpg-b srpg-b-create" on:click={createChapter}>
                         Finish Chapter
                     </button>
                     <button class="srpg-b srpg-b-simple" on:click={cancelCreateChapter}>
@@ -496,23 +457,16 @@
     {:else}
         <!-- Viewing a Saved Chapter -->
         <div class="chapter-view-banner">
-            <button class="back-btn" on:click={() => viewChapter(null)}>
-                ← Back to Current
-            </button>
+            <button class="back-btn" on:click={() => viewChapter(null)}>← Back to Current</button>
             <span class="viewing-chapter-name">
-                📜 Viewing: {getChapterDisplayName(
-                    chapters.find((c) => c.id === viewingChapterId),
-                )}
+                📜 Viewing: {getChapterDisplayName(chapters.find((c) => c.id === viewingChapterId))}
             </span>
         </div>
     {/if}
 
     {#if !viewingChapterId}
         <div style="margin-bottom: 1rem; text-align: center;">
-            <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
-                on:click={openAddEntry}
-            >
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openAddEntry}>
                 + Add entry
             </button>
         </div>
@@ -535,16 +489,10 @@
                     {formatTimestamp}
                     on:assignCharacter={(e) => assignCharacter(e.detail)}
                     on:edit={(e) =>
-                        openEditEntry(
-                            e.detail.entryId,
-                            e.detail.isManual,
-                            e.detail.currentText,
-                        )}
+                        openEditEntry(e.detail.entryId, e.detail.isManual, e.detail.currentText)}
                     on:delete={(e) => deleteEntry(e.detail)}
-                    on:save={(e) =>
-                        saveEditEntry(e.detail.entryId, e.detail.isManual)}
-                    on:cancelEdit={cancelEditEntry}
-                />
+                    on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
+                    on:cancelEdit={cancelEditEntry} />
             {/each}
         {/if}
     </div>
@@ -554,61 +502,41 @@
     bind:show={showAddEntry}
     ariaLabel="Manual chronicle entry editor"
     maxWidth="600px"
-    on:close={cancelAddEntry}
->
-    <div class="modal-content"> 
+    on:close={cancelAddEntry}>
+    <div class="modal-content">
         <h3>New Chronicle Entry</h3>
-        <textarea
-            bind:value={newEntryText}
-            placeholder="What happened in your adventure?"
-            rows="6"
-        ></textarea>
+        <textarea bind:value={newEntryText} placeholder="What happened in your adventure?" rows="6">
+        </textarea>
         <div class="editor-actions">
             <button
                 class="srpg-b srpg-b-create"
                 on:click={saveEntry}
-                disabled={!newEntryText.trim()}
-            >
+                disabled={!newEntryText.trim()}>
                 Save Entry
             </button>
-            <button class="srpg-b srpg-b-simple" on:click={cancelAddEntry}>
-                Cancel
-            </button>
-        </div> 
+            <button class="srpg-b srpg-b-simple" on:click={cancelAddEntry}>Cancel</button>
+        </div>
     </div>
 </SrpgModal>
 
-
 <!-- Character Assignment Modal -->
-<SrpgModal
-    bind:show={showCharacterAssign}
-    maxWidth="450px"
-    on:close={cancelCharacterAssign}
->
+<SrpgModal bind:show={showCharacterAssign} maxWidth="450px" on:close={cancelCharacterAssign}>
     <div class="modal-content">
         <h2>Assign Character</h2>
-        <p class="modal-help">
-            Select a character to associate with this entry.
-        </p>
+        <p class="modal-help">Select a character to associate with this entry.</p>
 
         {#if campaignCharacters.length > 0}
             <div class="character-select-list">
                 <button
                     class="srpg-b character-select-item"
-                    on:click={() => selectCharacterForEntry(null)}
-                >
-                    <span class="character-select-name"
-                        >None (Remove assignment)</span
-                    >
+                    on:click={() => selectCharacterForEntry(null)}>
+                    <span class="character-select-name">None (Remove assignment)</span>
                 </button>
                 {#each campaignCharacters as character (character.id)}
                     <button
                         class="srpg-b character-select-item"
-                        on:click={() => selectCharacterForEntry(character.id)}
-                    >
-                        <span class="character-select-name"
-                            >{character.name}</span
-                        >
+                        on:click={() => selectCharacterForEntry(character.id)}>
+                        <span class="character-select-name">{character.name}</span>
                         {#if character.race || character.class}
                             <span class="character-select-info">
                                 {#if character.race}{character.race}{/if}
@@ -624,16 +552,12 @@
         {:else}
             <div class="no-characters-message">
                 <p>No characters available.</p>
-                <p class="hint">
-                    Create a character in the Character Manager first.
-                </p>
+                <p class="hint">Create a character in the Character Manager first.</p>
             </div>
         {/if}
 
         <div class="modal-footer">
-            <button class="srpg-b srpg-b-simple" on:click={cancelCharacterAssign}>
-                Cancel
-            </button>
+            <button class="srpg-b srpg-b-simple" on:click={cancelCharacterAssign}>Cancel</button>
         </div>
     </div>
 </SrpgModal>
@@ -649,7 +573,9 @@
         overflow: hidden;
     }
 
-    .chronicle-sticky-header { flex-shrink: 0; }
+    .chronicle-sticky-header {
+        flex-shrink: 0;
+    }
 
     .chronicle-header {
         display: flex;
@@ -1009,7 +935,7 @@
 
         .header-actions button {
             flex: 1;
-        } 
+        }
 
         .chapter-view-banner {
             flex-direction: column;

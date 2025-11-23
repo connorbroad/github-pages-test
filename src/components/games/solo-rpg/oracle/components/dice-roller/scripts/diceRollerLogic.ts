@@ -69,13 +69,20 @@ export function createDiceRollerAnimation(
 ) {
     const endTimes = Array.from(
         { length: numDice },
-        () => config.ROLL_DURATION * (config.DICE_END_MIN + Math.random() * (config.DICE_END_MAX - config.DICE_END_MIN))
+        () =>
+            config.ROLL_DURATION *
+            (config.DICE_END_MIN + Math.random() * (config.DICE_END_MAX - config.DICE_END_MIN))
     );
 
     let elapsed = 0;
-    let lastOffsets = Array(numDice).fill(null).map(() => ({ x: 0, y: 0, r: 0 }));
+    let lastOffsets = Array(numDice)
+        .fill(null)
+        .map(() => ({ x: 0, y: 0, r: 0 }));
 
-    function rollNewDice(currentElapsed: number, diceResults: number[]): {
+    function rollNewDice(
+        currentElapsed: number,
+        diceResults: number[]
+    ): {
         results: number[];
         offsets: { x: number; y: number; r: number }[];
     } {
@@ -104,7 +111,8 @@ export function createDiceRollerAnimation(
 
     function animateRoll(currentResults: number[]) {
         const progress = Math.min(elapsed / config.ROLL_DURATION, 1);
-        const interval = config.INTERVAL_MIN + (config.INTERVAL_MAX - config.INTERVAL_MIN) * progress;
+        const interval =
+            config.INTERVAL_MIN + (config.INTERVAL_MAX - config.INTERVAL_MIN) * progress;
 
         const { results, offsets } = rollNewDice(elapsed, currentResults);
         onUpdate({ results, offsets });
@@ -118,7 +126,7 @@ export function createDiceRollerAnimation(
             onUpdate({
                 results: finalRoll.results,
                 offsets: finalRoll.offsets,
-                rolling: false
+                rolling: false,
             });
             onComplete();
         }
@@ -128,6 +136,6 @@ export function createDiceRollerAnimation(
         start: (initialResults: number[]) => {
             onUpdate({ rolling: true, endTimes, rolledNumSides: numSides });
             animateRoll(initialResults);
-        }
+        },
     };
 }

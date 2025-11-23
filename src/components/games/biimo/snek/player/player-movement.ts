@@ -9,96 +9,90 @@ import { Vector2 } from "../utils/utils";
 // The processor will enact both requests accordingly with respect to the current direction
 // The processor will also ensure to not queue a direction request along the current axis, unless the other axis has already been requested.
 export class PlayerMovementProcessor {
-  private directionRequests = new Vector2();
-  private currentDirection = Vector2.zero;
+    private directionRequests = new Vector2();
+    private currentDirection = Vector2.zero;
 
-  constructor() { }
+    constructor() {}
 
-  public onKeyDown(e: BiimoButton) {
-    const dirRequest = this.keyToDirection(e);
-    const startOfGame = !this.isMoving(); // e.g. start of the game, player has no direction
+    public onKeyDown(e: BiimoButton) {
+        const dirRequest = this.keyToDirection(e);
+        const startOfGame = !this.isMoving(); // e.g. start of the game, player has no direction
 
-    // if the key is an x axis request, only add it to the x requests if we are moving on the y axis (unless there is already a y axis request)
-    if (
-      dirRequest.x &&
-      (startOfGame || this.movingOnYAxis() || this.directionRequests.y)
-    ) {
-      this.directionRequests.x = dirRequest.x;
+        // if the key is an x axis request, only add it to the x requests if we are moving on the y axis (unless there is already a y axis request)
+        if (dirRequest.x && (startOfGame || this.movingOnYAxis() || this.directionRequests.y)) {
+            this.directionRequests.x = dirRequest.x;
+        }
+        // if the key is a y axis request, only add it to the y requests if we are moving on the x axis (unless there is already an x axis request)
+        if (dirRequest.y && (startOfGame || this.movingOnXAxis() || this.directionRequests.x)) {
+            this.directionRequests.y = dirRequest.y;
+        }
     }
-    // if the key is a y axis request, only add it to the y requests if we are moving on the x axis (unless there is already an x axis request)
-    if (
-      dirRequest.y &&
-      (startOfGame || this.movingOnXAxis() || this.directionRequests.x)
-    ) {
-      this.directionRequests.y = dirRequest.y;
+
+    public updateDirection(): Vector2 {
+        return (this.currentDirection = this.checkForNewDirection());
     }
-  }
 
-  public updateDirection(): Vector2 {
-    return (this.currentDirection = this.checkForNewDirection());
-  }
+    public reset() {
+        this.directionRequests = new Vector2();
+        this.currentDirection = Vector2.zero;
+    }
 
-  public reset() {
-    this.directionRequests = new Vector2();
-    this.currentDirection = Vector2.zero;
-  }
+    private keyToDirection(key: BiimoButton): Vector2 {
+        switch (key) {
+            case BiimoButton.Up:
+                return Vector2.up;
+            case BiimoButton.Down:
+                return Vector2.down;
+            case BiimoButton.Left:
+                return Vector2.left;
+            case BiimoButton.Right:
+                return Vector2.right;
+            default:
+                return Vector2.zero;
+        }
+    }
 
-  private keyToDirection(key: BiimoButton): Vector2 {
-    switch (key) {
-      case BiimoButton.Up:
-        return Vector2.up;
-      case BiimoButton.Down:
-        return Vector2.down;
-      case BiimoButton.Left:
-        return Vector2.left;
-      case BiimoButton.Right:
-        return Vector2.right;
-      default:
+    private checkForNewDirection(): Vector2 {
+        if (!this.directionRequestsPending()) return this.currentDirection;
+        const canMoveAnyDirection = !this.isMoving(); // at the start of the game the player has no direction; allow any direction request
+        return this.consumeRequestedDirection(canMoveAnyDirection);
+    }
+
+    private directionRequestsPending(): boolean {
+        return !this.directionRequests.equals(Vector2.zero);
+    }
+
+    private consumeRequestedDirection(anyDirectionAllowed: boolean): Vector2 {
+        // if we are moving on the x axis, check for y axis requests
+        if (anyDirectionAllowed || this.movingOnXAxis()) {
+            if (this.directionRequests.y) {
+                const requestedDir = new Vector2(0, this.directionRequests.y);
+                this.directionRequests.y = 0; //consume
+                return requestedDir;
+            }
+        }
+
+        // if we are moving on the y axis, check for x axis requests
+        if (anyDirectionAllowed || this.movingOnYAxis()) {
+            if (this.directionRequests.x) {
+                const requestedDir = new Vector2(this.directionRequests.x, 0);
+                this.directionRequests.x = 0; //consume
+                return requestedDir;
+            }
+        }
+
         return Vector2.zero;
     }
-  }
 
-  private checkForNewDirection(): Vector2 {
-    if (!this.directionRequestsPending()) return this.currentDirection;
-    const canMoveAnyDirection = !this.isMoving(); // at the start of the game the player has no direction; allow any direction request
-    return this.consumeRequestedDirection(canMoveAnyDirection);
-  }
-
-  private directionRequestsPending(): boolean {
-    return !this.directionRequests.equals(Vector2.zero);
-  }
-
-  private consumeRequestedDirection(anyDirectionAllowed: boolean): Vector2 {
-    // if we are moving on the x axis, check for y axis requests
-    if (anyDirectionAllowed || this.movingOnXAxis()) {
-      if (this.directionRequests.y) {
-        const requestedDir = new Vector2(0, this.directionRequests.y);
-        this.directionRequests.y = 0; //consume
-        return requestedDir;
-      }
+    private isMoving(): boolean {
+        return !this.currentDirection.equals(Vector2.zero);
     }
 
-    // if we are moving on the y axis, check for x axis requests
-    if (anyDirectionAllowed || this.movingOnYAxis()) {
-      if (this.directionRequests.x) {
-        const requestedDir = new Vector2(this.directionRequests.x, 0);
-        this.directionRequests.x = 0; //consume
-        return requestedDir;
-      }
+    private movingOnXAxis(): boolean {
+        return this.currentDirection.x != 0;
     }
 
-    return Vector2.zero;
-  }
-
-  private isMoving(): boolean {
-    return !this.currentDirection.equals(Vector2.zero);
-  }
-
-  private movingOnXAxis(): boolean {
-    return this.currentDirection.x != 0;
-  }
-
-  private movingOnYAxis(): boolean {
-    return this.currentDirection.y != 0;
-  }
+    private movingOnYAxis(): boolean {
+        return this.currentDirection.y != 0;
+    }
 }

@@ -1,37 +1,23 @@
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
-    import "../../../solo-rpg-styles.css";
+
     import PlayingCard from "../../../lore/PlayingCard.svelte";
-    
+
     const dispatch = createEventDispatcher();
-    
+
     onMount(() => buildDeck());
 
     const suits = ["spade", "heart", "diamond", "club"] as const;
-    const suitSymbols: Record<typeof suits[number], string> = {
+    const suitSymbols: Record<(typeof suits)[number], string> = {
         spade: "spade",
         heart: "heart",
         diamond: "diamond",
-        club: "club"
+        club: "club",
     };
-    const ranks = [
-        "A",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "J",
-        "Q",
-        "K",
-    ];
+    const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     const joker = { suit: "joker", rank: "Joker" } as const;
 
-    type SuitKey = typeof suits[number] | "joker";
+    type SuitKey = (typeof suits)[number] | "joker";
 
     let deck: { suit: SuitKey; rank: string }[] = [];
     let drawn: { suit: SuitKey; rank: string }[] = [];
@@ -77,18 +63,18 @@
 
     function onClickTakeResult() {
         if (drawn.length === 0) return;
-        
+
         if (embedded) {
             // When embedded in GameOracle, save to chronicle and navigate to story
             dispatch("recordFate", {
                 type: "cards",
-                cards: drawn.map(card => ({
+                cards: drawn.map((card) => ({
                     suit: card.suit,
-                    rank: card.rank
-                }))
+                    rank: card.rank,
+                })),
             });
         }
-        
+
         drawn = [];
     }
 
@@ -98,18 +84,19 @@
 
 {#if embedded}
     <div class="card-dealer-embedded">
-        <div class="card-drawer-info">
-            <p>Cards Remaining: {cardsRemaining}</p>
+        <div class="mt-4 text-[1.05rem]">
+            <p class="mb-0 text-[1.05rem]">Cards Remaining: {cardsRemaining}</p>
             {#if !deckIsNotFull}
-                <div class="options">
-                    <label>
-                        <input type="checkbox" bind:checked={includeJokers} on:change={buildDeck} /> Include Jokers
+                <div class="mb-4 flex flex-col justify-center gap-[0.1rem]">
+                    <label class="m-0 text-base">
+                        <input type="checkbox" bind:checked={includeJokers} on:change={buildDeck} />
+                        Include Jokers
                     </label>
                 </div>
             {/if}
             {#if drawn.length}
-                <div class="drawn-cards">
-                    <div class="cards-list">
+                <div class="mt-2">
+                    <div class="flex flex-wrap justify-center gap-2">
                         {#each drawn as card}
                             <PlayingCard rank={card.rank} suit={card.suit} />
                         {/each}
@@ -117,59 +104,37 @@
                 </div>
             {/if}
         </div>
-        <div class="card-drawer-actions">
-            <button class="srpg-b srpg-b-normal" on:click={drawCards} disabled={deck.length === 0}>Draw</button>
-            <button class="srpg-b srpg-b-normal" on:click={handleUndo} disabled={drawn.length === 0}>Undo</button>
+        <div class="my-4 flex justify-between gap-4">
+            <button
+                class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                on:click={drawCards}
+                disabled={deck.length === 0}>
+                Draw
+            </button>
+            <button
+                class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                on:click={handleUndo}
+                disabled={drawn.length === 0}>
+                Undo
+            </button>
         </div>
-        <hr class="divider" />
-        <button id="take-result-button" class="srpg-b srpg-b-create srpg-b-w-full" on:click={onClickTakeResult} disabled={drawn.length === 0}>
+        <hr class="border-divider my-4 border-t border-none" />
+        <button
+            id="take-result-button"
+            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+            on:click={onClickTakeResult}
+            disabled={drawn.length === 0}>
             Take cards: {drawn.length}
         </button>
-        <hr class="divider" />
-        <button id="reset-deck-button" class="srpg-b srpg-b-normal srpg-b-w-full" on:click={buildDeck}>
+        <hr class="border-divider my-4 border-t border-none" />
+        <button
+            id="reset-deck-button"
+            class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+            on:click={buildDeck}>
             Shuffle Deck
         </button>
     </div>
 {/if}
 
 <style>
-    .card-drawer-actions {
-        display: flex;
-        justify-content: space-between;
-        margin: 1rem 0;
-        gap: 1rem;
-    }
-
-    .card-drawer-info {
-        margin-top: 1rem;
-        font-size: 1.05rem;
-    }
-    .card-drawer-info p {
-        margin-bottom: 0;
-        font-size: 1.05rem;
-    }
-    .card-drawer-info label {
-        font-size: 1rem;
-        margin: 0;
-    }
-    .drawn-cards { margin-top: 0.5rem; }
-    .cards-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-    } 
-
-    .options {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 0.1rem;
-        margin-bottom: 1rem;
-    }
-    .divider {
-        border: none;
-        border-top: 1px solid var(--divider);
-        margin: 1rem 0;
-    }
 </style>

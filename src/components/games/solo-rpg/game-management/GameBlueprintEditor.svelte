@@ -8,7 +8,6 @@
     import { createEventDispatcher } from "svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
     import FortuneEditor from "../oracle/components/FortuneEditor.svelte";
-    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let blueprint: GameBlueprint;
@@ -62,58 +61,54 @@
 
     function deleteFortune(index: number) {
         if (confirm("Are you sure you want to delete this fortune?")) {
-            blueprint.defaultFortunes = blueprint.defaultFortunes.filter(
-                (_, i) => i !== index,
-            );
+            blueprint.defaultFortunes = blueprint.defaultFortunes.filter((_, i) => i !== index);
         }
     }
 </script>
 
 {#if show}
-    <SrpgModal
-        {show}
-        ariaLabel="Close game blueprint modal"
-        on:close={handleClose}
-    >
-        <h2>{isEditing ? "Edit Game" : "Create Game"}</h2>
+    <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
+        <h2 class="text-text-primary mt-0">{isEditing ? "Edit Game" : "Create Game"}</h2>
 
-        <div class="form-group">
-            <label for="blueprint-title">Game Title:</label>
+        <div class="mb-6 text-left">
+            <label class="text-text-secondary mb-1 block font-medium" for="blueprint-title">
+                Game Title:
+            </label>
             <input
+                class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus box-border w-full rounded-md border p-2 text-base focus:outline-none"
                 id="blueprint-title"
                 type="text"
                 bind:value={blueprint.title}
-                placeholder="Enter game title..."
-            />
+                placeholder="Enter game title..." />
         </div>
 
-        <div class="form-group">
-            <h3>Default Fortunes</h3>
+        <div class="mb-6 text-left">
+            <h3 class="text-text-secondary mt-0 mb-2 text-[1.1rem]">Default Fortunes</h3>
             <button
-                class="srpg-b srpg-b-create"
-                on:click={openCreateFortune}
-            >
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                on:click={openCreateFortune}>
                 + Add Fortune
             </button>
 
             {#if blueprint.defaultFortunes.length > 0}
-                <div class="fortunes-list">
+                <div class="mt-4 flex flex-col gap-3">
                     {#each blueprint.defaultFortunes as fortune, index}
-                        <div class="fortune-item">
-                            <div class="fortune-info">
-                                <strong>{fortune.title || "Untitled"}</strong>
+                        <div
+                            class="bg-bg-secondary border-border-primary flex items-center justify-between gap-4 rounded-md border p-3 max-[600px]:flex-col max-[600px]:items-stretch">
+                            <div class="flex flex-1 flex-col gap-1">
+                                <strong class="text-text-primary">
+                                    {fortune.title || "Untitled"}
+                                </strong>
                             </div>
-                            <div class="fortune-actions">
+                            <div class="flex gap-2 max-[600px]:justify-stretch">
                                 <button
-                                    class="srpg-b srpg-b-sm srpg-b-normal"
-                                    on:click={() => openEditFortune(index)}
-                                >
+                                    class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[600px]:flex-1"
+                                    on:click={() => openEditFortune(index)}>
                                     Edit
                                 </button>
                                 <button
-                                    class="srpg-b srpg-b-sm srpg-b-delete"
-                                    on:click={() => deleteFortune(index)}
-                                >
+                                    class="border-border-primary bg-accent-danger hover:bg-accent-danger-hover active:bg-accent-danger-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[600px]:flex-1"
+                                    on:click={() => deleteFortune(index)}>
                                     Delete
                                 </button>
                             </div>
@@ -121,17 +116,16 @@
                     {/each}
                 </div>
             {:else}
-                <p class="empty-state">
+                <p class="text-text-muted bg-bg-secondary mt-4 rounded-md p-4 text-center italic">
                     No fortunes added yet. Click "Add Fortune" to create one.
                 </p>
             {/if}
         </div>
 
-        <hr class="divider" />
+        <hr class="border-divider my-6 border-t border-none" />
         <button
-            class="srpg-b srpg-b-create srpg-b-w-full"
-            on:click={handleSave}
-        >
+            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+            on:click={handleSave}>
             Save Game Blueprint
         </button>
     </SrpgModal>
@@ -143,112 +137,7 @@
     campaigns={[blueprint.title]}
     showCampaignField={false}
     on:close={() => (showFortuneEditor = false)}
-    on:save={saveFortune}
-/>
+    on:save={saveFortune} />
 
 <style>
-    h2 {
-        margin-top: 0;
-        color: var(--text-primary);
-    }
-
-    h3 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-        text-align: left;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-    }
-
-    .form-group input[type="text"] {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
-        font-size: 1rem;
-        box-sizing: border-box;
-        background-color: var(--input-bg);
-        color: var(--input-text);
-    }
-
-    .form-group input[type="text"]:focus {
-        outline: none;
-        border-color: var(--input-border-focus);
-    }
-
-    .fortunes-list {
-        margin-top: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .fortune-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-primary);
-        border-radius: 6px;
-        gap: 1rem;
-    }
-
-    .fortune-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .fortune-info strong {
-        color: var(--text-primary);
-    }
-
-    .fortune-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .empty-state {
-        text-align: center;
-        color: var(--text-muted);
-        font-style: italic;
-        margin-top: 1rem;
-        padding: 1rem;
-        background: var(--bg-secondary);
-        border-radius: 6px;
-    }
-
-    .divider {
-        border: none;
-        border-top: 1px solid var(--divider);
-        margin: 1.5rem 0;
-    }
-
-    @media (max-width: 600px) {
-        .fortune-item {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .fortune-actions {
-            justify-content: stretch;
-        }
-
-        .fortune-actions button {
-            flex: 1;
-        }
-    }
 </style>

@@ -22,7 +22,7 @@
                         {entry.fortuneData.diceRoll.mappedOutcome}
                     </span>
                 {/if}
-                
+
                 {#if entry.fortuneData.diceRoll.diceSignificance && Object.keys(entry.fortuneData.diceRoll.diceSignificance).length > 0 && entry.fortuneData.diceRoll.individualDiceResults.length > 0}
                     <div class="dice-significance">
                         {#if entry.fortuneData.diceRoll.resultOption === "Sum" || entry.fortuneData.diceRoll.resultOption === "Subtract"}
@@ -30,26 +30,47 @@
                             {#each entry.fortuneData.diceRoll.individualDiceResults as diceValue, index}
                                 {#if entry.fortuneData.diceRoll.diceSignificance[index + 1]}
                                     <span class="significance-item">
-                                        <strong>{entry.fortuneData.diceRoll.diceSignificance[index + 1]}:</strong> {diceValue}
+                                        <strong>
+                                            {entry.fortuneData.diceRoll.diceSignificance[
+                                                index + 1
+                                            ]}:
+                                        </strong>
+                                        {diceValue}
                                     </span>
                                 {/if}
                             {/each}
                         {:else if entry.fortuneData.diceRoll.resultOption === "Maximum"}
                             <!-- Show only the highest die with significance -->
-                            {@const maxValue = Math.max(...entry.fortuneData.diceRoll.individualDiceResults)}
-                            {@const maxIndex = entry.fortuneData.diceRoll.individualDiceResults.findIndex(v => v === maxValue)}
+                            {@const maxValue = Math.max(
+                                ...entry.fortuneData.diceRoll.individualDiceResults
+                            )}
+                            {@const maxIndex =
+                                entry.fortuneData.diceRoll.individualDiceResults.findIndex(
+                                    (v) => v === maxValue
+                                )}
                             {#if entry.fortuneData.diceRoll.diceSignificance[maxIndex + 1]}
                                 <span class="significance-item">
-                                    <strong>{entry.fortuneData.diceRoll.diceSignificance[maxIndex + 1]}:</strong> {maxValue}
+                                    <strong>
+                                        {entry.fortuneData.diceRoll.diceSignificance[maxIndex + 1]}:
+                                    </strong>
+                                    {maxValue}
                                 </span>
                             {/if}
                         {:else if entry.fortuneData.diceRoll.resultOption === "Minimum"}
                             <!-- Show only the lowest die with significance -->
-                            {@const minValue = Math.min(...entry.fortuneData.diceRoll.individualDiceResults)}
-                            {@const minIndex = entry.fortuneData.diceRoll.individualDiceResults.findIndex(v => v === minValue)}
+                            {@const minValue = Math.min(
+                                ...entry.fortuneData.diceRoll.individualDiceResults
+                            )}
+                            {@const minIndex =
+                                entry.fortuneData.diceRoll.individualDiceResults.findIndex(
+                                    (v) => v === minValue
+                                )}
                             {#if entry.fortuneData.diceRoll.diceSignificance[minIndex + 1]}
                                 <span class="significance-item">
-                                    <strong>{entry.fortuneData.diceRoll.diceSignificance[minIndex + 1]}:</strong> {minValue}
+                                    <strong>
+                                        {entry.fortuneData.diceRoll.diceSignificance[minIndex + 1]}:
+                                    </strong>
+                                    {minValue}
                                 </span>
                             {/if}
                         {/if}
@@ -60,8 +81,7 @@
             {#if entry.fortuneData.cardDraw}
                 <span
                     class="card-badge"
-                    class:red-suit={isRedSuit(entry.fortuneData.cardDraw.suit)}
-                >
+                    class:red-suit={isRedSuit(entry.fortuneData.cardDraw.suit)}>
                     {entry.fortuneData.cardDraw.rank}
                     {entry.fortuneData.cardDraw.suit}
                 </span>

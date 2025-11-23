@@ -1,10 +1,10 @@
-import {DoorLocation, DoorStatus} from "./dungeon-enums.ts";
-import {DungeonCorridor, DungeonRoom, type DungeonSegment} from "./dungeon-segment.ts";
+import { DoorLocation, DoorStatus } from "./dungeon-enums.ts";
+import { DungeonCorridor, DungeonRoom, type DungeonSegment } from "./dungeon-segment.ts";
 
 // each door describes each room and corridor it connects to
 // including the door's location in that room and corridor
 export class DungeonDoor {
-    id: string = crypto.randomUUID().toUpperCase().substring(0, 8)
+    id: string = crypto.randomUUID().toUpperCase().substring(0, 8);
     status: DoorStatus = DoorStatus.Unlocked;
 
     private room: DungeonRoom;
@@ -42,10 +42,7 @@ export class DungeonDoor {
         this.roomDoorLocation = roomDoorLocation;
     }
 
-    public setCorridor(
-        corridor: DungeonCorridor,
-        corridorDoorLocation: DoorLocation
-    ) {
+    public setCorridor(corridor: DungeonCorridor, corridorDoorLocation: DoorLocation) {
         this.corridor = corridor;
         this.corridorDoorLocation = corridorDoorLocation;
     }

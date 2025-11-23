@@ -6,22 +6,28 @@
     }
 </script>
 
-<div class="theme-toggle-container">
-    <div class="info-card content">
-        <div class="header">
-            <h2>Theme</h2>
+<div class="w-full">
+    <div
+        class="bg-card-bg text-text-primary border-card-border mx-auto w-full max-w-[500px] rounded-lg border p-0 shadow-md"
+    >
+        <div class="border-border-primary flex items-center justify-between border-b p-6">
+            <h2 class="text-text-primary m-0 text-2xl">Theme</h2>
         </div>
 
-        <div class="body">
-            <div class="theme-toggle-buttons">
+        <div class="p-6">
+            <div class="flex flex-wrap gap-2">
                 <button
-                    class="theme-option"
+                    class="border-border-primary bg-card-bg text-text-secondary hover:border-accent-primary hover:bg-bg-secondary focus-visible:outline-accent-primary flex min-w-[120px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-md focus:shadow-[0_0_0_3px_var(--shadow-sm)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 max-md:min-h-[44px] max-md:text-base {$theme ===
+                    'light'
+                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-white shadow-md'
+                        : ''}"
                     class:active={$theme === "light"}
                     on:click={() => theme.setTheme("light")}
                     aria-label="Switch to light theme"
                     aria-pressed={$theme === "light"}
                 >
                     <svg
+                        class="shrink-0"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         width="1.5em"
@@ -35,13 +41,17 @@
                     <span>Light</span>
                 </button>
                 <button
-                    class="theme-option"
+                    class="border-border-primary bg-card-bg text-text-secondary hover:border-accent-primary hover:bg-bg-secondary focus-visible:outline-accent-primary flex min-w-[120px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-md focus:shadow-[0_0_0_3px_var(--shadow-sm)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 max-md:min-h-[44px] max-md:text-base {$theme ===
+                    'dark'
+                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-white shadow-md'
+                        : ''}"
                     class:active={$theme === "dark"}
                     on:click={() => theme.setTheme("dark")}
                     aria-label="Switch to dark theme"
                     aria-pressed={$theme === "dark"}
                 >
                     <svg
+                        class="shrink-0"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         width="1.5em"
@@ -59,98 +69,5 @@
     </div>
 </div>
 
-<style> 
-    .content {
-        padding: 0;
-        max-width: 500px;
-        width: 100%;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-primary);
-    }
-
-    .header h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        color: var(--text-primary);
-    }
-
-    .body {
-        padding: 1.5rem;
-    }
-
-    .theme-toggle-container {
-        width: 100%;
-    }
-
-    .theme-toggle-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .theme-option {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.25rem;
-        border: 2px solid var(--border-primary);
-        background: var(--card-bg);
-        color: var(--text-secondary);
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        flex: 1;
-        min-width: 120px;
-        justify-content: center;
-    }
-
-    .theme-option:hover {
-        border-color: var(--accent-primary);
-        background: var(--bg-secondary);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px var(--shadow-md);
-    }
-
-    .theme-option.active {
-        border-color: var(--accent-primary);
-        background: var(--accent-primary);
-        color: white;
-        box-shadow: 0 2px 6px var(--shadow-md);
-    }
-
-    .theme-option.active:hover {
-        background: var(--accent-primary-hover);
-        border-color: var(--accent-primary-hover);
-    }
-
-    .theme-option svg {
-        flex-shrink: 0;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .theme-option {
-            min-height: 44px; /* iOS minimum touch target */
-            font-size: 1rem;
-        }
-    }
-
-    /* Accessibility - keyboard focus */
-    .theme-option:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px var(--shadow-sm);
-    }
-
-    .theme-option:focus-visible {
-        outline: 2px solid var(--accent-primary);
-        outline-offset: 2px;
-    }
+<style>
 </style>

@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+/* Light mode theme variables (default) */
+:root {
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-elevated: #ffffff;
+
+    /* Text Colors */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --text-inverse: #ffffff;
+
+    /* Border Colors */
+    --border-primary: #e2e8f0;
+    --border-secondary: #cbd5e1;
+    --border-subtle: #f1f5f9;
+
+    /* Shadow Colors */
+    --shadow-sm: rgba(0, 0, 0, 0.05);
+    --shadow-md: rgba(0, 0, 0, 0.1);
+    --shadow-lg: rgba(0, 0, 0, 0.15);
+
+    /* Accent Colors */
+    --accent-primary: #3b82f6;
+    --accent-primary-hover: #2563eb;
+    --accent-primary-active: #1d4ed8;
+
+    --accent-success: #10b981;
+    --accent-success-hover: #059669;
+    --accent-success-active: #047857;
+    --success: #10b981;
+    --success-bg: #d1fae5;
+    --success-text: #065f46;
+
+    --accent-danger: #ef4444;
+    --accent-danger-hover: #dc2626;
+    --accent-danger-active: #b91c1c;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --danger-text: #991b1b;
+
+    --accent-warning: #f59e0b;
+    --accent-warning-hover: #d97706;
+    --accent-warning-active: #b45309;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+
+    --accent-info: #06b6d4;
+    --accent-info-hover: #0891b2;
+    --accent-info-active: #0e7490;
+
+    /* Sidebar Colors */
+    --sidebar-bg: #1e293b;
+    --sidebar-text: #e2e8f0;
+    --sidebar-text-muted: #94a3b8;
+    --sidebar-hover: #334155;
+    --sidebar-active: #475569;
+    --sidebar-border: #334155;
+
+    /* Card/Panel Colors */
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Input/Form Colors */
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-border-focus: #3b82f6;
+    --input-text: #0f172a;
+    --input-placeholder: #94a3b8;
+    --focus-ring: rgba(59, 130, 246, 0.5);
+
+    /* Modal Colors */
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --modal-bg: #ffffff;
+    --modal-border: #e2e8f0;
+
+    /* Misc */
+    --divider: #e2e8f0;
+}
+
+/* Dark mode theme variables */
+.dark {
+    /* Background Colors */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-elevated: #1e293b;
+
+    /* Text Colors */
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
+
+    /* Border Colors */
+    --border-primary: #334155;
+    --border-secondary: #475569;
+    --border-subtle: #1e293b;
+
+    /* Shadow Colors */
+    --shadow-sm: rgba(0, 0, 0, 0.3);
+    --shadow-md: rgba(0, 0, 0, 0.4);
+    --shadow-lg: rgba(0, 0, 0, 0.5);
+
+    /* Accent Colors - keeping same vibrant colors for dark mode */
+    --accent-primary: #60a5fa;
+    --accent-primary-hover: #3b82f6;
+    --accent-primary-active: #2563eb;
+
+    --accent-success: #34d399;
+    --accent-success-hover: #10b981;
+    --accent-success-active: #059669;
+    --success: #34d399;
+    --success-bg: #064e3b;
+    --success-text: #a7f3d0;
+
+    --accent-danger: #f87171;
+    --accent-danger-hover: #ef4444;
+    --accent-danger-active: #dc2626;
+    --danger: #f87171;
+    --danger-bg: #7f1d1d;
+    --danger-text: #fecaca;
+
+    --accent-warning: #fbbf24;
+    --accent-warning-hover: #f59e0b;
+    --accent-warning-active: #d97706;
+    --warning: #fbbf24;
+    --warning-light: #78350f;
+
+    --accent-info: #22d3ee;
+    --accent-info-hover: #06b6d4;
+    --accent-info-active: #0891b2;
+
+    /* Sidebar Colors */
+    --sidebar-bg: #020617;
+    --sidebar-text: #e2e8f0;
+    --sidebar-text-muted: #64748b;
+    --sidebar-hover: #1e293b;
+    --sidebar-active: #334155;
+    --sidebar-border: #1e293b;
+
+    /* Card/Panel Colors */
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+
+    /* Input/Form Colors */
+    --input-bg: #1e293b;
+    --input-border: #475569;
+    --input-border-focus: #60a5fa;
+    --input-text: #f1f5f9;
+    --input-placeholder: #64748b;
+    --focus-ring: rgba(96, 165, 250, 0.5);
+
+    /* Modal Colors */
+    --modal-overlay: rgba(0, 0, 0, 0.75);
+    --modal-bg: #1e293b;
+    --modal-border: #334155;
+
+    /* Misc */
+    --divider: #334155;
+}
+
+/* Expose theme variables to Tailwind utilities via @theme */
+@theme {
+    /* Background Colors */
+    --color-bg-primary: var(--bg-primary);
+    --color-bg-secondary: var(--bg-secondary);
+    --color-bg-tertiary: var(--bg-tertiary);
+    --color-bg-elevated: var(--bg-elevated);
+
+    /* Text Colors */
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+    --color-text-inverse: var(--text-inverse);
+
+    /* Border Colors */
+    --color-border-primary: var(--border-primary);
+    --color-border-secondary: var(--border-secondary);
+    --color-border-subtle: var(--border-subtle);
+
+    /* Shadow Colors */
+    --color-shadow-sm: var(--shadow-sm);
+    --color-shadow-md: var(--shadow-md);
+    --color-shadow-lg: var(--shadow-lg);
+
+    /* Accent Colors */
+    --color-accent-primary: var(--accent-primary);
+    --color-accent-primary-hover: var(--accent-primary-hover);
+    --color-accent-primary-active: var(--accent-primary-active);
+
+    --color-accent-success: var(--accent-success);
+    --color-accent-success-hover: var(--accent-success-hover);
+    --color-accent-success-active: var(--accent-success-active);
+    --color-success: var(--success);
+    --color-success-bg: var(--success-bg);
+    --color-success-text: var(--success-text);
+
+    --color-accent-danger: var(--accent-danger);
+    --color-accent-danger-hover: var(--accent-danger-hover);
+    --color-accent-danger-active: var(--accent-danger-active);
+    --color-danger: var(--danger);
+    --color-danger-bg: var(--danger-bg);
+    --color-danger-text: var(--danger-text);
+
+    --color-accent-warning: var(--accent-warning);
+    --color-accent-warning-hover: var(--accent-warning-hover);
+    --color-accent-warning-active: var(--accent-warning-active);
+    --color-warning: var(--warning);
+    --color-warning-light: var(--warning-light);
+
+    --color-accent-info: var(--accent-info);
+    --color-accent-info-hover: var(--accent-info-hover);
+    --color-accent-info-active: var(--accent-info-active);
+
+    /* Sidebar Colors */
+    --color-sidebar-bg: var(--sidebar-bg);
+    --color-sidebar-text: var(--sidebar-text);
+    --color-sidebar-text-muted: var(--sidebar-text-muted);
+    --color-sidebar-hover: var(--sidebar-hover);
+    --color-sidebar-active: var(--sidebar-active);
+    --color-sidebar-border: var(--sidebar-border);
+
+    /* Card/Panel Colors */
+    --color-card-bg: var(--card-bg);
+    --color-card-border: var(--card-border);
+    --color-card-shadow: var(--card-shadow);
+
+    /* Input/Form Colors */
+    --color-input-bg: var(--input-bg);
+    --color-input-border: var(--input-border);
+    --color-input-border-focus: var(--input-border-focus);
+    --color-input-text: var(--input-text);
+    --color-input-placeholder: var(--input-placeholder);
+    --color-focus-ring: var(--focus-ring);
+
+    /* Modal Colors */
+    --color-modal-overlay: var(--modal-overlay);
+    --color-modal-bg: var(--modal-bg);
+    --color-modal-border: var(--modal-border);
+
+    /* Misc */
+    --color-divider: var(--divider);
+}

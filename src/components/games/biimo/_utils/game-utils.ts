@@ -1,7 +1,7 @@
 export enum KnownGames {
     ScreenTest,
     Snake,
-    Dungeon
+    Dungeon,
 }
 
 export class ZDepthHelper {
@@ -19,7 +19,7 @@ export class ZDepthHelper {
             return -1;
         }
 
-        let zDepth = min + ((max - min) * perc);
+        let zDepth = min + (max - min) * perc;
         zDepth = zDepth * CameraMaxZ;
         return zDepth;
     }
@@ -28,12 +28,12 @@ export class ZDepthHelper {
 export enum GameLayer {
     Background,
     Game,
-    UI
+    UI,
 }
 export enum GameLayerPos {
     Bottom = 0.01,
     Middle = 0.5,
-    Top = 0.99
+    Top = 0.99,
 }
 export const GameLayerPercentages: number[] = Array.from(
     { length: Object.keys(GameLayer).length / 2 + 1 }, // Enum keys include both names and values, so divide by 2
@@ -50,7 +50,7 @@ export enum BiimoButton {
     B = "button-b",
     Start = "button-start",
     Select = "button-select",
-    Unknown = "button-unknown"
+    Unknown = "button-unknown",
 }
 
 export function isBiimoButton(buttonId: string): buttonId is BiimoButton {

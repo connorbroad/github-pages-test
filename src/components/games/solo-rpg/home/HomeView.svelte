@@ -41,7 +41,7 @@
             acc[blueprint.id] = campaigns.filter((c) => c.blueprintId === blueprint.id);
             return acc;
         },
-        {} as Record<string, Campaign[]>,
+        {} as Record<string, Campaign[]>
     );
 
     onMount(() => {
@@ -142,89 +142,132 @@
 </script>
 
 <SrpgListPage showActiveCampaign={false}>
-    <div slot="header" >
+    <div slot="header">
         <h1>Solo RPG</h1>
     </div>
-    <div class="home-view">
-        <p>Welcome to your Solo RPG companion!</p>
+    <div class="mx-auto max-w-[800px] pb-[calc(90px+env(safe-area-inset-bottom))]">
+        <p class="text-text-secondary mb-8 text-center text-[1.1rem]">
+            Welcome to your Solo RPG companion!
+        </p>
 
         {#if $activeCampaign}
             <div class="banner">
-                <div class="banner-content">
-                    <div class="banner-info">
-                        <span class="banner-label">Active Campaign:</span>
-                        <span class="banner-title">{$activeCampaign.title}</span>
-                        <span class="banner-meta">{$activeCampaign.blueprintTitle}</span>
+                <div
+                    class="flex items-center justify-between gap-4 max-[600px]:flex-col max-[600px]:items-stretch">
+                    <div class="flex flex-wrap items-center gap-2 max-[600px]:justify-center">
+                        <span class="text-sm opacity-90">Active Campaign:</span>
+                        <span class="text-[1.1rem] font-semibold">{$activeCampaign.title}</span>
+                        <span class="text-sm opacity-85">{$activeCampaign.blueprintTitle}</span>
                     </div>
                 </div>
             </div>
         {/if}
 
-        <div class="new-game-section">
-            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateBlueprint}>
+        <div class="mt-8">
+            <button
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                on:click={openCreateBlueprint}>
                 + Create Game Blueprint
             </button>
 
             {#if gameBlueprints.length > 0}
-                <h2>Your Games</h2>
+                <h2 class="text-text-primary mt-8 mb-4 text-[1.3rem]">Your Games</h2>
 
-                <div class="blueprints-list">
+                <div class="mt-4 flex flex-col gap-3">
                     {#each gameBlueprints as blueprint (blueprint.id)}
                         {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
                         {@const isExpanded = expandedBlueprints.has(blueprint.id)}
 
-                        <div class="blueprint-section">
-                            <div class="blueprint-header">
-                                <button class="blueprint-toggle" on:click={() => toggleBlueprint(blueprint.id)}>
-                                    <span class="collapse-icon" class:expanded={isExpanded}>▶</span>
-                                    <span class="blueprint-title">{blueprint.title}</span>
+                        <div class="border-border-primary bg-card-bg rounded-lg border">
+                            <div class="bg-bg-secondary flex items-center gap-3 p-2">
+                                <button
+                                    class="hover:bg-bg-tertiary flex flex-1 cursor-pointer items-center gap-3 rounded-md border-none bg-transparent p-2 text-left text-base transition-colors duration-200 md:p-3"
+                                    on:click={() => toggleBlueprint(blueprint.id)}>
+                                    <span
+                                        class="text-text-secondary inline-block w-4 text-xs transition-transform duration-200 {isExpanded
+                                            ? 'rotate-90'
+                                            : ''}">
+                                        ▶
+                                    </span>
+                                    <span class="text-text-primary flex-1 font-semibold">
+                                        {blueprint.title}
+                                    </span>
                                 </button>
-                                <div class="blueprint-actions">
+                                <div class="flex items-center gap-2">
                                     <button
-                                        class="edit-blueprint-btn srpg-b srpg-b-normal srpg-b-sm"
+                                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex min-h-[36px] min-w-[36px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border p-1.5 px-3 py-2 text-center text-sm leading-none font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md md:p-2"
                                         on:click={() => openEditBlueprint(blueprint)}
                                         title="Edit blueprint"
-                                        aria-label="Edit blueprint"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em">
-                                            <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                        aria-label="Edit blueprint">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            width="1em"
+                                            height="1em">
+                                            <path
+                                                fill="currentColor"
+                                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                         </svg>
                                     </button>
                                     <button
-                                        class="add-campaign-btn srpg-b srpg-b-create srpg-b-sm"
+                                        class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex min-h-[36px] min-w-[36px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border p-1.5 px-3 py-2 text-center text-sm text-[1.2rem] leading-none font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md md:p-2"
                                         on:click={() => openCampaignCreator(blueprint)}
-                                        title="Create new campaign"
-                                    >
+                                        title="Create new campaign">
                                         +
                                     </button>
                                 </div>
                             </div>
 
                             {#if isExpanded}
-                                <div class="campaigns-container">
+                                <div class="bg-bg-tertiary p-4 pt-2">
                                     {#if blueprintCampaigns.length > 0}
-                                        <div class="campaigns-grid">
+                                        <div
+                                            class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
                                             {#each blueprintCampaigns as campaign}
-                                                <div class="info-card campaign-card">
-                                                    <div class="campaign-info">
-                                                        <strong class="campaign-name">{campaign.title}</strong>
-                                                        <span class="campaign-date">{formatDate(campaign.createdAt)}</span>
+                                                <div
+                                                    class="relative flex min-h-[80px] w-full flex-row items-center justify-center gap-2 p-4 text-left transition-all duration-200">
+                                                    <div class="flex grow flex-col gap-1">
+                                                        <strong class="text-base wrap-break-word">
+                                                            {campaign.title}
+                                                        </strong>
+                                                        <span
+                                                            class="text-xs font-normal opacity-70">
+                                                            {formatDate(campaign.createdAt)}
+                                                        </span>
                                                     </div>
-                                                    <div class="campaign-actions">
+                                                    <div
+                                                        class="flex min-w-[50px] flex-row items-center justify-center">
                                                         <button
-                                                            class="srpg-b srpg-b-normal campaign-play-button"
-                                                            class:active={$activeCampaign?.id === campaign.id}
-                                                            on:click={() => openCampaignLoadConfirm(campaign)}
-                                                            disabled={$activeCampaign?.id === campaign.id}
-                                                            aria-label="Load campaign"
-                                                        >
+                                                            class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex aspect-square cursor-pointer items-center justify-center gap-2 rounded-md border p-3 px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md {$activeCampaign?.id ===
+                                                            campaign.id
+                                                                ? 'active'
+                                                                : ''}"
+                                                            on:click={() =>
+                                                                openCampaignLoadConfirm(campaign)}
+                                                            disabled={$activeCampaign?.id ===
+                                                                campaign.id}
+                                                            aria-label="Load campaign">
                                                             {#if $activeCampaign?.id === campaign.id}
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" {...$$props}>
-                                                                    <path fill="currentColor" d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196" />
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24"
+                                                                    width="1em"
+                                                                    height="1em"
+                                                                    {...$$props}>
+                                                                    <path
+                                                                        fill="currentColor"
+                                                                        d="M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196" />
                                                                 </svg>
                                                             {:else}
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.5em" height="1.5em" {...$$props}>
-                                                                    <path fill="currentColor" d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804" />
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24"
+                                                                    width="1.5em"
+                                                                    height="1.5em"
+                                                                    {...$$props}>
+                                                                    <path
+                                                                        fill="currentColor"
+                                                                        d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804" />
                                                                 </svg>
                                                             {/if}
                                                         </button>
@@ -233,7 +276,9 @@
                                             {/each}
                                         </div>
                                     {:else}
-                                        <p class="no-campaigns">No campaigns yet. Click the + button to create one.</p>
+                                        <p class="text-text-muted m-0 p-4 text-center italic">
+                                            No campaigns yet. Click the + button to create one.
+                                        </p>
                                     {/if}
                                 </div>
                             {/if}
@@ -244,265 +289,3 @@
         </div>
     </div>
 </SrpgListPage>
-
-<GameBlueprintEditor
-    show={showBlueprintEditor}
-    blueprint={editingBlueprint}
-    on:close={() => (showBlueprintEditor = false)}
-    on:save={saveBlueprint}
-/>
-<CampaignCreator
-    show={showCampaignCreator}
-    blueprint={selectedBlueprint}
-    on:close={() => {
-        showCampaignCreator = false;
-        selectedBlueprint = null;
-    }}
-    on:create={createCampaign}
-/>
-<CampaignLoadConfirm
-    show={showCampaignLoadConfirm}
-    campaign={selectedCampaignForLoad}
-    on:close={() => {
-        showCampaignLoadConfirm = false;
-        selectedCampaignForLoad = null;
-    }}
-    on:load={handleLoadCampaign}
-/>
-
-<style>
-    .home-view {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .home-view p {
-        text-align: center;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-        color: var(--text-secondary);
-    }
-
-    .banner-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .banner-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .banner-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .banner-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-
-    .banner-meta {
-        font-size: 0.9rem;
-        opacity: 0.85;
-    }
-
-    @media (max-width: 600px) {
-        .banner-content {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .banner-info {
-            justify-content: center;
-        }
-    }
-
-    .new-game-section {
-        margin-top: 2rem;
-    }
-
-    .new-game-section h2 {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-        font-size: 1.3rem;
-    }
-
-    .blueprints-list {
-        margin-top: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .blueprint-section {
-        border: 1px solid var(--border-primary);
-        border-radius: 8px;
-        background: var(--card-bg);
-    }
-
-    .blueprint-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        background: var(--bg-secondary);
-    }
-
-    .blueprint-toggle {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0.75rem;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        font-size: 1rem;
-        text-align: left;
-        border-radius: 6px;
-    }
-
-    .blueprint-toggle:hover {
-        background: var(--bg-tertiary);
-    }
-
-    .collapse-icon {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        transition: transform 0.2s;
-        display: inline-block;
-        width: 1rem;
-    }
-
-    .collapse-icon.expanded {
-        transform: rotate(90deg);
-    }
-
-    .blueprint-title {
-        flex: 1;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .blueprint-meta {
-        font-weight: 400;
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-left: 0.5rem;
-    }
-
-    .add-campaign-btn {
-        padding: 0.4rem 0.75rem;
-        font-size: 1.2rem;
-        line-height: 1;
-        font-weight: bold;
-        flex-shrink: 0;
-        min-width: 36px;
-        min-height: 36px;
-    }
-
-    .blueprint-actions {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .edit-blueprint-btn {
-        padding: 0.4rem 0.75rem;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        min-width: 36px;
-        min-height: 36px;
-    }
-
-    .edit-blueprint-btn svg {
-        width: 1em;
-        height: 1em;
-    }
-
-    .campaigns-container {
-        padding: 1rem 1rem;
-        padding-top: 0.5rem;
-        background: var(--bg-tertiary);
-    }
-
-    .campaign-actions {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        min-width: 50px;
-    }
-
-    .campaigns-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.75rem;
-    }
-
-    .campaign-card {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        min-height: 80px;
-        text-align: left;
-        position: relative;
-        transition: all 0.2s ease;
-        width: 100%;
-        gap: 0.5rem;
-    }
-
-    .campaign-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        flex-grow: 1;
-    }
-
-    .campaign-name {
-        font-size: 1rem;
-        word-break: break-word;
-    }
-
-    .campaign-date {
-        font-size: 0.75rem;
-        opacity: 0.7;
-        font-weight: normal;
-    }
-
-    .campaign-play-button {
-        padding: 12px;
-        aspect-ratio: 1 / 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .no-campaigns {
-        text-align: center;
-        color: var(--text-muted);
-        font-style: italic;
-        padding: 1rem;
-        margin: 0;
-    }
-
-    /* Mobile spacing for bottom controls */
-    @media (max-width: 768px) {
-        .home-view {
-            padding-bottom: calc(90px + env(safe-area-inset-bottom));
-        }
-    }
-</style>

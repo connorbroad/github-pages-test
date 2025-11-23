@@ -4,7 +4,6 @@
      * Provides a consistent modal wrapper with customizable navigation buttons
      */
     import { createEventDispatcher } from "svelte";
-    import "../../solo-rpg-styles.css";
 
     export let show = false;
     export let showCloseButton = true;
@@ -49,7 +48,7 @@
 
 {#if show}
     <div
-        class="srpg-modal"
+        class="bg-modal-overlay fixed top-0 left-0 z-[1000] box-border flex h-[100dvh] w-full items-center justify-center p-4 md:pl-[calc(80px+1rem)]"
         role="button"
         tabindex="0"
         aria-label={ariaLabel}
@@ -57,7 +56,7 @@
         on:keydown={handleOverlayKeydown}
     >
         <div
-            class="srpg-modal-content"
+            class="bg-modal-bg relative box-border flex max-h-full w-full min-w-[300px] flex-col overflow-hidden rounded-lg p-8 text-center shadow-lg max-md:m-0 max-md:max-w-full max-md:p-6 md:max-lg:max-w-[90vw] md:max-lg:p-6"
             role="dialog"
             aria-modal="true"
             tabindex="0"
@@ -67,7 +66,7 @@
         >
             {#if showBackButton}
                 <button
-                    class="srpg-b-modal-nav srpg-b-modal-nav-back"
+                    class="text-text-muted hover:text-text-primary absolute top-2 left-2 cursor-pointer border-none bg-transparent p-2 text-2xl transition-all duration-200 hover:scale-110 active:scale-95"
                     on:click={handleBack}
                     aria-label="Go back"
                 >
@@ -77,7 +76,7 @@
 
             {#if showCloseButton}
                 <button
-                    class="srpg-b-modal-nav srpg-b-modal-nav-close"
+                    class="text-text-muted hover:text-text-primary absolute top-2 right-2 cursor-pointer border-none bg-transparent p-2 text-2xl transition-all duration-200 hover:scale-110 active:scale-95"
                     on:click={handleClose}
                     aria-label="Close"
                 >
@@ -85,7 +84,9 @@
                 </button>
             {/if}
 
-            <div class="srpg-modal-scroll-container">
+            <div
+                class="scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted min-h-0 flex-1 overflow-x-hidden overflow-y-auto scroll-smooth"
+            >
                 <slot />
             </div>
         </div>
@@ -93,35 +94,4 @@
 {/if}
 
 <style>
-    .srpg-modal-scroll-container {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    /* Smooth scrolling */
-    .srpg-modal-scroll-container {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Custom scrollbar styling */
-    .srpg-modal-scroll-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .srpg-modal-scroll-container::-webkit-scrollbar-track {
-        background: var(--bg-secondary);
-        border-radius: 4px;
-    }
-
-    .srpg-modal-scroll-container::-webkit-scrollbar-thumb {
-        background: var(--border-secondary);
-        border-radius: 4px;
-    }
-
-    .srpg-modal-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
 </style>

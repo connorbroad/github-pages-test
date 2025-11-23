@@ -1,25 +1,25 @@
 <script lang="ts">
-import { createEventDispatcher, onMount } from "svelte";
-import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
-import type { CampaignItem } from "../../../../data/storage-utils";
+    import { createEventDispatcher, onMount } from "svelte";
+    import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
+    import type { CampaignItem } from "../../../../data/storage-utils";
 
-export let show = false;
-export let campaignItems: CampaignItem[] = [];
+    export let show = false;
+    export let campaignItems: CampaignItem[] = [];
 
-const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 
-let selectedItemId = "";
-let quantity = 1;
+    let selectedItemId = "";
+    let quantity = 1;
 
-function handleSave() {
-    if (!selectedItemId || quantity < 1) return;
-    dispatch("save", { itemId: selectedItemId, quantity });
-    show = false;
-}
-function handleClose() {
-    dispatch("close");
-    show = false;
-}
+    function handleSave() {
+        if (!selectedItemId || quantity < 1) return;
+        dispatch("save", { itemId: selectedItemId, quantity });
+        show = false;
+    }
+    function handleClose() {
+        dispatch("close");
+        show = false;
+    }
 </script>
 
 <SrpgModal bind:show maxWidth="400px" ariaLabel="Add Inventory Item" on:close={handleClose}>
@@ -41,13 +41,22 @@ function handleClose() {
             </div>
         </div>
         <div class="modal-actions">
-            <button class="srpg-b srpg-b-create" on:click={handleSave} disabled={!selectedItemId}>Add</button>
+            <button class="srpg-b srpg-b-create" on:click={handleSave} disabled={!selectedItemId}>
+                Add
+            </button>
             <button class="srpg-b srpg-b-simple" on:click={handleClose}>Cancel</button>
         </div>
     </div>
 </SrpgModal>
 
 <style>
-.modal-content { padding: 1.5rem; }
-.modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
+    .modal-content {
+        padding: 1.5rem;
+    }
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        justify-content: flex-end;
+    }
 </style>

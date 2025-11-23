@@ -40,11 +40,20 @@ export class Board {
                 const geometry = new THREE.PlaneGeometry(cubeWidth, cubeHeight);
                 let cellShade01 = this.getShade01ForCell(i, j);
                 let cellShade = this.getShadeForCell(cellShade01);
-                const material = new THREE.MeshBasicMaterial({ color: new THREE.Color('rgb(' + cellShade + ',' + cellShade + ',' + cellShade + ')') });
+                const material = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(
+                        "rgb(" + cellShade + "," + cellShade + "," + cellShade + ")"
+                    ),
+                });
                 const cube = new THREE.Mesh(geometry, material);
-                cube.position.x = i * cubeWidth + (cubeWidth / 2) + (distBetweenCubes * i) + distBetweenCubes / 2;
-                cube.position.y = j * cubeHeight + (cubeHeight / 2) + (distBetweenCubes * j) + distBetweenCubes / 2;
-                cube.position.z = ZDepthHelper.getMeshZDepth(GameLayer.Background, GameLayerPos.Bottom);
+                cube.position.x =
+                    i * cubeWidth + cubeWidth / 2 + distBetweenCubes * i + distBetweenCubes / 2;
+                cube.position.y =
+                    j * cubeHeight + cubeHeight / 2 + distBetweenCubes * j + distBetweenCubes / 2;
+                cube.position.z = ZDepthHelper.getMeshZDepth(
+                    GameLayer.Background,
+                    GameLayerPos.Bottom
+                );
                 cube.rotateOnAxis(new THREE.Vector3(0, 0, 1), 0.1);
                 this.cellMeshes[j][i] = cube;
                 scene.add(cube);
@@ -62,7 +71,10 @@ export class Board {
         // sway the cells with the wind
         for (let j = 0; j < this.numCellsHigh; j++) {
             for (let i = 0; i < this.numCellsWide; i++) {
-                this.cellMeshes[j][i].rotation.z = Math.sin(this.boardTime * this.swayFrequency + (i * (i + j)) / this.swayWaveLength) * this.swayAmplitude;
+                this.cellMeshes[j][i].rotation.z =
+                    Math.sin(
+                        this.boardTime * this.swayFrequency + (i * (i + j)) / this.swayWaveLength
+                    ) * this.swayAmplitude;
             }
         }
     }
@@ -72,10 +84,7 @@ export class Board {
     }
 
     public getBoardPcPos(cell: Vector2): Vector2 {
-        return new Vector2(
-            this.getBoardPcPosX(cell.x),
-            this.getBoardPcPosY(cell.y)
-        );
+        return new Vector2(this.getBoardPcPosX(cell.x), this.getBoardPcPosY(cell.y));
     }
 
     public getBoardPcPosX(cellX: number) {
@@ -95,18 +104,13 @@ export class Board {
     public cellIsOnBoard(cell: Vector2) {
         cell.toVector2Int();
         return (
-            cell.x >= 0 &&
-            cell.x < this.numCellsWide &&
-            cell.y >= 0 &&
-            cell.y < this.numCellsHigh
+            cell.x >= 0 && cell.x < this.numCellsWide && cell.y >= 0 && cell.y < this.numCellsHigh
         );
     }
 
     // maintains the list of free cells that the prey can spawn in
     public snakeHeadMovedIntoCell(cell: Vector2) {
-        this.freeCells = this.freeCells.filter(
-            (freeCell) => !freeCell.equals(cell)
-        );
+        this.freeCells = this.freeCells.filter((freeCell) => !freeCell.equals(cell));
     }
 
     public snakeTailLeftCell(oldCell: Vector2) {
@@ -121,7 +125,7 @@ export class Board {
         i += 1;
         j += 1;
         let patternOffset = 23;
-        let shade01 = (i * j + j) / 100 * patternOffset % 1;
+        let shade01 = (((i * j + j) / 100) * patternOffset) % 1;
         return shade01;
     }
 

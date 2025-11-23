@@ -1,12 +1,12 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Run (yarn start-host)",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "yarn start-host",
-      "cwd": "${workspaceFolder}"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run (yarn start-host)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "yarn start-host",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
 }

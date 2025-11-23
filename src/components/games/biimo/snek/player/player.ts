@@ -146,7 +146,8 @@ export class Snake {
         const newSegment = new SnakeSegment(this.tail(), this.g.board, isControllable);
         this.snakeSegments.push(newSegment);
         this.addDetailMesh(newSegment, this.snakeSegments.length - 1);
-        if (this.snakeSegments.length > 1) // don't add a body mesh to the head
+        if (this.snakeSegments.length > 1)
+            // don't add a body mesh to the head
             this.addBodyMesh(this.tail(), this.snakeSegments.length - 1);
         return newSegment;
     }
@@ -171,13 +172,17 @@ export class Snake {
 
         // create mesh outline
         const geometry = new THREE.CircleGeometry(headWidth, 4); // circle with 4 sides = square
-        const outlineMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.1, 0.1, 0.1) });
+        const outlineMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(0.1, 0.1, 0.1),
+        });
         const bgSquare = new THREE.Mesh(geometry, outlineMaterial);
 
         // colored mesh
         const headSize = headWidth * 0.7;
         const geometry2 = new THREE.CircleGeometry(headSize, 4); // circle with 4 sides = square
-        const bodyMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(snakeHeadColor.x, snakeHeadColor.y, snakeHeadColor.z) });
+        const bodyMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(snakeHeadColor.x, snakeHeadColor.y, snakeHeadColor.z),
+        });
         const bodySquare = new THREE.Mesh(geometry2, bodyMaterial);
 
         let group = new THREE.Group();
@@ -197,7 +202,13 @@ export class Snake {
         let length = this.g.board?.cellWidthPc();
 
         // create mesh
-        const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(this.snakeBodyColor.x, this.snakeBodyColor.y, this.snakeBodyColor.z) });
+        const material = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(
+                this.snakeBodyColor.x,
+                this.snakeBodyColor.y,
+                this.snakeBodyColor.z
+            ),
+        });
         const geometry = new THREE.CapsuleGeometry(width / 2, length, 1, 4);
         geometry.rotateZ(-Math.PI / 2);
         geometry.translate(length / 2, 0, 0); // so one end is at the origin

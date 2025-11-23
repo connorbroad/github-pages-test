@@ -4,7 +4,14 @@
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import FloatingOracleButton from "../shared/FloatingOracleButton.svelte";
     import { generateId } from "../oracle/scripts/oracleTypes";
-    import { loadMapsByCampaign, saveMaps, loadMaps, saveActiveMapId, loadActiveMapId, type MapEntity } from "../data/storage-utils";
+    import {
+        loadMapsByCampaign,
+        saveMaps,
+        loadMaps,
+        saveActiveMapId,
+        loadActiveMapId,
+        type MapEntity,
+    } from "../data/storage-utils";
     import MapLanding from "./MapLanding.svelte";
     import MapEditor from "./MapEditor.svelte";
     import SecondarySidebar from "../SecondarySidebar.svelte";
@@ -17,7 +24,7 @@
     let maps: MapEntity[] = [];
 
     function handleNavigateHome() {
-        dispatch('navigateHome');
+        dispatch("navigateHome");
     }
 
     $: campaignId = $activeCampaign?.id;
@@ -27,7 +34,7 @@
             maps = loadMapsByCampaign(campaignId);
             const activeMapId = loadActiveMapId();
             // Validate that the active map belongs to the current campaign
-            if (activeMapId && maps.some(m => m.id === activeMapId)) {
+            if (activeMapId && maps.some((m) => m.id === activeMapId)) {
                 currentMapId = activeMapId;
             } else {
                 currentMapId = null;
@@ -41,7 +48,7 @@
         maps = loadMapsByCampaign(campaignId);
         // If there's a current map open, verify it belongs to this campaign
         if (currentMapId) {
-            const mapBelongsToCampaign = maps.some(m => m.id === currentMapId);
+            const mapBelongsToCampaign = maps.some((m) => m.id === currentMapId);
             if (!mapBelongsToCampaign) {
                 currentMapId = null;
                 saveActiveMapId(null);
@@ -84,7 +91,7 @@
     function renameMap(e: CustomEvent<{ id: string; name: string }>) {
         const { id, name } = e.detail;
         const all = loadMaps();
-        const idx = all.findIndex(m => m.id === id);
+        const idx = all.findIndex((m) => m.id === id);
         if (idx >= 0) {
             all[idx] = { ...all[idx], name, updatedAt: Date.now() };
             saveMaps(all);
@@ -94,7 +101,7 @@
 
     function deleteMap(e: CustomEvent<{ id: string }>) {
         const { id } = e.detail;
-        const all = loadMaps().filter(m => m.id !== id);
+        const all = loadMaps().filter((m) => m.id !== id);
         saveMaps(all);
         if (currentMapId === id) {
             currentMapId = null;
@@ -133,7 +140,12 @@
     // Reference to MapEditor to call exported methods
     let editorRef: any;
 
-    function handleEditorSelectionChange(e: CustomEvent<{ selected: boolean; object: { id: string; color: string; canFlip: boolean } | null }>) {
+    function handleEditorSelectionChange(
+        e: CustomEvent<{
+            selected: boolean;
+            object: { id: string; color: string; canFlip: boolean } | null;
+        }>
+    ) {
         moveHasSelection = !!e.detail?.selected;
         moveSelectedColor = e.detail?.object?.color ?? null;
         moveCanFlip = !!e.detail?.object?.canFlip;
@@ -143,12 +155,17 @@
         editorRef?.setSelectedObjectColor?.(e.detail);
         moveSelectedColor = e.detail;
     }
-    function handleMoveFlip() { editorRef?.flipSelectedObject?.(); }
-    function handleMoveDelete() { editorRef?.deleteSelectedObject?.(); }
+    function handleMoveFlip() {
+        editorRef?.flipSelectedObject?.();
+    }
+    function handleMoveDelete() {
+        editorRef?.deleteSelectedObject?.();
+    }
 
     // Update tertiary sidebar visibility based on tool
     $: if (currentMapId) {
-        showTertiarySidebar = tool === "paint" || tool === "object" || (tool === 'move' && moveHasSelection);
+        showTertiarySidebar =
+            tool === "paint" || tool === "object" || (tool === "move" && moveHasSelection);
     }
 
     // Public method to close the current map and return to landing
@@ -164,60 +181,70 @@
 {#if $activeCampaign}
     {#if !currentMapId}
         <div class="map-view">
-            <MapLanding {maps}
+            <MapLanding
+                {maps}
                 on:createMap={createMap}
                 on:openMap={openMap}
                 on:renameMap={renameMap}
-                on:deleteMap={deleteMap}
-            />
+                on:deleteMap={deleteMap} />
         </div>
         <FloatingOracleButton on:navigateToStory />
     {:else}
-        <SecondarySidebar 
-            show={showSecondarySidebar} 
+        <SecondarySidebar
+            show={showSecondarySidebar}
             mode="map"
             {tool}
             activeTab="characters"
             onTabChange={() => {}}
-            on:toolChange={(e) => tool = e.detail}
-            on:close={closeMap}
-        />
-        <TertiarySidebar 
+            on:toolChange={(e) => (tool = e.detail)}
+            on:close={closeMap} />
+        <TertiarySidebar
             show={showTertiarySidebar}
+            hasSecondarySidebar={showSecondarySidebar}
             mode="map"
-            {tool} 
-            {currentShape} 
+            {tool}
+            {currentShape}
             {color}
             selectedTile={selectedTileRef}
             visibleSections={[]}
             selectedSections={new Set()}
             isEditingSections={false}
             onToggleSection={() => {}}
-            on:shapeChange={(e) => currentShape = e.detail}
-            on:colorChange={(e) => color = e.detail}
-            on:tileSelect={(e) => selectedTileRef = e.detail}
-            moveHasSelection={moveHasSelection}
-            moveSelectedColor={moveSelectedColor}
-            moveCanFlip={moveCanFlip}
+            on:shapeChange={(e) => (currentShape = e.detail)}
+            on:colorChange={(e) => (color = e.detail)}
+            on:tileSelect={(e) => (selectedTileRef = e.detail)}
+            {moveHasSelection}
+            {moveSelectedColor}
+            {moveCanFlip}
             on:moveColorChange={handleMoveColorChange}
             on:moveFlip={handleMoveFlip}
-            on:moveDelete={handleMoveDelete}
-        />
+            on:moveDelete={handleMoveDelete} />
 
         <div class="map-view-full has-sidebars">
-            <MapEditor bind:this={editorRef} mapId={currentMapId} {tool} {currentShape} {color} selectedTile={selectedTileRef}
-                on:selectionChange={handleEditorSelectionChange}
-            />
+            <MapEditor
+                bind:this={editorRef}
+                mapId={currentMapId}
+                {tool}
+                {currentShape}
+                {color}
+                selectedTile={selectedTileRef}
+                on:selectionChange={handleEditorSelectionChange} />
         </div>
-        <FloatingOracleButton 
+        <FloatingOracleButton
             hasSecondarySidebar={showSecondarySidebar}
             hasTertiarySidebar={showTertiarySidebar}
-            on:navigateToStory 
-        />
+            on:navigateToStory />
     {/if}
 {/if}
 
 <style>
-    .map-view { max-width: 1200px; margin: 0 auto; }
-    .map-view-full { position: relative; width: 100%; height: 100%; } 
+    .map-view {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .map-view-full {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
 </style>

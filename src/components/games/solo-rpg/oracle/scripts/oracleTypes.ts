@@ -37,7 +37,21 @@ export type GameBlueprint = {
 };
 
 export const CARD_SUITS = ["♠", "♥", "♦", "♣"] as const;
-export const CARD_RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"] as const;
+export const CARD_RANKS = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+] as const;
 
 /**
  * Generate a unique ID for a fortune
@@ -93,5 +107,5 @@ export function drawRandomCard(): { suit: string; rank: string } {
  * Check if a suit is red (hearts or diamonds)
  */
 export function isRedSuit(suit: string): boolean {
-    return suit === '♥' || suit === '♦';
+    return suit === "♥" || suit === "♦";
 }

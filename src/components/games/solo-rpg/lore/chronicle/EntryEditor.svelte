@@ -23,14 +23,10 @@
         <button
             class="srpg-b srpg-b-create {compact ? 'srpg-b-sm' : ''}"
             on:click={handleSave}
-            disabled={!value.trim()}
-        >
+            disabled={!value.trim()}>
             Save
         </button>
-        <button
-            class="srpg-b srpg-b-simple {compact ? 'srpg-b-sm' : ''}"
-            on:click={handleCancel}
-        >
+        <button class="srpg-b srpg-b-simple {compact ? 'srpg-b-sm' : ''}" on:click={handleCancel}>
             Cancel
         </button>
     </div>

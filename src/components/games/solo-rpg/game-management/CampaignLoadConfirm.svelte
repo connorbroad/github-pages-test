@@ -6,7 +6,6 @@
     import type { Campaign } from "../data/storage-utils";
     import { createEventDispatcher } from "svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
-    import "../solo-rpg-styles.css";
 
     export let show = false;
     export let campaign: Campaign | null = null;
@@ -34,89 +33,34 @@
 </script>
 
 {#if show && campaign}
-    <SrpgModal
-        {show}
-        ariaLabel="Close campaign load dialog"
-        on:close={handleClose}
-    >
-        <h2>Campaign Info</h2>
+    <SrpgModal {show} ariaLabel="Close campaign load dialog" on:close={handleClose}>
+        <h2 class="text-text-primary mt-0">Campaign Info</h2>
 
-        <div class="campaign-details">
-            <p class="campaign-title">{campaign.title}</p>
-            <p class="campaign-info">
-                <strong>Game:</strong>
+        <div class="bg-bg-secondary mb-6 rounded-md p-5 text-left">
+            <p class="text-text-primary m-0 mb-4 text-xl font-semibold">{campaign.title}</p>
+            <p class="text-text-secondary my-2 text-[0.95rem]">
+                <strong class="text-text-primary">Game:</strong>
                 {campaign.blueprintTitle}
             </p>
-            <p class="campaign-info">
-                <strong>Created:</strong>
+            <p class="text-text-secondary my-2 text-[0.95rem]">
+                <strong class="text-text-primary">Created:</strong>
                 {formatDate(campaign.createdAt)}
             </p>
         </div>
 
-        <div class="button-group">
+        <div class="flex gap-3 max-[500px]:flex-col">
             <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
-                on:click={handleLoad}
-            >
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                on:click={handleLoad}>
                 Load Campaign
             </button>
         </div>
 
-        <p class="confirmation-message">
-            <em
-                >Loading a campaign makes it the active campaign for all tools.</em
-            >
+        <p class="text-text-secondary mt-2 mb-0 text-[0.95rem] leading-6">
+            <em>Loading a campaign makes it the active campaign for all tools.</em>
         </p>
     </SrpgModal>
 {/if}
 
 <style>
-    h2 {
-        margin-top: 0;
-        color: var(--text-primary);
-    }
-
-    .campaign-details {
-        background: var(--bg-secondary);
-        padding: 1.25rem;
-        border-radius: 6px;
-        margin-bottom: 1.5rem;
-        text-align: left;
-    }
-
-    .campaign-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 1rem 0;
-    }
-
-    .campaign-info {
-        margin: 0.5rem 0;
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .campaign-info strong {
-        color: var(--text-primary);
-    }
-
-    .confirmation-message {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        line-height: 1.5;
-        margin-top: 0.5rem;
-        margin-bottom: 0;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    @media (max-width: 500px) {
-        .button-group {
-            flex-direction: column;
-        }
-    }
 </style>

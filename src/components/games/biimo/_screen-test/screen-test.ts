@@ -42,7 +42,6 @@ export class ScreenTest implements BiimoGame {
     readonly testImageUrl = "../../games/dungeon/screen-test/test-image.png";
     readonly fontPath = "../../games/_utils/fonts/SyneMono_Regular.json"; // get the json version of a ttf at https://gero3.github.io/facetype.js/
 
-
     readonly goblinSpriteSheetUrl = "../../games/dungeon/sprite-sheets/sprite-sheet.png";
 
     init(scene: Scene, gameWidth: number, gameHeight: number): void {
@@ -58,18 +57,22 @@ export class ScreenTest implements BiimoGame {
         let knight = {
             spritePosX: 28,
             spritePosY: 20,
-            spriteCellsWide: 2
-        }
+            spriteCellsWide: 2,
+        };
         let knightCellX = 2;
         let knightCellY = 1;
-        this.addSpriteSheetImage(knight.spritePosX, knight.spritePosY, knight.spriteCellsWide, knightCellX, knightCellY);
+        this.addSpriteSheetImage(
+            knight.spritePosX,
+            knight.spritePosY,
+            knight.spriteCellsWide,
+            knightCellX,
+            knightCellY
+        );
 
         let titleText = TextUtils.addText(this.scene, "Dungeon of\nCursed Shadow", 0.5, 0.5, 0.9);
     }
 
-    update(timeDeltaS: number): void {
-
-    }
+    update(timeDeltaS: number): void {}
 
     private addUVSquare(posX: number, posY: number, areaWidth = 1, areaHeight = 1) {
         let group = new THREE.Group();
@@ -84,8 +87,8 @@ export class ScreenTest implements BiimoGame {
                 let color = this.getColorForCell(i, j);
                 const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) });
                 const cube = new THREE.Mesh(geometry, material);
-                cube.position.x = i * cubeWidth + (cubeWidth / 2);
-                cube.position.y = j * cubeHeight + (cubeHeight / 2);
+                cube.position.x = i * cubeWidth + cubeWidth / 2;
+                cube.position.y = j * cubeHeight + cubeHeight / 2;
                 group.add(cube);
             }
         }
@@ -146,19 +149,26 @@ export class ScreenTest implements BiimoGame {
     }
 
     private getColorForCell(i: number, j: number): string {
-        let perc = ((this.numCellsWide - i) + (this.numCellsWide - j)) / ((this.numCellsWide - 1) * 2);
+        let perc =
+            (this.numCellsWide - i + (this.numCellsWide - j)) / ((this.numCellsWide - 1) * 2);
         let shade = Math.floor(perc * 255);
         return "rgb(" + shade + "," + shade + ", " + shade + ")";
     }
 
-    private addSpriteSheetImage(spritePosX: number, spritePosY: number, spriteCellsWide: number, posX: number, posY: number) {
+    private addSpriteSheetImage(
+        spritePosX: number,
+        spritePosY: number,
+        spriteCellsWide: number,
+        posX: number,
+        posY: number
+    ) {
         let url = this.goblinSpriteSheetUrl;
 
         let group = new THREE.Group();
         let spriteCellWidth = this.cellWidth * spriteCellsWide;
         let spriteCellHeight = this.cellWidth * spriteCellsWide;
-        group.position.x = posX * this.cellWidth + (spriteCellWidth / 2);
-        group.position.y = posY * this.cellWidth + (spriteCellWidth / 2);
+        group.position.x = posX * this.cellWidth + spriteCellWidth / 2;
+        group.position.y = posY * this.cellWidth + spriteCellWidth / 2;
 
         let loader = new THREE.TextureLoader();
         loader.load(url, (texture) => {
@@ -174,7 +184,10 @@ export class ScreenTest implements BiimoGame {
             texture.repeat.set(cellWidth * spriteCellsWide, cellHeight * spriteCellsWide);
             texture.offset.set(cellWidth * spritePosX, cellHeight * spritePosY);
 
-            let material = new THREE.SpriteMaterial({ map: texture, color: new THREE.Color("cyan") });
+            let material = new THREE.SpriteMaterial({
+                map: texture,
+                color: new THREE.Color("cyan"),
+            });
             let mesh = new THREE.Sprite(material);
             mesh.scale.set(spriteCellWidth, spriteCellHeight, 1);
             group.add(mesh);

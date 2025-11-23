@@ -4,7 +4,14 @@
 </script>
 
 <script lang="ts">
-    import { loadFortunes, saveFortunes, loadGameBlueprints, loadChronicleEntries, saveChronicleEntries, loadActiveCharacterId } from "../data/storage-utils";
+    import {
+        loadFortunes,
+        saveFortunes,
+        loadGameBlueprints,
+        loadChronicleEntries,
+        saveChronicleEntries,
+        loadActiveCharacterId,
+    } from "../data/storage-utils";
     import type { FortuneResultData } from "../data/storage-utils";
     import { activeCampaign } from "../game-management/campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
@@ -13,7 +20,7 @@
     import FateConsultation from "./components/FateConsultation.svelte";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
-    import "../solo-rpg-styles.css";
+
     import CardDealer from "./components/card-dealer/CardDealer.svelte";
     import DiceRoller from "./components/dice-roller/DiceRoller.svelte";
     import CharacterSelector from "../shared/CharacterSelector.svelte";
@@ -46,9 +53,9 @@
     }
     $: updateLastView(view);
 
-    // View state for in-modal navigation 
+    // View state for in-modal navigation
     let view: OracleView = lastView;
-    
+
     // Track the currently displayed character in the selector
     let currentDisplayedCharacterId: string | null = null;
 
@@ -78,18 +85,16 @@
     $: {
         if ($activeCampaign) {
             const blueprints = loadGameBlueprints();
-            const activeBlueprint = blueprints.find(
-                (b) => b.id === $activeCampaign.blueprintId
-            );
-            
+            const activeBlueprint = blueprints.find((b) => b.id === $activeCampaign.blueprintId);
+
             if (activeBlueprint && activeBlueprint.defaultFortunes) {
                 defaultFortunes = activeBlueprint.defaultFortunes;
             } else {
                 defaultFortunes = [];
             }
-            
+
             // Filter custom fortunes to only show ones for the active campaign
-            customFortunes = fortunes.filter(f => f.campaign === $activeCampaign.id);
+            customFortunes = fortunes.filter((f) => f.campaign === $activeCampaign.id);
         } else {
             defaultFortunes = [];
             customFortunes = [];
@@ -108,9 +113,7 @@
 
     function saveFortune(event: CustomEvent<Fortune>) {
         const fortune = event.detail;
-        const existingIndex = fortunes.findIndex(
-            (f) => f.id === fortune.id,
-        );
+        const existingIndex = fortunes.findIndex((f) => f.id === fortune.id);
         if (existingIndex >= 0) {
             fortunes[existingIndex] = { ...fortune };
         } else {
@@ -130,9 +133,7 @@
         showFate = true;
     }
 
-    function handleReorder(
-        event: CustomEvent<{ draggedId: string; targetId: string }>,
-    ) {
+    function handleReorder(event: CustomEvent<{ draggedId: string; targetId: string }>) {
         const { draggedId, targetId } = event.detail;
         const newFortunes = [...fortunes];
         const draggedIndex = newFortunes.findIndex((f) => f.id === draggedId);
@@ -147,17 +148,17 @@
     }
 
     function handleNavigateHome() {
-        dispatch('navigateHome');
+        dispatch("navigateHome");
     }
 
     function handleAcceptFate(event: CustomEvent<FortuneResultData>) {
         const resultData = event.detail;
-        
+
         if (!$activeCampaign) return;
 
         // Create a chronicle entry for this fortune result
         const chronicleEntries = loadChronicleEntries();
-        
+
         const newEntry = {
             id: generateId(),
             campaignId: $activeCampaign.id,
@@ -167,7 +168,7 @@
             fortuneId: selectedFortune?.id,
             fortuneData: resultData,
             // Use the currently displayed character ID from the selector
-            characterId: currentDisplayedCharacterId || undefined
+            characterId: currentDisplayedCharacterId || undefined,
         };
 
         chronicleEntries.push(newEntry);
@@ -177,24 +178,24 @@
         selectedFortune = null;
 
         // Navigate to story page
-        dispatch('navigateToStory');
+        dispatch("navigateToStory");
     }
 
     function handleDiceRecordFate(event: CustomEvent) {
         const diceData = event.detail;
-        
+
         if (!$activeCampaign) return;
 
         const chronicleEntries = loadChronicleEntries();
-        
+
         // Build content string with optional check name
         let content = "";
         if (diceData.checkName) {
-            content = `${diceData.checkName} check: Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`;
+            content = `${diceData.checkName} check: Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? "+" : "") + diceData.modifier : ""}: ${diceData.result}`;
         } else {
-            content = `Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? '+' : '') + diceData.modifier : ''}: ${diceData.result}`;
+            content = `Rolled ${diceData.numDice}d${diceData.numSides}${diceData.modifier !== 0 ? (diceData.modifier > 0 ? "+" : "") + diceData.modifier : ""}: ${diceData.result}`;
         }
-        
+
         const newEntry = {
             id: generateId(),
             campaignId: $activeCampaign.id,
@@ -208,185 +209,247 @@
                 resultOption: diceData.resultOption,
                 result: diceData.result,
                 individualDiceResults: diceData.individualDiceResults,
-                checkName: diceData.checkName
+                checkName: diceData.checkName,
             },
             // Use the currently displayed character ID from the selector
-            characterId: currentDisplayedCharacterId || undefined
+            characterId: currentDisplayedCharacterId || undefined,
         };
 
         chronicleEntries.push(newEntry);
         saveChronicleEntries(chronicleEntries);
 
         // Navigate to story page
-        dispatch('navigateToStory');
+        dispatch("navigateToStory");
     }
 
     function handleCardsRecordFate(event: CustomEvent) {
         const cardsData = event.detail;
-        
+
         if (!$activeCampaign) return;
 
         const chronicleEntries = loadChronicleEntries();
-        
-        const cardsList = cardsData.cards.map((c: any) => `${c.rank} of ${c.suit}`).join(', ');
-        
+
+        const cardsList = cardsData.cards.map((c: any) => `${c.rank} of ${c.suit}`).join(", ");
+
         const newEntry = {
             id: generateId(),
             campaignId: $activeCampaign.id,
             timestamp: Date.now(),
             type: "cards" as const,
-            content: `Drew ${cardsData.cards.length} card${cardsData.cards.length > 1 ? 's' : ''}: ${cardsList}`,
+            content: `Drew ${cardsData.cards.length} card${cardsData.cards.length > 1 ? "s" : ""}: ${cardsList}`,
             cardsData: {
-                cards: cardsData.cards
+                cards: cardsData.cards,
             },
             // Use the currently displayed character ID from the selector
-            characterId: currentDisplayedCharacterId || undefined
+            characterId: currentDisplayedCharacterId || undefined,
         };
 
         chronicleEntries.push(newEntry);
         saveChronicleEntries(chronicleEntries);
 
         // Navigate to story page
-        dispatch('navigateToStory');
+        dispatch("navigateToStory");
     }
 
     function handleClose() {
-        dispatch('clearPreset');
-        dispatch('close');
+        dispatch("clearPreset");
+        dispatch("close");
     }
 
     function go(viewName: OracleView) {
         view = viewName;
     }
 </script>
- 
+
 <SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="400px" on:close={handleClose}>
-    <div class="oracle-modal">
+    <div class="flex flex-col gap-3">
         <!-- Sticky utility header -->
-        <div class="oracle-sticky-header">
-            <div class="character-selector-wrapper">
-                <CharacterSelector 
-                    preselectedCharacterId={preselectedCharacterId} 
-                    bind:currentDisplayedCharacterId
-                />
+        <div
+            class="bg-bg-primary border-border-primary sticky top-0 z-2 grid grid-cols-1 gap-3 rounded-2xl border-b p-2">
+            <div class="flex min-w-[150px] justify-center">
+                <CharacterSelector {preselectedCharacterId} bind:currentDisplayedCharacterId />
             </div>
-            <nav class="oracle-nav" aria-label="Oracle navigation">
-                <button class="nav-btn {view === 'oracle' ? 'active' : ''}" on:click={() => go('oracle')} aria-label="Oracle">
-                    <span class="nav-icon" aria-hidden="true">
+            <nav class="grid grid-cols-3 gap-2" aria-label="Oracle navigation">
+                <button
+                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
+                    'oracle'
+                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
+                        : ''}"
+                    on:click={() => go("oracle")}
+                    aria-label="Oracle">
+                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
                         <!-- Crystal ball icon -->
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
                             <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2" />
-                            <path d="M6 18h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            <path d="M8.5 6.5c.6-1 1.7-1.7 3-1.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path
+                                d="M6 18h12"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round" />
+                            <path
+                                d="M8.5 6.5c.6-1 1.7-1.7 3-1.9"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round" />
                         </svg>
                     </span>
-                    <span class="nav-label">Oracle</span>
+                    <span class="text-[0.95rem]">Oracle</span>
                 </button>
-                <button class="nav-btn {view === 'dice' ? 'active' : ''}" on:click={() => go('dice')} aria-label="Dice Roller">
-                    <span class="nav-icon" aria-hidden="true">
+                <button
+                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
+                    'dice'
+                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
+                        : ''}"
+                    on:click={() => go("dice")}
+                    aria-label="Dice Roller">
+                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
                         <!-- Dice icon -->
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                            <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="9" cy="9" r="1.5" fill="currentColor"/>
-                            <circle cx="15" cy="15" r="1.5" fill="currentColor"/>
+                            <rect
+                                x="4"
+                                y="4"
+                                width="16"
+                                height="16"
+                                rx="3"
+                                stroke="currentColor"
+                                stroke-width="2" />
+                            <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+                            <circle cx="15" cy="15" r="1.5" fill="currentColor" />
                         </svg>
                     </span>
-                    <span class="nav-label">Dice</span>
+                    <span class="text-[0.95rem]">Dice</span>
                 </button>
-                <button class="nav-btn {view === 'cards' ? 'active' : ''}" on:click={() => go('cards')} aria-label="Card Dealer">
-                    <span class="nav-icon" aria-hidden="true">
+                <button
+                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
+                    'cards'
+                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
+                        : ''}"
+                    on:click={() => go("cards")}
+                    aria-label="Card Dealer">
+                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
                         <!-- Card icon -->
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                            <rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
-                            <path d="M12 9.5c-1.2-1.4-3-.5-3 .9 0 1.6 1.9 2.7 3 4 1.1-1.3 3-2.4 3-4 0-1.4-1.8-2.3-3-.9z" fill="currentColor"/>
+                            <rect
+                                x="6"
+                                y="4"
+                                width="12"
+                                height="16"
+                                rx="2"
+                                stroke="currentColor"
+                                stroke-width="2" />
+                            <path
+                                d="M12 9.5c-1.2-1.4-3-.5-3 .9 0 1.6 1.9 2.7 3 4 1.1-1.3 3-2.4 3-4 0-1.4-1.8-2.3-3-.9z"
+                                fill="currentColor" />
                         </svg>
                     </span>
-                    <span class="nav-label">Cards</span>
+                    <span class="text-[0.95rem]">Cards</span>
                 </button>
             </nav>
         </div>
 
         <!-- Scrollable body -->
-        <div class="oracle-body">
+        <div class="max-h-[70vh] overflow-y-auto p-0 px-2 pb-2 md:max-h-[60vh]">
             <!-- No campaign overlay always visible at top of body -->
             <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
-            {#if view === 'oracle'}
-                <div class="oracle-page">
+            {#if view === "oracle"}
+                <div class="w-full">
                     {#if defaultFortunes.length > 0}
-                        <section class="fortune-section">
-                            <h2 class="section-title">Fortunes</h2>
-                            <div class="fortune-list-container">
+                        <section class="mb-5">
+                            <h2
+                                class="text-text-primary border-border-primary m-0 flex-1 border-b-2 pb-1 text-xl font-bold">
+                                Fortunes
+                            </h2>
+                            <div
+                                class="border-border-primary bg-card-bg max-h-112 overflow-auto rounded-xl border p-1">
                                 <FortuneList
                                     fortunes={defaultFortunes}
                                     allowReorder={false}
                                     allowDelete={false}
                                     on:consultFate={(e) => openFate(e.detail)}
                                     on:delete={(e) => deleteFortune(e.detail)}
-                                    on:reorder={handleReorder}
-                                />
+                                    on:reorder={handleReorder} />
                             </div>
                         </section>
                     {/if}
 
-                    <section class="fortune-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Campaign Fortunes</h2>
-                            <button 
-                                class="edit-toggle-btn" 
-                                on:click={() => editMode = !editMode}
-                                aria-label={editMode ? "Exit edit mode" : "Enter edit mode"}
-                            >
+                    <section class="mb-5">
+                        <div class="mb-2 flex items-center justify-between gap-3">
+                            <h2
+                                class="text-text-primary border-border-primary m-0 flex-1 border-b-2 pb-1 text-xl font-bold">
+                                Campaign Fortunes
+                            </h2>
+                            <button
+                                class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary hover:border-border-secondary inline-flex cursor-pointer items-center gap-[0.4rem] rounded-lg border px-[0.65rem] py-[0.4rem] text-[0.9rem] font-medium transition-all duration-200 active:translate-y-px"
+                                on:click={() => (editMode = !editMode)}
+                                aria-label={editMode ? "Exit edit mode" : "Enter edit mode"}>
                                 {#if editMode}
                                     <!-- Done/Check icon -->
-                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                                        <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                        aria-hidden="true"
+                                        class="shrink-0">
+                                        <path
+                                            fill="currentColor"
+                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                     </svg>
                                     <span>Done</span>
                                 {:else}
                                     <!-- Edit/Pencil icon -->
-                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                        aria-hidden="true"
+                                        class="shrink-0">
+                                        <path
+                                            fill="currentColor"
+                                            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                     </svg>
                                     <span>Edit</span>
                                 {/if}
                             </button>
                         </div>
-                        <button class="srpg-b srpg-b-create srpg-b-w-lg" on:click={openCreateFortune}>
+                        <button
+                            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-[300px] cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                            on:click={openCreateFortune}>
                             + Create Campaign Fortune
                         </button>
                         {#if customFortunes.length > 0}
-                            <div class="fortune-list-container">
+                            <div
+                                class="border-border-primary bg-card-bg max-h-112 overflow-auto rounded-xl border p-1">
                                 <FortuneList
                                     fortunes={customFortunes}
                                     allowReorder={editMode}
                                     allowDelete={editMode}
                                     on:consultFate={(e) => openFate(e.detail)}
                                     on:delete={(e) => deleteFortune(e.detail)}
-                                    on:reorder={handleReorder}
-                                />
+                                    on:reorder={handleReorder} />
                             </div>
                         {:else}
-                            <p class="no-fortunes">No campaign fortunes yet. Click the button above to create one.</p>
+                            <p
+                                class="text-text-muted bg-bg-secondary mt-2 mb-0 rounded-lg p-4 italic">
+                                No campaign fortunes yet. Click the button above to create one.
+                            </p>
                         {/if}
                     </section>
                 </div>
-            {:else if view === 'dice'}
-                <div class="tool-page"> 
-                    <DiceRoller 
-                        embedded={true} 
-                        onClose={() => { /* noop in embedded */ }} 
+            {:else if view === "dice"}
+                <div class="flex flex-col gap-3">
+                    <DiceRoller
+                        embedded={true}
+                        onClose={() => {
+                            /* noop in embedded */
+                        }}
                         on:recordFate={handleDiceRecordFate}
                         preset={diceRollPreset}
-                        on:clearPreset={() => dispatch("clearPreset")}
-                    />
+                        on:clearPreset={() => dispatch("clearPreset")} />
                 </div>
-            {:else if view === 'cards'}
-                <div class="tool-page"> 
-                    <CardDealer 
-                        embedded={true} 
-                        on:recordFate={handleCardsRecordFate}
-                    />
+            {:else if view === "cards"}
+                <div class="flex flex-col gap-3">
+                    <CardDealer embedded={true} on:recordFate={handleCardsRecordFate} />
                 </div>
             {/if}
         </div>
@@ -399,146 +462,10 @@
     fortune={editingFortune}
     showCampaignField={false}
     on:close={() => (showCreateFortune = false)}
-    on:save={saveFortune}
-/>
+    on:save={saveFortune} />
 
 <FateConsultation
     show={showFate}
     fortune={selectedFortune}
     on:close={() => (showFate = false)}
-    on:accept={handleAcceptFate}
-/>
-
-<style>
-    /* Modal layout */
-    .oracle-modal {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    /* Sticky header with character selector and nav */
-    .oracle-sticky-header {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: var(--bg-primary);
-        padding: 0.5rem ;
-        border-bottom: 1px solid var(--border-primary);
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-        border-radius: 16px;
-    }
-    .character-selector-wrapper { 
-        display: flex;
-        justify-content: center;
-        min-width: 150px; 
-    }
-    .oracle-nav {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-    }
-    .nav-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.55rem 0.8rem;
-        border: 1px solid var(--border-primary);
-        border-radius: 10px;
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        font-weight: 600;
-        transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.05s;
-    }
-    .nav-btn:hover { background: var(--bg-tertiary); }
-    .nav-btn:active { transform: translateY(1px); }
-    .nav-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--shadow-md); border-color: var(--accent-primary); }
-    .nav-btn.active {
-        background: var(--accent-primary);
-        color: var(--text-inverse);
-        border-color: var(--accent-primary);
-        box-shadow: 0 2px 8px var(--shadow-md);
-    }
-    .nav-icon { font-size: 1.1rem; line-height: 0; display: inline-flex; }
-    .nav-label { font-size: 0.95rem; }
-
-    /* Scrollable body within modal */
-    .oracle-body {
-        max-height: 70vh;
-        overflow-y: auto;
-        padding: 0 0.5rem 0.5rem 0.5rem;
-    }
-    @media (max-width: 768px) {
-        .oracle-body { max-height: 60vh; }
-    }
-
-    .oracle-page { width: 100%; }
-
-    .fortune-section { margin-bottom: 1.25rem; }
-    .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 0.5rem;
-    }
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-        padding-bottom: 0.25rem;
-        border-bottom: 2px solid var(--border-primary);
-        flex: 1;
-    }
-    .edit-toggle-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.4rem 0.65rem;
-        border: 1px solid var(--border-primary);
-        border-radius: 8px;
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.05s;
-        cursor: pointer;
-    }
-    .edit-toggle-btn:hover {
-        background: var(--bg-tertiary);
-        border-color: var(--border-secondary);
-    }
-    .edit-toggle-btn:active {
-        transform: translateY(1px);
-    }
-    .edit-toggle-btn svg {
-        flex-shrink: 0;
-    }
-    .fortune-list-container {
-        max-height: 28rem;
-        overflow: auto;
-        padding: 0.25rem;
-        border: 1px solid var(--border-primary);
-        border-radius: 12px;
-        background: var(--card-bg);
-    }
-    .no-fortunes {
-        color: var(--text-muted);
-        font-style: italic;
-        padding: 1rem;
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        margin: 0.5rem 0 0 0;
-    }
-
-    /* Embedded tool pages */
-    .tool-page {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }  
-</style>
+    on:accept={handleAcceptFate} />

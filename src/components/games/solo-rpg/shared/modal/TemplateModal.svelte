@@ -28,123 +28,43 @@
 </script>
 
 <SrpgModal bind:show maxWidth="500px">
-    <div class="template-modal-content">
-        <h2>{title}</h2>
+    <div class="p-4 sm:p-6">
+        <h2 class="text-text-primary mt-0 mb-2 text-xl sm:text-2xl">{title}</h2>
         {#if description}
-            <p class="template-description">{description}</p>
+            <p class="text-text-secondary mb-5 text-sm leading-6 sm:mb-6">{description}</p>
         {/if}
 
-        <div class="template-options">
+        <div class="mb-5 flex flex-col gap-3 sm:mb-6 sm:gap-4">
             {#each templates as template}
                 <button
-                    class="srpg-b-overview"
+                    class="bg-card-bg border-border-primary font-inherit hover:border-accent-primary w-full cursor-pointer rounded-lg border-2 p-6 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     on:click={() => selectTemplate(template.key)}
                 >
-                    <h3 class="template-option-title">{template.title}</h3>
-                    <p class="template-abilities">{template.description}</p>
+                    <h3 class="text-text-primary m-0 mb-2 text-lg sm:text-xl">{template.title}</h3>
+                    <p class="text-text-secondary my-2 text-[0.8125rem] leading-6 sm:text-sm">
+                        {template.description}
+                    </p>
                     {#if template.note}
-                        <span class="template-note">{template.note}</span>
+                        <span
+                            class="bg-accent-info text-text-inverse mt-2 inline-block rounded px-2 py-1 text-xs font-semibold"
+                        >
+                            {template.note}
+                        </span>
                     {/if}
                 </button>
             {/each}
         </div>
 
-        <div class="template-footer">
-            <button class="srpg-b srpg-b-simple" on:click={cancel}>Cancel</button>
+        <div class="flex justify-end gap-2">
+            <button
+                class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                on:click={cancel}
+            >
+                Cancel
+            </button>
         </div>
     </div>
 </SrpgModal>
 
 <style>
-    .template-modal-content {
-        padding: 1rem;
-    }
-
-    @media (min-width: 640px) {
-        .template-modal-content {
-            padding: 1.5rem;
-        }
-    }
-
-    .template-modal-content h2 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-        font-size: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        .template-modal-content h2 {
-            font-size: 1.5rem;
-        }
-    }
-
-    .template-description {
-        margin-bottom: 1.25rem;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        line-height: 1.5;
-    }
-
-    @media (min-width: 640px) {
-        .template-description {
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    .template-options {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        .template-options {
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    .template-option-title {
-        margin: 0 0 0.5rem 0;
-        color: var(--text-primary);
-        font-size: 1.125rem;
-    }
-
-    @media (min-width: 640px) {
-        .template-option-title {
-            font-size: 1.25rem;
-        }
-    }
-
-    .template-abilities {
-        margin: 0.5rem 0;
-        color: var(--text-secondary);
-        font-size: 0.8125rem;
-        line-height: 1.5;
-    }
-
-    @media (min-width: 640px) {
-        .template-abilities {
-            font-size: 0.875rem;
-        }
-    }
-
-    .template-note {
-        display: inline-block;
-        margin-top: 0.5rem;
-        padding: 0.25rem 0.5rem;
-        background: var(--accent-info);
-        color: var(--text-inverse);
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .template-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
 </style>

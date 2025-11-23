@@ -1,248 +1,272 @@
-import { getCachedTileSprite, getTileSprite } from './tilemap-cache';
-import { beginShapePath, clearCanvas, drawTintedSprite } from './canvas-utils';
-import type { MapEntity, MapObject } from '../data/storage-utils';
+import { getCachedTileSprite, getTileSprite } from "./tilemap-cache";
+import { beginShapePath, clearCanvas, drawTintedSprite } from "./canvas-utils";
+import type { MapEntity, MapObject } from "../data/storage-utils";
 
 export type Camera = { x: number; y: number; zoom: number };
 
 export function drawGrid(opts: {
-  ctxBg: CanvasRenderingContext2D;
-  canvasBg: HTMLCanvasElement;
-  camera: Camera;
-  map: MapEntity;
-  isLoading: boolean;
-  getDpr: () => number;
-  onInvalidate: () => void; // call when async sprite loads to schedule a repaint
+    ctxBg: CanvasRenderingContext2D;
+    canvasBg: HTMLCanvasElement;
+    camera: Camera;
+    map: MapEntity;
+    isLoading: boolean;
+    getDpr: () => number;
+    onInvalidate: () => void; // call when async sprite loads to schedule a repaint
 }) {
-  const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate } = opts;
-  if (!ctxBg) return;
+    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate } = opts;
+    if (!ctxBg) return;
 
-  if (isLoading) {
-    const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
+    if (isLoading) {
+        const bgFill =
+            getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
+        clearCanvas(ctxBg, canvasBg, bgFill);
+        return;
+    }
+
+    const ts = map.tileSize;
+    const bgFill =
+        getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
     clearCanvas(ctxBg, canvasBg, bgFill);
-    return;
-  }
 
-  const ts = map.tileSize;
-  const bgFill = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary') || '#111';
-  clearCanvas(ctxBg, canvasBg, bgFill);
+    const rect = canvasBg.getBoundingClientRect();
+    const viewW = rect.width / camera.zoom;
+    const viewH = rect.height / camera.zoom;
+    const startTx = Math.floor(camera.x / ts) - 1;
+    const endTx = Math.ceil((camera.x + viewW) / ts) + 1;
+    const startTy = Math.floor(camera.y / ts) - 1;
+    const endTy = Math.ceil((camera.y + viewH) / ts) + 1;
 
-  const rect = canvasBg.getBoundingClientRect();
-  const viewW = rect.width / camera.zoom;
-  const viewH = rect.height / camera.zoom;
-  const startTx = Math.floor(camera.x / ts) - 1;
-  const endTx = Math.ceil((camera.x + viewW) / ts) + 1;
-  const startTy = Math.floor(camera.y / ts) - 1;
-  const endTy = Math.ceil((camera.y + viewH) / ts) + 1;
+    const dpr = getDpr();
+    ctxBg.save();
+    ctxBg.scale(dpr * camera.zoom, dpr * camera.zoom);
+    ctxBg.translate(-camera.x, -camera.y);
+    ctxBg.imageSmoothingEnabled = false;
+    ctxBg.strokeStyle = "rgba(255,255,255,0.1)";
+    ctxBg.lineWidth = 1 / (camera.zoom * dpr);
 
-  const dpr = getDpr();
-  ctxBg.save();
-  ctxBg.scale(dpr * camera.zoom, dpr * camera.zoom);
-  ctxBg.translate(-camera.x, -camera.y);
-  ctxBg.imageSmoothingEnabled = false;
-  ctxBg.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctxBg.lineWidth = 1 / (camera.zoom * dpr);
+    const left = startTx * ts;
+    const right = endTx * ts;
+    const top = startTy * ts;
+    const bottom = endTy * ts;
+    const px = 0.5 / dpr;
 
-  const left = startTx * ts;
-  const right = endTx * ts;
-  const top = startTy * ts;
-  const bottom = endTy * ts;
-  const px = 0.5 / dpr;
+    let gridStep = 1;
+    if (camera.zoom < 0.35) gridStep = 0;
+    else if (camera.zoom < 0.5) gridStep = 4;
+    else if (camera.zoom < 0.75) gridStep = 2;
 
-  let gridStep = 1;
-  if (camera.zoom < 0.35) gridStep = 0;
-  else if (camera.zoom < 0.5) gridStep = 4;
-  else if (camera.zoom < 0.75) gridStep = 2;
-
-  if (gridStep > 0) {
-    for (let tx = startTx; tx <= endTx; tx += gridStep) {
-      const gx = Math.round(tx * ts) + px;
-      ctxBg.beginPath();
-      ctxBg.moveTo(gx, top);
-      ctxBg.lineTo(gx, bottom);
-      ctxBg.stroke();
+    if (gridStep > 0) {
+        for (let tx = startTx; tx <= endTx; tx += gridStep) {
+            const gx = Math.round(tx * ts) + px;
+            ctxBg.beginPath();
+            ctxBg.moveTo(gx, top);
+            ctxBg.lineTo(gx, bottom);
+            ctxBg.stroke();
+        }
+        for (let ty = startTy; ty <= endTy; ty += gridStep) {
+            const gy = Math.round(ty * ts) + px;
+            ctxBg.beginPath();
+            ctxBg.moveTo(left, gy);
+            ctxBg.lineTo(right, gy);
+            ctxBg.stroke();
+        }
     }
-    for (let ty = startTy; ty <= endTy; ty += gridStep) {
-      const gy = Math.round(ty * ts) + px;
-      ctxBg.beginPath();
-      ctxBg.moveTo(left, gy);
-      ctxBg.lineTo(right, gy);
-      ctxBg.stroke();
-    }
-  }
 
-  for (const key in map.background) {
-    const [tx, ty] = key.split(',').map(Number);
-    if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
-    const fill = map.background[key];
-    ctxBg.fillStyle = fill;
-    ctxBg.fillRect(tx * ts, ty * ts, ts, ts);
-  }
-
-  if (map.backgroundTiles) {
-    const dict = map.backgroundTiles;
-    const total = Object.keys(dict).length;
-    const visibleCount = (endTx - startTx + 1) * (endTy - startTy + 1);
-    if (total < visibleCount) {
-      for (const key in dict) {
-        const ref = dict[key];
-        if (!ref) continue;
-        const [tx, ty] = key.split(',').map(Number);
+    for (const key in map.background) {
+        const [tx, ty] = key.split(",").map(Number);
         if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
-        const sprite = getCachedTileSprite(ref);
-        const x = tx * ts;
-        const y = ty * ts;
-        const tint = (map as any).backgroundTileTints?.[key] ?? null;
-        if (sprite) {
-          drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
-        } else {
-          getTileSprite(ref).then(onInvalidate).catch(() => {
-            ctxBg.save(); ctxBg.fillStyle = '#ff00ff'; ctxBg.fillRect(x, y, ts, ts); ctxBg.restore();
-          });
-        }
-      }
-    } else {
-      for (let ty = startTy; ty <= endTy; ty++) {
-        for (let tx = startTx; tx <= endTx; tx++) {
-          const key = `${tx},${ty}`;
-          const ref = dict[key];
-          if (!ref) continue;
-          const sprite = getCachedTileSprite(ref);
-          const x = tx * ts;
-          const y = ty * ts;
-          const tint = (map as any).backgroundTileTints?.[key] ?? null;
-          if (sprite) {
-            drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
-          } else {
-            getTileSprite(ref).then(onInvalidate).catch(() => {
-              ctxBg.save(); ctxBg.fillStyle = '#ff00ff'; ctxBg.fillRect(x, y, ts, ts); ctxBg.restore();
-            });
-          }
-        }
-      }
+        const fill = map.background[key];
+        ctxBg.fillStyle = fill;
+        ctxBg.fillRect(tx * ts, ty * ts, ts, ts);
     }
-  }
-  ctxBg.restore();
-  ctxBg.globalCompositeOperation = 'source-over';
+
+    if (map.backgroundTiles) {
+        const dict = map.backgroundTiles;
+        const total = Object.keys(dict).length;
+        const visibleCount = (endTx - startTx + 1) * (endTy - startTy + 1);
+        if (total < visibleCount) {
+            for (const key in dict) {
+                const ref = dict[key];
+                if (!ref) continue;
+                const [tx, ty] = key.split(",").map(Number);
+                if (tx < startTx || tx > endTx || ty < startTy || ty > endTy) continue;
+                const sprite = getCachedTileSprite(ref);
+                const x = tx * ts;
+                const y = ty * ts;
+                const tint = (map as any).backgroundTileTints?.[key] ?? null;
+                if (sprite) {
+                    drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
+                } else {
+                    getTileSprite(ref)
+                        .then(onInvalidate)
+                        .catch(() => {
+                            ctxBg.save();
+                            ctxBg.fillStyle = "#ff00ff";
+                            ctxBg.fillRect(x, y, ts, ts);
+                            ctxBg.restore();
+                        });
+                }
+            }
+        } else {
+            for (let ty = startTy; ty <= endTy; ty++) {
+                for (let tx = startTx; tx <= endTx; tx++) {
+                    const key = `${tx},${ty}`;
+                    const ref = dict[key];
+                    if (!ref) continue;
+                    const sprite = getCachedTileSprite(ref);
+                    const x = tx * ts;
+                    const y = ty * ts;
+                    const tint = (map as any).backgroundTileTints?.[key] ?? null;
+                    if (sprite) {
+                        drawTintedSprite(ctxBg, sprite as any, x, y, ts, ts, tint);
+                    } else {
+                        getTileSprite(ref)
+                            .then(onInvalidate)
+                            .catch(() => {
+                                ctxBg.save();
+                                ctxBg.fillStyle = "#ff00ff";
+                                ctxBg.fillRect(x, y, ts, ts);
+                                ctxBg.restore();
+                            });
+                    }
+                }
+            }
+        }
+    }
+    ctxBg.restore();
+    ctxBg.globalCompositeOperation = "source-over";
 }
 
 export function drawFgObjects(opts: {
-  ctxFg: CanvasRenderingContext2D;
-  canvasFg: HTMLCanvasElement;
-  camera: Camera;
-  map: MapEntity;
-  selectedObject: MapObject | null;
-  tool: 'move' | 'paint' | 'object';
-  getDpr: () => number;
-  onInvalidate: () => void;
+    ctxFg: CanvasRenderingContext2D;
+    canvasFg: HTMLCanvasElement;
+    camera: Camera;
+    map: MapEntity;
+    selectedObject: MapObject | null;
+    tool: "move" | "paint" | "object";
+    getDpr: () => number;
+    onInvalidate: () => void;
 }) {
-  const { ctxFg, canvasFg, camera, map, selectedObject, tool, getDpr, onInvalidate } = opts;
-  if (!ctxFg) return;
+    const { ctxFg, canvasFg, camera, map, selectedObject, tool, getDpr, onInvalidate } = opts;
+    if (!ctxFg) return;
 
-  clearCanvas(ctxFg, canvasFg);
+    clearCanvas(ctxFg, canvasFg);
 
-  const dpr = getDpr();
-  ctxFg.save();
-  ctxFg.globalCompositeOperation = 'source-over';
-  ctxFg.scale(dpr * camera.zoom, dpr * camera.zoom);
-  ctxFg.translate(-camera.x, -camera.y);
-  ctxFg.imageSmoothingEnabled = false;
+    const dpr = getDpr();
+    ctxFg.save();
+    ctxFg.globalCompositeOperation = "source-over";
+    ctxFg.scale(dpr * camera.zoom, dpr * camera.zoom);
+    ctxFg.translate(-camera.x, -camera.y);
+    ctxFg.imageSmoothingEnabled = false;
 
-  const rect = canvasFg.getBoundingClientRect();
-  const viewW = rect.width / camera.zoom;
-  const viewH = rect.height / camera.zoom;
-  const cameraLeft = camera.x;
-  const cameraRight = camera.x + viewW;
-  const cameraTop = camera.y;
-  const cameraBottom = camera.y + viewH;
+    const rect = canvasFg.getBoundingClientRect();
+    const viewW = rect.width / camera.zoom;
+    const viewH = rect.height / camera.zoom;
+    const cameraLeft = camera.x;
+    const cameraRight = camera.x + viewW;
+    const cameraTop = camera.y;
+    const cameraBottom = camera.y + viewH;
 
-  const objs = [...map.objects];
-  for (const o of objs) {
-    const objectRight = o.x + o.w / 2;
-    const objectBottom = o.y + o.h / 2;
-    const objectLeft = o.x - o.w / 2;
-    const objectTop = o.y - o.h / 2;
-    if (objectRight < cameraLeft || objectLeft > cameraRight || objectBottom < cameraTop || objectTop > cameraBottom) {
-      continue;
-    }
-
-    if ((o as any).kind === 'tile' && (o as any).tile) {
-      const ref = (o as any).tile;
-      const sprite = getCachedTileSprite(ref);
-      const tint = (!o.color || o.color === 'clear') ? null : o.color;
-      const shape = (o.type ?? 'square') as 'square'|'circle'|'triangle'|'star';
-      const flipX = (o as any).flipX === true;
-      if (sprite) {
-        ctxFg.save();
-        ctxFg.translate(o.x, o.y);
-        if (flipX) ctxFg.scale(-1, 1);
-        if (shape === 'square') {
-          drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
-          ctxFg.strokeStyle = '#000000';
-          ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-          ctxFg.strokeRect(-o.w/2, -o.h/2, o.w, o.h);
-        } else {
-          beginShapePath(ctxFg, shape, o.w, o.h);
-          ctxFg.clip();
-          drawTintedSprite(ctxFg, sprite as any, -o.w/2, -o.h/2, o.w, o.h, tint);
-
-          ctxFg.restore();
-          ctxFg.save();
-          ctxFg.translate(o.x, o.y);
-          if (flipX) ctxFg.scale(-1, 1);
-          beginShapePath(ctxFg, shape, o.w, o.h);
-          ctxFg.strokeStyle = '#000000';
-          ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-          ctxFg.stroke();
+    const objs = [...map.objects];
+    for (const o of objs) {
+        const objectRight = o.x + o.w / 2;
+        const objectBottom = o.y + o.h / 2;
+        const objectLeft = o.x - o.w / 2;
+        const objectTop = o.y - o.h / 2;
+        if (
+            objectRight < cameraLeft ||
+            objectLeft > cameraRight ||
+            objectBottom < cameraTop ||
+            objectTop > cameraBottom
+        ) {
+            continue;
         }
-        ctxFg.restore();
-      } else {
-        getTileSprite(ref).then(onInvalidate).catch(() => {
-          ctxFg.save();
-          ctxFg.fillStyle = '#ff00ff';
-          ctxFg.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h);
-          ctxFg.restore();
-        });
-      }
-    } else {
-      ctxFg.fillStyle = o.color;
-      ctxFg.strokeStyle = '#000000';
-      ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-      ctxFg.save();
-      ctxFg.translate(o.x, o.y);
-      if ((o as any).rotation) ctxFg.rotate((o as any).rotation);
 
-      beginShapePath(ctxFg, o.type as any, o.w, o.h);
-      ctxFg.fill();
-      ctxFg.stroke();
-      ctxFg.restore();
+        if ((o as any).kind === "tile" && (o as any).tile) {
+            const ref = (o as any).tile;
+            const sprite = getCachedTileSprite(ref);
+            const tint = !o.color || o.color === "clear" ? null : o.color;
+            const shape = (o.type ?? "square") as "square" | "circle" | "triangle" | "star";
+            const flipX = (o as any).flipX === true;
+            if (sprite) {
+                ctxFg.save();
+                ctxFg.translate(o.x, o.y);
+                if (flipX) ctxFg.scale(-1, 1);
+                if (shape === "square") {
+                    drawTintedSprite(ctxFg, sprite as any, -o.w / 2, -o.h / 2, o.w, o.h, tint);
+                    ctxFg.strokeStyle = "#000000";
+                    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+                    ctxFg.strokeRect(-o.w / 2, -o.h / 2, o.w, o.h);
+                } else {
+                    beginShapePath(ctxFg, shape, o.w, o.h);
+                    ctxFg.clip();
+                    drawTintedSprite(ctxFg, sprite as any, -o.w / 2, -o.h / 2, o.w, o.h, tint);
+
+                    ctxFg.restore();
+                    ctxFg.save();
+                    ctxFg.translate(o.x, o.y);
+                    if (flipX) ctxFg.scale(-1, 1);
+                    beginShapePath(ctxFg, shape, o.w, o.h);
+                    ctxFg.strokeStyle = "#000000";
+                    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+                    ctxFg.stroke();
+                }
+                ctxFg.restore();
+            } else {
+                getTileSprite(ref)
+                    .then(onInvalidate)
+                    .catch(() => {
+                        ctxFg.save();
+                        ctxFg.fillStyle = "#ff00ff";
+                        ctxFg.fillRect(o.x - o.w / 2, o.y - o.h / 2, o.w, o.h);
+                        ctxFg.restore();
+                    });
+            }
+        } else {
+            ctxFg.fillStyle = o.color;
+            ctxFg.strokeStyle = "#000000";
+            ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+            ctxFg.save();
+            ctxFg.translate(o.x, o.y);
+            if ((o as any).rotation) ctxFg.rotate((o as any).rotation);
+
+            beginShapePath(ctxFg, o.type as any, o.w, o.h);
+            ctxFg.fill();
+            ctxFg.stroke();
+            ctxFg.restore();
+        }
     }
-  }
 
-  if (selectedObject && tool === 'move') {
-    const handleSize = 16 / (camera.zoom * dpr);
-    const handleOffset = 8 / (camera.zoom * dpr);
+    if (selectedObject && tool === "move") {
+        const handleSize = 16 / (camera.zoom * dpr);
+        const handleOffset = 8 / (camera.zoom * dpr);
 
-    const handleX = selectedObject.x + selectedObject.w/2 + handleOffset;
-    const handleY = selectedObject.y + selectedObject.h/2 + handleOffset;
+        const handleX = selectedObject.x + selectedObject.w / 2 + handleOffset;
+        const handleY = selectedObject.y + selectedObject.h / 2 + handleOffset;
 
-    ctxFg.fillStyle = '#ffffff';
-    ctxFg.fillRect(handleX - handleSize/2, handleY - handleSize/2, handleSize, handleSize);
+        ctxFg.fillStyle = "#ffffff";
+        ctxFg.fillRect(handleX - handleSize / 2, handleY - handleSize / 2, handleSize, handleSize);
 
-    ctxFg.strokeStyle = '#3498db';
-    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-    ctxFg.strokeRect(handleX - handleSize/2, handleY - handleSize/2, handleSize, handleSize);
+        ctxFg.strokeStyle = "#3498db";
+        ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+        ctxFg.strokeRect(
+            handleX - handleSize / 2,
+            handleY - handleSize / 2,
+            handleSize,
+            handleSize
+        );
 
-    ctxFg.strokeStyle = '#3498db';
-    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-    ctxFg.setLineDash([8 / (camera.zoom * dpr), 4 / (camera.zoom * dpr)]);
-    ctxFg.strokeRect(
-      selectedObject.x - selectedObject.w/2,
-      selectedObject.y - selectedObject.h/2,
-      selectedObject.w,
-      selectedObject.h
-    );
-    ctxFg.setLineDash([]);
-  }
-  ctxFg.restore();
-  ctxFg.globalCompositeOperation = 'source-over';
+        ctxFg.strokeStyle = "#3498db";
+        ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+        ctxFg.setLineDash([8 / (camera.zoom * dpr), 4 / (camera.zoom * dpr)]);
+        ctxFg.strokeRect(
+            selectedObject.x - selectedObject.w / 2,
+            selectedObject.y - selectedObject.h / 2,
+            selectedObject.w,
+            selectedObject.h
+        );
+        ctxFg.setLineDash([]);
+    }
+    ctxFg.restore();
+    ctxFg.globalCompositeOperation = "source-over";
 }

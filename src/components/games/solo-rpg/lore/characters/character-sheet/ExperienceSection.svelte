@@ -5,45 +5,47 @@
     export let isEditable: boolean;
 </script>
 
-<div class="srpg-form-grid">
-    <div class="srpg-form-field">
-        <label for="level">Level</label>
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-1">
+        <label class="text-text-secondary text-sm font-semibold" for="level">Level</label>
         {#if isEditable}
             <input
+                class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
                 type="number"
                 id="level"
                 bind:value={editedCharacter.level}
-                min="1"
-            />
+                min="1" />
         {:else}
-            <p>{character.level || "—"}</p>
+            <p class="text-text-primary m-0 p-2">{character.level || "—"}</p>
         {/if}
     </div>
 
-    <div class="srpg-form-field">
-        <label for="xp">Experience Points</label>
+    <div class="flex flex-col gap-1">
+        <label class="text-text-secondary text-sm font-semibold" for="xp">Experience Points</label>
         {#if isEditable}
             <input
+                class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
                 type="number"
                 id="xp"
                 bind:value={editedCharacter.experiencePoints}
-                min="0"
-            />
+                min="0" />
         {:else}
-            <p>{character.experiencePoints || "—"}</p>
+            <p class="text-text-primary m-0 p-2">{character.experiencePoints || "—"}</p>
         {/if}
     </div>
 
-    <div class="srpg-form-field">
-        <label for="proficiencyBonus">Proficiency Bonus</label>
+    <div class="flex flex-col gap-1">
+        <label class="text-text-secondary text-sm font-semibold" for="proficiencyBonus">
+            Proficiency Bonus
+        </label>
         {#if isEditable}
             <input
+                class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
                 type="number"
                 id="proficiencyBonus"
-                bind:value={editedCharacter.proficiencyBonus}
-            />
+                bind:value={editedCharacter.proficiencyBonus} />
         {:else}
-            <p>
+            <p class="text-text-primary m-0 p-2">
                 {character.proficiencyBonus !== undefined
                     ? character.proficiencyBonus >= 0
                         ? `+${character.proficiencyBonus}`

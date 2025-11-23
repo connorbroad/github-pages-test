@@ -1,13 +1,10 @@
 <script lang="ts">
     import { activeCampaign } from "../../game-management/campaign-store";
-    import {
-        loadCharacters,
-        saveCharacters, 
-    } from "../../data/storage-utils";
+    import { loadCharacters, saveCharacters } from "../../data/storage-utils";
     import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
-    import "../../solo-rpg-styles.css";
+
     import { createEventDispatcher } from "svelte";
     import SectionPickerModal from "./SectionPickerModal.svelte";
     import TagPickerModal from "./TagPickerModal.svelte";
@@ -47,7 +44,7 @@
 
         chars.forEach((c) => {
             if (c.tags && c.tags.length > 0) {
-                c.tags.forEach(tag => tags.add(tag));
+                c.tags.forEach((tag) => tags.add(tag));
             } else {
                 hasNoTags = true;
             }
@@ -96,7 +93,7 @@
         saveCharacters(allCharacters);
 
         loadCampaignCharacters();
-        isEditing = false; 
+        isEditing = false;
         showCreateModal = false;
     }
 
@@ -104,21 +101,19 @@
         selectedCharacter = character;
         isEditing = false;
         isEditingSections = false;
-        dispatch('characterSelected', {
+        dispatch("characterSelected", {
             character,
             isEditing,
             isEditingSections,
             selectedSections,
-            visibleSections: character.visibleSections || ["information"]
+            visibleSections: character.visibleSections || ["information"],
         });
     }
 
     function saveCharacter(event: CustomEvent<Character>) {
         const updatedCharacter = event.detail;
         const allCharacters = loadCharacters();
-        const index = allCharacters.findIndex(
-            (c) => c.id === updatedCharacter.id,
-        );
+        const index = allCharacters.findIndex((c) => c.id === updatedCharacter.id);
 
         if (index !== -1) {
             allCharacters[index] = updatedCharacter;
@@ -137,10 +132,10 @@
 
     function handleRollCheck(event: CustomEvent) {
         // Forward the rollCheck event to the parent (StoryView or SoloRPG)
-        dispatch('rollCheck', {
+        dispatch("rollCheck", {
             ...event.detail,
             characterId: selectedCharacter?.id,
-            characterName: selectedCharacter?.name
+            characterName: selectedCharacter?.name,
         });
     }
 
@@ -148,14 +143,12 @@
         if (!selectedCharacter) return;
 
         const confirmed = confirm(
-            `Are you sure you want to delete ${selectedCharacter.name}? This cannot be undone.`,
+            `Are you sure you want to delete ${selectedCharacter.name}? This cannot be undone.`
         );
         if (!confirmed) return;
 
         const allCharacters = loadCharacters();
-        const filtered = allCharacters.filter(
-            (c) => c.id !== selectedCharacter!.id,
-        );
+        const filtered = allCharacters.filter((c) => c.id !== selectedCharacter!.id);
         saveCharacters(filtered);
 
         loadCampaignCharacters();
@@ -174,16 +167,16 @@
                 return;
             }
         }
-        
+
         selectedCharacter = null;
         isEditing = false;
         isEditingSections = false;
-        dispatch('characterDeselected');
+        dispatch("characterDeselected");
     }
 
     function handleToggleSection(event: CustomEvent<string>) {
         const section = event.detail;
-        
+
         if (isEditingSections) {
             // In edit mode, toggle the section's inclusion in the character sheet
             toggleSectionInclusion(section);
@@ -203,12 +196,12 @@
 
         // Emit updated state
         if (selectedCharacter) {
-            dispatch('characterSelected', {
+            dispatch("characterSelected", {
                 character: selectedCharacter,
                 isEditing,
                 isEditingSections,
                 selectedSections,
-                visibleSections: selectedCharacter.visibleSections || ["information"]
+                visibleSections: selectedCharacter.visibleSections || ["information"],
             });
         }
     }
@@ -225,7 +218,7 @@
 
     function toggleSectionInclusion(sectionId: string) {
         if (!selectedCharacter) return;
-        
+
         if (sectionId === "information") {
             alert("The Information section cannot be removed.");
             return;
@@ -246,10 +239,7 @@
                 (s) => s !== sectionId
             );
         } else {
-            selectedCharacter.visibleSections = [
-                ...selectedCharacter.visibleSections,
-                sectionId,
-            ];
+            selectedCharacter.visibleSections = [...selectedCharacter.visibleSections, sectionId];
 
             // Scroll to the newly enabled section after a brief delay to allow for rendering
             setTimeout(() => {
@@ -262,21 +252,19 @@
                 }
             }, 100);
         }
-        
+
         // Update character immediately (auto-save when editing sections)
         if (isEditingSections) {
             selectedCharacter.updatedAt = Date.now();
             const allCharacters = loadCharacters();
-            const index = allCharacters.findIndex(
-                (c) => c.id === selectedCharacter.id,
-            );
+            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
             if (index !== -1) {
                 allCharacters[index] = selectedCharacter;
                 saveCharacters(allCharacters);
                 loadCampaignCharacters();
             }
         }
-        
+
         // Trigger reactivity
         selectedCharacter = selectedCharacter;
     }
@@ -330,94 +318,112 @@
 <SrpgListPage className="character-manager">
     <div slot="header">
         {#if selectedCharacter && !isEditing}
-            <div class="view-header">
-                <button class="srpg-b srpg-b-simple" on:click={backToList}>
+            <div
+                class="mb-2 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4">
+                <button
+                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                    on:click={backToList}>
                     ←
                 </button>
                 <h3>{selectedCharacter.name}</h3>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-                    <button id="edit-tags-button" class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={openTagPickerModal} aria-label="Edit Tags" title="Edit Tags">
+                    <button
+                        id="edit-tags-button"
+                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                        style="padding: 0.5rem; display: flex; align-items: center;"
+                        on:click={openTagPickerModal}
+                        aria-label="Edit Tags"
+                        title="Edit Tags">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             width="1.5em"
-                            height="1.5em"
-                        >
+                            height="1.5em">
                             <path
                                 fill="currentColor"
-                                d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42"
-                            />
+                                d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42" />
                         </svg>
                     </button>
-                    <button id="edit-sections-button" class="srpg-b srpg-b-normal" style="padding: 0.5rem; display: flex; align-items: center;" on:click={openSectionPickerModal} aria-label="Edit Sections" title="Edit Sections">
+                    <button
+                        id="edit-sections-button"
+                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                        style="padding: 0.5rem; display: flex; align-items: center;"
+                        on:click={openSectionPickerModal}
+                        aria-label="Edit Sections"
+                        title="Edit Sections">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             width="1.5em"
-                            height="1.5em"
-                        >
+                            height="1.5em">
                             <path
                                 fill="currentColor"
-                                d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z"
-                            />
+                                d="M2.5 7a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m0 10a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m10 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0m-3-10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m0 10a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m10 0a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0M16 11V8h-3V6h3V3h2v3h3v2h-3v3z" />
                         </svg>
                     </button>
                 </div>
             </div>
         {:else}
             <div class="srpg-header-actions">
-                <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateModal}>
+                <button
+                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                    on:click={openCreateModal}>
                     + Create Character
                 </button>
             </div>
 
             {#if availableTags.length > 1}
-                <div class="group-filter">
-                    <button 
-                        class="scroll-btn scroll-btn-left" 
+                <div
+                    class="bg-bg-secondary border-border-primary relative mb-6 flex shrink-0 items-center gap-2 rounded-lg border p-4 max-[480px]:mb-2 max-[480px]:p-3">
+                    <button
+                        class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 text-xl leading-none font-bold transition-all duration-200 active:scale-95 max-[480px]:hidden"
                         on:click={(e) => {
-                            const container = e.currentTarget.parentElement.querySelector('.filter-buttons');
-                            container.scrollBy({ left: -200, behavior: 'smooth' });
+                            const container =
+                                e.currentTarget.parentElement.querySelector(".filter-buttons");
+                            container.scrollBy({ left: -200, behavior: "smooth" });
                         }}
-                        aria-label="Scroll left"
-                    >
+                        aria-label="Scroll left">
                         ←
                     </button>
-                    <div class="filter-buttons">
+                    <div
+                        class="filter-buttons max-[480px]:scrollbar-default scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted flex flex-1 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden scroll-smooth pb-1 max-[480px]:max-h-[calc(2.5rem*2+0.5rem)] max-[480px]:flex-wrap max-[480px]:overflow-y-auto">
                         <button
-                            class="filter-btn"
+                            class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
+                            'All'
+                                ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary bg-linear-to-br shadow-md'
+                                : ''}"
                             class:active={selectedTagFilter === "All"}
-                            on:click={() => (selectedTagFilter = "All")}
-                        >
+                            on:click={() => (selectedTagFilter = "All")}>
                             All ({characters.length})
                         </button>
                         {#each availableTags as tag}
                             {@const count =
                                 tag === "No Tags"
-                                    ? characters.filter((c) => !c.tags || c.tags.length === 0).length
-                                    : characters.filter(
-                                          (c) => c.tags && c.tags.includes(tag),
-                                      ).length}
+                                    ? characters.filter((c) => !c.tags || c.tags.length === 0)
+                                          .length
+                                    : characters.filter((c) => c.tags && c.tags.includes(tag))
+                                          .length}
                             {#if count > 0}
                                 <button
-                                    class="filter-btn"
+                                    class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
+                                    tag
+                                        ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary bg-linear-to-br shadow-md'
+                                        : ''}"
                                     class:active={selectedTagFilter === tag}
-                                    on:click={() =>
-                                        (selectedTagFilter = tag)}
-                                >
+                                    on:click={() => (selectedTagFilter = tag)}>
                                     {tag} ({count})
                                 </button>
                             {/if}
                         {/each}
                     </div>
-                    <button 
-                        class="scroll-btn scroll-btn-right" 
+                    <button
+                        class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 text-xl leading-none font-bold transition-all duration-200 active:scale-95 max-[480px]:hidden"
                         on:click={(e) => {
-                            const container = e.currentTarget.parentElement.querySelector('.filter-buttons');
-                            container.scrollBy({ left: 200, behavior: 'smooth' });
+                            const container =
+                                e.currentTarget.parentElement.querySelector(".filter-buttons");
+                            container.scrollBy({ left: 200, behavior: "smooth" });
                         }}
-                        aria-label="Scroll right"
-                    >
+                        aria-label="Scroll right">
                         →
                     </button>
                 </div>
@@ -433,88 +439,85 @@
             {selectedSections}
             on:save={saveCharacter}
             on:cancel={cancelEdit}
-            on:rollCheck={handleRollCheck}
-        />
-    {:else}    
-        {#if filteredCharacters.length > 0}
-            <div class="character-list">
-                {#each filteredCharacters as character}
-                    <button
-                        class="srpg-b srpg-b-overview character-card"
-                        on:click={() => selectCharacter(character)}
-                    >
-                        <h3 class="character-title">
-                            {character.name}
-                        </h3>
-                        <div class="character-summary">
-                            {#if character.race || character.class}
-                                <p>
-                                    {#if character.race}{character.race}{/if}
-                                    {#if character.race && character.class}
-                                        •
-                                    {/if}
-                                    {#if character.class}{character.class}{/if}
-                                    {#if character.level}
-                                        (Level {character.level})
-                                    {/if}
-                                </p>
-                            {/if}
-                            {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
-                                <p class="hp-bar">
-                                    <span
-                                        >HP: {character.currentHitPoints} / {character.hitPointMaximum}</span
-                                    >
-                                </p>
-                            {/if}
-                        </div>
-                        {#if character.tags && character.tags.length > 0}
-                            <div class="tag-list">
-                                {#each character.tags as tag}
-                                    <span class="tag-badge">{tag}</span>
-                                {/each}
-                            </div>
+            on:rollCheck={handleRollCheck} />
+    {:else if filteredCharacters.length > 0}
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 py-2">
+            {#each filteredCharacters as character}
+                <button
+                    class="bg-card-bg border-border-primary font-inherit hover:border-accent-primary flex min-h-[120px] w-full cursor-pointer flex-col items-center rounded-lg border-2 p-6 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    on:click={() => selectCharacter(character)}>
+                    <h3
+                        class="text-text-primary m-0 flex flex-wrap items-center justify-center gap-2 text-xl">
+                        {character.name}
+                    </h3>
+                    <div class="character-summary">
+                        {#if character.race || character.class}
+                            <p class="text-text-muted my-1 text-center text-sm">
+                                {#if character.race}{character.race}{/if}
+                                {#if character.race && character.class}
+                                    •
+                                {/if}
+                                {#if character.class}{character.class}{/if}
+                                {#if character.level}
+                                    (Level {character.level})
+                                {/if}
+                            </p>
                         {/if}
-                    </button>
-                {/each}
-            </div>
-        {:else}
-            <div class="empty-state">
-                <p>No characters created yet.</p>
-                <p class="hint">
-                    Create a character to start tracking their stats and
-                    abilities.
-                </p>
-            </div>
-        {/if}
+                        {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
+                            <p class="border-border-primary mt-2 border-t pt-2">
+                                <span class="text-text-primary font-semibold">
+                                    HP: {character.currentHitPoints} / {character.hitPointMaximum}
+                                </span>
+                            </p>
+                        {/if}
+                    </div>
+                    {#if character.tags && character.tags.length > 0}
+                        <div class="mt-2 flex flex-wrap justify-center gap-1">
+                            {#each character.tags as tag}
+                                <span
+                                    class="bg-bg-secondary text-text-secondary border-border-primary inline-block rounded border px-2 py-0.5 text-xs">
+                                    {tag}
+                                </span>
+                            {/each}
+                        </div>
+                    {/if}
+                </button>
+            {/each}
+        </div>
+    {:else}
+        <div class="text-text-muted px-4 py-12 text-center">
+            <p class="my-2">No characters created yet.</p>
+            <p class="text-sm italic">
+                Create a character to start tracking their stats and abilities.
+            </p>
+        </div>
     {/if}
 </SrpgListPage>
 
-<SrpgModal
-    bind:show={showCreateModal}
-    maxWidth="400px"
-    on:close={() => (showCreateModal = false)}
->
-    <div class="modal-content">
-        <h2>New Character</h2>
-        <label for="characterName">Character Name *</label>
+<SrpgModal bind:show={showCreateModal} maxWidth="400px" on:close={() => (showCreateModal = false)}>
+    <div class="p-0">
+        <h2 class="text-text-primary mt-0 mb-4">New Character</h2>
+        <label class="text-text-secondary mt-0 mb-2 block font-semibold" for="characterName">
+            Character Name *
+        </label>
         <input
+            class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
             type="text"
             id="characterName"
             bind:value={newCharacterName}
             placeholder="Enter character name"
-            on:keypress={(e) =>
-                e.key === "Enter" && createCharacter()}
-        />
+            on:keypress={(e) => e.key === "Enter" && createCharacter()} />
 
-        <div class="modal-footer">
+        <div class="mt-6 flex justify-end gap-2">
             <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
                 on:click={createCharacter}
-                disabled={!newCharacterName.trim()}
-            >
+                disabled={!newCharacterName.trim()}>
                 Create
             </button>
-            <button class="srpg-b" on:click={() => (showCreateModal = false)}>
+            <button
+                class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                on:click={() => (showCreateModal = false)}>
                 Cancel
             </button>
         </div>
@@ -524,321 +527,32 @@
 <SectionPickerModal
     bind:show={showSectionPickerModal}
     selectedSections={selectedCharacter?.visibleSections || ["information"]}
-    on:change={e => {
+    on:change={(e) => {
         if (selectedCharacter) {
             selectedCharacter.visibleSections = e.detail;
             selectedCharacter = selectedCharacter;
-            dispatch('characterSelected', {
+            dispatch("characterSelected", {
                 character: selectedCharacter,
                 isEditing,
                 isEditingSections,
                 selectedSections,
-                visibleSections: e.detail
+                visibleSections: e.detail,
             });
         }
     }}
-    on:save={e => handleSectionPickerSave(e.detail)}
-    on:close={() => (showSectionPickerModal = false)}
-/>
+    on:save={(e) => handleSectionPickerSave(e.detail)}
+    on:close={() => (showSectionPickerModal = false)} />
 
 <TagPickerModal
     bind:show={showTagPickerModal}
     selectedTags={selectedCharacter?.tags || []}
-    availableTags={availableTags.filter(t => t !== "No Tags")}
-    on:change={e => {
+    availableTags={availableTags.filter((t) => t !== "No Tags")}
+    on:change={(e) => {
         if (selectedCharacter) {
             selectedCharacter.tags = e.detail;
             selectedCharacter = selectedCharacter;
         }
     }}
     on:newTag={handleNewTag}
-    on:save={e => handleTagPickerSave(e.detail)}
-    on:close={() => (showTagPickerModal = false)}
-/>
-
-<style>
-    @media (min-width: 768px) { /* ...existing code... */ }
-
-    .group-filter {
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        border: 1px solid var(--border-primary);
-        flex-shrink: 0;
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .filter-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: nowrap; /* Don't wrap on desktop - scroll horizontally instead */
-        overflow-x: auto;
-        overflow-y: hidden;
-        flex: 1;
-        /* Smooth scrolling for touch devices */
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        /* Hide scrollbar for cleaner look on desktop */
-        scrollbar-width: thin;
-        scrollbar-color: var(--border-secondary) var(--bg-secondary);
-        /* Ensure content doesn't get cut off */
-        padding-bottom: 0.25rem;
-    }
-
-    .filter-buttons::-webkit-scrollbar {
-        height: 6px;
-    }
-
-    .filter-buttons::-webkit-scrollbar-track {
-        background: var(--bg-secondary);
-        border-radius: 3px;
-    }
-
-    .filter-buttons::-webkit-scrollbar-thumb {
-        background: var(--border-secondary);
-        border-radius: 3px;
-    }
-
-    .filter-buttons::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
-
-    .scroll-btn {
-        flex-shrink: 0;
-        width: 2rem;
-        height: 2rem;
-        padding: 0;
-        background: var(--card-bg);
-        border: 2px solid var(--border-primary);
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 1.25rem;
-        font-weight: bold;
-        color: var(--text-secondary);
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
-
-    .scroll-btn:hover {
-        border-color: var(--accent-primary);
-        background: var(--bg-tertiary);
-        color: var(--accent-primary);
-    }
-
-    .scroll-btn:active {
-        transform: scale(0.95);
-    }
-
-    /* Hide scroll buttons on very small screens where touch scrolling is more natural */
-    @media (max-width: 480px) {
-        .scroll-btn {
-            display: none;
-        }
-
-        .group-filter {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .filter-buttons {
-            /* Show scrollbar on mobile for clarity */
-            scrollbar-width: auto;
-            /* Allow wrapping on mobile */
-            flex-wrap: wrap;
-            max-height: calc(2.5rem * 2 + 0.5rem); /* 2 rows max on mobile */
-            overflow-y: auto;
-        }
-    }
-
-    .filter-btn {
-        padding: 0.5rem 1rem;
-        background: var(--card-bg);
-        border: 2px solid var(--border-primary);
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .filter-btn:hover {
-        border-color: var(--accent-primary);
-        background: var(--bg-tertiary);
-    }
-
-    .filter-btn.active {
-        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-info) 100%);
-        color: var(--text-inverse);
-        border-color: var(--accent-primary);
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-    }
-
-    @media (max-width: 640px) {
-        .filter-btn { 
-            font-size: 0.8125rem;
-            padding: 0.5rem 0.75rem;
-        }
-    }
-
-    .view-header {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-        width: 100%;
-        flex-shrink: 0;
-    }
-
-    /* Add subtle pulse animation when active */
-    @keyframes pulse {
-        0%,
-        100% {
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
-        }
-        50% {
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-        }
-    }
-
-    .character-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
-        padding: 0.5rem 0;
-    }
-
-    .character-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center; 
-        background: var(--card-bg);
-        border: 1px solid var(--border-primary);
-        border-radius: 8px;
-        box-shadow: 0 1px 3px var(--shadow-sm);
-        transition: all 0.2s ease;
-        width: 100%; 
-        min-height: 120px;
-    }
-
-    .character-title {
-        margin: 0 0 0 0;
-        color: var(--text-primary);
-        font-size: 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .character-summary p {
-        margin: 0.25rem 0;
-        color: var(--text-muted);
-        font-size: 0.875rem;
-        text-align: center;
-    }
-
-    .hp-bar {
-        margin-top: 0.5rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid var(--border-primary);
-    }
-
-    .hp-bar span {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--text-muted);
-    }
-
-    .empty-state p {
-        margin: 0.5rem 0;
-    }
-
-    .hint {
-        font-size: 0.875rem;
-        font-style: italic;
-    }
-
-    .modal-content h2 {
-        margin-top: 0;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-    }
-
-    .modal-content label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        margin-top: 1rem;
-        color: var(--text-secondary);
-    }
-
-    .modal-content label:first-of-type {
-        margin-top: 0;
-    }
-
-    .modal-content input {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
-        font-size: 1rem;
-        background: var(--input-bg);
-        color: var(--input-text);
-    }
-
-    .modal-content button {
-        margin-top: 0.75rem;
-    }
-
-    .modal-footer {
-        margin-top: 1.5rem;
-        display: flex;
-        gap: 0.5rem;
-        justify-content: flex-end;
-    }
-
-    .modal-footer button {
-        margin-top: 0;
-    }
-
-    .tag-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-        margin-top: 0.75rem;
-    }
-
-    .tag-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, var(--accent-success) 0%, var(--accent-success-hover) 100%);
-        color: var(--text-inverse);
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.625rem;
-        border-radius: 12px;
-        letter-spacing: 0.025em;
-        box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
-        white-space: nowrap;
-    }
-</style>
-
+    on:save={(e) => handleTagPickerSave(e.detail)}
+    on:close={() => (showTagPickerModal = false)} />

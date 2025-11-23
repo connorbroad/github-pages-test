@@ -15,11 +15,25 @@ export class DungeonGenerator {
 }
 
 export class Dungeon {
-    constructor(private name: string, private style: DungeonFlavor, private floors: DungeonFloor[]) {
-    }
+    constructor(
+        private name: string,
+        private style: DungeonFlavor,
+        private floors: DungeonFloor[]
+    ) {}
 
     public getFlavorText(): string {
-        return this.name + ". Location: " + this.style.location + ". " + this.style.appearance + ". " + this.style.constructionType + " with " + this.style.lighting + " light.";
+        return (
+            this.name +
+            ". Location: " +
+            this.style.location +
+            ". " +
+            this.style.appearance +
+            ". " +
+            this.style.constructionType +
+            " with " +
+            this.style.lighting +
+            " light."
+        );
     }
 
     public get Name(): string {

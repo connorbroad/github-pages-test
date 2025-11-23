@@ -44,13 +44,13 @@
             "items",
             "combat",
         ];
-    } 
+    }
 
     function cancelEdit() {
         editedCharacter = structuredClone(character);
         dispatch("cancel");
     }
-  
+
     function toggleSectionInclusion(sectionId: string) {
         if (sectionId === "information") {
             alert("The Information section cannot be removed.");
@@ -61,23 +61,18 @@
             editedCharacter.visibleSections.push("information");
         }
 
-        const isCurrentlyVisible =
-            editedCharacter.visibleSections.includes(sectionId);
+        const isCurrentlyVisible = editedCharacter.visibleSections.includes(sectionId);
 
         if (isCurrentlyVisible) {
-            editedCharacter.visibleSections =
-                editedCharacter.visibleSections.filter((s) => s !== sectionId);
+            editedCharacter.visibleSections = editedCharacter.visibleSections.filter(
+                (s) => s !== sectionId
+            );
         } else {
-            editedCharacter.visibleSections = [
-                ...editedCharacter.visibleSections,
-                sectionId,
-            ];
+            editedCharacter.visibleSections = [...editedCharacter.visibleSections, sectionId];
 
             // Scroll to the newly enabled section after a brief delay to allow for rendering
             setTimeout(() => {
-                const sectionElement = document.getElementById(
-                    `section-${sectionId}`,
-                );
+                const sectionElement = document.getElementById(`section-${sectionId}`);
                 if (sectionElement) {
                     sectionElement.scrollIntoView({
                         behavior: "smooth",
@@ -89,39 +84,25 @@
     }
 
     // Reactive values for each section visibility
-    $: characterVisibleSections = editedCharacter.visibleSections || [
-        "information",
-    ];
+    $: characterVisibleSections = editedCharacter.visibleSections || ["information"];
     $: showInformation =
         characterVisibleSections.includes("information") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("information") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("information") || isEditingSections);
     $: showExperience =
         characterVisibleSections.includes("experience") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("experience") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("experience") || isEditingSections);
     $: showHealth =
         characterVisibleSections.includes("health") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("health") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("health") || isEditingSections);
     $: showAbilities =
         characterVisibleSections.includes("abilities") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("abilities") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("abilities") || isEditingSections);
     $: showItems =
         characterVisibleSections.includes("items") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("items") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("items") || isEditingSections);
     $: showCombat =
         characterVisibleSections.includes("combat") &&
-        (selectedSections.size === 0 ||
-            selectedSections.has("combat") ||
-            isEditingSections);
+        (selectedSections.size === 0 || selectedSections.has("combat") || isEditingSections);
 
     function startEditingSection(sectionId: string) {
         editingSection = sectionId;
@@ -148,9 +129,9 @@
     $: isItemsEditable = isEditing || isSectionEditing("items");
 </script>
 
-<div class="character-sheet-wrapper">
-    <div class="character-sheet-scroll">
-        <div class="character-sheet">
+<div class="flex h-full flex-col overflow-hidden">
+    <div class="min-h-0 flex-1 overflow-y-auto">
+        <div class="relative w-screen max-w-full md:pr-2 md:pb-6 md:pl-2">
             <!-- Core Info Section -->
             {#if showInformation}
                 <CharacterSheetSection
@@ -160,13 +141,11 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("information")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
+                    on:cancel={cancelSectionEdit}>
                     <InformationSection
                         {character}
                         {editedCharacter}
-                        isEditable={isInformationEditable}
-                    />
+                        isEditable={isInformationEditable} />
                 </CharacterSheetSection>
             {/if}
 
@@ -179,13 +158,11 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("experience")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
+                    on:cancel={cancelSectionEdit}>
                     <ExperienceSection
                         {character}
                         {editedCharacter}
-                        isEditable={isExperienceEditable}
-                    />
+                        isEditable={isExperienceEditable} />
                 </CharacterSheetSection>
             {/if}
 
@@ -198,13 +175,8 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("health")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
-                    <HealthSection
-                        {character}
-                        {editedCharacter}
-                        isEditable={isHealthEditable}
-                    />
+                    on:cancel={cancelSectionEdit}>
+                    <HealthSection {character} {editedCharacter} isEditable={isHealthEditable} />
                 </CharacterSheetSection>
             {/if}
 
@@ -217,13 +189,11 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("abilities")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
+                    on:cancel={cancelSectionEdit}>
                     <AbilitiesSection
                         {editedCharacter}
                         isEditable={isAbilitiesEditable}
-                        on:rollCheck={(e) => dispatch('rollCheck', e.detail)}
-                    />
+                        on:rollCheck={(e) => dispatch("rollCheck", e.detail)} />
                 </CharacterSheetSection>
             {/if}
 
@@ -236,14 +206,12 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("items")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
+                    on:cancel={cancelSectionEdit}>
                     <ItemsSection
                         {character}
                         {editedCharacter}
                         isEditable={isItemsEditable}
-                        {saveSection}
-                    />
+                        {saveSection} />
                 </CharacterSheetSection>
             {/if}
 
@@ -256,14 +224,12 @@
                     showEditButton={!isEditing && !isEditingSections}
                     on:edit={() => startEditingSection("combat")}
                     on:save={saveSection}
-                    on:cancel={cancelSectionEdit}
-                >
+                    on:cancel={cancelSectionEdit}>
                     <CombatSection
                         {character}
                         {editedCharacter}
                         isEditable={isCombatEditable}
-                        on:rollCheck={(e) => dispatch('rollCheck', e.detail)}
-                    />
+                        on:rollCheck={(e) => dispatch("rollCheck", e.detail)} />
                 </CharacterSheetSection>
             {/if}
         </div>
@@ -273,33 +239,4 @@
 <!-- (template modals moved into AbilitiesSection) -->
 
 <style>
-    .character-sheet-wrapper {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .character-sheet-scroll {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
-
-    /* Character Sheet Container */
-    .character-sheet {
-        position: relative;
-        max-width: 100%;
-        width: 100vw;
-    }
-
-    @media (min-width: 768px) {
-        .character-sheet {
-            padding-right: 0.5rem; /* Small room for the scrollbar */
-            padding-left: 0.5rem; /* Small room for the scrollbar */
-            padding-bottom: 1.5rem;
-        }
-    }
-
-    /* (Section-specific styles moved to child components) */
 </style>
