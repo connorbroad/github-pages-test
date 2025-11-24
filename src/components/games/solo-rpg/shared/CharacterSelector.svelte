@@ -142,7 +142,7 @@
             ? "Character auto-selected for this roll (click to change)"
             : "Select active character"}>
         <svg
-            class="text-text-muted h-5 w-5 shrink-0"
+            class="h-5 w-5 shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -184,7 +184,7 @@
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div class="fixed inset-0 z-40" on:click={closeDropdown}></div>
         <div
-            class="bg-card-bg border-border-primary absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 max-h-[300px] min-w-full animate-[slideDown_0.2s_ease] overflow-y-auto rounded-lg border shadow-lg sm:max-h-[250px] md:min-w-[400px] lg:min-w-[450px]">
+            class="bg-card-bg border-border-primary animate-in slide-in-from-top-2 fade-in absolute top-[calc(100%+0.5rem)] right-0 left-0 z-50 max-h-[300px] min-w-full overflow-y-auto rounded-lg border shadow-lg duration-200 sm:max-h-[250px] md:min-w-[400px] lg:min-w-[450px]">
             {#if characters.length > 0}
                 {#if showGroupFilter}
                     <div
@@ -267,7 +267,7 @@
                         {/if}
                         {#if character.class}
                             <span
-                                class="text-text-muted bg-bg-tertiary rounded px-1.5 py-0.5 text-xs whitespace-nowrap sm:hidden lg:block lg:shrink-0 {character.id ===
+                                class="bg-bg-tertiary rounded px-1.5 py-0.5 text-xs whitespace-nowrap sm:hidden lg:block lg:shrink-0 {character.id ===
                                 activeCharacterId
                                     ? 'text-accent-primary bg-[rgba(59,130,246,0.1)]'
                                     : ''}">
@@ -276,7 +276,7 @@
                         {/if}
                         {#if character.level}
                             <span
-                                class="text-text-muted bg-bg-tertiary rounded px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap sm:hidden lg:block lg:shrink-0 {character.id ===
+                                class="bg-bg-tertiary rounded px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap sm:hidden lg:block lg:shrink-0 {character.id ===
                                 activeCharacterId
                                     ? 'text-accent-primary bg-[rgba(59,130,246,0.1)]'
                                     : ''}">
@@ -296,7 +296,7 @@
                     </button>
                 {/each}
             {:else}
-                <div class="text-text-muted p-8 text-center">
+                <div class="p-8 text-center">
                     <p class="m-0 mb-2 text-sm">No characters in this campaign.</p>
                     <p class="text-text-tertiary text-xs italic">
                         Create one in the Story section.
@@ -306,16 +306,3 @@
         </div>
     {/if}
 </div>
-
-<style>
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>

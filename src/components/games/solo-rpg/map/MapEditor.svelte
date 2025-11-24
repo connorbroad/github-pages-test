@@ -894,14 +894,15 @@
     }
 </script>
 
-<div class="map-editor">
+<div class="relative flex h-dvh w-full flex-col">
     {#if map}
-        <div class="map-header">
-            <h4>{map.name}</h4>
+        <div
+            class="border-border-primary bg-bg-primary pointer-events-none absolute top-0 right-0 left-0 z-10 border-b">
+            <h4 class="text-text-primary m-4 text-center">{map.name}</h4>
         </div>
     {/if}
     <div
-        class="canvas-wrap"
+        class="absolute inset-0 touch-none overflow-hidden"
         role="button"
         tabindex="0"
         on:pointerdown={onPointerDown}
@@ -910,52 +911,16 @@
         on:pointercancel={onPointerUp}
         on:wheel={onWheel}
         on:contextmenu|preventDefault>
-        <canvas bind:this={canvasBg} class="layer layer-bg"></canvas>
-        <canvas bind:this={canvasFg} class="layer layer-fg"></canvas>
+        <canvas
+            bind:this={canvasBg}
+            class="layer-bg absolute inset-0 h-full w-full [image-rendering:pixelated]">
+        </canvas>
+        <canvas
+            bind:this={canvasFg}
+            class="layer-fg absolute inset-0 h-full w-full [image-rendering:pixelated]">
+        </canvas>
         {#if isLoading}
             <LoadingOverlay done={loadDone} total={loadTotal} />
         {/if}
     </div>
 </div>
-
-<style>
-    .map-editor {
-        position: relative;
-        width: 100%;
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .map-header {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-        background: var(--bg-primary);
-        border-bottom: 1px solid var(--border-primary);
-        pointer-events: none;
-    }
-
-    .map-header h4 {
-        margin: 1rem;
-        text-align: center;
-        color: var(--text-primary);
-    }
-
-    .canvas-wrap {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        touch-action: none;
-    }
-    .layer {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-    }
-</style>

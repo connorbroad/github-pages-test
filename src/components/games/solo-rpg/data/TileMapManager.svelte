@@ -309,7 +309,7 @@
                                 <div
                                     class="border-border-primary relative h-6 w-6 shrink-0 overflow-hidden rounded border">
                                     <div
-                                        class="rendering-pixelated absolute top-0 left-0 shrink-0 origin-[top_left] rounded-none border-none bg-no-repeat"
+                                        class="absolute top-0 left-0 shrink-0 origin-[top_left] rounded-none border-none bg-no-repeat [image-rendering:pixelated]"
                                         style="background-image: url('{imageValue}'); background-position: {-t.x}px {-t.y}px; width: {tileSize}px; height: {tileSize}px; transform: scale({24 /
                                             tileSize});">
                                     </div>
@@ -363,7 +363,7 @@
                     <div
                         class="border-border-primary flex justify-between gap-4 rounded-md border p-3 px-4">
                         <button
-                            class="border-border-primary text-text-muted hover:bg-bg-secondary hover:text-accent-danger flex h-8 w-8 cursor-pointer items-center justify-center rounded border bg-transparent p-1 text-2xl transition-all duration-200"
+                            class="border-border-primary hover:bg-bg-secondary hover:text-accent-danger flex h-8 w-8 cursor-pointer items-center justify-center rounded border bg-transparent p-1 text-2xl transition-all duration-200"
                             aria-label="Delete tilemap"
                             on:click={() => deleteTileMap(tm.id)}>
                             <svg
@@ -404,9 +404,3 @@
         {/if}
     </div>
 </div>
-
-<style>
-    .rendering-pixelated {
-        image-rendering: pixelated;
-    }
-</style>

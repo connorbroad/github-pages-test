@@ -61,6 +61,3 @@
         </p>
     </SrpgModal>
 {/if}
-
-<style>
-</style>

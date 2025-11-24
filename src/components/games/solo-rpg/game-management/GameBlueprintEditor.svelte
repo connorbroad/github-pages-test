@@ -116,7 +116,7 @@
                     {/each}
                 </div>
             {:else}
-                <p class="text-text-muted bg-bg-secondary mt-4 rounded-md p-4 text-center italic">
+                <p class="bg-bg-secondary mt-4 rounded-md p-4 text-center italic">
                     No fortunes added yet. Click "Add Fortune" to create one.
                 </p>
             {/if}
@@ -138,6 +138,3 @@
     showCampaignField={false}
     on:close={() => (showFortuneEditor = false)}
     on:save={saveFortune} />
-
-<style>
-</style>

@@ -233,15 +233,15 @@
         {:else}
             <div class="flex gap-2">
                 <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-gradient-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
+                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
                     {editedCharacter.currency.gp} G
                 </span>
                 <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-gradient-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
+                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
                     {editedCharacter.currency.sp} S
                 </span>
                 <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-gradient-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
+                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
                     {editedCharacter.currency.cp} C
                 </span>
             </div>
@@ -360,12 +360,13 @@
                             {/if}
                         </button>
                         <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div class="text-text-primary leading-tight font-semibold break-words">
+                            <div
+                                class="text-text-primary leading-tight font-semibold wrap-break-word">
                                 {row.item?.name || row.invItem.itemId}
                             </div>
                             {#if row.item && formatItemDetails(row.item).length > 0}
                                 <div
-                                    class="text-text-muted flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
+                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
                                     {#each formatItemDetails(row.item) as detail}
                                         <span
                                             class="inline-flex items-center gap-1 whitespace-nowrap">
@@ -432,12 +433,13 @@
                             {/if}
                         </button>
                         <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div class="text-text-primary leading-tight font-semibold break-words">
+                            <div
+                                class="text-text-primary leading-tight font-semibold wrap-break-word">
                                 {row.item?.name || row.invItem.itemId}
                             </div>
                             {#if row.item && formatItemDetails(row.item).length > 0}
                                 <div
-                                    class="text-text-muted flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
+                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
                                     {#each formatItemDetails(row.item) as detail}
                                         <span
                                             class="inline-flex items-center gap-1 whitespace-nowrap">
@@ -465,12 +467,13 @@
                 {#each generalItems as row}
                     <div class="border-divider flex items-start gap-4 border-b py-2 max-md:gap-3">
                         <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div class="text-text-primary leading-tight font-semibold break-words">
+                            <div
+                                class="text-text-primary leading-tight font-semibold wrap-break-word">
                                 {row.item?.name || row.invItem.itemId}
                             </div>
                             {#if row.item && formatItemDetails(row.item).length > 0}
                                 <div
-                                    class="text-text-muted flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
+                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
                                     {#each formatItemDetails(row.item) as detail}
                                         <span
                                             class="inline-flex items-center gap-1 whitespace-nowrap">
@@ -494,7 +497,7 @@
             {/if}
         </div>
     {:else}
-        <p class="text-text-muted px-4 py-8 text-center text-base">No items in inventory.</p>
+        <p class="px-4 py-8 text-center text-base">No items in inventory.</p>
     {/if}
 </div>
 
@@ -511,6 +514,3 @@
     {campaignItems}
     on:save={handleAddInventoryItemSave}
     on:close={handleAddInventoryItemClose} />
-
-<style>
-</style>

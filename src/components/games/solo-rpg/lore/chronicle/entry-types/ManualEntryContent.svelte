@@ -4,16 +4,7 @@
     export let entry: ChronicleEntry;
 </script>
 
-<div class="entry-content">
+<div
+    class="mb-2 text-[0.95rem] leading-relaxed wrap-break-word whitespace-pre-wrap text-gray-900 dark:text-gray-100">
     {entry.content}
 </div>
-
-<style>
-    .entry-content {
-        color: var(--text-primary);
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
-    }
-</style>

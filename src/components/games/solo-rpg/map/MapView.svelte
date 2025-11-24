@@ -180,7 +180,7 @@
 
 {#if $activeCampaign}
     {#if !currentMapId}
-        <div class="map-view">
+        <div class="mx-auto max-w-[1200px]">
             <MapLanding
                 {maps}
                 on:createMap={createMap}
@@ -220,7 +220,7 @@
             on:moveFlip={handleMoveFlip}
             on:moveDelete={handleMoveDelete} />
 
-        <div class="map-view-full has-sidebars">
+        <div class="relative h-full w-full has-sidebars">
             <MapEditor
                 bind:this={editorRef}
                 mapId={currentMapId}
@@ -236,15 +236,3 @@
             on:navigateToStory />
     {/if}
 {/if}
-
-<style>
-    .map-view {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .map-view-full {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-</style>

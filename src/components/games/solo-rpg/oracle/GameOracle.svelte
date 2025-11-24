@@ -429,8 +429,7 @@
                                     on:reorder={handleReorder} />
                             </div>
                         {:else}
-                            <p
-                                class="text-text-muted bg-bg-secondary mt-2 mb-0 rounded-lg p-4 italic">
+                            <p class="bg-bg-secondary mt-2 mb-0 rounded-lg p-4 italic">
                                 No campaign fortunes yet. Click the button above to create one.
                             </p>
                         {/if}

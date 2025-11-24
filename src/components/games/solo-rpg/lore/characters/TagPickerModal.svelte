@@ -125,5 +125,3 @@
     </form>
 </SrpgModal>
 
-<style>
-</style>

@@ -128,9 +128,7 @@
 
 <div class="mt-4 text-left">
     {#if fortunes.length === 0}
-        <p class="text-text-muted text-center italic">
-            No fortunes yet. Create one to get started!
-        </p>
+        <p class="text-center italic">No fortunes yet. Create one to get started!</p>
     {:else}
         {#each fortunes as fortune}
             <div
@@ -179,7 +177,7 @@
                     {/if}
                     {#if allowDelete}
                         <button
-                            class="text-text-muted hover:text-accent-danger hover:bg-danger-bg inline-flex cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-1 opacity-50 transition-all duration-150 hover:opacity-100 active:scale-95"
+                            class="hover:text-accent-danger hover:bg-danger-bg inline-flex cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-1 opacity-50 transition-all duration-150 hover:opacity-100 active:scale-95"
                             on:click|stopPropagation={() => dispatch("delete", fortune.id)}
                             aria-label="Delete fortune">
                             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">

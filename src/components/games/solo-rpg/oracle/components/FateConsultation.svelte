@@ -238,6 +238,3 @@
         </button>
     </SrpgModal>
 {/if}
-
-<style>
-</style>

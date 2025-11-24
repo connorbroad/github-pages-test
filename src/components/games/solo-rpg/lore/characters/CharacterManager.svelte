@@ -452,7 +452,7 @@
                     </h3>
                     <div class="character-summary">
                         {#if character.race || character.class}
-                            <p class="text-text-muted my-1 text-center text-sm">
+                            <p class="my-1 text-center text-sm">
                                 {#if character.race}{character.race}{/if}
                                 {#if character.race && character.class}
                                     •
@@ -485,7 +485,7 @@
             {/each}
         </div>
     {:else}
-        <div class="text-text-muted px-4 py-12 text-center">
+        <div class="px-4 py-12 text-center">
             <p class="my-2">No characters created yet.</p>
             <p class="text-sm italic">
                 Create a character to start tracking their stats and abilities.

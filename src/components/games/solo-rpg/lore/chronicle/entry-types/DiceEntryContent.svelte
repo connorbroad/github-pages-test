@@ -6,88 +6,38 @@
     $: diceData = entry.diceData;
 </script>
 
-<div class="dice-entry-content">
+<div class="text-sm">
     {#if diceData}
-        {#if diceData.checkName}
-            <div class="check-name">
-                {diceData.checkName}
-            </div>
-        {/if}
-        <div class="dice-result">
-            <div class="dice-formula">
+        <!-- Main Section: Title and Result -->
+        <div class="flex flex-wrap items-center gap-2 leading-none">
+            <span class="font-semibold text-gray-900 dark:text-gray-100">
+                {diceData.checkName || "Result"}
+            </span>
+
+            <span
+                class="inline-block rounded bg-blue-500 px-2 py-1 text-sm leading-snug font-bold text-white">
+                {diceData.result}
+            </span>
+        </div>
+
+        <!-- Details Section: Formula and Breakdown -->
+        <div
+            class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
+            <span class="font-medium">
                 {diceData.numDice}d{diceData.numSides}{diceData.modifier !== 0
                     ? (diceData.modifier > 0 ? "+" : "") + diceData.modifier
                     : ""}
                 {#if diceData.numDice > 1}
-                    <span class="result-option">({diceData.resultOption})</span>
+                    ({diceData.resultOption})
                 {/if}
-            </div>
-            <div class="dice-total">
-                Result:
-                <span class="result-badge">
-                    {diceData.result}
+            </span>
+
+            {#if diceData.individualDiceResults && diceData.individualDiceResults.length > 0}
+                <span class="text-gray-400 dark:text-gray-600">•</span>
+                <span class="italic">
+                    Rolls: {diceData.individualDiceResults.join(", ")}
                 </span>
-            </div>
+            {/if}
         </div>
-        {#if diceData.individualDiceResults && diceData.individualDiceResults.length > 1}
-            <div class="individual-dice">
-                Individual rolls: {diceData.individualDiceResults.join(", ")}
-            </div>
-        {/if}
     {/if}
 </div>
-
-<style>
-    .dice-entry-content {
-        font-size: 0.9rem;
-    }
-
-    .check-name {
-        font-weight: 700;
-        font-size: 1rem;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.25rem;
-        border-bottom: 1px solid var(--border-primary);
-    }
-
-    .dice-result {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .dice-formula {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .result-option {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        font-weight: normal;
-    }
-
-    .dice-total {
-        font-size: 0.9rem;
-        color: var(--text-primary);
-    }
-
-    .individual-dice {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        font-style: italic;
-        margin-top: 0.15rem;
-    }
-
-    .result-badge {
-        background: var(--accent-info);
-        color: var(--text-inverse);
-        font-weight: 700;
-        font-size: 0.875rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 4px;
-        line-height: 1.4;
-    }
-</style>

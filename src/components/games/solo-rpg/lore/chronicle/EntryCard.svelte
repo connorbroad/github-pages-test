@@ -47,13 +47,17 @@
     }
 </script>
 
-<div class="entry-card {typeConfig.cardClass}">
-    <div class="entry-header">
-        <span class="entry-type">
+<div class="{typeConfig.cardClass} shadow-2xl">
+    <div
+        class="mb-2 flex items-center justify-between border-b border-gray-300 pb-2 dark:border-gray-600">
+        <span
+            class="text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-400">
             {typeConfig.icon}
             {typeConfig.label}
         </span>
-        <span class="entry-timestamp">{formatTimestamp(entry.timestamp)}</span>
+        <span class="text-xs font-normal text-gray-500 dark:text-gray-500">
+            {formatTimestamp(entry.timestamp)}
+        </span>
     </div>
 
     <!-- Render type-specific content -->
@@ -89,81 +93,3 @@
         on:edit={handleEdit}
         on:delete={handleDelete} />
 </div>
-
-<style>
-    .entry-card {
-        background: var(--srpg-card-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        transition: all 0.15s ease;
-    }
-
-    .entry-card:hover {
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-        border-color: var(--srpg-border-hover);
-    }
-
-    .entry-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--srpg-border-color);
-    }
-
-    .entry-type {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--srpg-text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .entry-timestamp {
-        font-size: 0.8rem;
-        color: var(--srpg-text-tertiary);
-        font-weight: 400;
-    }
-
-    .oracle-card {
-        background: var(--srpg-secondary-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-left: 3px solid var(--srpg-oracle-accent);
-        border-radius: 6px;
-        padding: 0.65rem 0.85rem;
-        box-shadow: none;
-        position: relative;
-        transition: all 0.15s ease;
-    }
-
-    .oracle-card:hover {
-        background: var(--srpg-hover-bg);
-        border-left-color: var(--srpg-oracle-accent-hover);
-    }
-
-    .oracle-card .entry-header {
-        margin-bottom: 0.3rem;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid var(--srpg-border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .oracle-card .entry-type {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: var(--srpg-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .oracle-card .entry-timestamp {
-        font-size: 0.7rem;
-        color: var(--srpg-text-tertiary);
-        font-weight: 400;
-    }
-</style>

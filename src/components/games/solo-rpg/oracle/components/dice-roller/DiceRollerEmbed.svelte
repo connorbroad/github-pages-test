@@ -117,5 +117,3 @@
     {/if}
 </div>
 
-<style>
-</style>

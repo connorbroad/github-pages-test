@@ -276,7 +276,7 @@
                                             {/each}
                                         </div>
                                     {:else}
-                                        <p class="text-text-muted m-0 p-4 text-center italic">
+                                        <p class="m-0 p-4 text-center italic">
                                             No campaigns yet. Click the + button to create one.
                                         </p>
                                     {/if}
@@ -289,3 +289,9 @@
         </div>
     </div>
 </SrpgListPage>
+
+<CampaignLoadConfirm
+    bind:show={showCampaignLoadConfirm}
+    campaign={selectedCampaignForLoad}
+    on:load={handleLoadCampaign}
+    on:close={() => (showCampaignLoadConfirm = false)} />

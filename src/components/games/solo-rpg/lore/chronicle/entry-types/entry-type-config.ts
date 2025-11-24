@@ -37,6 +37,9 @@ export interface EntryTypeConfig {
     hasEditableContent: (entry: ChronicleEntry) => boolean;
 }
 
+const NON_MANUAL_CARD_STYLES =
+    "bg-slate-500 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-700 rounded-md p-3 my-1 text-sm";
+
 /**
  * Registry of all entry types
  * To add a new entry type:
@@ -50,7 +53,7 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         label: "Fortune",
         icon: "🎲",
         contentComponent: FortuneEntryContent,
-        cardClass: "oracle-card",
+        cardClass: NON_MANUAL_CARD_STYLES,
         compact: true,
         editButtonLabel: (entry) => (entry.userNotes ? "Edit notes" : "Add notes"),
         editField: "userNotes",
@@ -63,7 +66,7 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         label: "Dice Roll",
         icon: "🎲",
         contentComponent: DiceEntryContent,
-        cardClass: "oracle-card",
+        cardClass: NON_MANUAL_CARD_STYLES,
         compact: true,
         editButtonLabel: (entry) => (entry.userNotes ? "Edit notes" : "Add notes"),
         editField: "userNotes",
@@ -76,7 +79,7 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         label: "Card Draw",
         icon: "🃏",
         contentComponent: CardsEntryContent,
-        cardClass: "oracle-card",
+        cardClass: NON_MANUAL_CARD_STYLES,
         compact: true,
         editButtonLabel: (entry) => (entry.userNotes ? "Edit notes" : "Add notes"),
         editField: "userNotes",
@@ -89,7 +92,8 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         label: "Manual Entry",
         icon: "📝",
         contentComponent: ManualEntryContent,
-        cardClass: "manual-card",
+        cardClass:
+            "dark:bg-zinc-800 shadow-md hover:shadow-lg transition-shadow border-l-4 border-l-amber-500 rounded-r-lg p-5 my-3",
         compact: false,
         editButtonLabel: () => "Edit entry",
         editField: "content",

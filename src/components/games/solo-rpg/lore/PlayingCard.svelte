@@ -44,6 +44,3 @@
         {/if}
     </span>
 </span>
-
-<style>
-</style>

@@ -24,9 +24,14 @@
     }
 </script>
 
-<div class="entry-actions {compact ? 'compact' : ''}">
+<div
+    class="flex items-center justify-end gap-1.5 border-t border-gray-300 pt-2.5 dark:border-gray-600 {compact
+        ? 'mt-1.5 pt-1.5'
+        : ''}">
     <button
-        class="entry-action-btn"
+        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 {compact
+            ? 'p-1.5'
+            : 'p-1.5'}"
         on:click={handleAssignCharacter}
         title="Assign character"
         aria-label="Assign character">
@@ -41,12 +46,14 @@
         </svg>
     </button>
     {#if characterId && characterName}
-        <p class="entry-character-name">{characterName}</p>
+        <p class="m-0 text-sm text-gray-500 italic dark:text-gray-400">{characterName}</p>
     {/if}
-    <div class="spacer"></div>
+    <div class="grow"></div>
     {#if showEditButton && !isEditing}
         <button
-            class="entry-action-btn"
+            class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 {compact
+                ? 'p-1.5'
+                : 'p-1.5'}"
             on:click={handleEdit}
             title={editButtonLabel}
             aria-label={editButtonLabel}>
@@ -62,7 +69,9 @@
         </button>
     {/if}
     <button
-        class="entry-action-btn delete-btn"
+        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-red-400 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 {compact
+            ? 'p-1.5'
+            : 'p-1.5'}"
         on:click={handleDelete}
         title="Delete entry"
         aria-label="Delete entry">
@@ -77,62 +86,3 @@
         </svg>
     </button>
 </div>
-
-<style>
-    .entry-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0.4rem;
-        padding-top: 0.65rem;
-        border-top: 1px solid var(--srpg-border-color);
-    }
-
-    .entry-actions.compact {
-        margin-top: 0.4rem;
-        padding-top: 0.4rem;
-    }
-
-    .entry-character-name {
-        font-size: 0.9rem;
-        font-style: italic;
-        color: var(--srpg-text-muted);
-        margin: 0;
-    }
-
-    .entry-action-btn {
-        background: transparent;
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 4px;
-        padding: 0.35rem;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.15s;
-        color: var(--srpg-text-muted);
-        min-width: auto;
-        min-height: auto;
-    }
-
-    .entry-actions.compact .entry-action-btn {
-        padding: 0.3rem;
-    }
-
-    .entry-action-btn:hover {
-        background: var(--srpg-hover-bg);
-        border-color: var(--srpg-border-hover);
-        color: var(--srpg-text-secondary);
-    }
-
-    .entry-action-btn.delete-btn:hover {
-        background: var(--srpg-error-bg-light);
-        border-color: var(--srpg-error-border);
-        color: var(--srpg-error-text);
-    }
-
-    .spacer {
-        flex-grow: 1;
-    }
-</style>

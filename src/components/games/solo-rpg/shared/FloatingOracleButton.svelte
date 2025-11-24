@@ -57,5 +57,3 @@
         preselectedCharacterId={diceRollPreset?.characterId || currentCharacterId} />
 {/if}
 
-<style>
-</style>

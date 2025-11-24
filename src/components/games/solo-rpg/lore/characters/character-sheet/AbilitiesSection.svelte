@@ -335,7 +335,7 @@
             id="abilityCheckDice"
             bind:value={editedCharacter.abilityCheckDice}
             placeholder="e.g., 1d20" />
-        <p class="text-text-muted mt-2 mb-0 text-[0.8125rem] italic">
+        <p class="mt-2 mb-0 text-[0.8125rem] italic">
             This dice formula will be used for all ability checks
         </p>
     </div>
@@ -345,7 +345,7 @@
     <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {#each editedCharacter.abilities as ability}
             <div
-                class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-gradient-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
+                class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-linear-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
                 {#if isEditable}
                     <div class="flex flex-col gap-4">
                         <div class="flex flex-col gap-1">
@@ -454,7 +454,7 @@
                         </p>
                         {#if ability.proficient}
                             <span
-                                class="from-accent-primary to-accent-info text-text-inverse rounded-md bg-gradient-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-[0_1px_2px_rgba(59,130,246,0.2)]">
+                                class="from-accent-primary to-accent-info text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-[0_1px_2px_rgba(59,130,246,0.2)]">
                                 Proficient
                             </span>
                         {/if}
@@ -504,7 +504,7 @@
         {/each}
     </div>
 {:else}
-    <p class="text-text-muted px-4 py-8 text-center text-base">No abilities added yet.</p>
+    <p class="px-4 py-8 text-center text-base">No abilities added yet.</p>
 {/if}
 
 <!-- Skills Subsection -->
@@ -556,7 +556,7 @@
                 id="skillCheckDice"
                 bind:value={editedCharacter.skillCheckDice}
                 placeholder="e.g., 1d20" />
-            <p class="text-text-muted mt-2 mb-0 text-[0.8125rem] italic">
+            <p class="mt-2 mb-0 text-[0.8125rem] italic">
                 This dice formula will be used for all skill checks
             </p>
         </div>
@@ -566,7 +566,7 @@
         <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each editedCharacter.skills as skill}
                 <div
-                    class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-gradient-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
+                    class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-linear-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
                     {#if isEditable}
                         <div class="flex flex-col gap-4">
                             <div class="flex flex-col gap-1">
@@ -666,18 +666,17 @@
                                 class="text-text-primary m-0 text-[1.125rem] font-semibold tracking-tight md:text-[1.1875rem]">
                                 {skill.name}
                             </h4>
-                            <p
-                                class="text-text-muted m-0 text-[0.8125rem] font-medium tracking-wide">
+                            <p class="m-0 text-[0.8125rem] font-medium tracking-wide">
                                 ({getAbilityName(skill.abilityId)})
                             </p>
                             <div class="mt-1 flex flex-wrap items-center justify-center gap-2">
                                 <span
-                                    class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-12 rounded-lg border bg-gradient-to-br px-3 py-1.5 text-center text-xl font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
+                                    class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-12 rounded-lg border bg-linear-to-br px-3 py-1.5 text-center text-xl font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
                                     {skill.bonus >= 0 ? "+" : ""}{skill.bonus}
                                 </span>
                                 {#if skill.proficient}
                                     <span
-                                        class="from-accent-primary to-accent-info text-text-inverse rounded bg-gradient-to-br px-1.5 py-0.5 text-[0.6875rem] font-semibold tracking-wide">
+                                        class="from-accent-primary to-accent-info text-text-inverse rounded bg-linear-to-br px-1.5 py-0.5 text-[0.6875rem] font-semibold tracking-wide">
                                         Prof
                                     </span>
                                 {/if}
@@ -728,7 +727,7 @@
             {/each}
         </div>
     {:else}
-        <p class="text-text-muted px-4 py-8 text-center text-base">No skills added yet.</p>
+        <p class="px-4 py-8 text-center text-base">No skills added yet.</p>
     {/if}
     <TemplateModal
         bind:show={showAbilityTemplateModal}
@@ -744,6 +743,3 @@
         templates={skillTemplateOptions}
         on:select={(e) => applySkillTemplate(e.detail)} />
 </div>
-
-<style>
-</style>

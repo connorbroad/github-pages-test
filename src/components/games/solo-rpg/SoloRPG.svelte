@@ -149,7 +149,7 @@
     onToggleSection={handleTertiaryToggleSection} />
 
 <main
-    class="bg-bg-primary text-text-primary box-border py-0 transition-all duration-300
+    class="box-border py-0 transition-all duration-300
            md:ml-[80px]
            {currentView === 'map' ? 'md:ml-[170px]' : ''}
            {currentView === 'characters' && showTertiarySidebar ? 'md:ml-[160px]' : ''}"

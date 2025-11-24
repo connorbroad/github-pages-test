@@ -135,6 +135,3 @@
         </button>
     </div>
 {/if}
-
-<style>
-</style>

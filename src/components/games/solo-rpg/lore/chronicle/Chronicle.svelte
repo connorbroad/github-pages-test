@@ -322,9 +322,12 @@
     }
 </script>
 
-<SrpgListPage className="chronicle" headerClass="" contentClass="">
-    <div slot="header" class="chronicle-header">
-        <div class="header-actions">
+<SrpgListPage
+    className="mx-auto flex w-full max-w-[900px] flex-col overflow-hidden"
+    headerClass=""
+    contentClass="">
+    <div slot="header" class="flex shrink-0 items-center justify-between pb-4">
+        <div class="flex gap-2">
             <button class="srpg-b srpg-b-simple" on:click={toggleChaptersList}>
                 📚 {showChaptersList ? "Hide" : "View"} Chapters
             </button>
@@ -332,11 +335,13 @@
     </div>
 
     {#if showChaptersList}
-        <div class="chapters-list-panel">
-            <div class="chapters-header">
-                <h3>Chapters</h3>
+        <div
+            class="mb-6 overflow-hidden rounded-lg border-2 border-gray-300 bg-white dark:border-gray-600 dark:bg-zinc-800">
+            <div
+                class="flex items-center justify-between border-b border-gray-300 bg-gray-100 px-5 py-4 dark:border-gray-600 dark:bg-gray-700">
+                <h3 class="m-0 text-lg text-gray-900 dark:text-gray-100">Chapters</h3>
                 <button
-                    class="close-btn"
+                    class="cursor-pointer border-none bg-transparent p-1 text-xl leading-none text-gray-500 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                     on:click={toggleChaptersList}
                     title="Close chapters list"
                     aria-label="Close chapters list">
@@ -352,14 +357,25 @@
                     </svg>
                 </button>
             </div>
-            <div class="chapters-content">
-                <div class="current-chapter-item-wrapper">
+            <div class="max-h-[400px] overflow-y-auto p-2">
+                <div class="relative mb-1 flex items-center justify-center gap-1">
                     <button
-                        class="chapter-item {viewingChapterId === null ? 'active' : ''}"
+                        class="flex-1 cursor-pointer rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-left transition-all duration-150 hover:border-gray-400 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600 {viewingChapterId ===
+                        null
+                            ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-500 dark:bg-blue-500'
+                            : ''}"
                         on:click={() => viewChapter(null)}>
                         <div>
-                            <div class="chapter-name">📖 Current Chapter</div>
-                            <div class="chapter-meta">
+                            <div
+                                class="mb-1 text-[0.95rem] font-semibold {viewingChapterId === null
+                                    ? 'text-white'
+                                    : 'text-gray-900 dark:text-gray-100'}">
+                                📖 Current Chapter
+                            </div>
+                            <div
+                                class="text-xs {viewingChapterId === null
+                                    ? 'text-white'
+                                    : 'text-gray-500 dark:text-gray-400'}">
                                 {loadChronicleEntries().filter(
                                     (e) => e.campaignId === $activeCampaign?.id && !e.chapterId
                                 ).length} entries
@@ -368,7 +384,7 @@
                     </button>
                     {#if entries.length > 0 && viewingChapterId === null}
                         <button
-                            class="srpg-b srpg-b-create"
+                            class="srpg-b srpg-b-create w-16"
                             on:click={openCreateChapter}
                             aria-label="Finish Chapter">
                             <svg
@@ -388,20 +404,30 @@
                     {/if}
                 </div>
                 {#each chapters as chapter (chapter.id)}
-                    <div class="chapter-item-wrapper">
+                    <div class="relative mb-1 flex items-center justify-center gap-1">
                         <button
-                            class="chapter-item {viewingChapterId === chapter.id ? 'active' : ''}"
+                            class="flex-1 cursor-pointer rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-left transition-all duration-150 hover:border-gray-400 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600 {viewingChapterId ===
+                            chapter.id
+                                ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-500 dark:bg-blue-500'
+                                : ''}"
                             on:click={() => viewChapter(chapter.id)}>
-                            <div class="chapter-name">
+                            <div
+                                class="mb-1 text-[0.95rem] font-semibold {viewingChapterId ===
+                                chapter.id
+                                    ? 'text-white'
+                                    : 'text-gray-900 dark:text-gray-100'}">
                                 📜 {getChapterDisplayName(chapter)}
                             </div>
-                            <div class="chapter-meta">
+                            <div
+                                class="text-xs {viewingChapterId === chapter.id
+                                    ? 'text-white'
+                                    : 'text-gray-500 dark:text-gray-400'}">
                                 {loadChronicleEntries().filter((e) => e.chapterId === chapter.id)
                                     .length} entries
                             </div>
                         </button>
                         <button
-                            class="chapter-delete-btn srpg-b srpg-b-icon"
+                            class="srpg-b srpg-b-icon absolute right-4 cursor-pointer rounded border border-gray-300 bg-white p-1 text-gray-500 transition-all duration-150 hover:border-red-400 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-400 dark:hover:border-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                             on:click|stopPropagation={() => deleteChapter(chapter.id)}
                             title="Delete chapter"
                             aria-label="Delete chapter">
@@ -427,8 +453,8 @@
                 show={showCreateChapter}
                 ariaLabel="Close create chapter dialog"
                 on:close={cancelCreateChapter}>
-                <h3>Finish Chapter</h3>
-                <p class="chapter-help">
+                <h3 class="mt-0 mb-4 text-xl text-gray-900 dark:text-gray-100">Finish Chapter</h3>
+                <p class="m-0 mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                     All current entries will be saved to this chapter, and you'll start fresh with a
                     new current chapter.
                 </p>
@@ -436,15 +462,16 @@
                     type="text"
                     bind:value={chapterCustomName}
                     placeholder="Chapter name (optional)"
-                    class="chapter-name-input" />
-                <div class="chapter-preview">
+                    class="mb-3 w-full rounded-md border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.2)] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                <div
+                    class="mb-4 rounded-md border border-gray-300 bg-white px-3 py-3 text-[0.95rem] font-semibold text-gray-700 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-300">
                     {#if chapterCustomName.trim()}
                         Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
                     {:else}
                         Preview: Chapter {chapters.length + 1}
                     {/if}
                 </div>
-                <div class="editor-actions">
+                <div class="flex flex-col justify-end gap-3">
                     <button class="srpg-b srpg-b-create" on:click={createChapter}>
                         Finish Chapter
                     </button>
@@ -456,28 +483,34 @@
         {/if}
     {:else}
         <!-- Viewing a Saved Chapter -->
-        <div class="chapter-view-banner">
-            <button class="back-btn" on:click={() => viewChapter(null)}>← Back to Current</button>
-            <span class="viewing-chapter-name">
+        <div
+            class="mb-6 flex items-center gap-4 rounded-lg border border-gray-300 bg-gray-100 px-5 py-4 dark:border-gray-600 dark:bg-gray-700">
+            <button
+                class="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-150 hover:border-gray-400 hover:bg-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-300 dark:hover:border-gray-500 dark:hover:bg-gray-700"
+                on:click={() => viewChapter(null)}>
+                ← Back to Current
+            </button>
+            <span class="text-base font-semibold text-gray-900 dark:text-gray-100">
                 📜 Viewing: {getChapterDisplayName(chapters.find((c) => c.id === viewingChapterId))}
             </span>
         </div>
     {/if}
 
     {#if !viewingChapterId}
-        <div style="margin-bottom: 1rem; text-align: center;">
+        <div class="mb-4 text-center">
             <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openAddEntry}>
                 + Add entry
             </button>
         </div>
     {/if}
 
-    <div class="entries-list">
+    <div class="flex flex-1 flex-col gap-2 overflow-y-auto">
         {#if entries.length === 0}
-            <div class="no-entries">
-                <p>No chapter entries yet.</p>
-                <p>Click "Add entry" to record your first adventure log,</p>
-                <p>or roll the dice with the Oracle!</p>
+            <div
+                class="rounded-lg bg-gray-100 px-4 py-12 text-center text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
+                <p class="my-2">No chapter entries yet.</p>
+                <p class="my-2">Click "Add entry" to record your first adventure log,</p>
+                <p class="my-2">or roll the dice with the Oracle!</p>
             </div>
         {:else}
             {#each entries as entry (entry.id)}
@@ -503,11 +536,15 @@
     ariaLabel="Manual chronicle entry editor"
     maxWidth="600px"
     on:close={cancelAddEntry}>
-    <div class="modal-content">
-        <h3>New Chronicle Entry</h3>
-        <textarea bind:value={newEntryText} placeholder="What happened in your adventure?" rows="6">
+    <div class="text-left">
+        <h3 class="mt-0 mb-4 text-xl text-gray-900 dark:text-gray-100">New Chronicle Entry</h3>
+        <textarea
+            bind:value={newEntryText}
+            placeholder="What happened in your adventure?"
+            rows="6"
+            class="mb-4 w-full resize-y rounded-md border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.2)] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
         </textarea>
-        <div class="editor-actions">
+        <div class="flex flex-col justify-end gap-3 max-sm:flex-col">
             <button
                 class="srpg-b srpg-b-create"
                 on:click={saveEntry}
@@ -521,24 +558,30 @@
 
 <!-- Character Assignment Modal -->
 <SrpgModal bind:show={showCharacterAssign} maxWidth="450px" on:close={cancelCharacterAssign}>
-    <div class="modal-content">
-        <h2>Assign Character</h2>
-        <p class="modal-help">Select a character to associate with this entry.</p>
+    <div class="text-left">
+        <h2 class="mt-0 mb-2 text-gray-900 dark:text-gray-100">Assign Character</h2>
+        <p class="m-0 mb-4 text-sm text-gray-600 dark:text-gray-400">
+            Select a character to associate with this entry.
+        </p>
 
         {#if campaignCharacters.length > 0}
-            <div class="character-select-list">
+            <div class="mb-4 flex max-h-[400px] flex-col gap-2 overflow-y-auto">
                 <button
-                    class="srpg-b character-select-item"
+                    class="srpg-b flex flex-col gap-1 rounded-md border-2 border-gray-300 bg-white px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-blue-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-zinc-800 dark:hover:border-blue-500 dark:hover:bg-gray-700"
                     on:click={() => selectCharacterForEntry(null)}>
-                    <span class="character-select-name">None (Remove assignment)</span>
+                    <span class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                        None (Remove assignment)
+                    </span>
                 </button>
                 {#each campaignCharacters as character (character.id)}
                     <button
-                        class="srpg-b character-select-item"
+                        class="srpg-b flex flex-col gap-1 rounded-md border-2 border-gray-300 bg-white px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-blue-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-zinc-800 dark:hover:border-blue-500 dark:hover:bg-gray-700"
                         on:click={() => selectCharacterForEntry(character.id)}>
-                        <span class="character-select-name">{character.name}</span>
+                        <span class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                            {character.name}
+                        </span>
                         {#if character.race || character.class}
-                            <span class="character-select-info">
+                            <span class="text-[0.85rem] text-gray-600 dark:text-gray-400">
                                 {#if character.race}{character.race}{/if}
                                 {#if character.race && character.class}
                                     •
@@ -550,401 +593,17 @@
                 {/each}
             </div>
         {:else}
-            <div class="no-characters-message">
-                <p>No characters available.</p>
-                <p class="hint">Create a character in the Character Manager first.</p>
+            <div
+                class="mb-4 rounded-md bg-gray-100 px-4 py-8 text-center text-gray-600 dark:bg-zinc-800 dark:text-gray-400">
+                <p class="my-1">No characters available.</p>
+                <p class="my-1 text-sm italic">
+                    Create a character in the Character Manager first.
+                </p>
             </div>
         {/if}
 
-        <div class="modal-footer">
+        <div class="flex justify-end gap-2">
             <button class="srpg-b srpg-b-simple" on:click={cancelCharacterAssign}>Cancel</button>
         </div>
     </div>
 </SrpgModal>
-
-<style>
-    .chronicle {
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .chronicle-sticky-header {
-        flex-shrink: 0;
-    }
-
-    .chronicle-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 1rem;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .chapters-list-panel {
-        background: var(--srpg-card-bg);
-        border: 2px solid var(--srpg-border-color);
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-    }
-
-    .chapters-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 1.25rem;
-        background: var(--srpg-secondary-bg);
-        border-bottom: 1px solid var(--srpg-border-color);
-    }
-
-    .chapters-header h3 {
-        margin: 0;
-        font-size: 1.125rem;
-        color: var(--srpg-text-primary);
-    }
-
-    .close-btn {
-        background: transparent;
-        border: none;
-        font-size: 1.25rem;
-        color: var(--srpg-text-tertiary);
-        cursor: pointer;
-        padding: 0.25rem;
-        line-height: 1;
-        transition: color 0.15s;
-    }
-
-    .close-btn:hover {
-        color: var(--srpg-text-primary);
-    }
-
-    .chapters-content {
-        padding: 0.5rem;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .chapter-item-wrapper {
-        position: relative;
-        display: flex;
-        gap: 0.25rem;
-        margin-bottom: 0.25rem;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .chapter-item {
-        flex: 1;
-        background: var(--srpg-secondary-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.15s;
-        width: 100%;
-    }
-
-    .chapter-item:hover {
-        background: var(--srpg-hover-bg);
-        border-color: var(--srpg-border-hover);
-    }
-
-    .chapter-item.active {
-        background: var(--srpg-oracle-accent);
-        color: white;
-        border-color: var(--srpg-oracle-accent);
-    }
-
-    .chapter-item.active .chapter-name,
-    .chapter-item.active .chapter-meta {
-        color: white;
-    }
-
-    .chapter-name {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--srpg-text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .chapter-meta {
-        font-size: 0.8rem;
-        color: var(--srpg-text-muted);
-    }
-
-    .chapter-delete-btn {
-        position: absolute;
-        right: 1rem;
-        color: var(--srpg-text-muted);
-        background: var(--srpg-card-bg);
-    }
-
-    .chapter-delete-btn:hover {
-        color: var(--srpg-error-text);
-        background: var(--srpg-error-bg-light);
-        border-color: var(--srpg-error-border);
-    }
-
-    .chapter-view-banner {
-        background: var(--srpg-secondary-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 8px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .back-btn {
-        background: var(--srpg-card-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--srpg-text-secondary);
-        transition: all 0.15s;
-    }
-
-    .back-btn:hover {
-        background: var(--srpg-secondary-bg);
-        border-color: var(--srpg-text-tertiary);
-    }
-
-    .viewing-chapter-name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--srpg-text-primary);
-    }
-
-    .chapter-help {
-        margin: 0 0 1rem 0;
-        font-size: 0.9rem;
-        color: var(--srpg-text-muted);
-        line-height: 1.5;
-    }
-
-    .current-chapter-item-wrapper {
-        display: flex;
-        gap: 0.25rem;
-        margin-bottom: 0.5rem;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .chapter-name-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 1rem;
-        margin-bottom: 0.75rem;
-        background: var(--srpg-input-bg);
-        color: var(--srpg-text-primary);
-    }
-
-    .chapter-name-input:focus {
-        outline: none;
-        border-color: var(--srpg-oracle-accent);
-        box-shadow: 0 0 0 3px var(--srpg-focus-ring);
-    }
-
-    .chapter-preview {
-        background: var(--srpg-card-bg);
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 6px;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-        font-weight: 600;
-        color: var(--srpg-text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .entry-editor {
-        background: var(--srpg-secondary-bg);
-        border: 2px solid var(--srpg-border-color);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .modal-content h3 {
-        margin: 0 0 1rem 0;
-        font-size: 1.25rem;
-        color: var(--srpg-text-primary);
-    }
-
-    .modal-content textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--srpg-border-color);
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 1rem;
-        resize: vertical;
-        margin-bottom: 1rem;
-        background: var(--srpg-input-bg);
-        color: var(--srpg-text-primary);
-    }
-
-    .modal-content textarea:focus {
-        outline: none;
-        border-color: var(--srpg-oracle-accent);
-        box-shadow: 0 0 0 3px var(--srpg-focus-ring);
-    }
-
-    .editor-actions {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        gap: 0.75rem;
-    }
-
-    .entries-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
-
-    .no-entries {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--srpg-text-tertiary);
-        background: var(--srpg-secondary-bg);
-        border-radius: 8px;
-    }
-
-    .no-entries p {
-        margin: 0.5rem 0;
-    }
-
-    .no-entries p:first-child {
-        font-size: 1.125rem;
-        font-weight: 500;
-        color: var(--srpg-text-muted);
-    }
-
-    /* Character Assignment Modal Styles */
-    .modal-content h2 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--srpg-text-primary);
-    }
-
-    .modal-help {
-        margin: 0 0 1rem 0;
-        font-size: 0.9rem;
-        color: var(--srpg-text-muted);
-    }
-
-    .character-select-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        max-height: 400px;
-        overflow-y: auto;
-        margin-bottom: 1rem;
-    }
-
-    .character-select-item {
-        background: var(--srpg-card-bg);
-        border: 2px solid var(--srpg-border-color);
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .character-select-item:hover {
-        border-color: var(--srpg-oracle-accent);
-        background: var(--srpg-hover-bg);
-        transform: translateX(2px);
-    }
-
-    .character-select-name {
-        font-weight: 600;
-        color: var(--srpg-text-primary);
-        font-size: 1rem;
-    }
-
-    .character-select-info {
-        font-size: 0.85rem;
-        color: var(--srpg-text-muted);
-    }
-
-    .no-characters-message {
-        text-align: center;
-        padding: 2rem 1rem;
-        color: var(--srpg-text-muted);
-        background: var(--srpg-secondary-bg);
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-
-    .no-characters-message p {
-        margin: 0.25rem 0;
-    }
-
-    .no-characters-message .hint {
-        font-size: 0.875rem;
-        font-style: italic;
-    }
-
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .chapter-action-btn {
-        margin-left: 0.5rem;
-        width: 4rem;
-    }
-
-    @media (max-width: 640px) {
-        .chronicle-header {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-        }
-
-        .header-actions {
-            flex-direction: row;
-            justify-content: stretch;
-        }
-
-        .header-actions button {
-            flex: 1;
-        }
-
-        .chapter-view-banner {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.75rem;
-        }
-
-        .viewing-chapter-name {
-            text-align: center;
-        }
-    }
-</style>

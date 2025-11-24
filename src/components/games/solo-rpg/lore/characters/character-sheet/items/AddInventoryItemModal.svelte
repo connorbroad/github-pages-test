@@ -48,15 +48,3 @@
         </div>
     </div>
 </SrpgModal>
-
-<style>
-    .modal-content {
-        padding: 1.5rem;
-    }
-    .modal-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
-        justify-content: flex-end;
-    }
-</style>

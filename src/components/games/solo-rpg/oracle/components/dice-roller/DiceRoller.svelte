@@ -111,8 +111,7 @@
                     type="text"
                     bind:value={checkName}
                     placeholder="Enter check name (e.g., Strength, Perception)"
-                    class="border-border-primary bg-input-bg text-input-text focus:border-accent-primary focus:ring-shadow-md placeholder:text-text-muted rounded-lg border-[1.5px] p-3 text-base transition-all duration-200 placeholder:opacity-60 focus:ring-2 focus:outline-none"
-                />
+                    class="border-border-primary bg-input-bg text-input-text focus:border-accent-primary focus:ring-shadow-md rounded-lg border-[1.5px] p-3 text-base transition-all duration-200 placeholder:opacity-60 focus:ring-2 focus:outline-none" />
             </div>
         {/if}
 
@@ -121,8 +120,7 @@
             {numSides}
             {rolledNumSides}
             {rolling}
-            on:rollComplete={onRollComplete}
-        />
+            on:rollComplete={onRollComplete} />
         <hr class="border-divider my-4 border-t border-none" />
         <div class="m-4 mb-0 flex flex-col flex-wrap justify-center gap-3">
             <div class="flex flex-wrap justify-center gap-3">
@@ -130,8 +128,7 @@
                     <select
                         class="border-border-primary bg-input-bg text-input-text focus-visible:border-accent-primary focus-visible:ring-shadow-md focus-visible:bg-bg-secondary m-0 appearance-none rounded-[10px] border-[1.5px] px-4 py-[0.6rem] text-[1.05rem] transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none"
                         bind:value={numDice}
-                        aria-label="Number of dice"
-                    >
+                        aria-label="Number of dice">
                         {#each Array(10) as _, i}
                             <option value={i + 1}>{i + 1}x</option>
                         {/each}
@@ -141,8 +138,7 @@
                     <select
                         class="border-border-primary bg-input-bg text-input-text focus-visible:border-accent-primary focus-visible:ring-shadow-md focus-visible:bg-bg-secondary m-0 appearance-none rounded-[10px] border-[1.5px] px-4 py-[0.6rem] text-[1.05rem] transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none"
                         bind:value={numSides}
-                        aria-label="Die type"
-                    >
+                        aria-label="Die type">
                         <option value={4}>D4</option>
                         <option value={6} selected>D6</option>
                         <option value={8}>D8</option>
@@ -157,8 +153,7 @@
                         class="border-border-primary bg-input-bg text-input-text focus-visible:border-accent-primary focus-visible:ring-shadow-md focus-visible:bg-bg-secondary m-0 appearance-none rounded-[10px] border-[1.5px] px-4 py-[0.6rem] text-[1.05rem] transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none"
                         bind:value={modifier}
                         on:change={recalculateResult}
-                        aria-label="Modifier"
-                    >
+                        aria-label="Modifier">
                         {#each Array(16) as _, i}
                             {#if i - 5 > -1}
                                 <option value={i - 5}>+{i - 5}</option>
@@ -173,12 +168,10 @@
             </div>
             <div class="mb-4 flex flex-wrap items-center justify-center gap-3">
                 <div
-                    class="border-border-primary bg-bg-secondary flex flex-row justify-between gap-0 overflow-hidden rounded-xl border"
-                >
+                    class="border-border-primary bg-bg-secondary flex flex-row justify-between gap-0 overflow-hidden rounded-xl border">
                     <label
-                        class="text-text-primary has-[:checked]:bg-accent-primary has-[:checked]:text-text-inverse has-[:disabled]:bg-bg-tertiary has-[:disabled]:text-text-muted group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-[:disabled]:cursor-not-allowed"
-                        aria-label="Sum"
-                    >
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        aria-label="Sum">
                         <input
                             class="pointer-events-none absolute opacity-0"
                             type="radio"
@@ -187,18 +180,14 @@
                             disabled={(diceResults.length == 0 && numDice == 1) ||
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
-                            on:change={recalculateResult}
-                        />
-                        <span
-                            class="group-has-[:disabled]:text-text-muted m-0 h-[30px] text-[1.4rem] group-has-[:disabled]:opacity-60"
-                        >
+                            on:change={recalculateResult} />
+                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Sum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-[:checked]:bg-accent-primary has-[:checked]:text-text-inverse has-[:disabled]:bg-bg-tertiary has-[:disabled]:text-text-muted group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-[:disabled]:cursor-not-allowed"
-                        aria-label="Maximum"
-                    >
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        aria-label="Maximum">
                         <input
                             class="pointer-events-none absolute opacity-0"
                             type="radio"
@@ -207,18 +196,14 @@
                             disabled={(diceResults.length == 0 && numDice == 1) ||
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
-                            on:change={recalculateResult}
-                        />
-                        <span
-                            class="group-has-[:disabled]:text-text-muted m-0 h-[30px] text-[1.4rem] group-has-[:disabled]:opacity-60"
-                        >
+                            on:change={recalculateResult} />
+                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Maximum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-[:checked]:bg-accent-primary has-[:checked]:text-text-inverse has-[:disabled]:bg-bg-tertiary has-[:disabled]:text-text-muted group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-[:disabled]:cursor-not-allowed"
-                        aria-label="Minimum"
-                    >
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        aria-label="Minimum">
                         <input
                             class="pointer-events-none absolute opacity-0"
                             type="radio"
@@ -227,18 +212,14 @@
                             disabled={(diceResults.length == 0 && numDice == 1) ||
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
-                            on:change={recalculateResult}
-                        />
-                        <span
-                            class="group-has-[:disabled]:text-text-muted m-0 h-[30px] text-[1.4rem] group-has-[:disabled]:opacity-60"
-                        >
+                            on:change={recalculateResult} />
+                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Minimum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-[:checked]:bg-accent-primary has-[:checked]:text-text-inverse has-[:disabled]:bg-bg-tertiary has-[:disabled]:text-text-muted group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-[:disabled]:cursor-not-allowed"
-                        aria-label="Subtract"
-                    >
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        aria-label="Subtract">
                         <input
                             class="pointer-events-none absolute opacity-0"
                             type="radio"
@@ -247,11 +228,8 @@
                             disabled={(diceResults.length == 0 && numDice == 1) ||
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
-                            on:change={recalculateResult}
-                        />
-                        <span
-                            class="group-has-[:disabled]:text-text-muted m-0 h-[30px] text-[1.4rem] group-has-[:disabled]:opacity-60"
-                        >
+                            on:change={recalculateResult} />
+                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Subtract" size="1em" />
                         </span>
                     </label>
@@ -261,21 +239,18 @@
         <div class="mb-4 flex flex-wrap items-center justify-center gap-4" transition:slide>
             <button
                 class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                on:click={onRollButtonClick}
-            >
+                on:click={onRollButtonClick}>
                 Roll
             </button>
             <button
                 id="take-result-button"
                 class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active relative mt-0 mb-0 flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border p-0 px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
                 on:click={onClickTakeResult}
-                disabled={diceResults.length === 0 || finalResult === null || rolling}
-            >
+                disabled={diceResults.length === 0 || finalResult === null || rolling}>
                 {#if diceResults.length > 1 && !rolling}
                     <div
                         class="pointer-events-none absolute top-1/4 left-2 flex h-1/2 w-[1em] items-center justify-center rounded-full p-[0.5em]"
-                        aria-live="polite"
-                    >
+                        aria-live="polite">
                         <span class="flex items-center justify-center text-[1.4rem]">
                             <ResultOptionIcon option={resultOption} size="1em" />
                         </span>
@@ -287,8 +262,7 @@
                 {#if diceResults.length > 1 && !rolling}
                     <div
                         class="pointer-events-none absolute top-1/4 right-2 flex h-1/2 w-[1em] items-center justify-center rounded-full p-[0.5em]"
-                        aria-live="polite"
-                    >
+                        aria-live="polite">
                         <span class="flex items-center justify-center text-[1.4rem]">
                             <ResultOptionIcon option={resultOption} size="1em" />
                         </span>
@@ -298,6 +272,3 @@
         </div>
     </div>
 {/if}
-
-<style>
-</style>

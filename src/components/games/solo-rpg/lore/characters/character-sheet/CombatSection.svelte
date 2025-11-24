@@ -118,7 +118,7 @@
                     id="ac"
                     value={computedArmorAC}
                     disabled />
-                <p class="text-text-muted mt-1 text-xs">Auto from equipped armor</p>
+                <p class="mt-1 text-xs">Auto from equipped armor</p>
             {:else}
                 <input
                     class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
@@ -161,7 +161,7 @@
                     <div class="mb-2 flex items-center justify-between gap-2">
                         <h4 class="m-0 text-base font-semibold">{weapon.name}</h4>
                         {#if weapon.range}
-                            <span class="text-text-muted text-[0.8125rem]">{weapon.range}</span>
+                            <span class="text-[0.8125rem]">{weapon.range}</span>
                         {/if}
                     </div>
 
@@ -277,6 +277,3 @@
         </div>
     </div>
 {/if}
-
-<style>
-</style>

@@ -22,5 +22,3 @@
     </div>
 </SrpgListPage>
 
-<style>
-</style>

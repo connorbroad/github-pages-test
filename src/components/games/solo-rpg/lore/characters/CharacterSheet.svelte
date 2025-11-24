@@ -238,5 +238,3 @@
 
 <!-- (template modals moved into AbilitiesSection) -->
 
-<style>
-</style>

@@ -32,7 +32,7 @@
                     on:click={handleEdit}
                     aria-label="Edit {title}">
                     <svg
-                        class="text-text-muted group-hover:text-accent-primary h-4 w-4 transition-colors duration-200"
+                        class="group-hover:text-accent-primary h-4 w-4 transition-colors duration-200"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -59,6 +59,3 @@
     </div>
     <slot />
 </section>
-
-<style>
-</style>

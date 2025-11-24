@@ -312,5 +312,3 @@
     bind:this={container}>
 </div>
 
-<style>
-</style>
