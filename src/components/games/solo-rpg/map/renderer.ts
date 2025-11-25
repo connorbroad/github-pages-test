@@ -12,23 +12,23 @@ export function drawGrid(opts: {
     isLoading: boolean;
     getDpr: () => number;
     onInvalidate: () => void; // call when async sprite loads to schedule a repaint
+    bgColor?: string;
+    viewRect?: DOMRect; 
 }) {
-    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate } = opts;
+    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate, bgColor, viewRect } = opts;
     if (!ctxBg) return;
 
+    const bgFill = bgColor || getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
+
     if (isLoading) {
-        const bgFill =
-            getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
         clearCanvas(ctxBg, canvasBg, bgFill);
         return;
     }
 
     const ts = map.tileSize;
-    const bgFill =
-        getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
     clearCanvas(ctxBg, canvasBg, bgFill);
 
-    const rect = canvasBg.getBoundingClientRect();
+    const rect = viewRect || canvasBg.getBoundingClientRect();
     const viewW = rect.width / camera.zoom;
     const viewH = rect.height / camera.zoom;
     const startTx = Math.floor(camera.x / ts) - 1;
@@ -54,22 +54,23 @@ export function drawGrid(opts: {
     if (camera.zoom < 0.35) gridStep = 0;
     else if (camera.zoom < 0.5) gridStep = 4;
     else if (camera.zoom < 0.75) gridStep = 2;
-
+ 
     if (gridStep > 0) {
-        for (let tx = startTx; tx <= endTx; tx += gridStep) {
+        const gridStartTx = Math.floor(startTx / gridStep) * gridStep;
+        const gridStartTy = Math.floor(startTy / gridStep) * gridStep;
+        
+        ctxBg.beginPath();
+        for (let tx = gridStartTx; tx <= endTx; tx += gridStep) {
             const gx = Math.round(tx * ts) + px;
-            ctxBg.beginPath();
             ctxBg.moveTo(gx, top);
             ctxBg.lineTo(gx, bottom);
-            ctxBg.stroke();
         }
-        for (let ty = startTy; ty <= endTy; ty += gridStep) {
+        for (let ty = gridStartTy; ty <= endTy; ty += gridStep) {
             const gy = Math.round(ty * ts) + px;
-            ctxBg.beginPath();
             ctxBg.moveTo(left, gy);
             ctxBg.lineTo(right, gy);
-            ctxBg.stroke();
         }
+        ctxBg.stroke();
     }
 
     for (const key in map.background) {
@@ -146,8 +147,9 @@ export function drawFgObjects(opts: {
     tool: "move" | "paint" | "object";
     getDpr: () => number;
     onInvalidate: () => void;
+    viewRect?: DOMRect;
 }) {
-    const { ctxFg, canvasFg, camera, map, selectedObject, tool, getDpr, onInvalidate } = opts;
+    const { ctxFg, canvasFg, camera, map, selectedObject, tool, getDpr, onInvalidate, viewRect } = opts;
     if (!ctxFg) return;
 
     clearCanvas(ctxFg, canvasFg);
@@ -159,7 +161,7 @@ export function drawFgObjects(opts: {
     ctxFg.translate(-camera.x, -camera.y);
     ctxFg.imageSmoothingEnabled = false;
 
-    const rect = canvasFg.getBoundingClientRect();
+    const rect = viewRect || canvasFg.getBoundingClientRect();
     const viewW = rect.width / camera.zoom;
     const viewH = rect.height / camera.zoom;
     const cameraLeft = camera.x;
@@ -167,8 +169,7 @@ export function drawFgObjects(opts: {
     const cameraTop = camera.y;
     const cameraBottom = camera.y + viewH;
 
-    const objs = [...map.objects];
-    for (const o of objs) {
+    for (const o of map.objects) {
         const objectRight = o.x + o.w / 2;
         const objectBottom = o.y + o.h / 2;
         const objectLeft = o.x - o.w / 2;

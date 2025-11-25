@@ -56,15 +56,16 @@ export function drawTintedSprite(
     }
 
     const cacheKey = `${keyW}x${keyH}|${tint}`;
-    let cachedSprite = cachedImage.get(cacheKey);
-    if (!cachedSprite) {
-        cachedSprite = createAndCacheTintedSprite(sprite, keyW, keyH, tint);
+    let newSprite = cachedImage.get(cacheKey);
+    if (!newSprite) {
+        newSprite = createTintedSprite(sprite, keyW, keyH, tint);
+        cachedImage.set(cacheKey, newSprite);
     }
 
-    ctx.drawImage(cachedSprite, x, y, w, h);
+    ctx.drawImage(newSprite, x, y, w, h);
 }
 
-function createAndCacheTintedSprite(
+function createTintedSprite(
     sprite: CanvasImageSource,
     w: number,
     h: number,

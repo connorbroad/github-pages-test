@@ -33,6 +33,23 @@
     let ctxBg: CanvasRenderingContext2D;
     let ctxFg: CanvasRenderingContext2D;
 
+    // Cached values to avoid layout thrashing
+    let cachedRect: DOMRect | null = null;
+    let cachedBgColor: string = "#111";
+    let rectDirty = true;
+
+    function getCachedRect(): DOMRect {
+        if (rectDirty || !cachedRect) {
+            cachedRect = canvasFg.getBoundingClientRect();
+            rectDirty = false;
+        }
+        return cachedRect;
+    }
+
+    function invalidateRect() {
+        rectDirty = true;
+    }
+
     const MIN_ZOOM = 0.25;
     const MAX_ZOOM = 4;
     const FRICTION = 0.008; // higher = quicker stop
@@ -84,6 +101,19 @@
     };
     let manualZoomStartTime = 0;
     let manualZoomMoved = false;
+
+    // Cached sorted objects for hit testing (invalidate when objects change)
+    let sortedObjectsCache: MapObject[] | null = null;
+    function getSortedObjects(): MapObject[] {
+        if (!map) return [];
+        if (!sortedObjectsCache) {
+            sortedObjectsCache = [...map.objects].sort((a, b) => (b.z ?? 0) - (a.z ?? 0));
+        }
+        return sortedObjectsCache;
+    }
+    function invalidateSortedObjects() {
+        sortedObjectsCache = null;
+    }
 
     // Debounce save
     let saveTimer: any;
@@ -219,6 +249,8 @@
             isLoading,
             getDpr,
             onInvalidate: scheduleRender,
+            bgColor: cachedBgColor,
+            viewRect: getCachedRect(),
         });
     }
 
@@ -233,6 +265,7 @@
             tool,
             getDpr,
             onInvalidate: scheduleRender,
+            viewRect: getCachedRect(),
         });
     }
 
@@ -242,7 +275,7 @@
     }
 
     function screenToWorld(sx: number, sy: number) {
-        const rect = canvasFg.getBoundingClientRect();
+        const rect = getCachedRect();
         const x = (sx - rect.left) / camera.zoom + camera.x;
         const y = (sy - rect.top) / camera.zoom + camera.y;
         return { x, y };
@@ -309,6 +342,7 @@
         map.objects = map.objects.filter((o) => o.id !== id);
         selectedObject = null;
         invalidateBounds();
+        invalidateSortedObjects();
         scheduleRender();
         queueSave();
         emitSelection();
@@ -358,7 +392,11 @@
             camera.x += velocity.x * dt;
             camera.y += velocity.y * dt;
             clampCameraToBounds();
-            if (map) map.view = { ...camera };
+            if (map) {
+                map.view.x = camera.x;
+                map.view.y = camera.y;
+                map.view.zoom = camera.zoom;
+            }
             drawGrid();
             drawFgObjects();
             const decay = Math.exp(-FRICTION * dt);
@@ -376,7 +414,7 @@
 
     function setZoomAround(newZoom: number, sx: number, sy: number) {
         if (!map) return;
-        const rect = canvasFg.getBoundingClientRect();
+        const rect = getCachedRect();
         const worldBefore = screenToWorld(sx, sy);
         camera.zoom = clampNum(newZoom, MIN_ZOOM, MAX_ZOOM);
         const wx = (sx - rect.left) / camera.zoom;
@@ -384,7 +422,9 @@
         camera.x = worldBefore.x - wx;
         camera.y = worldBefore.y - wy;
         clampCameraToBounds();
-        map.view = { ...camera };
+        map.view.x = camera.x;
+        map.view.y = camera.y;
+        map.view.zoom = camera.zoom;
         scheduleRender();
         queueSave();
     }
@@ -453,7 +493,7 @@
                 return;
             }
 
-            const objs = [...map.objects].sort((a, b) => (b.z ?? 0) - (a.z ?? 0));
+            const objs = getSortedObjects();
             const hit = objs.find((o) => isPointInObject(x, y, o));
             if (hit) {
                 pendingSelect = {
@@ -490,7 +530,7 @@
             return;
         }
 
-        const objs = [...map.objects].sort((a, b) => (b.z ?? 0) - (a.z ?? 0));
+        const objs = getSortedObjects();
         const hit = objs.find((o) => isPointInObject(x, y, o));
         if (hit) {
             draggingObj = hit;
@@ -516,6 +556,7 @@
                     z: map.objects.reduce((m, o) => Math.max(m, o.z ?? 0), 0) + 1,
                 };
                 map.objects.push(obj);
+                invalidateSortedObjects();
                 if (cachedBounds && !boundsDirty) {
                     const x1 = obj.x - obj.w / 2,
                         y1 = obj.y - obj.h / 2;
@@ -542,6 +583,7 @@
                 color,
             };
             map.objects.push(newObj);
+            invalidateSortedObjects();
             if (cachedBounds && !boundsDirty) {
                 const x1 = newObj.x - newObj.w / 2,
                     y1 = newObj.y - newObj.h / 2;
@@ -574,7 +616,7 @@
             if (selectedObject && isPointInHandle(x, y, selectedObject)) {
                 target.style.cursor = "grab";
             } else {
-                const objs = [...map.objects].sort((a, b) => (b.z ?? 0) - (a.z ?? 0));
+                const objs = getSortedObjects();
                 const hit = objs.find((o) => isPointInObject(x, y, o));
                 target.style.cursor = hit ? "pointer" : "default";
             }
@@ -590,7 +632,7 @@
             const newZoom = clampNum(manualZoomBase.zoom * factor, MIN_ZOOM, MAX_ZOOM);
             if (newZoom !== camera.zoom) {
                 camera.zoom = newZoom;
-                const rect = canvasFg.getBoundingClientRect();
+                const rect = getCachedRect();
                 camera.x =
                     manualZoomBase.anchorWorld.x -
                     (manualZoomBase.anchorScreen.x - rect.left) / camera.zoom;
@@ -598,7 +640,11 @@
                     manualZoomBase.anchorWorld.y -
                     (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
                 clampCameraToBounds();
-                if (map) map.view = { ...camera };
+                if (map) {
+                    map.view.x = camera.x;
+                    map.view.y = camera.y;
+                    map.view.zoom = camera.zoom;
+                }
                 scheduleRender();
             }
             return;
@@ -617,13 +663,15 @@
 
                 const midX = (pts[0].x + pts[1].x) / 2;
                 const midY = (pts[0].y + pts[1].y) / 2;
-                const rect = canvasFg.getBoundingClientRect();
+                const rect = getCachedRect();
                 camera.x = pinchBase.centerWorld.x - (midX - rect.left) / camera.zoom;
                 camera.y = pinchBase.centerWorld.y - (midY - rect.top) / camera.zoom;
 
                 clampCameraToBounds();
 
-                map.view = { ...camera };
+                map.view.x = camera.x;
+                map.view.y = camera.y;
+                map.view.zoom = camera.zoom;
 
                 scheduleRender();
             }
@@ -655,7 +703,11 @@
             velocity.y = camDy / dt;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
-            if (map) map.view = { ...camera };
+            if (map) {
+                map.view.x = camera.x;
+                map.view.y = camera.y;
+                map.view.zoom = camera.zoom;
+            }
             scheduleRender();
             return;
         }
@@ -690,7 +742,7 @@
             if (!manualZoomMoved && dt <= DOUBLE_TAP_DELAY) {
                 const newZoom = clampNum(manualZoomBase.zoom * DOUBLE_TAP_ZOOM, MIN_ZOOM, MAX_ZOOM);
                 camera.zoom = newZoom;
-                const rect = canvasFg.getBoundingClientRect();
+                const rect = getCachedRect();
                 camera.x =
                     manualZoomBase.anchorWorld.x -
                     (manualZoomBase.anchorScreen.x - rect.left) / camera.zoom;
@@ -698,7 +750,11 @@
                     manualZoomBase.anchorWorld.y -
                     (manualZoomBase.anchorScreen.y - rect.top) / camera.zoom;
                 clampCameraToBounds();
-                if (map) map.view = { ...camera };
+                if (map) {
+                    map.view.x = camera.x;
+                    map.view.y = camera.y;
+                    map.view.zoom = camera.zoom;
+                }
                 scheduleRender();
             }
             manualZoomActive = false;
@@ -825,6 +881,7 @@
                     (o) =>
                         !(o.kind === "tile" && o.tile && missingTileMaps.includes(o.tile.tileMapId))
                 );
+                invalidateSortedObjects();
             }
         }
     }
@@ -839,6 +896,7 @@
 
     function resizeCanvas() {
         if (!canvasBg || !canvasFg) return;
+        invalidateRect(); // Invalidate cached rect on resize
         const wrap = canvasBg.parentElement as HTMLElement;
         const rect = wrap.getBoundingClientRect();
         const dpr = getDpr();
@@ -850,6 +908,8 @@
         canvasBg.height = Math.max(1, Math.floor(rect.height * dpr));
         canvasFg.width = Math.max(1, Math.floor(rect.width * dpr));
         canvasFg.height = Math.max(1, Math.floor(rect.height * dpr));
+        // Update cached bg color on resize as well
+        cachedBgColor = getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
         scheduleRender();
     }
 
@@ -860,7 +920,7 @@
             const vh = (typeof window !== "undefined" ? window.innerHeight : 1) / zoom;
             return { vw, vh };
         }
-        const rect = canvasFg.getBoundingClientRect();
+        const rect = getCachedRect();
         return { vw: rect.width / zoom, vh: rect.height / zoom };
     }
 
@@ -890,6 +950,7 @@
             map.objects = map.objects.filter(
                 (o) => !(o.kind === "tile" && o.tile && missing.includes(o.tile.tileMapId))
             );
+            invalidateSortedObjects();
         }
     }
 </script>
