@@ -5,12 +5,14 @@
     import CharacterSheet from "./CharacterSheet.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
 
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import SectionPickerModal from "./SectionPickerModal.svelte";
     import TagPickerModal from "./TagPickerModal.svelte";
     import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
 
     const dispatch = createEventDispatcher();
+
+    const COMPACT_VIEW_KEY = "srpg-characters-compact-view";
 
     let characters: Character[] = [];
     let selectedCharacter: Character | null = null;
@@ -25,6 +27,21 @@
     let isCompactView: boolean = false;
     let sortBy: "alphabetical" | "createdAt" | "updatedAt" = "alphabetical";
     let showSortDropdown: boolean = false;
+    let hasLoadedPreferences: boolean = false;
+
+    onMount(() => {
+        // Load compact view preference from localStorage
+        const saved = localStorage.getItem(COMPACT_VIEW_KEY);
+        if (saved !== null) {
+            isCompactView = saved === "true";
+        }
+        hasLoadedPreferences = true;
+    });
+
+    // Persist compact view preference (only after initial load)
+    $: if (hasLoadedPreferences) {
+        localStorage.setItem(COMPACT_VIEW_KEY, String(isCompactView));
+    }
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
