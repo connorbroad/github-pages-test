@@ -16,6 +16,8 @@
     import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
     import GameOracle from "../../oracle/GameOracle.svelte";
     import { tick } from "svelte";
+    import { fly } from "svelte/transition";
+    import { flip } from "svelte/animate";
 
     const dispatch = createEventDispatcher();
 
@@ -35,6 +37,10 @@
     let bottomRef: HTMLElement;
     let chaptersListRef: HTMLElement;
     let isAutoScrolling = false;
+    
+    // Timestamp threshold - entries created after this timestamp will animate
+    // Only used for entries added directly on this page
+    let animateEntriesAfter: number | null = null;
 
     $: if (showChaptersList) {
         scrollChaptersToBottom();
@@ -53,16 +59,11 @@
         loadCampaignCharacters();
     }
 
-    // Public method to force reload entries (can be called externally)
-    export function reloadEntries() {
-        loadEntries();
-    }
-
     function loadEntries() {
         if (!$activeCampaign) return;
 
         const allEntries = loadChronicleEntries();
-        entries = allEntries
+        const filteredEntries = allEntries
             .filter((e) => {
                 if (e.campaignId !== $activeCampaign.id) return false;
                 // When viewing current chapter (viewingChapterId is null), show entries without a chapterId
@@ -72,8 +73,23 @@
                 return e.chapterId === viewingChapterId;
             })
             .sort((a, b) => a.timestamp - b.timestamp);
-
+        
+        entries = filteredEntries;
         scrollToBottom();
+    }
+
+    // Check if an entry should animate (created after the animation threshold)
+    function shouldAnimate(entry: ChronicleEntry): boolean {
+        if (animateEntriesAfter === null) return false;
+        return entry.timestamp >= animateEntriesAfter;
+    }
+
+    // Clear the animation threshold after animation completes
+    function onAnimationEnd() {
+        // Use a small delay to ensure all animations complete
+        setTimeout(() => {
+            animateEntriesAfter = null;
+        }, 350);
     }
 
     async function scrollToBottom() {
@@ -134,6 +150,7 @@
         allEntries.push(newEntry);
 
         saveChronicleEntries(allEntries);
+        animateEntriesAfter = Date.now() - 1000; // Animate entries from last second
         loadEntries();
         newEntryText = "";
         scrollToBottom();
@@ -340,15 +357,7 @@
     className="mx-auto flex w-full max-w-[900px] flex-col overflow-hidden"
     headerClass=""
     contentClass="">
-    <div slot="header" class="flex shrink-0 flex-col gap-2 pb-4">
-        <div class="flex items-center justify-between">
-            <div class="flex gap-2">
-                <button class="srpg-b srpg-b-simple" on:click={toggleChaptersList}>
-                    📚 {showChaptersList ? "Hide" : "View"} Chapters
-                </button>
-            </div>
-        </div>
-
+    <div slot="header" class="flex shrink-0 flex-col gap-2">
         {#if viewingChapterId !== null}
             {@const currentChapter = chapters.find((c) => c.id === viewingChapterId)}
             {#if currentChapter}
@@ -361,8 +370,6 @@
             {/if}
         {/if}
     </div>
-
-    <!-- Inline chapter list removed -->
 
     {#if viewingChapterId === null && showCreateChapter}
         <SrpgModal
@@ -396,20 +403,13 @@
         </SrpgModal>
     {/if}
 
-    {#if !viewingChapterId}
-        <!-- "Add entry" button removed -->
-    {/if}
-
-    <div class="flex flex-1 flex-col gap-2 overflow-y-auto pb-4">
-        {#if entries.length === 0}
+    <div class="flex h-full flex-col-reverse gap-2 overflow-y-auto border-b border-t border-[var(--border-primary)]">
+        <div bind:this={bottomRef} class="h-1"></div>
+        {#each [...entries].reverse() as entry (entry.id)}
             <div
-                class="rounded-lg bg-[var(--bg-secondary)] px-4 py-12 text-center text-[var(--text-muted)]">
-                <p class="my-2">No chapter entries yet.</p>
-                <p class="my-2">Type a message below to record your first adventure log,</p>
-                <p class="my-2">or roll the dice with the Oracle!</p>
-            </div>
-        {:else}
-            {#each entries as entry (entry.id)}
+                in:fly={{ y: shouldAnimate(entry) ? 30 : 0, duration: shouldAnimate(entry) ? 300 : 0, opacity: shouldAnimate(entry) ? 0 : 1 }}
+                animate:flip={{ duration: 300 }}
+                on:introend={onAnimationEnd}>
                 <EntryCard
                     {entry}
                     characterName={getCharacterName(entry.characterId)}
@@ -422,17 +422,23 @@
                     on:delete={(e) => deleteEntry(e.detail)}
                     on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
                     on:cancelEdit={cancelEditEntry} />
-            {/each}
-            <div bind:this={bottomRef} class="h-1"></div>
-        {/if}
+            </div>
+        {:else}
+            <div
+                class="rounded-lg bg-[var(--bg-secondary)] mb-4 px-4 py-12 text-center text-[var(--text-muted)]">
+                <p class="my-2">No chapter entries yet.</p>
+                <p class="my-2">Type a message below to record your first adventure log,</p>
+                <p class="my-2">or roll the dice with the Oracle!</p>
+            </div>
+        {/each}
     </div>
 
     <div
         slot="footer"
-        class="relative mb-[calc(70px+env(safe-area-inset-bottom))] border-t border-[var(--border-primary)] pt-2 md:mb-0">
+        class="relative mb-[calc(70px+env(safe-area-inset-bottom))] pt-2 md:mb-0">
         {#if viewingChapterId !== null}
             <div
-                class="absolute inset-0 z-10 flex items-center justify-center bg-[var(--bg-secondary)]/95 backdrop-blur-sm">
+                class="absolute inset-0 z-10 flex items-center justify-center bg-[var(--bg-primary)]/95 backdrop-blur-sm mt-2">
                 <button
                     class="srpg-b srpg-b-normal"
                     on:click={() => viewChapter(null)}>
@@ -444,6 +450,27 @@
             class="flex items-start gap-2 {viewingChapterId !== null
                 ? 'pointer-events-none opacity-25'
                 : ''}">
+            <button
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--card-bg)] text-[var(--text-secondary)] shadow-sm transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)]"
+                on:click={toggleChaptersList}
+                title="View Chapters"
+                aria-label="View Chapters">
+                <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    <line x1="8" y1="7" x2="16" y2="7"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+            </button>
+
             <button
                 class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--card-bg)] text-[var(--text-secondary)] shadow-sm transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)]"
                 on:click={() => (showOracle = true)}
@@ -612,6 +639,7 @@
         on:close={() => (showOracle = false)}
         on:navigateToStory={() => {
             showOracle = false;
+            animateEntriesAfter = Date.now() - 5000;
             loadEntries();
         }}
         on:clearPreset={() => {}} />

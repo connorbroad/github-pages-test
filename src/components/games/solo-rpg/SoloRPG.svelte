@@ -34,7 +34,6 @@
     let currentCharacter: any = null;
     let selectedCharacterId: string | null = null;
 
-    let chronicleComponent: any;
     let characterManagerComponent: any;
     let mapViewComponent: any;
 
@@ -125,12 +124,9 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
     function handleNavigateToChronicle() {
-        if (currentView === "chronicle") {
-            // If already on chronicle, force reload to show new entries
-            chronicleComponent?.reloadEntries?.();
-        } else {
-            handleNavigate("chronicle");
-        }
+        // Simply navigate to chronicle view
+        // Animation only works for entries added directly on the Chronicle page
+        handleNavigate("chronicle");
     }
 </script>
 
@@ -162,7 +158,7 @@
     {:else if currentView === "chronicle"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign}
-            <Chronicle bind:this={chronicleComponent} />
+            <Chronicle />
         {:else}
             <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
             <em class="block text-center">
