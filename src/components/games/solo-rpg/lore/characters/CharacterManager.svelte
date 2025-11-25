@@ -388,10 +388,10 @@
                     <div
                         class="filter-buttons max-[480px]:scrollbar-default scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted flex flex-1 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden scroll-smooth pb-1 max-[480px]:max-h-[calc(2.5rem*2+0.5rem)] max-[480px]:flex-wrap max-[480px]:overflow-y-auto">
                         <button
-                            class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
-                            'All'
-                                ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary bg-linear-to-br shadow-md'
-                                : ''}"
+                            class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary duration- 'All' ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary shadow-md' : ''}
+                            cursor-pointer
+                                rounded-md border-2 bg-linear-to-br px-4 py-2 text-sm font-medium
+                                whitespace-nowrap transition-all"
                             class:active={selectedTagFilter === "All"}
                             on:click={() => (selectedTagFilter = "All")}>
                             All ({characters.length})
@@ -443,39 +443,87 @@
     {:else if filteredCharacters.length > 0}
         <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 py-2">
             {#each filteredCharacters as character}
-                <button
-                    class="bg-card-bg border-border-primary font-inherit hover:border-accent-primary flex min-h-[120px] w-full cursor-pointer flex-col items-center rounded-lg border-2 p-6 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    on:click={() => selectCharacter(character)}>
-                    <h3
-                        class="text-text-primary m-0 flex flex-wrap items-center justify-center gap-2 text-xl">
+                {@const initials = character.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                {@const hue =
+                    character.name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+                    360}
+                <button class="character-card group" on:click={() => selectCharacter(character)}>
+                    <!-- Accent bar -->
+                    <div
+                        class="character-card-accent"
+                        style="background: linear-gradient(135deg, hsl({hue}, 70%, 50%), hsl({(hue +
+                            40) %
+                            360}, 70%, 50%));">
+                    </div>
+
+                    <!-- Avatar -->
+                    <div
+                        class="character-avatar"
+                        style="background: linear-gradient(135deg, hsl({hue}, 60%, 45%), hsl({(hue +
+                            40) %
+                            360}, 60%, 55%));">
+                        {initials}
+                    </div>
+
+                    <h3 class="character-card-name">
                         {character.name}
                     </h3>
+
                     <div class="character-summary">
                         {#if character.race || character.class}
-                            <p class="my-1 text-center text-sm">
+                            <p class="character-card-subtitle">
                                 {#if character.race}{character.race}{/if}
-                                {#if character.race && character.class}
-                                    •
-                                {/if}
+                                {#if character.race && character.class}•{/if}
                                 {#if character.class}{character.class}{/if}
                                 {#if character.level}
-                                    (Level {character.level})
+                                    <span class="character-level">Lv.{character.level}</span>
                                 {/if}
                             </p>
                         {/if}
                         {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
-                            <p class="border-border-primary mt-2 border-t pt-2">
-                                <span class="text-text-primary font-semibold">
-                                    HP: {character.currentHitPoints} / {character.hitPointMaximum}
-                                </span>
-                            </p>
+                            <div class="character-hp-bar">
+                                <div class="hp-bar-label">
+                                    <span>HP</span>
+                                    <span>
+                                        {character.currentHitPoints} / {character.hitPointMaximum}
+                                    </span>
+                                </div>
+                                <div class="hp-bar-track">
+                                    <div
+                                        class="hp-bar-fill"
+                                        style="width: {Math.min(
+                                            100,
+                                            (character.currentHitPoints /
+                                                character.hitPointMaximum) *
+                                                100
+                                        )}%; background: {character.currentHitPoints /
+                                            character.hitPointMaximum >
+                                        0.5
+                                            ? 'var(--accent-success)'
+                                            : character.currentHitPoints /
+                                                    character.hitPointMaximum >
+                                                0.25
+                                              ? 'var(--accent-warning)'
+                                              : 'var(--accent-danger)'};">
+                                    </div>
+                                </div>
+                            </div>
                         {/if}
                     </div>
+
                     {#if character.tags && character.tags.length > 0}
-                        <div class="mt-2 flex flex-wrap justify-center gap-1">
+                        <div class="character-tags">
                             {#each character.tags as tag}
-                                <span
-                                    class="bg-bg-secondary text-text-secondary border-border-primary inline-block rounded border px-2 py-0.5 text-xs">
+                                {@const tagHue =
+                                    tag
+                                        .split("")
+                                        .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360}
+                                <span class="character-tag" style="--tag-hue: {tagHue};">
                                     {tag}
                                 </span>
                             {/each}
@@ -556,3 +604,201 @@
     on:newTag={handleNewTag}
     on:save={(e) => handleTagPickerSave(e.detail)}
     on:close={() => (showTagPickerModal = false)} />
+
+<style>
+    .character-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 180px;
+        width: 100%;
+        padding: 1.5rem 1rem 1rem;
+        border: none;
+        border-radius: 1rem;
+        background: var(--card-bg);
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 1px 2px rgba(0, 0, 0, 0.04);
+        cursor: pointer;
+        font-family: inherit;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .character-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 1rem;
+        padding: 2px;
+        background: linear-gradient(135deg, transparent 40%, var(--border-primary) 100%);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+
+    .character-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 12px 24px rgba(0, 0, 0, 0.12),
+            0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .character-card:active {
+        transform: translateY(-2px);
+    }
+
+    .character-card-accent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .character-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        margin-bottom: 0.75rem;
+        box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.15),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .character-card:hover .character-avatar {
+        transform: scale(1.05);
+    }
+
+    .character-card-name {
+        margin: 0 0 0.25rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.3;
+    }
+
+    .character-card-subtitle {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+    }
+
+    .character-level {
+        background: var(--bg-tertiary);
+        padding: 0.125rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .character-hp-bar {
+        width: 100%;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-primary);
+    }
+
+    .hp-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.375rem;
+    }
+
+    .hp-bar-track {
+        height: 6px;
+        background: var(--bg-tertiary);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .hp-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.3s ease;
+    }
+
+    .character-tags {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.375rem;
+        margin-top: 0.75rem;
+    }
+
+    .character-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 999px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        background: hsl(var(--tag-hue), 85%, 95%);
+        color: hsl(var(--tag-hue), 65%, 35%);
+        border: 1px solid hsl(var(--tag-hue), 70%, 85%);
+        transition: all 0.2s ease;
+    }
+
+    :global([data-theme="dark"]) .character-tag {
+        background: hsl(var(--tag-hue), 50%, 20%);
+        color: hsl(var(--tag-hue), 70%, 75%);
+        border-color: hsl(var(--tag-hue), 45%, 30%);
+    }
+
+    .character-card:hover .character-tag {
+        background: hsl(var(--tag-hue), 80%, 92%);
+        border-color: hsl(var(--tag-hue), 65%, 75%);
+    }
+
+    :global([data-theme="dark"]) .character-card:hover .character-tag {
+        background: hsl(var(--tag-hue), 55%, 25%);
+        border-color: hsl(var(--tag-hue), 50%, 40%);
+    }
+
+    .character-summary {
+        width: 100%;
+    }
+
+    @media (max-width: 480px) {
+        .character-card {
+            min-height: 160px;
+            padding: 1.25rem 0.875rem 0.875rem;
+        }
+        .character-avatar {
+            width: 48px;
+            height: 48px;
+            font-size: 1.125rem;
+        }
+        .character-card-name {
+            font-size: 1rem;
+        }
+    }
+</style>
