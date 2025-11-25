@@ -118,15 +118,6 @@ Use the design system classes for **complex, reusable components**:
 | Forms | srpg-* class | `srpg-form-field` |
 | Modals | srpg-* class | `srpg-modal` |
 
-> **Note**: Layout utility classes like `srpg-flex-center`, `srpg-gap-md`, `srpg-mt-2`, etc. have been removed. Use Tailwind equivalents instead:
-> - `srpg-flex-center` → `flex items-center justify-center`
-> - `srpg-flex-between` → `flex items-center justify-between`
-> - `srpg-gap-sm` → `gap-2`
-> - `srpg-gap-md` → `gap-4`
-> - `srpg-nowrap` → `flex-nowrap`
-> - `srpg-mt-1` → `mt-2`
-> - `srpg-mt-2` → `mt-4`
-
 ---
 
 ## 🎨 Color System
