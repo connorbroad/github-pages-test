@@ -34,6 +34,7 @@
     let assigningToEntryId: string | null = null;
     let campaignCharacters: Character[] = [];
     let showOracle = false;
+    let showReturnConfirm = false;
     let bottomRef: HTMLElement;
     let chaptersListRef: HTMLElement;
     let isAutoScrolling = false;
@@ -439,18 +440,7 @@
     </div>
 
     <div slot="footer" class="relative mb-[calc(70px+env(safe-area-inset-bottom))] pt-2 md:mb-0">
-        {#if viewingChapterId !== null}
-            <div
-                class="absolute inset-0 z-10 mt-2 flex items-center justify-center bg-(--bg-primary)/95 backdrop-blur-sm">
-                <button class="srpg-b srpg-b-normal" on:click={() => viewChapter(null)}>
-                    Return to Current Chapter
-                </button>
-            </div>
-        {/if}
-        <div
-            class="flex items-start gap-2 {viewingChapterId !== null
-                ? 'pointer-events-none opacity-25'
-                : ''}">
+        <div class="flex items-start gap-2">
             <button
                 class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
                 on:click={toggleChaptersList}
@@ -473,10 +463,18 @@
             </button>
 
             <button
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
-                on:click={() => (showOracle = true)}
-                title="Open Oracle"
-                aria-label="Open Oracle">
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors {viewingChapterId !==
+                null
+                    ? 'cursor-pointer opacity-50'
+                    : 'cursor-pointer hover:bg-(--bg-tertiary) hover:text-(--accent-primary)'}"
+                on:click={() =>
+                    viewingChapterId !== null ? (showReturnConfirm = true) : (showOracle = true)}
+                title={viewingChapterId !== null
+                    ? "Return to current chapter to use Oracle"
+                    : "Open Oracle"}
+                aria-label={viewingChapterId !== null
+                    ? "Return to current chapter to use Oracle"
+                    : "Open Oracle"}>
                 <svg viewBox="0 0 512 512" width="20" height="20">
                     <path
                         fill="currentColor"
@@ -484,21 +482,26 @@
                 </svg>
             </button>
 
-            <div class="relative flex-1">
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="relative flex-1 {viewingChapterId !== null ? 'cursor-pointer' : ''}"
+                on:click={() => viewingChapterId !== null && (showReturnConfirm = true)}>
                 <textarea
                     bind:value={newEntryText}
                     on:keydown={handleKeydown}
-                    placeholder="What happens next?"
+                    placeholder={viewingChapterId !== null ? "..." : "What happens next?"}
                     rows="1"
-                    class="max-h-[120px] min-h-10 w-full resize-none rounded-2xl border border-(--input-border) bg-(--input-bg) px-4 py-2 pr-10 text-base leading-6 text-(--text-primary) shadow-sm focus:border-(--input-border-focus) focus:ring-1 focus:ring-(--input-border-focus) focus:outline-none"
+                    disabled={viewingChapterId !== null}
+                    class="max-h-[120px] min-h-10 w-full resize-none rounded-2xl border border-(--input-border) bg-(--input-bg) px-4 py-2 pr-10 text-base leading-6 text-(--text-primary) shadow-sm focus:border-(--input-border-focus) focus:ring-1 focus:ring-(--input-border-focus) focus:outline-none disabled:pointer-events-none disabled:cursor-pointer disabled:opacity-50"
                     style="field-sizing: content;">
                 </textarea>
             </div>
 
             <button
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-sm transition-colors hover:bg-(--accent-primary-hover) disabled:cursor-not-allowed disabled:opacity-(--disabled-opacity)"
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-sm transition-colors hover:bg-(--accent-primary-hover) disabled:cursor-not-allowed disabled:opacity-50"
                 on:click={saveEntry}
-                disabled={!newEntryText.trim()}
+                disabled={!newEntryText.trim() || viewingChapterId !== null}
                 title="Send Entry"
                 aria-label="Send Entry">
                 <svg
@@ -694,6 +697,34 @@
 
         <div class="flex justify-end gap-2">
             <button class="srpg-b srpg-b-simple" on:click={cancelCharacterAssign}>Cancel</button>
+        </div>
+    </div>
+</SrpgModal>
+
+<!-- Return to Current Chapter Confirmation Modal -->
+<SrpgModal
+    bind:show={showReturnConfirm}
+    maxWidth="400px"
+    on:close={() => (showReturnConfirm = false)}>
+    <div class="text-left">
+        <h2 class="mt-0 mb-2 text-(--text-primary)">Return to Current Chapter?</h2>
+        <p class="m-0 mb-6 text-sm text-(--text-secondary)">
+            You're currently viewing a past chapter. Would you like to return to the current chapter
+            to add new entries or use the Oracle?
+        </p>
+
+        <div class="flex justify-end gap-2">
+            <button class="srpg-b srpg-b-simple" on:click={() => (showReturnConfirm = false)}>
+                Cancel
+            </button>
+            <button
+                class="srpg-b srpg-b-create"
+                on:click={() => {
+                    showReturnConfirm = false;
+                    viewChapter(null);
+                }}>
+                Yes, Return
+            </button>
         </div>
     </div>
 </SrpgModal>
