@@ -178,7 +178,7 @@
                {hasSecondarySidebar || mode === 'map'
             ? 'bottom-[calc(130px+env(safe-area-inset-bottom))]'
             : ''}
-               md:fixed md:top-0 md:bottom-auto md:left-[80px] md:h-screen md:w-[80px] md:shadow-md
+               md:fixed md:top-0 md:bottom-auto md:left-20 md:h-screen md:w-20 md:shadow-md
                {hasSecondarySidebar ? 'md:left-[170px]' : ''}"
         style="--tertiary-height: 60px;"
         transition:fly={{
@@ -241,8 +241,7 @@
                         </button>
                     </div>
                 </div>
-                <div
-                    class="bg-sidebar-border mx-1 h-full w-[2px] md:mx-0 md:my-2 md:h-[2px] md:w-full">
+                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
                 </div>
                 <div
                     class="h-full flex-1 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto">
@@ -280,8 +279,7 @@
                         {/each}
                     </div>
                 </div>
-                <div
-                    class="bg-sidebar-border mx-1 h-full w-[2px] md:mx-0 md:my-2 md:h-[2px] md:w-full">
+                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
                 </div>
             </nav>
         {:else}
@@ -394,8 +392,7 @@
                     </button>
                 </div>
 
-                <div
-                    class="bg-sidebar-border mx-1 h-full w-[2px] md:mx-0 md:my-2 md:h-[2px] md:w-full">
+                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
                 </div>
 
                 <div

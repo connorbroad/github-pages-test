@@ -34,16 +34,16 @@
 
 {#if show && campaign}
     <SrpgModal {show} ariaLabel="Close campaign load dialog" on:close={handleClose}>
-        <h2 class="text-[var(--text-primary)] mt-0">Campaign Info</h2>
+        <h2 class="mt-0 text-(--text-primary)">Campaign Info</h2>
 
-        <div class="bg-[var(--bg-secondary)] mb-6 rounded-md p-5 text-left">
-            <p class="text-[var(--text-primary)] m-0 mb-4 text-xl font-semibold">{campaign.title}</p>
-            <p class="text-[var(--text-secondary)] my-2 text-[0.95rem]">
-                <strong class="text-[var(--text-primary)]">Game:</strong>
+        <div class="mb-6 rounded-md bg-(--bg-secondary) p-5 text-left">
+            <p class="m-0 mb-4 text-xl font-semibold text-(--text-primary)">{campaign.title}</p>
+            <p class="my-2 text-[0.95rem] text-(--text-secondary)">
+                <strong class="text-(--text-primary)">Game:</strong>
                 {campaign.blueprintTitle}
             </p>
-            <p class="text-[var(--text-secondary)] my-2 text-[0.95rem]">
-                <strong class="text-[var(--text-primary)]">Created:</strong>
+            <p class="my-2 text-[0.95rem] text-(--text-secondary)">
+                <strong class="text-(--text-primary)">Created:</strong>
                 {formatDate(campaign.createdAt)}
             </p>
         </div>
@@ -54,7 +54,7 @@
             </button>
         </div>
 
-        <p class="text-[var(--text-secondary)] mt-2 mb-0 text-[0.95rem] leading-6">
+        <p class="mt-2 mb-0 text-[0.95rem] leading-6 text-(--text-secondary)">
             <em>Loading a campaign makes it the active campaign for all tools.</em>
         </p>
     </SrpgModal>

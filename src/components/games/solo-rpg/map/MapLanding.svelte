@@ -49,7 +49,7 @@
 
     <div class="mt-4 mb-6 grid grid-cols-[1fr_auto] gap-2">
         <input
-            class="rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3.5 py-3 text-[var(--input-text)]"
+            class="rounded-lg border border-(--input-border) bg-(--input-bg) px-3.5 py-3 text-(--input-text)"
             placeholder="Map name"
             bind:value={newMapName}
             on:keydown={(e) => e.key === "Enter" && createMap()}
@@ -63,7 +63,7 @@
         <div class="flex flex-wrap gap-3 sm:justify-start">
             {#each sortedMaps as map (map.id)}
                 <div
-                    class="srpg-card flex min-h-[80px] w-full cursor-pointer items-center justify-between gap-3 px-4 py-4 text-left focus:outline focus:outline-[var(--accent-primary)] sm:w-[calc(50%-0.375rem)]"
+                    class="srpg-card flex min-h-20 w-full cursor-pointer items-center justify-between gap-3 px-4 py-4 text-left focus:outline focus:outline-(--accent-primary) sm:w-[calc(50%-0.375rem)]"
                     role="button"
                     tabindex="0"
                     on:click={() => openMap(map.id)}
@@ -95,7 +95,7 @@
             {/each}
         </div>
     {:else}
-        <p class="text-center text-[var(--text-muted)] italic">
+        <p class="text-center text-(--text-muted) italic">
             No maps yet. Create your first map above.
         </p>
     {/if}

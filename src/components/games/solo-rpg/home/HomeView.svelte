@@ -146,7 +146,7 @@
         <h1>Solo RPG</h1>
     </div>
     <div class="mx-auto max-w-[800px] pb-[calc(90px+env(safe-area-inset-bottom))]">
-        <p class="text-[var(--text-secondary)] mb-8 text-center text-[1.1rem]">
+        <p class="mb-8 text-center text-[1.1rem] text-(--text-secondary)">
             Welcome to your Solo RPG companion!
         </p>
 
@@ -164,32 +164,30 @@
         {/if}
 
         <div class="mt-8">
-            <button
-                class="srpg-b srpg-b-create srpg-b-w-full"
-                on:click={openCreateBlueprint}>
+            <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={openCreateBlueprint}>
                 + Create Game Blueprint
             </button>
 
             {#if gameBlueprints.length > 0}
-                <h2 class="text-[var(--text-primary)] mt-8 mb-4 text-[1.3rem]">Your Games</h2>
+                <h2 class="mt-8 mb-4 text-[1.3rem] text-(--text-primary)">Your Games</h2>
 
                 <div class="mt-4 flex flex-col gap-3">
                     {#each gameBlueprints as blueprint (blueprint.id)}
                         {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
                         {@const isExpanded = expandedBlueprints.has(blueprint.id)}
 
-                        <div class="border-[var(--border-primary)] bg-[var(--card-bg)] rounded-lg border">
-                            <div class="bg-[var(--bg-secondary)] flex items-center gap-3 p-2">
+                        <div class="rounded-lg border border-(--border-primary) bg-(--card-bg)">
+                            <div class="flex items-center gap-3 bg-(--bg-secondary) p-2">
                                 <button
-                                    class="hover:bg-[var(--bg-tertiary)] flex flex-1 cursor-pointer items-center gap-3 rounded-md border-none bg-transparent p-2 text-left text-base transition-colors duration-200 md:p-3"
+                                    class="flex flex-1 cursor-pointer items-center gap-3 rounded-md border-none bg-transparent p-2 text-left text-base transition-colors duration-200 hover:bg-(--bg-tertiary) md:p-3"
                                     on:click={() => toggleBlueprint(blueprint.id)}>
                                     <span
-                                        class="text-[var(--text-secondary)] inline-block w-4 text-xs transition-transform duration-200 {isExpanded
+                                        class="inline-block w-4 text-xs text-(--text-secondary) transition-transform duration-200 {isExpanded
                                             ? 'rotate-90'
                                             : ''}">
                                         ▶
                                     </span>
-                                    <span class="text-[var(--text-primary)] flex-1 font-semibold">
+                                    <span class="flex-1 font-semibold text-(--text-primary)">
                                         {blueprint.title}
                                     </span>
                                 </button>
@@ -219,13 +217,13 @@
                             </div>
 
                             {#if isExpanded}
-                                <div class="bg-[var(--bg-tertiary)] p-4 pt-2">
+                                <div class="bg-(--bg-tertiary) p-4 pt-2">
                                     {#if blueprintCampaigns.length > 0}
                                         <div
                                             class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
                                             {#each blueprintCampaigns as campaign}
                                                 <div
-                                                    class="relative flex min-h-[80px] w-full flex-row items-center justify-center gap-2 p-4 text-left transition-all duration-200">
+                                                    class="relative flex min-h-20 w-full flex-row items-center justify-center gap-2 p-4 text-left transition-all duration-200">
                                                     <div class="flex grow flex-col gap-1">
                                                         <strong class="text-base wrap-break-word">
                                                             {campaign.title}

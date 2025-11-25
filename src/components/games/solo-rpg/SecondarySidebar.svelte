@@ -30,7 +30,7 @@
     <aside
         class="bg-sidebar-bg fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0
                z-40 flex h-[60px] w-full flex-col shadow-md
-               md:fixed md:top-0 md:left-[80px] md:h-screen md:w-[90px] md:flex-col md:shadow-md"
+               md:fixed md:top-0 md:left-20 md:h-screen md:w-[90px] md:flex-col md:shadow-md"
         transition:fly={{
             duration: 300,
             easing: quintOut,

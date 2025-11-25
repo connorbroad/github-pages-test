@@ -48,14 +48,12 @@
 </script>
 
 <div class="{typeConfig.cardClass} shadow-2xl">
-    <div
-        class="mb-2 flex items-center justify-between border-b border-[var(--border-primary)] pb-2">
-        <span
-            class="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+    <div class="mb-2 flex items-center justify-between border-b border-(--border-primary) pb-2">
+        <span class="text-xs font-semibold tracking-wide text-(--text-secondary) uppercase">
             {typeConfig.icon}
             {typeConfig.label}
         </span>
-        <span class="text-xs font-normal text-[var(--text-muted)]">
+        <span class="text-xs font-normal text-(--text-muted)">
             {formatTimestamp(entry.timestamp)}
         </span>
     </div>

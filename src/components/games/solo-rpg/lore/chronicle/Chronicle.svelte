@@ -37,7 +37,7 @@
     let bottomRef: HTMLElement;
     let chaptersListRef: HTMLElement;
     let isAutoScrolling = false;
-    
+
     // Timestamp threshold - entries created after this timestamp will animate
     // Only used for entries added directly on this page
     let animateEntriesAfter: number | null = null;
@@ -73,7 +73,7 @@
                 return e.chapterId === viewingChapterId;
             })
             .sort((a, b) => a.timestamp - b.timestamp);
-        
+
         entries = filteredEntries;
         scrollToBottom();
     }
@@ -362,8 +362,8 @@
             {@const currentChapter = chapters.find((c) => c.id === viewingChapterId)}
             {#if currentChapter}
                 <div
-                    class="flex items-center gap-4 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-5 py-4">
-                    <span class="text-base font-semibold text-[var(--text-primary)]">
+                    class="flex items-center gap-4 rounded-lg border border-(--border-primary) bg-(--bg-secondary) px-5 py-4">
+                    <span class="text-base font-semibold text-(--text-primary)">
                         📜 Viewing: {getChapterDisplayName(currentChapter)}
                     </span>
                 </div>
@@ -376,8 +376,8 @@
             show={showCreateChapter}
             ariaLabel="Close create chapter dialog"
             on:close={cancelCreateChapter}>
-            <h3 class="mt-0 mb-4 text-xl text-[var(--text-primary)]">Finish Chapter</h3>
-            <p class="m-0 mb-4 text-sm leading-relaxed text-[var(--text-secondary)]">
+            <h3 class="mt-0 mb-4 text-xl text-(--text-primary)">Finish Chapter</h3>
+            <p class="m-0 mb-4 text-sm leading-relaxed text-(--text-secondary)">
                 All current entries will be saved to this chapter, and you'll start fresh with a new
                 current chapter.
             </p>
@@ -385,9 +385,9 @@
                 type="text"
                 bind:value={chapterCustomName}
                 placeholder="Chapter name (optional)"
-                class="mb-3 w-full rounded-md border border-[var(--input-border)] bg-[var(--input-bg)] px-3 py-3 text-base text-[var(--input-text)] focus:border-[var(--input-border-focus)] focus:shadow-[0_0_0_3px_var(--focus-ring)] focus:outline-none" />
+                class="mb-3 w-full rounded-md border border-(--input-border) bg-(--input-bg) px-3 py-3 text-base text-(--input-text) focus:border-(--input-border-focus) focus:shadow-[0_0_0_3px_var(--focus-ring)] focus:outline-none" />
             <div
-                class="mb-4 rounded-md border border-[var(--border-primary)] bg-[var(--card-bg)] px-3 py-3 text-[0.95rem] font-semibold text-[var(--text-secondary)]">
+                class="mb-4 rounded-md border border-(--border-primary) bg-(--card-bg) px-3 py-3 text-[0.95rem] font-semibold text-(--text-secondary)">
                 {#if chapterCustomName.trim()}
                     Preview: Chapter {chapters.length + 1} - {chapterCustomName.trim()}
                 {:else}
@@ -403,11 +403,16 @@
         </SrpgModal>
     {/if}
 
-    <div class="flex h-full flex-col-reverse gap-2 overflow-y-auto border-b border-t border-[var(--border-primary)]">
+    <div
+        class="flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary)">
         <div bind:this={bottomRef} class="h-1"></div>
         {#each [...entries].reverse() as entry (entry.id)}
             <div
-                in:fly={{ y: shouldAnimate(entry) ? 30 : 0, duration: shouldAnimate(entry) ? 300 : 0, opacity: shouldAnimate(entry) ? 0 : 1 }}
+                in:fly={{
+                    y: shouldAnimate(entry) ? 30 : 0,
+                    duration: shouldAnimate(entry) ? 300 : 0,
+                    opacity: shouldAnimate(entry) ? 0 : 1,
+                }}
                 animate:flip={{ duration: 300 }}
                 on:introend={onAnimationEnd}>
                 <EntryCard
@@ -425,7 +430,7 @@
             </div>
         {:else}
             <div
-                class="rounded-lg bg-[var(--bg-secondary)] mb-4 px-4 py-12 text-center text-[var(--text-muted)]">
+                class="rounded-lg bg-(--bg-secondary) mb-4 px-4 py-12 text-center text-(--text-muted)">
                 <p class="my-2">No chapter entries yet.</p>
                 <p class="my-2">Type a message below to record your first adventure log,</p>
                 <p class="my-2">or roll the dice with the Oracle!</p>
@@ -433,15 +438,11 @@
         {/each}
     </div>
 
-    <div
-        slot="footer"
-        class="relative mb-[calc(70px+env(safe-area-inset-bottom))] pt-2 md:mb-0">
+    <div slot="footer" class="relative mb-[calc(70px+env(safe-area-inset-bottom))] pt-2 md:mb-0">
         {#if viewingChapterId !== null}
             <div
-                class="absolute inset-0 z-10 flex items-center justify-center bg-[var(--bg-primary)]/95 backdrop-blur-sm mt-2">
-                <button
-                    class="srpg-b srpg-b-normal"
-                    on:click={() => viewChapter(null)}>
+                class="absolute inset-0 z-10 mt-2 flex items-center justify-center bg-(--bg-primary)/95 backdrop-blur-sm">
+                <button class="srpg-b srpg-b-normal" on:click={() => viewChapter(null)}>
                     Return to Current Chapter
                 </button>
             </div>
@@ -451,7 +452,7 @@
                 ? 'pointer-events-none opacity-25'
                 : ''}">
             <button
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--card-bg)] text-[var(--text-secondary)] shadow-sm transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)]"
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
                 on:click={toggleChaptersList}
                 title="View Chapters"
                 aria-label="View Chapters">
@@ -472,7 +473,7 @@
             </button>
 
             <button
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--card-bg)] text-[var(--text-secondary)] shadow-sm transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--accent-primary)]"
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
                 on:click={() => (showOracle = true)}
                 title="Open Oracle"
                 aria-label="Open Oracle">
@@ -489,13 +490,13 @@
                     on:keydown={handleKeydown}
                     placeholder="What happens next?"
                     rows="1"
-                    class="max-h-[120px] min-h-[40px] w-full resize-none rounded-2xl border border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-2 pr-10 text-base leading-6 text-[var(--text-primary)] shadow-sm focus:border-[var(--input-border-focus)] focus:ring-1 focus:ring-[var(--input-border-focus)] focus:outline-none"
+                    class="max-h-[120px] min-h-10 w-full resize-none rounded-2xl border border-(--input-border) bg-(--input-bg) px-4 py-2 pr-10 text-base leading-6 text-(--text-primary) shadow-sm focus:border-(--input-border-focus) focus:ring-1 focus:ring-(--input-border-focus) focus:outline-none"
                     style="field-sizing: content;">
                 </textarea>
             </div>
 
             <button
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[var(--accent-primary)] text-white shadow-sm transition-colors hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-[var(--disabled-opacity)]"
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-sm transition-colors hover:bg-(--accent-primary-hover) disabled:cursor-not-allowed disabled:opacity-(--disabled-opacity)"
                 on:click={saveEntry}
                 disabled={!newEntryText.trim()}
                 title="Send Entry"
@@ -524,7 +525,7 @@
     maxWidth="500px"
     on:close={toggleChaptersList}>
     <div class="flex h-[60vh] flex-col">
-        <h2 class="mt-0 mb-4 text-xl font-bold text-[var(--text-primary)]">Chapters</h2>
+        <h2 class="mt-0 mb-4 text-xl font-bold text-(--text-primary)">Chapters</h2>
 
         <div class="flex-1 overflow-y-auto pr-2" bind:this={chaptersListRef}>
             <!-- Past Chapters -->
@@ -535,18 +536,18 @@
                             <button
                                 class="flex w-full flex-col items-start rounded-lg border p-3 transition-all duration-200 {viewingChapterId ===
                                 chapter.id
-                                    ? 'border-[var(--accent-primary)] bg-[var(--accent-info)]/10'
-                                    : 'border-[var(--border-primary)] bg-[var(--card-bg)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}"
+                                    ? 'border-(--accent-primary) bg-(--accent-info)/10'
+                                    : 'border-(--border-primary) bg-(--card-bg) hover:border-(--accent-primary) hover:bg-(--bg-tertiary)'}"
                                 on:click={() => viewChapter(chapter.id)}>
                                 <div class="flex w-full items-center justify-between">
                                     <span
                                         class="font-medium {viewingChapterId === chapter.id
-                                            ? 'text-[var(--accent-primary)]'
-                                            : 'text-[var(--text-primary)]'}">
+                                            ? 'text-(--accent-primary)'
+                                            : 'text-(--text-primary)'}">
                                         {getChapterDisplayName(chapter)}
                                     </span>
                                 </div>
-                                <span class="mt-1 text-xs text-[var(--text-muted)]">
+                                <span class="mt-1 text-xs text-(--text-muted)">
                                     {loadChronicleEntries().filter(
                                         (e) => e.chapterId === chapter.id
                                     ).length} entries
@@ -554,7 +555,7 @@
                             </button>
 
                             <button
-                                class="absolute top-3 right-3 rounded p-1 text-[var(--text-muted)] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[var(--danger-bg)] hover:text-[var(--accent-danger)]"
+                                class="absolute top-3 right-3 rounded p-1 text-(--text-muted) opacity-0 transition-opacity group-hover:opacity-100 hover:bg-(--danger-bg) hover:text-(--accent-danger)"
                                 on:click|stopPropagation={() => deleteChapter(chapter.id)}
                                 title="Delete chapter"
                                 aria-label="Delete chapter">
@@ -572,35 +573,35 @@
                     {/each}
                 </div>
             {:else}
-                <div class="flex h-full items-center justify-center text-[var(--text-muted)] italic">
+                <div class="flex h-full items-center justify-center text-(--text-muted) italic">
                     No past chapters
                 </div>
             {/if}
         </div>
 
-        <div class="mt-2 flex flex-col gap-3 border-t border-[var(--border-primary)] pt-4">
+        <div class="mt-2 flex flex-col gap-3 border-t border-(--border-primary) pt-4">
             <!-- Current Chapter Button -->
             <button
                 class="flex w-full flex-col items-start rounded-lg border-2 p-4 transition-all duration-200 {viewingChapterId ===
                 null
-                    ? 'border-[var(--accent-primary)] bg-[var(--accent-info)]/10'
-                    : 'border-[var(--border-primary)] bg-[var(--card-bg)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}"
+                    ? 'border-(--accent-primary) bg-(--accent-info)/10'
+                    : 'border-(--border-primary) bg-(--card-bg) hover:border-(--accent-primary) hover:bg-(--bg-tertiary)'}"
                 on:click={() => viewChapter(null)}>
                 <div class="flex w-full items-center justify-between">
                     <span
                         class="font-bold {viewingChapterId === null
-                            ? 'text-[var(--accent-primary)]'
-                            : 'text-[var(--text-primary)]'}">
+                            ? 'text-(--accent-primary)'
+                            : 'text-(--text-primary)'}">
                         📖 Current Chapter
                     </span>
                     {#if viewingChapterId === null}
                         <span
-                            class="rounded-full bg-[var(--accent-info)]/20 px-2 py-0.5 text-xs font-medium text-[var(--accent-primary)]">
+                            class="rounded-full bg-(--accent-info)/20 px-2 py-0.5 text-xs font-medium text-(--accent-primary)">
                             Active
                         </span>
                     {/if}
                 </div>
-                <span class="mt-1 text-sm text-[var(--text-muted)]">
+                <span class="mt-1 text-sm text-(--text-muted)">
                     {loadChronicleEntries().filter(
                         (e) => e.campaignId === $activeCampaign?.id && !e.chapterId
                     ).length} entries
@@ -648,29 +649,29 @@
 <!-- Character Assignment Modal -->
 <SrpgModal bind:show={showCharacterAssign} maxWidth="450px" on:close={cancelCharacterAssign}>
     <div class="text-left">
-        <h2 class="mt-0 mb-2 text-[var(--text-primary)]">Assign Character</h2>
-        <p class="m-0 mb-4 text-sm text-[var(--text-secondary)]">
+        <h2 class="mt-0 mb-2 text-(--text-primary)">Assign Character</h2>
+        <p class="m-0 mb-4 text-sm text-(--text-secondary)">
             Select a character to associate with this entry.
         </p>
 
         {#if campaignCharacters.length > 0}
             <div class="mb-4 flex max-h-[400px] flex-col gap-2 overflow-y-auto">
                 <button
-                    class="flex flex-col gap-1 rounded-md border-2 border-[var(--border-primary)] bg-[var(--card-bg)] px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]"
+                    class="flex flex-col gap-1 rounded-md border-2 border-(--border-primary) bg-(--card-bg) px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-(--accent-primary) hover:bg-(--bg-tertiary)"
                     on:click={() => selectCharacterForEntry(null)}>
-                    <span class="text-base font-semibold text-[var(--text-primary)]">
+                    <span class="text-base font-semibold text-(--text-primary)">
                         None (Remove assignment)
                     </span>
                 </button>
                 {#each campaignCharacters as character (character.id)}
                     <button
-                        class="flex flex-col gap-1 rounded-md border-2 border-[var(--border-primary)] bg-[var(--card-bg)] px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]"
+                        class="flex flex-col gap-1 rounded-md border-2 border-(--border-primary) bg-(--card-bg) px-4 py-3 text-left transition-all duration-200 hover:translate-x-0.5 hover:border-(--accent-primary) hover:bg-(--bg-tertiary)"
                         on:click={() => selectCharacterForEntry(character.id)}>
-                        <span class="text-base font-semibold text-[var(--text-primary)]">
+                        <span class="text-base font-semibold text-(--text-primary)">
                             {character.name}
                         </span>
                         {#if character.race || character.class}
-                            <span class="text-[0.85rem] text-[var(--text-secondary)]">
+                            <span class="text-[0.85rem] text-(--text-secondary)">
                                 {#if character.race}{character.race}{/if}
                                 {#if character.race && character.class}
                                     •
@@ -683,7 +684,7 @@
             </div>
         {:else}
             <div
-                class="mb-4 rounded-md bg-[var(--bg-secondary)] px-4 py-8 text-center text-[var(--text-secondary)]">
+                class="mb-4 rounded-md bg-(--bg-secondary) px-4 py-8 text-center text-(--text-secondary)">
                 <p class="my-1">No characters available.</p>
                 <p class="my-1 text-sm italic">
                     Create a character in the Character Manager first.

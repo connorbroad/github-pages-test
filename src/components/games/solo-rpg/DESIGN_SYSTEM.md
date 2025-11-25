@@ -21,21 +21,25 @@ Use Tailwind for **layout, spacing, and typography**:
 ```html
 <!-- ✅ Layout -->
 <div class="flex flex-col items-center justify-between">
-<div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-4">
+        <!-- ✅ Spacing -->
+        <div class="m-2 gap-3 p-4">
+            <div class="mt-6 mb-4 px-6">
+                <!-- ✅ Typography -->
+                <h1 class="text-2xl font-bold">
+                    <p class="text-sm font-medium">
+                        <!-- ✅ Sizing -->
+                    </p>
 
-<!-- ✅ Spacing -->
-<div class="p-4 m-2 gap-3">
-<div class="mt-6 mb-4 px-6">
-
-<!-- ✅ Typography -->
-<h1 class="text-2xl font-bold">
-<p class="text-sm font-medium">
-
-<!-- ✅ Sizing -->
-<div class="w-full max-w-md h-12">
-
-<!-- ✅ Responsive breakpoints -->
-<div class="hidden md:flex lg:grid-cols-3">
+                    <div class="h-12 w-full max-w-md">
+                        <!-- ✅ Responsive breakpoints -->
+                        <div class="hidden md:flex lg:grid-cols-3"></div>
+                    </div>
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
 ```
 
 ### When to Use CSS Variables
@@ -44,18 +48,20 @@ Use CSS variables (via arbitrary values) for **colors, borders, and shadows**:
 
 ```html
 <!-- ✅ Backgrounds -->
-<div class="bg-[var(--card-bg)]">
-<div class="bg-[var(--bg-secondary)]">
-
-<!-- ✅ Text colors -->
-<p class="text-[var(--text-primary)]">
-<span class="text-[var(--text-muted)]">
-
-<!-- ✅ Borders -->
-<div class="border border-[var(--border-primary)]">
-
-<!-- ✅ Shadows (use CSS variable or Tailwind) -->
-<div class="shadow-md">  <!-- Tailwind OK for shadows -->
+<div class="bg-(--card-bg)">
+    <div class="bg-(--bg-secondary)">
+        <!-- ✅ Text colors -->
+        <p class="text-(--text-primary)">
+            <span class="text-(--text-muted)">
+                <!-- ✅ Borders -->
+                <div class="border border-(--border-primary)">
+                    <!-- ✅ Shadows (use CSS variable or Tailwind) -->
+                    <div class="shadow-md"><!-- Tailwind OK for shadows --></div>
+                </div>
+            </span>
+        </p>
+    </div>
+</div>
 ```
 
 ### When to Use `srpg-*` Classes
@@ -87,14 +93,9 @@ Use the design system classes for **complex, reusable components**:
 
 ```html
 <!-- Hybrid approach in practice -->
-<div class="flex flex-col gap-4 p-6 rounded-lg 
-            bg-[var(--card-bg)] border border-[var(--card-border)]">
-    <h2 class="text-xl font-bold text-[var(--text-primary)]">
-        Card Title
-    </h2>
-    <p class="text-sm text-[var(--text-secondary)]">
-        Card description goes here.
-    </p>
+<div class="flex flex-col gap-4 rounded-lg border border-(--card-border) bg-(--card-bg) p-6">
+    <h2 class="text-xl font-bold text-(--text-primary)">Card Title</h2>
+    <p class="text-sm text-(--text-secondary)">Card description goes here.</p>
     <div class="srpg-b-group">
         <button class="srpg-b srpg-b-simple">Cancel</button>
         <button class="srpg-b srpg-b-normal">Confirm</button>
@@ -104,19 +105,19 @@ Use the design system classes for **complex, reusable components**:
 
 ### Quick Reference Table
 
-| Use Case | Approach | Example |
-|----------|----------|---------|
-| Layout/Flexbox/Grid | Tailwind | `flex`, `grid`, `items-center` |
-| Spacing | Tailwind | `p-4`, `gap-3`, `mt-6` |
-| Typography | Tailwind | `text-lg`, `font-bold` |
-| Responsive | Tailwind | `md:flex`, `lg:hidden` |
-| Flex wrap control | Tailwind | `flex-wrap`, `flex-nowrap` |
-| Background colors | CSS Variable | `bg-[var(--bg-primary)]` |
-| Text colors | CSS Variable | `text-[var(--text-primary)]` |
-| Borders | CSS Variable | `border-[var(--border-primary)]` |
-| Buttons | srpg-* class | `srpg-b srpg-b-normal` |
-| Forms | srpg-* class | `srpg-form-field` |
-| Modals | srpg-* class | `srpg-modal` |
+| Use Case            | Approach      | Example                        |
+| ------------------- | ------------- | ------------------------------ |
+| Layout/Flexbox/Grid | Tailwind      | `flex`, `grid`, `items-center` |
+| Spacing             | Tailwind      | `p-4`, `gap-3`, `mt-6`         |
+| Typography          | Tailwind      | `text-lg`, `font-bold`         |
+| Responsive          | Tailwind      | `md:flex`, `lg:hidden`         |
+| Flex wrap control   | Tailwind      | `flex-wrap`, `flex-nowrap`     |
+| Background colors   | CSS Variable  | `bg-(--bg-primary)`            |
+| Text colors         | CSS Variable  | `text-(--text-primary)`        |
+| Borders             | CSS Variable  | `border-(--border-primary)`    |
+| Buttons             | srpg-\* class | `srpg-b srpg-b-normal`         |
+| Forms               | srpg-\* class | `srpg-form-field`              |
+| Modals              | srpg-\* class | `srpg-modal`                   |
 
 ---
 
@@ -138,29 +139,29 @@ color: white;
 
 ### Core Color Tokens
 
-| Token | Purpose |
-|-------|---------|
-| `--bg-primary` | Main background |
-| `--bg-secondary` | Secondary/card backgrounds |
-| `--bg-tertiary` | Hover states, subtle backgrounds |
-| `--bg-elevated` | Elevated surfaces (modals, dropdowns) |
-| `--text-primary` | Main text |
-| `--text-secondary` | Secondary/label text |
-| `--text-muted` | Placeholder, disabled text |
-| `--border-primary` | Default borders |
-| `--border-secondary` | Hover/focus borders |
-| `--card-bg` | Card background |
-| `--card-border` | Card borders |
+| Token                | Purpose                               |
+| -------------------- | ------------------------------------- |
+| `--bg-primary`       | Main background                       |
+| `--bg-secondary`     | Secondary/card backgrounds            |
+| `--bg-tertiary`      | Hover states, subtle backgrounds      |
+| `--bg-elevated`      | Elevated surfaces (modals, dropdowns) |
+| `--text-primary`     | Main text                             |
+| `--text-secondary`   | Secondary/label text                  |
+| `--text-muted`       | Placeholder, disabled text            |
+| `--border-primary`   | Default borders                       |
+| `--border-secondary` | Hover/focus borders                   |
+| `--card-bg`          | Card background                       |
+| `--card-border`      | Card borders                          |
 
 ### Accent Colors
 
-| Token | Purpose |
-|-------|---------|
-| `--accent-primary` | Primary actions (blue) |
+| Token              | Purpose                        |
+| ------------------ | ------------------------------ |
+| `--accent-primary` | Primary actions (blue)         |
 | `--accent-success` | Success/create actions (green) |
-| `--accent-danger` | Destructive actions (red) |
-| `--accent-warning` | Warnings (orange) |
-| `--accent-info` | Info/highlights (indigo) |
+| `--accent-danger`  | Destructive actions (red)      |
+| `--accent-warning` | Warnings (orange)              |
+| `--accent-info`    | Info/highlights (indigo)       |
 
 Each accent has `-hover` and `-active` variants (e.g., `--accent-primary-hover`).
 
@@ -278,7 +279,7 @@ Use the composable `srpg-b-*` button system:
         <label for="name">Name</label>
         <input type="text" id="name" placeholder="Enter name" />
     </div>
-    
+
     <div class="srpg-form-field">
         <label for="type">Type</label>
         <select id="type">
@@ -291,6 +292,7 @@ Use the composable `srpg-b-*` button system:
 ### Form Field Styling
 
 Form inputs automatically get themed styling when inside `.srpg-form-field`:
+
 - Background: `var(--input-bg)`
 - Border: `var(--input-border)`
 - Focus: `var(--input-border-focus)` with shadow
@@ -306,13 +308,13 @@ Form inputs automatically get themed styling when inside `.srpg-form-field`:
     <div class="srpg-modal-content">
         <!-- Close button -->
         <button class="srpg-b-modal-nav srpg-b-modal-nav-close">✕</button>
-        
+
         <!-- Optional back button -->
         <button class="srpg-b-modal-nav srpg-b-modal-nav-back">←</button>
-        
+
         <h2>Modal Title</h2>
         <p>Modal content</p>
-        
+
         <div class="srpg-b-group">
             <button class="srpg-b srpg-b-simple">Cancel</button>
             <button class="srpg-b srpg-b-normal">Confirm</button>
@@ -378,9 +380,9 @@ The theme is controlled via `data-theme` attribute on the main container:
 ### Font Sizes
 
 - **Headings**: Use Tailwind or standard sizes
-  - h1: `text-4xl` / `2.25rem`
-  - h2: `text-2xl` / `1.5rem`
-  - h3: `text-xl` / `1.25rem`
+    - h1: `text-4xl` / `2.25rem`
+    - h2: `text-2xl` / `1.5rem`
+    - h3: `text-xl` / `1.25rem`
 - **Body**: `1rem` (16px)
 - **Small**: `0.875rem` (14px)
 - **Tiny**: `0.75rem` (12px)

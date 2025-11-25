@@ -48,7 +48,7 @@
 
 {#if show}
     <div
-        class="bg-modal-overlay fixed top-0 left-0 z-1000 box-border flex h-dvh w-full items-center justify-center p-4 md:pl-[calc(80px+1rem)]"
+        class="bg-modal-overlay fixed top-0 left-0 z-1000 box-border flex h-dvh w-full items-center justify-center p-4 md:pl-24"
         role="button"
         tabindex="0"
         aria-label={ariaLabel}

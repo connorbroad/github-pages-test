@@ -24,7 +24,7 @@
 <aside
     class="bg-sidebar-bg fixed right-0 bottom-0 left-0
               z-50 flex h-[calc(70px+env(safe-area-inset-bottom))] w-full flex-col pb-[env(safe-area-inset-bottom)] shadow-md
-              md:fixed md:top-0 md:left-0 md:h-screen md:w-[80px] md:flex-col md:pb-0 md:shadow-md">
+              md:fixed md:top-0 md:left-0 md:h-screen md:w-20 md:flex-col md:pb-0 md:shadow-md">
     <div class="border-sidebar-border hidden items-center justify-center border-b py-6 md:flex">
         <svg
             viewBox="0 0 24 24"

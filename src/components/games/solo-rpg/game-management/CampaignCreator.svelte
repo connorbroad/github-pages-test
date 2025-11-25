@@ -34,17 +34,17 @@
 
 {#if show && blueprint}
     <SrpgModal {show} ariaLabel="Close campaign creator" on:close={handleClose}>
-        <h2 class="text-[var(--text-primary)] mt-0 mb-2">New Campaign</h2>
-        <p class="text-[var(--text-secondary)] mb-6 text-[0.95rem]">
-            Using: <strong class="text-[var(--accent-primary)]">{blueprint.title}</strong>
+        <h2 class="mt-0 mb-2 text-(--text-primary)">New Campaign</h2>
+        <p class="mb-6 text-[0.95rem] text-(--text-secondary)">
+            Using: <strong class="text-(--accent-primary)">{blueprint.title}</strong>
         </p>
 
         <div class="mb-6 text-left">
-            <label class="text-[var(--text-secondary)] mb-2 block font-medium" for="campaign-title">
+            <label class="mb-2 block font-medium text-(--text-secondary)" for="campaign-title">
                 Campaign Title:
             </label>
             <input
-                class="border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] focus:border-[var(--input-border-focus)] box-border w-full rounded-md border-2 p-3 text-base transition-colors duration-200 focus:outline-none"
+                class="box-border w-full rounded-md border-2 border-(--input-border) bg-(--input-bg) p-3 text-base text-(--input-text) transition-colors duration-200 focus:border-(--input-border-focus) focus:outline-none"
                 id="campaign-title"
                 type="text"
                 bind:value={campaignTitle}

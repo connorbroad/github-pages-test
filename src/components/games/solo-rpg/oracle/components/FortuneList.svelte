@@ -134,7 +134,7 @@
             <div
                 class="border-card-border bg-card-bg group/card before:bg-accent-primary hover:border-border-secondary relative mb-3.5 overflow-hidden rounded-xl border-[1.5px] transition-all
                        duration-200 ease-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:opacity-40 before:transition-opacity before:duration-200
-                       before:content-[''] hover:-translate-y-[2px] hover:shadow-md hover:before:opacity-70
+                       before:content-[''] hover:-translate-y-0.5 hover:shadow-md hover:before:opacity-70
                        {draggedFortuneId === fortune.id || touchDraggedId === fortune.id
                     ? 'scale-[0.98] opacity-50'
                     : ''}
