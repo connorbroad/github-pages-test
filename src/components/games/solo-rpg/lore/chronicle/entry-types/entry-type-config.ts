@@ -38,7 +38,10 @@ export interface EntryTypeConfig {
 }
 
 const NON_MANUAL_CARD_STYLES =
-    "bg-slate-500 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-700 rounded-md p-3 my-1 text-sm";
+    "border border-slate-200 dark:border-zinc-700 rounded-md p-3 my-1 text-sm";
+
+const MANUAL_CARD_STYLES =
+    "dark:bg-zinc-800 shadow-md hover:shadow-lg transition-shadow border-l-4 border-l-amber-500 rounded-lg p-5 my-3";
 
 /**
  * Registry of all entry types
@@ -92,8 +95,7 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         label: "Manual Entry",
         icon: "📝",
         contentComponent: ManualEntryContent,
-        cardClass:
-            "dark:bg-zinc-800 shadow-md hover:shadow-lg transition-shadow border-l-4 border-l-amber-500 rounded-r-lg p-5 my-3",
+        cardClass: MANUAL_CARD_STYLES,
         compact: false,
         editButtonLabel: () => "Edit entry",
         editField: "content",

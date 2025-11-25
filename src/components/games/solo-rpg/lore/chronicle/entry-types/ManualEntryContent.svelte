@@ -5,6 +5,6 @@
 </script>
 
 <div
-    class="mb-2 text-[0.95rem] leading-relaxed wrap-break-word whitespace-pre-wrap text-gray-900 dark:text-gray-100">
+    class="mb-2 text-[0.95rem] leading-relaxed wrap-break-word whitespace-pre-wrap text-[var(--text-primary)]">
     {entry.content}
 </div>

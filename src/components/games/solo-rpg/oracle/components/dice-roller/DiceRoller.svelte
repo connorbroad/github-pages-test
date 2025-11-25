@@ -256,7 +256,7 @@
                         </span>
                     </div>
                 {/if}
-                <p class="m-0 inline-flex items-center justify-center gap-2 py-3 text-[1.2rem]">
+                <p class="m-0 inline-flex items-center justify-center gap-2 text-[1.2rem]">
                     Record fate: {rolling ? "..." : finalResult || "..."}
                 </p>
                 {#if diceResults.length > 1 && !rolling}

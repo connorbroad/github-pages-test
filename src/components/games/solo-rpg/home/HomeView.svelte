@@ -146,7 +146,7 @@
         <h1>Solo RPG</h1>
     </div>
     <div class="mx-auto max-w-[800px] pb-[calc(90px+env(safe-area-inset-bottom))]">
-        <p class="text-text-secondary mb-8 text-center text-[1.1rem]">
+        <p class="text-[var(--text-secondary)] mb-8 text-center text-[1.1rem]">
             Welcome to your Solo RPG companion!
         </p>
 
@@ -165,37 +165,37 @@
 
         <div class="mt-8">
             <button
-                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                class="srpg-b srpg-b-create srpg-b-w-full"
                 on:click={openCreateBlueprint}>
                 + Create Game Blueprint
             </button>
 
             {#if gameBlueprints.length > 0}
-                <h2 class="text-text-primary mt-8 mb-4 text-[1.3rem]">Your Games</h2>
+                <h2 class="text-[var(--text-primary)] mt-8 mb-4 text-[1.3rem]">Your Games</h2>
 
                 <div class="mt-4 flex flex-col gap-3">
                     {#each gameBlueprints as blueprint (blueprint.id)}
                         {@const blueprintCampaigns = campaignsByBlueprint[blueprint.id] || []}
                         {@const isExpanded = expandedBlueprints.has(blueprint.id)}
 
-                        <div class="border-border-primary bg-card-bg rounded-lg border">
-                            <div class="bg-bg-secondary flex items-center gap-3 p-2">
+                        <div class="border-[var(--border-primary)] bg-[var(--card-bg)] rounded-lg border">
+                            <div class="bg-[var(--bg-secondary)] flex items-center gap-3 p-2">
                                 <button
-                                    class="hover:bg-bg-tertiary flex flex-1 cursor-pointer items-center gap-3 rounded-md border-none bg-transparent p-2 text-left text-base transition-colors duration-200 md:p-3"
+                                    class="hover:bg-[var(--bg-tertiary)] flex flex-1 cursor-pointer items-center gap-3 rounded-md border-none bg-transparent p-2 text-left text-base transition-colors duration-200 md:p-3"
                                     on:click={() => toggleBlueprint(blueprint.id)}>
                                     <span
-                                        class="text-text-secondary inline-block w-4 text-xs transition-transform duration-200 {isExpanded
+                                        class="text-[var(--text-secondary)] inline-block w-4 text-xs transition-transform duration-200 {isExpanded
                                             ? 'rotate-90'
                                             : ''}">
                                         ▶
                                     </span>
-                                    <span class="text-text-primary flex-1 font-semibold">
+                                    <span class="text-[var(--text-primary)] flex-1 font-semibold">
                                         {blueprint.title}
                                     </span>
                                 </button>
                                 <div class="flex items-center gap-2">
                                     <button
-                                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex min-h-[36px] min-w-[36px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border p-1.5 px-3 py-2 text-center text-sm leading-none font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md md:p-2"
+                                        class="srpg-b srpg-b-normal srpg-b-sm"
                                         on:click={() => openEditBlueprint(blueprint)}
                                         title="Edit blueprint"
                                         aria-label="Edit blueprint">
@@ -210,7 +210,7 @@
                                         </svg>
                                     </button>
                                     <button
-                                        class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex min-h-[36px] min-w-[36px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border p-1.5 px-3 py-2 text-center text-sm text-[1.2rem] leading-none font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md md:p-2"
+                                        class="srpg-b srpg-b-create srpg-b-sm"
                                         on:click={() => openCampaignCreator(blueprint)}
                                         title="Create new campaign">
                                         +
@@ -219,7 +219,7 @@
                             </div>
 
                             {#if isExpanded}
-                                <div class="bg-bg-tertiary p-4 pt-2">
+                                <div class="bg-[var(--bg-tertiary)] p-4 pt-2">
                                     {#if blueprintCampaigns.length > 0}
                                         <div
                                             class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
@@ -238,7 +238,7 @@
                                                     <div
                                                         class="flex min-w-[50px] flex-row items-center justify-center">
                                                         <button
-                                                            class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex aspect-square cursor-pointer items-center justify-center gap-2 rounded-md border p-3 px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md {$activeCampaign?.id ===
+                                                            class="srpg-b srpg-b-normal {$activeCampaign?.id ===
                                                             campaign.id
                                                                 ? 'active'
                                                                 : ''}"

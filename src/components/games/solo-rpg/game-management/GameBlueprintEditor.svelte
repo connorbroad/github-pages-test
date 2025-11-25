@@ -68,14 +68,14 @@
 
 {#if show}
     <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
-        <h2 class="text-text-primary mt-0">{isEditing ? "Edit Game" : "Create Game"}</h2>
+        <h2 class="text-[var(--text-primary)] mt-0">{isEditing ? "Edit Game" : "Create Game"}</h2>
 
         <div class="mb-6 text-left">
-            <label class="text-text-secondary mb-1 block font-medium" for="blueprint-title">
+            <label class="text-[var(--text-secondary)] mb-1 block font-medium" for="blueprint-title">
                 Game Title:
             </label>
             <input
-                class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus box-border w-full rounded-md border p-2 text-base focus:outline-none"
+                class="border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] focus:border-[var(--input-border-focus)] box-border w-full rounded-md border p-2 text-base focus:outline-none"
                 id="blueprint-title"
                 type="text"
                 bind:value={blueprint.title}
@@ -83,10 +83,8 @@
         </div>
 
         <div class="mb-6 text-left">
-            <h3 class="text-text-secondary mt-0 mb-2 text-[1.1rem]">Default Fortunes</h3>
-            <button
-                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                on:click={openCreateFortune}>
+            <h3 class="text-[var(--text-secondary)] mt-0 mb-2 text-[1.1rem]">Default Fortunes</h3>
+            <button class="srpg-b srpg-b-create" on:click={openCreateFortune}>
                 + Add Fortune
             </button>
 
@@ -94,20 +92,20 @@
                 <div class="mt-4 flex flex-col gap-3">
                     {#each blueprint.defaultFortunes as fortune, index}
                         <div
-                            class="bg-bg-secondary border-border-primary flex items-center justify-between gap-4 rounded-md border p-3 max-[600px]:flex-col max-[600px]:items-stretch">
+                            class="bg-[var(--bg-secondary)] border-[var(--border-primary)] flex items-center justify-between gap-4 rounded-md border p-3 max-[600px]:flex-col max-[600px]:items-stretch">
                             <div class="flex flex-1 flex-col gap-1">
-                                <strong class="text-text-primary">
+                                <strong class="text-[var(--text-primary)]">
                                     {fortune.title || "Untitled"}
                                 </strong>
                             </div>
                             <div class="flex gap-2 max-[600px]:justify-stretch">
                                 <button
-                                    class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[600px]:flex-1"
+                                    class="srpg-b srpg-b-normal srpg-b-sm max-[600px]:flex-1"
                                     on:click={() => openEditFortune(index)}>
                                     Edit
                                 </button>
                                 <button
-                                    class="border-border-primary bg-accent-danger hover:bg-accent-danger-hover active:bg-accent-danger-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[600px]:flex-1"
+                                    class="srpg-b srpg-b-danger srpg-b-sm max-[600px]:flex-1"
                                     on:click={() => deleteFortune(index)}>
                                     Delete
                                 </button>
@@ -116,16 +114,14 @@
                     {/each}
                 </div>
             {:else}
-                <p class="bg-bg-secondary mt-4 rounded-md p-4 text-center italic">
+                <p class="bg-[var(--bg-secondary)] mt-4 rounded-md p-4 text-center italic">
                     No fortunes added yet. Click "Add Fortune" to create one.
                 </p>
             {/if}
         </div>
 
-        <hr class="border-divider my-6 border-t border-none" />
-        <button
-            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-            on:click={handleSave}>
+        <hr class="border-[var(--divider)] my-6 border-t border-none" />
+        <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={handleSave}>
             Save Game Blueprint
         </button>
     </SrpgModal>

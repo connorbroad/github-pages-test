@@ -19,6 +19,6 @@
         <div class="min-h-0 flex-1 overflow-y-auto {contentClass}">
             <slot />
         </div>
+        <slot name="footer" />
     </div>
 </div>
-

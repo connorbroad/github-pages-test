@@ -49,13 +49,13 @@
 
 <div class="{typeConfig.cardClass} shadow-2xl">
     <div
-        class="mb-2 flex items-center justify-between border-b border-gray-300 pb-2 dark:border-gray-600">
+        class="mb-2 flex items-center justify-between border-b border-[var(--border-primary)] pb-2">
         <span
-            class="text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-400">
+            class="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
             {typeConfig.icon}
             {typeConfig.label}
         </span>
-        <span class="text-xs font-normal text-gray-500 dark:text-gray-500">
+        <span class="text-xs font-normal text-[var(--text-muted)]">
             {formatTimestamp(entry.timestamp)}
         </span>
     </div>

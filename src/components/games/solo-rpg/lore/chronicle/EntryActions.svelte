@@ -25,11 +25,11 @@
 </script>
 
 <div
-    class="flex items-center justify-end gap-1.5 border-t border-gray-300 pt-2.5 dark:border-gray-600 {compact
+    class="flex items-center justify-end gap-1.5 border-t border-[var(--border-primary)] pt-2.5 {compact
         ? 'mt-1.5 pt-1.5'
         : ''}">
     <button
-        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 {compact
+        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-[var(--border-primary)] bg-transparent leading-none text-[var(--text-muted)] transition-all duration-150 hover:border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-secondary)] {compact
             ? 'p-1.5'
             : 'p-1.5'}"
         on:click={handleAssignCharacter}
@@ -46,12 +46,12 @@
         </svg>
     </button>
     {#if characterId && characterName}
-        <p class="m-0 text-sm text-gray-500 italic dark:text-gray-400">{characterName}</p>
+        <p class="m-0 text-sm text-[var(--text-muted)] italic">{characterName}</p>
     {/if}
     <div class="grow"></div>
     {#if showEditButton && !isEditing}
         <button
-            class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 {compact
+            class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-[var(--border-primary)] bg-transparent leading-none text-[var(--text-muted)] transition-all duration-150 hover:border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-secondary)] {compact
                 ? 'p-1.5'
                 : 'p-1.5'}"
             on:click={handleEdit}
@@ -69,7 +69,7 @@
         </button>
     {/if}
     <button
-        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-gray-300 bg-transparent leading-none text-gray-500 transition-all duration-150 hover:border-red-400 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 {compact
+        class="flex min-h-0 min-w-0 cursor-pointer items-center justify-center rounded border border-[var(--border-primary)] bg-transparent leading-none text-[var(--text-muted)] transition-all duration-150 hover:border-[var(--accent-danger)] hover:bg-[var(--danger-bg)] hover:text-[var(--accent-danger)] {compact
             ? 'p-1.5'
             : 'p-1.5'}"
         on:click={handleDelete}

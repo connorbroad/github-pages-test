@@ -201,7 +201,7 @@
         <SettingsView />
     {/if}
 
-    {#if $activeCampaign && (currentView === "chronicle" || currentView === "characters")}
+    {#if $activeCampaign && currentView === "characters"}
         <FloatingOracleButton
             hasSecondarySidebar={false}
             hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}

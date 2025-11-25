@@ -49,7 +49,7 @@
 
     <div class="mt-4 mb-6 grid grid-cols-[1fr_auto] gap-2">
         <input
-            class="rounded-lg border border-gray-300 bg-gray-100 px-3.5 py-3 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3.5 py-3 text-[var(--input-text)]"
             placeholder="Map name"
             bind:value={newMapName}
             on:keydown={(e) => e.key === "Enter" && createMap()}
@@ -63,7 +63,7 @@
         <div class="flex flex-wrap gap-3 sm:justify-start">
             {#each sortedMaps as map (map.id)}
                 <div
-                    class="srpg-card flex min-h-[80px] w-full cursor-pointer items-center justify-between gap-3 px-4 py-4 text-left focus:outline focus:outline-blue-500 sm:w-[calc(50%-0.375rem)]"
+                    class="srpg-card flex min-h-[80px] w-full cursor-pointer items-center justify-between gap-3 px-4 py-4 text-left focus:outline focus:outline-[var(--accent-primary)] sm:w-[calc(50%-0.375rem)]"
                     role="button"
                     tabindex="0"
                     on:click={() => openMap(map.id)}
@@ -77,14 +77,14 @@
                     </div>
                     <div class="flex gap-1.5">
                         <button
-                            class="rounded-md border border-gray-300 bg-gray-100 px-2 py-1.5 text-gray-900 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+                            class="srpg-b-icon"
                             title="Rename"
                             aria-label={`Rename ${map.name}`}
                             on:click={() => promptRename(map)}>
                             ✎
                         </button>
                         <button
-                            class="rounded-md border border-red-400/35 bg-gray-100 px-2 py-1.5 text-red-600 hover:bg-gray-200 dark:border-red-500/35 dark:bg-gray-700 dark:text-red-400 dark:hover:bg-gray-600"
+                            class="srpg-b-icon delete-icon"
                             title="Delete"
                             aria-label={`Delete ${map.name}`}
                             on:click={() => confirmDelete(map)}>
@@ -95,7 +95,7 @@
             {/each}
         </div>
     {:else}
-        <p class="text-center text-gray-500 italic dark:text-gray-400">
+        <p class="text-center text-[var(--text-muted)] italic">
             No maps yet. Create your first map above.
         </p>
     {/if}

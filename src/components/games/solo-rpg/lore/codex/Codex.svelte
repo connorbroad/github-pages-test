@@ -293,7 +293,7 @@
         {#if selectedNote}
             <button class="srpg-b srpg-b-simple" on:click={backToList}>← Back to List</button>
             {#if isEditing}
-                <div class="srpg-b-group srpg-nowrap">
+                <div class="srpg-b-group flex-nowrap">
                     <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={saveNote}>
                         Save
                     </button>
