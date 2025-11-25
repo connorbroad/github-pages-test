@@ -22,6 +22,9 @@
     let selectedSections: Set<string> = new Set(); // For filtering visible sections in view mode
     let showSectionPickerModal: boolean = false;
     let showTagPickerModal: boolean = false;
+    let isCompactView: boolean = false;
+    let sortBy: "alphabetical" | "createdAt" | "updatedAt" = "alphabetical";
+    let showSortDropdown: boolean = false;
 
     $: if ($activeCampaign) {
         loadCampaignCharacters();
@@ -30,13 +33,33 @@
     // Get all unique tags from all characters
     $: availableTags = getAvailableTags(characters);
 
-    // Filter characters by selected tag
-    $: filteredCharacters =
+    // Filter characters by selected tag and apply sorting
+    $: filteredCharacters = sortCharacters(
         selectedTagFilter === "All"
             ? characters
             : selectedTagFilter === "No Tags"
               ? characters.filter((c) => !c.tags || c.tags.length === 0)
-              : characters.filter((c) => c.tags && c.tags.includes(selectedTagFilter));
+              : characters.filter((c) => c.tags && c.tags.includes(selectedTagFilter)),
+        sortBy
+    );
+
+    function sortCharacters(
+        chars: Character[],
+        sort: "alphabetical" | "createdAt" | "updatedAt"
+    ): Character[] {
+        return [...chars].sort((a, b) => {
+            switch (sort) {
+                case "alphabetical":
+                    return a.name.localeCompare(b.name);
+                case "createdAt":
+                    return (b.createdAt || 0) - (a.createdAt || 0);
+                case "updatedAt":
+                    return (b.updatedAt || 0) - (a.updatedAt || 0);
+                default:
+                    return 0;
+            }
+        });
+    }
 
     function getAvailableTags(chars: Character[]): string[] {
         const tags = new Set<string>();
@@ -364,17 +387,140 @@
                 </div>
             </div>
         {:else}
-            <div class="srpg-header-actions">
+            <div class="mb-6 flex flex-row items-center gap-2">
                 <button
-                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[400px]:px-3 max-[400px]:text-sm"
                     on:click={openCreateModal}>
-                    + Create Character
+                    <span class="max-[350px]:hidden">+</span>
+                    Create
+                    <span class="max-[300px]:hidden">Character</span>
                 </button>
+
+                <!-- View Toggle Button -->
+                <button
+                    class="srpg-b-icon shrink-0"
+                    on:click={() => (isCompactView = !isCompactView)}
+                    aria-label={isCompactView ? "Switch to card view" : "Switch to compact view"}
+                    title={isCompactView ? "Card view" : "Compact view"}>
+                    {#if isCompactView}
+                        <!-- Grid/Card icon -->
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.25em"
+                            height="1.25em">
+                            <path
+                                fill="currentColor"
+                                d="M3 3h8v8H3V3m0 10h8v8H3v-8m10 0h8v8h-8v-8m0-10h8v8h-8V3" />
+                        </svg>
+                    {:else}
+                        <!-- List/Compact icon -->
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.25em"
+                            height="1.25em">
+                            <path
+                                fill="currentColor"
+                                d="M3 4h18v2H3V4m0 7h18v2H3v-2m0 7h18v2H3v-2" />
+                        </svg>
+                    {/if}
+                </button>
+
+                <!-- Sort Dropdown Button -->
+                <div class="relative shrink-0">
+                    <button
+                        class="srpg-b-icon"
+                        on:click={() => (showSortDropdown = !showSortDropdown)}
+                        aria-label="Sort characters"
+                        title="Sort by">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.25em"
+                            height="1.25em">
+                            <path
+                                fill="currentColor"
+                                d="M3 18h6v-2H3v2M3 6v2h18V6H3m0 7h12v-2H3v2" />
+                        </svg>
+                    </button>
+                    {#if showSortDropdown}
+                        <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+                        <div class="fixed inset-0 z-40" on:click={() => (showSortDropdown = false)}>
+                        </div>
+                        <div
+                            class="bg-bg-elevated border-border-primary absolute top-full right-0 left-auto z-50 mt-1 min-w-40 rounded-lg border shadow-lg">
+                            <button
+                                class="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors first:rounded-t-lg {sortBy ===
+                                'alphabetical'
+                                    ? 'bg-bg-tertiary font-semibold'
+                                    : ''}"
+                                on:click={() => {
+                                    sortBy = "alphabetical";
+                                    showSortDropdown = false;
+                                }}>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width="1em"
+                                    height="1em"
+                                    class="text-text-muted">
+                                    <path
+                                        fill="currentColor"
+                                        d="M2 17h4v-2H2v2m0-7h8v-2H2v2m0 3h16v-2H2v2m19.41-2.83L20 8.59l-1.41 1.58L17 8.59l-1.41 1.58L17 11.59l1.41 1.58L20 11.59l1.41 1.58M17 6l-1.41 1.41L17 8.83l1.41-1.42L17 6Z" />
+                                </svg>
+                                Alphabetical
+                            </button>
+                            <button
+                                class="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors {sortBy ===
+                                'createdAt'
+                                    ? 'bg-bg-tertiary font-semibold'
+                                    : ''}"
+                                on:click={() => {
+                                    sortBy = "createdAt";
+                                    showSortDropdown = false;
+                                }}>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width="1em"
+                                    height="1em"
+                                    class="text-text-muted">
+                                    <path
+                                        fill="currentColor"
+                                        d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m4 11h-5V6h2v5h3Z" />
+                                </svg>
+                                Created (Newest)
+                            </button>
+                            <button
+                                class="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors last:rounded-b-lg {sortBy ===
+                                'updatedAt'
+                                    ? 'bg-bg-tertiary font-semibold'
+                                    : ''}"
+                                on:click={() => {
+                                    sortBy = "updatedAt";
+                                    showSortDropdown = false;
+                                }}>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    width="1em"
+                                    height="1em"
+                                    class="text-text-muted">
+                                    <path
+                                        fill="currentColor"
+                                        d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1a6.875 6.875 0 0 0 0 9.79a7.02 7.02 0 0 0 9.88 0A6.98 6.98 0 0 0 19 12.1h2a9 9 0 0 1-2.64 6.37A8.97 8.97 0 0 1 5.72 5.72a9 9 0 0 1 12.73 0L21 3v7.12M12.5 8v4.25l3.5 2.08l-.72 1.21L11 13V8h1.5Z" />
+                                </svg>
+                                Updated (Recent)
+                            </button>
+                        </div>
+                    {/if}
+                </div>
             </div>
 
             {#if availableTags.length > 1}
                 <div
-                    class="bg-bg-secondary border-border-primary relative mb-6 flex shrink-0 items-center gap-2 rounded-lg border p-4 max-[480px]:mb-2 max-[480px]:p-3">
+                    class="filter-container bg-bg-secondary border-border-primary relative mb-6 flex shrink-0 items-center gap-2 rounded-lg border p-4 max-[480px]:mb-2 max-[480px]:p-3">
                     <button
                         class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 text-xl leading-none font-bold transition-all duration-200 active:scale-95 max-[480px]:hidden"
                         on:click={(e) => {
@@ -388,11 +534,10 @@
                     <div
                         class="filter-buttons max-[480px]:scrollbar-default scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted flex flex-1 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden scroll-smooth pb-1 max-[480px]:max-h-[calc(2.5rem*2+0.5rem)] max-[480px]:flex-wrap max-[480px]:overflow-y-auto">
                         <button
-                            class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary duration- 'All' ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary shadow-md' : ''}
-                            cursor-pointer
-                                rounded-md border-2 bg-linear-to-br px-4 py-2 text-sm font-medium
-                                whitespace-nowrap transition-all"
-                            class:active={selectedTagFilter === "All"}
+                            class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 {selectedTagFilter ===
+                            'All'
+                                ? 'tag-filter-btn-active'
+                                : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
                             on:click={() => (selectedTagFilter = "All")}>
                             All ({characters.length})
                         </button>
@@ -405,11 +550,10 @@
                                           .length}
                             {#if count > 0}
                                 <button
-                                    class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
+                                    class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
                                     tag
-                                        ? 'from-accent-primary to-accent-info text-text-inverse border-accent-primary bg-linear-to-br shadow-md'
-                                        : ''}"
-                                    class:active={selectedTagFilter === tag}
+                                        ? 'tag-filter-btn-active'
+                                        : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
                                     on:click={() => (selectedTagFilter = tag)}>
                                     {tag} ({count})
                                 </button>
@@ -441,7 +585,10 @@
             on:cancel={cancelEdit}
             on:rollCheck={handleRollCheck} />
     {:else if filteredCharacters.length > 0}
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 py-2">
+        <div
+            class="{isCompactView
+                ? 'flex flex-col gap-2'
+                : 'grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4'} py-2 pb-24 md:pb-4">
             {#each filteredCharacters as character}
                 {@const initials = character.name
                     .split(" ")
@@ -452,50 +599,40 @@
                 {@const hue =
                     character.name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
                     360}
-                <button class="character-card group" on:click={() => selectCharacter(character)}>
-                    <!-- Accent bar -->
-                    <div
-                        class="character-card-accent"
-                        style="background: linear-gradient(135deg, hsl({hue}, 70%, 50%), hsl({(hue +
-                            40) %
-                            360}, 70%, 50%));">
-                    </div>
-
-                    <!-- Avatar -->
-                    <div
-                        class="character-avatar"
-                        style="background: linear-gradient(135deg, hsl({hue}, 60%, 45%), hsl({(hue +
-                            40) %
-                            360}, 60%, 55%));">
-                        {initials}
-                    </div>
-
-                    <h3 class="character-card-name">
-                        {character.name}
-                    </h3>
-
-                    <div class="character-summary">
-                        {#if character.race || character.class}
-                            <p class="character-card-subtitle">
-                                {#if character.race}{character.race}{/if}
-                                {#if character.race && character.class}•{/if}
-                                {#if character.class}{character.class}{/if}
-                                {#if character.level}
-                                    <span class="character-level">Lv.{character.level}</span>
-                                {/if}
-                            </p>
-                        {/if}
+                {#if isCompactView}
+                    <!-- Compact View -->
+                    <button
+                        class="character-card-compact group"
+                        on:click={() => selectCharacter(character)}>
+                        <div
+                            class="character-avatar-compact"
+                            style="background: linear-gradient(135deg, hsl({hue}, 60%, 45%), hsl({(hue +
+                                40) %
+                                360}, 60%, 55%));">
+                            {initials}
+                        </div>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <h3
+                                class="text-text-primary m-0 truncate text-left text-sm font-semibold">
+                                {character.name}
+                            </h3>
+                            {#if character.race || character.class}
+                                <p class="text-text-muted m-0 truncate text-left text-xs">
+                                    {#if character.race}{character.race}{/if}
+                                    {#if character.race && character.class}
+                                        •
+                                    {/if}
+                                    {#if character.class}{character.class}{/if}
+                                    {#if character.level}
+                                        Lv.{character.level}{/if}
+                                </p>
+                            {/if}
+                        </div>
                         {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
-                            <div class="character-hp-bar">
-                                <div class="hp-bar-label">
-                                    <span>HP</span>
-                                    <span>
-                                        {character.currentHitPoints} / {character.hitPointMaximum}
-                                    </span>
-                                </div>
-                                <div class="hp-bar-track">
+                            <div class="flex items-center gap-2">
+                                <div class="hp-bar-compact">
                                     <div
-                                        class="hp-bar-fill"
+                                        class="hp-bar-fill-compact"
                                         style="width: {Math.min(
                                             100,
                                             (character.currentHitPoints /
@@ -512,28 +649,121 @@
                                               : 'var(--accent-danger)'};">
                                     </div>
                                 </div>
+                                <span class="text-text-muted text-xs whitespace-nowrap">
+                                    {character.currentHitPoints}/{character.hitPointMaximum}
+                                </span>
                             </div>
                         {/if}
-                    </div>
-
-                    {#if character.tags && character.tags.length > 0}
-                        <div class="character-tags">
-                            {#each character.tags as tag}
-                                {@const tagHue =
-                                    tag
-                                        .split("")
-                                        .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360}
-                                <span class="character-tag" style="--tag-hue: {tagHue};">
-                                    {tag}
-                                </span>
-                            {/each}
+                        {#if character.tags && character.tags.length > 0}
+                            <div class="hidden items-center gap-1 sm:flex">
+                                {#each character.tags.slice(0, 2) as tag}
+                                    {@const tagHue =
+                                        tag
+                                            .split("")
+                                            .reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+                                        360}
+                                    <span
+                                        class="character-tag-compact"
+                                        style="--tag-hue: {tagHue};">
+                                        {tag}
+                                    </span>
+                                {/each}
+                                {#if character.tags.length > 2}
+                                    <span class="text-text-muted text-xs">
+                                        +{character.tags.length - 2}
+                                    </span>
+                                {/if}
+                            </div>
+                        {/if}
+                    </button>
+                {:else}
+                    <!-- Card View -->
+                    <button
+                        class="character-card group"
+                        on:click={() => selectCharacter(character)}>
+                        <!-- Accent bar -->
+                        <div
+                            class="character-card-accent"
+                            style="background: linear-gradient(135deg, hsl({hue}, 70%, 50%), hsl({(hue +
+                                40) %
+                                360}, 70%, 50%));">
                         </div>
-                    {/if}
-                </button>
+
+                        <!-- Avatar -->
+                        <div
+                            class="character-avatar"
+                            style="background: linear-gradient(135deg, hsl({hue}, 60%, 45%), hsl({(hue +
+                                40) %
+                                360}, 60%, 55%));">
+                            {initials}
+                        </div>
+
+                        <h3 class="character-card-name">
+                            {character.name}
+                        </h3>
+
+                        <div class="character-summary">
+                            {#if character.race || character.class}
+                                <p class="character-card-subtitle">
+                                    {#if character.race}{character.race}{/if}
+                                    {#if character.race && character.class}•{/if}
+                                    {#if character.class}{character.class}{/if}
+                                    {#if character.level}
+                                        <span class="character-level">Lv.{character.level}</span>
+                                    {/if}
+                                </p>
+                            {/if}
+                            {#if character.currentHitPoints !== undefined && character.hitPointMaximum}
+                                <div class="character-hp-bar">
+                                    <div class="hp-bar-label">
+                                        <span>HP</span>
+                                        <span>
+                                            {character.currentHitPoints} / {character.hitPointMaximum}
+                                        </span>
+                                    </div>
+                                    <div class="hp-bar-track">
+                                        <div
+                                            class="hp-bar-fill"
+                                            style="width: {Math.min(
+                                                100,
+                                                (character.currentHitPoints /
+                                                    character.hitPointMaximum) *
+                                                    100
+                                            )}%; background: {character.currentHitPoints /
+                                                character.hitPointMaximum >
+                                            0.5
+                                                ? 'var(--accent-success)'
+                                                : character.currentHitPoints /
+                                                        character.hitPointMaximum >
+                                                    0.25
+                                                  ? 'var(--accent-warning)'
+                                                  : 'var(--accent-danger)'};">
+                                        </div>
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+
+                        {#if character.tags && character.tags.length > 0}
+                            <div class="character-tags">
+                                {#each character.tags as tag}
+                                    {@const tagHue =
+                                        tag
+                                            .split("")
+                                            .reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+                                        360}
+                                    <span class="character-tag" style="--tag-hue: {tagHue};">
+                                        {tag}
+                                    </span>
+                                {/each}
+                            </div>
+                        {/if}
+                    </button>
+                {/if}
             {/each}
         </div>
     {:else}
-        <div class="px-4 py-12 text-center">
+        <div class="px-4 py-12 pb-24 text-center md:pb-12">
             <p class="my-2">No characters created yet.</p>
             <p class="text-sm italic">
                 Create a character to start tracking their stats and abilities.
@@ -787,6 +1017,97 @@
         width: 100%;
     }
 
+    /* Tag Filter Button Styles */
+    .tag-filter-btn-active {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb, 59, 130, 246), 0.35);
+    }
+
+    .tag-filter-btn-active:hover {
+        background: var(--accent-primary-hover);
+        border-color: var(--accent-primary-hover);
+    }
+
+    /* Compact View Styles */
+    .character-card-compact {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        background: var(--card-bg);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+        font-family: inherit;
+        text-align: left;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border-primary);
+    }
+
+    .character-card-compact:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--accent-primary);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .character-card-compact:active {
+        transform: scale(0.99);
+    }
+
+    .character-avatar-compact {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+        box-shadow:
+            0 2px 6px rgba(0, 0, 0, 0.15),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .hp-bar-compact {
+        width: 60px;
+        height: 6px;
+        background: var(--bg-tertiary);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .hp-bar-fill-compact {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.3s ease;
+    }
+
+    .character-tag-compact {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.125rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.625rem;
+        font-weight: 600;
+        background: hsl(var(--tag-hue), 85%, 95%);
+        color: hsl(var(--tag-hue), 65%, 35%);
+        border: 1px solid hsl(var(--tag-hue), 70%, 85%);
+    }
+
+    :global([data-theme="dark"]) .character-tag-compact {
+        background: hsl(var(--tag-hue), 50%, 20%);
+        color: hsl(var(--tag-hue), 70%, 75%);
+        border-color: hsl(var(--tag-hue), 45%, 30%);
+    }
+
     @media (max-width: 480px) {
         .character-card {
             min-height: 160px;
@@ -799,6 +1120,18 @@
         }
         .character-card-name {
             font-size: 1rem;
+        }
+        .character-card-compact {
+            padding: 0.625rem 0.75rem;
+            gap: 0.5rem;
+        }
+        .character-avatar-compact {
+            width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+        .hp-bar-compact {
+            width: 40px;
         }
     }
 </style>
