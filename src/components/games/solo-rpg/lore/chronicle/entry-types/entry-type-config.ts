@@ -38,10 +38,10 @@ export interface EntryTypeConfig {
 }
 
 const NON_MANUAL_CARD_STYLES =
-    "border border-slate-200 dark:border-zinc-700 rounded-md p-3 my-1 text-sm";
+    "border-l-4 border-[var(--accent-primary)] rounded-lg p-3 my-1";
 
 const MANUAL_CARD_STYLES =
-    "dark:bg-zinc-800 shadow-md hover:shadow-lg transition-shadow border-l-4 border-l-amber-500 rounded-lg p-5 my-1";
+    "dark:bg-zinc-800 rounded-lg p-5 my-1 shadow-md hover:shadow-lg transition-shadow";
 
 /**
  * Registry of all entry types
