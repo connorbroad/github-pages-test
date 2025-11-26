@@ -439,7 +439,7 @@
         {/each}
     </div>
 
-    <div slot="footer" class="relative mb-[calc(70px+env(safe-area-inset-bottom))] pt-2 md:mb-0">
+    <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] pt-2 md:mb-0">
         <div class="flex items-start gap-2">
             <button
                 class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
