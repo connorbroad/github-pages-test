@@ -10,7 +10,9 @@
         "preview": "astro preview",
         "astro": "astro",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@astrojs/check": "0.9.4",
@@ -29,6 +31,7 @@
         "@types/three": "^0.168.0",
         "prettier": "^3.6.2",
         "prettier-plugin-svelte": "^3.4.0",
-        "prettier-plugin-tailwindcss": "^0.7.1"
+        "prettier-plugin-tailwindcss": "^0.7.1",
+        "vitest": "^4.0.14"
     }
 }

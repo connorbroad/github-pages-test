@@ -18,6 +18,7 @@
     import { tick } from "svelte";
     import { fly } from "svelte/transition";
     import { flip } from "svelte/animate";
+    import { shouldShowDateSeparator } from "./chronicle-utils";
 
     const dispatch = createEventDispatcher();
 
@@ -375,11 +376,6 @@
             year: "numeric",
         });
     }
-
-    function getDateKey(timestamp: number): string {
-        const date = new Date(timestamp);
-        return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-    }
 </script>
 
 <SrpgListPage
@@ -437,14 +433,7 @@
         <div bind:this={bottomRef} class="h-1"></div>
         {#each [...entries].reverse() as entry, index (entry.id)}
             {@const reversedEntries = [...entries].reverse()}
-            {@const nextEntry =
-                index < reversedEntries.length - 1 ? reversedEntries[index + 1] : null}
-            {@const currentDateKey = getDateKey(entry.timestamp)}
-            {@const nextDateKey = nextEntry ? getDateKey(nextEntry.timestamp) : null}
-            {@const isFirstEntry = index === 0}
-            {@const isLastEntry = index === reversedEntries.length - 1}
-            {@const showDateSeparator =
-                isFirstEntry || isLastEntry || (nextDateKey && currentDateKey !== nextDateKey)}
+            {@const showDateSeparator = shouldShowDateSeparator(reversedEntries, index)}
 
             <div
                 in:fly={{
