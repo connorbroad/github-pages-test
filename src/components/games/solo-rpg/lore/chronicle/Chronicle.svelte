@@ -36,6 +36,7 @@
     let showOracle = false;
     let showReturnConfirm = false;
     let bottomRef: HTMLElement;
+    let topRef: HTMLElement;
     let chaptersListRef: HTMLElement;
     let isAutoScrolling = false;
 
@@ -76,7 +77,12 @@
             .sort((a, b) => a.timestamp - b.timestamp);
 
         entries = filteredEntries;
-        scrollToBottom();
+
+        if (viewingChapterId === null) {
+            scrollTo(bottomRef);
+        } else {
+            scrollTo(topRef);
+        }
     }
 
     // Check if an entry should animate (created after the animation threshold)
@@ -93,11 +99,11 @@
         }, 350);
     }
 
-    async function scrollToBottom() {
+    async function scrollTo(element: HTMLElement) {
         isAutoScrolling = true;
         await tick();
-        if (bottomRef) {
-            bottomRef.scrollIntoView({ behavior: "smooth" });
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
         }
         setTimeout(() => (isAutoScrolling = false), 500);
     }
@@ -154,7 +160,7 @@
         animateEntriesAfter = Date.now() - 1000; // Animate entries from last second
         loadEntries();
         newEntryText = "";
-        scrollToBottom();
+        scrollTo(bottomRef);
     }
 
     function deleteEntry(entryId: string) {
@@ -437,6 +443,7 @@
                 <p class="my-2">or roll the dice with the Oracle!</p>
             </div>
         {/each}
+        <div bind:this={topRef} class="h-1"></div>
     </div>
 
     <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] pt-2 md:mb-0">
