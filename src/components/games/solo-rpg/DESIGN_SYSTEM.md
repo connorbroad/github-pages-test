@@ -118,6 +118,7 @@ Use the design system classes for **complex, reusable components**:
 | Buttons             | srpg-\* class | `srpg-b srpg-b-normal`         |
 | Forms               | srpg-\* class | `srpg-form-field`              |
 | Modals              | srpg-\* class | `srpg-modal`                   |
+| Sidebar Items       | srpg-\* class | `srpg-sidebar-item`            |
 
 ---
 
@@ -232,6 +233,119 @@ Use the composable `srpg-b-*` button system:
     <button class="srpg-b srpg-b-normal srpg-b-w-full">Option 2</button>
 </div>
 ```
+
+---
+
+## 📱 Sidebar Items
+
+The sidebar uses a consistent component-based styling system. All sidebar buttons use the `.srpg-sidebar-item` class with modifier classes for different states.
+
+### Basic Sidebar Item
+
+```html
+<button class="srpg-sidebar-item" aria-label="Home">
+    <svg class="sidebar-icon" viewBox="0 0 24 24">...</svg>
+    <span class="sidebar-label">Home</span>
+</button>
+```
+
+### Active/Selected State
+
+Use the `.active` class or Svelte's `class:active` directive for **navigation/permanent state**:
+
+```svelte
+<button class="srpg-sidebar-item" class:active={currentView === "home"} aria-label="Home">
+    <svg class="sidebar-icon">...</svg>
+    <span class="sidebar-label">Home</span>
+</button>
+```
+
+Use the `.selected` class for **temporary filtering/selection** (lighter visual treatment):
+
+```svelte
+<button
+    class="srpg-sidebar-item"
+    class:selected={selectedSections.has("abilities")}
+    aria-label="Abilities">
+    <svg class="sidebar-icon">...</svg>
+</button>
+```
+
+**Visual differences:**
+
+- Both `.active` and `.selected` add the same border accent and background
+- `.selected` additionally adds a drop-shadow glow effect to the icon
+- `.active` is for persistent navigation state; `.selected` is for temporary filtering
+
+### Toggleable Items (for edit modes)
+
+For items that can be toggled on/off (like character sheet sections in edit mode):
+
+```svelte
+<button
+    class="srpg-sidebar-item toggleable"
+    class:show-indicator={isEditingSections}
+    class:active={isEditingSections && isVisible}
+    class:toggled-on={isEditingSections && isVisible}
+    class:toggled-off={isEditingSections && !isVisible}
+    class:required={isEditingSections && isRequired}>
+    <svg class="sidebar-icon">...</svg>
+</button>
+```
+
+**Modifier classes:**
+
+- `.toggleable` - Enables toggle indicator dot
+- `.show-indicator` - Makes the indicator dot visible
+- `.toggled-on` - Green indicator, item is enabled
+- `.toggled-off` - Faded appearance (40% opacity), item is disabled
+- `.required` - Amber indicator, item cannot be toggled off
+- `.selected` - Used in view mode for filtering (not edit mode)
+
+### Color Swatches
+
+For color palette items:
+
+```html
+<button class="srpg-sidebar-item" class:active="{isSelected}">
+    <div class="color-swatch" style="background: #ff5500"></div>
+</button>
+
+<!-- Clear/eraser option -->
+<button class="srpg-sidebar-item">
+    <div class="color-swatch clear-pattern"></div>
+</button>
+```
+
+### Tile Previews
+
+For tile/sprite selection:
+
+```html
+<button class="srpg-sidebar-item" class:active="{isSelected}">
+    <div class="tile-preview">
+        <div style="background-image: url(...); ..."></div>
+    </div>
+</button>
+```
+
+### Sidebar Divider
+
+For visual separation between groups:
+
+```html
+<div class="srpg-sidebar-divider"></div>
+```
+
+### Visual States Summary
+
+| State           | Mobile                                    | Desktop                                    |
+| --------------- | ----------------------------------------- | ------------------------------------------ |
+| Default         | Transparent background                    | Transparent background                     |
+| Hover           | `--sidebar-hover` background              | `--sidebar-hover` background               |
+| Active/Selected | `--sidebar-active` bg + top border accent | `--sidebar-active` bg + left border accent |
+| Disabled        | 50% opacity, no cursor                    | 50% opacity, no cursor                     |
+| Toggleable Off  | 40% opacity                               | 40% opacity                                |
 
 ---
 

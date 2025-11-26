@@ -224,14 +224,11 @@
             // In view mode, use for filtering
             if (selectedSections.has(section)) {
                 // Tapping on the same icon again clears the filter (shows all)
-                selectedSections.delete(section);
+                selectedSections = new Set();
             } else {
                 // Switch to only this section
-                selectedSections.clear();
-                selectedSections.add(section);
+                selectedSections = new Set([section]);
             }
-            // Trigger reactivity
-            selectedSections = selectedSections;
         }
 
         // Emit updated state

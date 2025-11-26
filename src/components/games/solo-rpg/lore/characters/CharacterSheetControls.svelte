@@ -27,22 +27,20 @@
 </script>
 
 <div
-    class="mb-0 flex flex-col gap-0 overflow-hidden rounded-none bg-[#2c2c2c] shadow-[0_-2px_5px_rgba(0,0,0,0.1)] md:relative md:top-0 md:right-0 md:bottom-auto md:left-auto md:m-0 md:items-stretch md:justify-start md:border-t-0 md:bg-transparent md:p-0 md:shadow-none">
+    class="bg-sidebar-bg mb-0 flex flex-col gap-0 overflow-hidden rounded-none shadow-[0_-2px_5px_rgba(0,0,0,0.1)] md:relative md:top-0 md:right-0 md:bottom-auto md:left-auto md:m-0 md:items-stretch md:justify-start md:border-t-0 md:bg-transparent md:p-0 md:shadow-none">
     <div
-        class="flex h-[60px] flex-wrap justify-center gap-0 border-t border-[#3a3a3a] bg-[#2c2c2c] p-0 max-[380px]:h-[55px] md:h-auto md:flex-col md:flex-nowrap md:border-none md:bg-transparent md:shadow-none">
+        class="border-sidebar-border bg-sidebar-bg flex h-[60px] flex-wrap justify-center gap-0 border-t p-0 max-[380px]:h-[55px] md:h-auto md:flex-col md:flex-nowrap md:border-none md:bg-transparent md:shadow-none">
         <!-- In edit mode, show all sections. In view mode, show only visible sections -->
         {#each availableSections as section}
             {#if isEditingSections || visibleSections.includes(section.id)}
                 <button
-                    class="group relative flex h-full min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 overflow-visible rounded-none border-t-[3px] border-none border-transparent bg-transparent p-2 shadow-none transition-all duration-200 hover:transform-none hover:border-transparent hover:bg-[#3a3a3a] hover:shadow-none active:transform-none md:h-16 md:w-full md:flex-none md:border-t-0 md:border-l-[3px] md:p-3 md:hover:border-l-transparent md:hover:bg-[#4a4a4a] {isEditingSections
-                        ? visibleSections.includes(section.id)
-                            ? 'border-b-0 border-t-[#4a9eff] bg-[#4a4a4a] pt-[calc(0.5rem-3px)] shadow-none md:border-t-transparent md:border-l-[#4a9eff] md:bg-[#5a5a5a] md:pt-3'
-                            : 'border-solid border-transparent bg-[#2c2c2c] opacity-40 hover:border-transparent hover:bg-[#3a3a3a] hover:opacity-60 md:border-l-transparent md:bg-transparent md:hover:bg-[#4a4a4a]'
-                        : selectedSections.has(section.id)
-                          ? 'border-b-0 border-t-[#4a9eff] bg-[#4a4a4a] pt-[calc(0.5rem-3px)] shadow-none md:border-t-transparent md:border-l-[#4a9eff] md:bg-[#5a5a5a] md:pt-3'
-                          : ''} {isEditingSections && section.id === 'information'
-                        ? 'cursor-default hover:transform-none hover:border-t-[#4a9eff] hover:bg-[#4a4a4a] md:hover:border-l-[#4a9eff] md:hover:bg-[#5a5a5a]'
-                        : ''}"
+                    class="srpg-sidebar-item toggleable"
+                    class:show-indicator={isEditingSections}
+                    class:active={isEditingSections && visibleSections.includes(section.id)}
+                    class:toggled-on={isEditingSections && visibleSections.includes(section.id)}
+                    class:toggled-off={isEditingSections && !visibleSections.includes(section.id)}
+                    class:required={isEditingSections && section.id === "information"}
+                    class:selected={!isEditingSections && selectedSections.has(section.id)}
                     on:click={() => toggleSection(section.id)}
                     title={isEditingSections
                         ? section.id === "information"
@@ -58,13 +56,7 @@
                         : `Toggle ${section.name} section`}>
                     {#if section.icon === "info"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             width="1em"
@@ -73,13 +65,7 @@
                         </svg>
                     {:else if section.icon === "star"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -89,13 +75,7 @@
                         </svg>
                     {:else if section.icon === "heart"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -105,13 +85,7 @@
                         </svg>
                     {:else if section.icon === "ability"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 512 512"
                             width="1em"
@@ -133,13 +107,7 @@
                         </svg>
                     {:else if section.icon === "items"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 14 14"
                             width="1em"
@@ -156,13 +124,7 @@
                         </svg>
                     {:else if section.icon === "combat"}
                         <svg
-                            class="relative z-10 h-5 w-5 shrink-0 text-[#b0b0b0] transition-all duration-200 group-hover:transform-none group-hover:text-white max-[380px]:h-[18px] max-[380px]:w-[18px] md:h-6 md:w-6 {isEditingSections
-                                ? visibleSections.includes(section.id)
-                                    ? 'transform-none text-white'
-                                    : 'text-[#b0b0b0] group-hover:text-[#10b981]'
-                                : selectedSections.has(section.id)
-                                  ? 'transform-none text-white'
-                                  : ''}"
+                            class="sidebar-icon"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             width="1em"
@@ -176,20 +138,8 @@
                                 d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6m-3 3l4 4m-1 1l2-2M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4m-2-1l-3 3m-1-1l2 2" />
                         </svg>
                     {/if}
-
-                    <!-- Edit mode indicator -->
-                    {#if isEditingSections && section.id !== "information"}
-                        <span
-                            class="absolute top-1 right-1 z-20 h-2 w-2 rounded-full border border-[#2c2c2c] bg-[#0c1329] transition-all duration-250 ease-in-out md:h-2.5 md:w-2.5 md:border-[#404040] {visibleSections.includes(
-                                section.id
-                            )
-                                ? 'bg-[#10b981]'
-                                : ''} {section.id === 'information' ? 'bg-[#f59e0b]' : ''}">
-                        </span>
-                    {/if}
                 </button>
             {/if}
         {/each}
     </div>
 </div>
-

@@ -13,7 +13,7 @@
         {#if showActiveCampaign}
             <h4 class="mt-4 mb-4 text-center">{$activeCampaign.title}</h4>
         {/if}
-        <div class="bg-bg-primary sticky top-0 z-10 pb-4 {headerClass}">
+        <div class="bg-bg-primary sticky top-0 z-10 pb-2 {headerClass}">
             <slot name="header" />
         </div>
         <div class="min-h-0 flex-1 overflow-y-auto {contentClass}">

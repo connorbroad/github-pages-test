@@ -1,5 +1,287 @@
 /* Import Theme Variables */
 @import "./theme/theme-variables.css";
+
+/* ============================================
+   SIDEBAR ITEM STYLES
+   Consistent styling for all sidebar items
+   ============================================ */
+
+/* Base sidebar item - used by all sidebar buttons */
+.srpg-sidebar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+
+    min-width: 0;
+    flex: 1;
+    padding: 0.5rem;
+
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-top: 3px solid transparent;
+
+    color: var(--sidebar-text);
+    text-decoration: none;
+
+    transition: all 0.2s ease;
+}
+
+/* Desktop adjustments */
+@media (min-width: 769px) {
+    .srpg-sidebar-item {
+        flex: none;
+        padding: 1rem;
+        border-top: none;
+        border-left: 3px solid transparent;
+    }
+}
+
+/* Scrollable list items - fixed size, don't shrink */
+.srpg-sidebar-item.scrollable-item {
+    flex: none;
+    min-width: 50px;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item.scrollable-item {
+        min-width: auto;
+        width: 100%;
+        min-height: auto;
+    }
+}
+
+/* Sticky/category items - wider on mobile for better touch targets */
+.srpg-sidebar-item.sticky-item {
+    flex: none;
+    min-width: 50px;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item.sticky-item {
+        min-width: auto;
+        width: 100%;
+        min-height: auto;
+    }
+}
+
+/* Hover state */
+.srpg-sidebar-item:hover:not(:disabled) {
+    background-color: var(--sidebar-hover);
+}
+
+/* Active/Selected state */
+.srpg-sidebar-item.active,
+.srpg-sidebar-item[aria-current="true"],
+.srpg-sidebar-item[data-active="true"] {
+    background-color: var(--sidebar-active);
+    border-top-color: var(--accent-primary);
+    padding-top: calc(0.5rem - 3px);
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item.active,
+    .srpg-sidebar-item[aria-current="true"],
+    .srpg-sidebar-item[data-active="true"] {
+        border-top-color: transparent;
+        border-left-color: var(--accent-primary);
+        padding-top: 1rem;
+    }
+}
+
+/* Selected state - for section selection (lighter touch than active) */
+.srpg-sidebar-item.selected,
+.srpg-sidebar-item.toggleable.selected {
+    background-color: var(--sidebar-active);
+    border-top-color: var(--accent-primary);
+    padding-top: calc(0.5rem - 3px);
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item.selected,
+    .srpg-sidebar-item.toggleable.selected {
+        border-top-color: transparent;
+        border-left-color: var(--accent-primary);
+        padding-top: 1rem;
+    }
+}
+
+/* Disabled state */
+.srpg-sidebar-item:disabled {
+    cursor: not-allowed;
+    opacity: var(--disabled-opacity);
+}
+
+/* Toggleable item (can be toggled on/off, shows indicator dot) */
+.srpg-sidebar-item.toggleable {
+    position: relative;
+}
+
+/* Toggle indicator dot */
+.srpg-sidebar-item.toggleable::after {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--text-muted);
+    border: 1px solid var(--sidebar-bg);
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item.toggleable::after {
+        width: 0.625rem;
+        height: 0.625rem;
+    }
+}
+
+/* Show indicator when in edit/toggle mode */
+.srpg-sidebar-item.toggleable.show-indicator::after {
+    opacity: 1;
+}
+
+/* Toggle indicator when item is on */
+.srpg-sidebar-item.toggleable.toggled-on::after {
+    background-color: var(--accent-success);
+}
+
+/* Required/locked indicator (amber) */
+.srpg-sidebar-item.toggleable.required::after {
+    background-color: var(--accent-warning);
+    opacity: 1;
+}
+
+/* Faded state for toggleable items that are off */
+.srpg-sidebar-item.toggleable.toggled-off:not(:hover) {
+    opacity: 0.4;
+}
+
+.srpg-sidebar-item.toggleable.toggled-off:hover {
+    opacity: 0.7;
+}
+
+/* Icon inside sidebar item */
+.srpg-sidebar-item .sidebar-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--sidebar-text-muted, var(--sidebar-text));
+    transition: all 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item .sidebar-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* Icon color when active - use accent color for clear visibility */
+.srpg-sidebar-item.active .sidebar-icon,
+.srpg-sidebar-item[data-active="true"] .sidebar-icon {
+    color: var(--accent-primary);
+}
+
+/* Selected state - stronger visual distinction */
+.srpg-sidebar-item.selected .sidebar-icon,
+.srpg-sidebar-item.toggleable.selected .sidebar-icon {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 3px var(--accent-primary));
+}
+
+/* Icon color when hovered on toggleable off state */
+.srpg-sidebar-item.toggleable.toggled-off:hover .sidebar-icon {
+    color: var(--accent-success);
+}
+
+/* Label inside sidebar item */
+.srpg-sidebar-item .sidebar-label {
+    font-size: 0.7rem;
+    text-align: center;
+    word-break: break-word;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item .sidebar-label {
+        font-size: 0.75rem;
+    }
+}
+
+/* Color swatch for palette items */
+.srpg-sidebar-item .color-swatch {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    border-radius: 0.25rem;
+    border: 2px solid var(--sidebar-border);
+    transition: all 0.2s ease;
+}
+
+/* Color swatch when selected */
+.srpg-sidebar-item.active .color-swatch,
+.srpg-sidebar-item[data-active="true"] .color-swatch {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--sidebar-active);
+}
+
+/* Clear/eraser pattern for color swatch */
+.srpg-sidebar-item .color-swatch.clear-pattern {
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        var(--sidebar-border) 3px,
+        var(--sidebar-border) 6px
+    );
+}
+
+/* Tile preview container */
+.srpg-sidebar-item .tile-preview {
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    border: 1px solid var(--sidebar-border);
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* Sidebar divider */
+.srpg-sidebar-divider {
+    background-color: var(--sidebar-border);
+}
+
+/* Horizontal (mobile) */
+.srpg-sidebar-divider {
+    width: 2px;
+    height: 100%;
+    margin: 0 0.25rem;
+}
+
+/* Vertical (desktop) */
+@media (min-width: 769px) {
+    .srpg-sidebar-divider {
+        width: 100%;
+        height: 2px;
+        margin: 0.5rem 0;
+    }
+}
+
+/* ============================================
+   END SIDEBAR ITEM STYLES
+   ============================================ */
+
 /* Global Theme Application */
 /* Apply theme to any element with data-theme attribute and its descendants */
 [data-theme="light"],

@@ -202,11 +202,11 @@
                     <div
                         class="flex h-full flex-1 flex-row overflow-x-auto md:h-auto md:flex-col md:gap-0 md:overflow-visible">
                         <button
-                            class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200 md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4"
+                            class="srpg-sidebar-item sticky-item"
                             on:click={moveDelete}
                             aria-label="Delete object">
                             <svg
-                                class="h-6 w-6 shrink-0"
+                                class="sidebar-icon"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -217,32 +217,26 @@
                                 <path d="M14 11v6"></path>
                                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                             </svg>
-                            <span class="text-center text-[0.7rem] wrap-break-word md:text-xs">
-                                Delete
-                            </span>
+                            <span class="sidebar-label">Delete</span>
                         </button>
                         <button
-                            class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                       disabled:cursor-not-allowed disabled:opacity-50 md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4"
+                            class="srpg-sidebar-item sticky-item"
                             on:click={moveFlip}
                             aria-label="Flip horizontal"
                             disabled={!moveCanFlip}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
-                                class="h-6 w-6 shrink-0">
+                                class="sidebar-icon">
                                 <path
                                     fill="currentColor"
                                     d="M15 21h2v-2h-2zm4-12h2V7h-2zM3 5v14c0 1.1.9 2 2 2h4v-2H5V5h4V3H5c-1.1 0-2 .9-2 2m16-2v2h2c0-1.1-.9-2-2-2m-8 20h2V1h-2zm8-6h2v-2h-2zM15 5h2V3h-2zm4 8h2v-2h-2zm0 8c1.1 0 2-.9 2-2h-2z" />
                             </svg>
-                            <span class="text-center text-[0.7rem] wrap-break-word md:text-xs">
-                                Flip
-                            </span>
+                            <span class="sidebar-label">Flip</span>
                         </button>
                     </div>
                 </div>
-                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
-                </div>
+                <div class="srpg-sidebar-divider"></div>
                 <div
                     class="h-full flex-1 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto">
                     <div
@@ -250,37 +244,26 @@
                         {#if moveCanFlip}
                             <!-- Provide CLEAR for tile-object tint removal -->
                             <button
-                                class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200 md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                {moveSelectedColor === CLEAR_COLOR
-                                    ? 'bg-sidebar-active  border-accent-primary [&_.color-swatch]:border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4 [&_.color-swatch]:shadow-[0_0_0_2px_var(--sidebar-active)]'
-                                    : ''}"
+                                class="srpg-sidebar-item scrollable-item"
+                                class:active={moveSelectedColor === CLEAR_COLOR}
                                 on:click={() => moveSetColor(CLEAR_COLOR)}
                                 aria-label="Clear tint">
-                                <div
-                                    class="border-sidebar-border color-swatch flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,var(--sidebar-border)_3px,var(--sidebar-border)_6px)]">
-                                </div>
+                                <div class="color-swatch clear-pattern"></div>
                             </button>
                         {/if}
                         {#each palette as c}
                             <button
-                                class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                           md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                           {moveSelectedColor === c
-                                    ? 'bg-sidebar-active  border-accent-primary [&_.color-swatch]:border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4 [&_.color-swatch]:shadow-[0_0_0_2px_var(--sidebar-active)]'
-                                    : ''}"
+                                class="srpg-sidebar-item scrollable-item"
+                                class:active={moveSelectedColor === c}
                                 on:click={() => moveSetColor(c)}
                                 aria-label={c}>
-                                <div
-                                    class="border-sidebar-border color-swatch h-6 w-6 shrink-0 rounded border-2"
-                                    style="background: {c}">
-                                </div>
+                                <div class="color-swatch" style="background: {c}"></div>
                                 <span class="sr-only">{c}</span>
                             </button>
                         {/each}
                     </div>
                 </div>
-                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
-                </div>
+                <div class="srpg-sidebar-divider"></div>
             </nav>
         {:else}
             <!-- Map mode: Sticky category buttons + filtered scrollable options -->
@@ -288,16 +271,11 @@
                 <div class="bg-sidebar-bg sticky top-0 left-0 z-10 flex flex-row md:flex-col">
                     <!-- Tile category button -->
                     <button
-                        class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                   md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                   {activeCategory === 'tile'
-                            ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                            : ''}"
+                        class="srpg-sidebar-item sticky-item"
+                        class:active={activeCategory === "tile"}
                         on:click={() => setCategory("tile")}
                         aria-label="Tile">
-                        <div
-                            class="border-sidebar-border relative h-6 w-6 overflow-hidden rounded border bg-no-repeat [image-rendering:pixelated]"
-                            title="Selected tile">
+                        <div class="tile-preview" title="Selected tile">
                             {#if selectedTile}
                                 {#if tileMaps.length}
                                     {#each tileMaps as tm}
@@ -315,85 +293,55 @@
                                 {/if}
                             {/if}
                         </div>
-                        <span class="text-center text-[0.7rem] wrap-break-word md:text-xs">
-                            Tile
-                        </span>
+                        <span class="sidebar-label">Tile</span>
                     </button>
 
                     {#if isObjectMode}
                         <!-- Shape category button remains available in object mode -->
                         <button
-                            class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                       md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                       {activeCategory === 'shape'
-                                ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                : ''}"
+                            class="srpg-sidebar-item sticky-item"
+                            class:active={activeCategory === "shape"}
                             on:click={() => setCategory("shape")}
                             aria-label="Shape">
                             {#if currentShape === "square"}
-                                <svg
-                                    class="h-6 w-6 shrink-0"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor">
+                                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="currentColor">
                                     <rect x="4" y="4" width="16" height="16"></rect>
                                 </svg>
                             {:else if currentShape === "circle"}
-                                <svg
-                                    class="h-6 w-6 shrink-0"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor">
+                                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="currentColor">
                                     <circle cx="12" cy="12" r="8"></circle>
                                 </svg>
                             {:else if currentShape === "triangle"}
-                                <svg
-                                    class="h-6 w-6 shrink-0"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor">
+                                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 4 4 20 h16 Z"></path>
                                 </svg>
                             {:else}
-                                <svg
-                                    class="h-6 w-6 shrink-0"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor">
+                                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="currentColor">
                                     <polygon
                                         points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10">
                                     </polygon>
                                 </svg>
                             {/if}
-                            <span class="text-center text-[0.7rem] wrap-break-word md:text-xs">
-                                Shape
-                            </span>
+                            <span class="sidebar-label">Shape</span>
                         </button>
                     {/if}
 
                     <!-- Color category (shows selected color/clear) -->
                     <button
-                        class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                   md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                   {activeCategory === 'color'
-                            ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                            : ''}"
+                        class="srpg-sidebar-item sticky-item"
+                        class:active={activeCategory === "color"}
                         on:click={() => setCategory("color")}
                         aria-label="Color">
                         {#if color === CLEAR_COLOR}
-                            <div
-                                class="border-sidebar-border flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,var(--sidebar-border)_3px,var(--sidebar-border)_6px)]">
-                            </div>
+                            <div class="color-swatch clear-pattern"></div>
                         {:else}
-                            <div
-                                class="border-sidebar-border h-6 w-6 shrink-0 rounded border-2"
-                                style="background: {color}">
-                            </div>
+                            <div class="color-swatch" style="background: {color}"></div>
                         {/if}
-                        <span class="text-center text-[0.7rem] wrap-break-word md:text-xs">
-                            Color
-                        </span>
+                        <span class="sidebar-label">Color</span>
                     </button>
                 </div>
 
-                <div class="bg-sidebar-border mx-1 h-full w-0.5 md:mx-0 md:my-2 md:h-0.5 md:w-full">
-                </div>
+                <div class="srpg-sidebar-divider"></div>
 
                 <div
                     class="h-full flex-1 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto">
@@ -401,25 +349,23 @@
                         class="flex h-full flex-1 flex-row overflow-x-auto md:h-auto md:flex-col md:gap-0 md:overflow-visible">
                         {#if activeCategory === "tile"}
                             {#if tileOptions.length === 0}
-                                <em class="-muted p-4 text-center text-sm">No tiles available</em>
+                                <em class="p-4 text-center text-sm text-(--text-muted)">
+                                    No tiles available
+                                </em>
                             {:else}
                                 {#each tileOptions as opt}
                                     <button
-                                        class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                                   md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                                   {selectedTile &&
-                                        selectedTile.tileMapId === opt.tileMapId &&
-                                        selectedTile.tileId === opt.tile.id
-                                            ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                            : ''}"
+                                        class="srpg-sidebar-item scrollable-item"
+                                        class:active={selectedTile &&
+                                            selectedTile.tileMapId === opt.tileMapId &&
+                                            selectedTile.tileId === opt.tile.id}
                                         on:click={() =>
                                             selectTile({
                                                 tileMapId: opt.tileMapId,
                                                 tileId: opt.tile.id,
                                             })}
                                         aria-label={`Tile ${opt.tile.col},${opt.tile.row}`}>
-                                        <div
-                                            class="border-sidebar-border relative h-6 w-6 overflow-hidden rounded border [image-rendering:pixelated]">
+                                        <div class="tile-preview">
                                             <div
                                                 class="absolute top-0 left-0 origin-top-left rounded-none border-none"
                                                 style={`${tilePreviewStyle(opt)} transform: scale(${24 / opt.tile.w}, ${24 / opt.tile.h});`}>
@@ -433,15 +379,12 @@
                             {#if isObjectMode}
                                 <!-- Shapes (only shown when object tool is active) -->
                                 <button
-                                    class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                               md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                               {currentShape === 'square'
-                                        ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                        : ''}"
+                                    class="srpg-sidebar-item scrollable-item"
+                                    class:active={currentShape === "square"}
                                     on:click={() => setShape("square")}
                                     aria-label="Square">
                                     <svg
-                                        class="h-6 w-6 shrink-0"
+                                        class="sidebar-icon"
                                         viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <rect x="4" y="4" width="16" height="16"></rect>
@@ -449,15 +392,12 @@
                                 </button>
 
                                 <button
-                                    class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                               md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                               {currentShape === 'circle'
-                                        ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                        : ''}"
+                                    class="srpg-sidebar-item scrollable-item"
+                                    class:active={currentShape === "circle"}
                                     on:click={() => setShape("circle")}
                                     aria-label="Circle">
                                     <svg
-                                        class="h-6 w-6 shrink-0"
+                                        class="sidebar-icon"
                                         viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <circle cx="12" cy="12" r="8"></circle>
@@ -465,15 +405,12 @@
                                 </button>
 
                                 <button
-                                    class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                               md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                               {currentShape === 'triangle'
-                                        ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                        : ''}"
+                                    class="srpg-sidebar-item scrollable-item"
+                                    class:active={currentShape === "triangle"}
                                     on:click={() => setShape("triangle")}
                                     aria-label="Triangle">
                                     <svg
-                                        class="h-6 w-6 shrink-0"
+                                        class="sidebar-icon"
                                         viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <path d="M12 4 4 20 h16 Z"></path>
@@ -481,15 +418,12 @@
                                 </button>
 
                                 <button
-                                    class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                               md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                               {currentShape === 'star'
-                                        ? 'bg-sidebar-active  border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4'
-                                        : ''}"
+                                    class="srpg-sidebar-item scrollable-item"
+                                    class:active={currentShape === "star"}
                                     on:click={() => setShape("star")}
                                     aria-label="Star">
                                     <svg
-                                        class="h-6 w-6 shrink-0"
+                                        class="sidebar-icon"
                                         viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <polygon
@@ -501,30 +435,19 @@
                         {:else if activeCategory === "color"}
                             <!-- Colors (clear + palette) -->
                             <button
-                                class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                           md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                           {color === CLEAR_COLOR
-                                    ? 'bg-sidebar-active  border-accent-primary [&_.color-swatch]:border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4 [&_.color-swatch]:shadow-[0_0_0_2px_var(--sidebar-active)]'
-                                    : ''}"
+                                class="srpg-sidebar-item scrollable-item"
+                                class:active={color === CLEAR_COLOR}
                                 on:click={() => setColor(CLEAR_COLOR)}
                                 aria-label="Clear">
-                                <div
-                                    class="border-sidebar-border color-swatch flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,var(--sidebar-border)_3px,var(--sidebar-border)_6px)]">
-                                </div>
+                                <div class="color-swatch clear-pattern"></div>
                             </button>
                             {#each palette as c}
                                 <button
-                                    class="hover:bg-sidebar-hover box-border flex h-full min-w-[60px] flex-none cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent p-2 no-underline transition-all duration-200
-                                               md:h-auto md:w-full md:min-w-0 md:flex-none md:p-4
-                                               {color === c
-                                        ? 'bg-sidebar-active  border-accent-primary [&_.color-swatch]:border-accent-primary border-t-3 pt-[calc(0.5rem-3px)] md:border-t-0 md:border-l-3 md:pt-4 [&_.color-swatch]:shadow-[0_0_0_2px_var(--sidebar-active)]'
-                                        : ''}"
+                                    class="srpg-sidebar-item scrollable-item"
+                                    class:active={color === c}
                                     on:click={() => setColor(c)}
                                     aria-label={c}>
-                                    <div
-                                        class="border-sidebar-border color-swatch h-6 w-6 shrink-0 rounded border-2"
-                                        style="background: {c}">
-                                    </div>
+                                    <div class="color-swatch" style="background: {c}"></div>
                                     <span class="sr-only">{c}</span>
                                 </button>
                             {/each}
