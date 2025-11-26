@@ -358,6 +358,28 @@
             minute: "2-digit",
         });
     }
+
+    function formatTime(timestamp: number): string {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    function formatDate(timestamp: number): string {
+        const date = new Date(timestamp);
+        return date.toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+    }
+
+    function getDateKey(timestamp: number): string {
+        const date = new Date(timestamp);
+        return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    }
 </script>
 
 <SrpgListPage
@@ -413,7 +435,15 @@
     <div
         class="chronicle-bg flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary) px-3">
         <div bind:this={bottomRef} class="h-1"></div>
-        {#each [...entries].reverse() as entry (entry.id)}
+        {#each [...entries].reverse() as entry, index (entry.id)}
+            {@const reversedEntries = [...entries].reverse()}
+            {@const prevEntry = index > 0 ? reversedEntries[index - 1] : null}
+            {@const currentDateKey = getDateKey(entry.timestamp)}
+            {@const prevDateKey = prevEntry ? getDateKey(prevEntry.timestamp) : null}
+            {@const isLastEntry = index === reversedEntries.length - 1}
+            {@const showDateSeparator =
+                (prevDateKey && currentDateKey !== prevDateKey) || isLastEntry}
+
             <div
                 in:fly={{
                     y: shouldAnimate(entry) ? 30 : 0,
@@ -421,19 +451,28 @@
                     opacity: shouldAnimate(entry) ? 0 : 1,
                 }}
                 animate:flip={{ duration: 300 }}
-                on:introend={onAnimationEnd}>
+                on:introend={onAnimationEnd}
+                class="flex flex-col gap-2">
                 <EntryCard
                     {entry}
                     characterName={getCharacterName(entry.characterId)}
                     {editingEntryId}
                     bind:editText
-                    {formatTimestamp}
+                    formatTimestamp={formatTime}
                     on:assignCharacter={(e) => assignCharacter(e.detail)}
                     on:edit={(e) =>
                         openEditEntry(e.detail.entryId, e.detail.isManual, e.detail.currentText)}
                     on:delete={(e) => deleteEntry(e.detail)}
                     on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
                     on:cancelEdit={cancelEditEntry} />
+
+                {#if showDateSeparator}
+                    <div class="flex items-center justify-center py-2">
+                        <span class="text-xs font-medium text-(--text-muted)">
+                            {formatDate(prevEntry.timestamp)}
+                        </span>
+                    </div>
+                {/if}
             </div>
         {:else}
             <div
