@@ -110,6 +110,17 @@
         if (campaignId) maps = loadMapsByCampaign(campaignId);
     }
 
+    function updateMap(e: CustomEvent<{ id: string; changes: Partial<MapEntity> }>) {
+        const { id, changes } = e.detail;
+        const all = loadMaps();
+        const idx = all.findIndex((m) => m.id === id);
+        if (idx >= 0) {
+            all[idx] = { ...all[idx], ...changes, updatedAt: Date.now() };
+            saveMaps(all);
+            if (campaignId) maps = loadMapsByCampaign(campaignId);
+        }
+    }
+
     // Editor UI state routed to sidebars
     let tool: "paint" | "object" | "move" = "move";
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
@@ -186,7 +197,8 @@
                 on:createMap={createMap}
                 on:openMap={openMap}
                 on:renameMap={renameMap}
-                on:deleteMap={deleteMap} />
+                on:deleteMap={deleteMap}
+                on:updateMap={updateMap} />
         </div>
         <FloatingOracleButton on:navigateToStory />
     {:else}
@@ -220,7 +232,7 @@
             on:moveFlip={handleMoveFlip}
             on:moveDelete={handleMoveDelete} />
 
-        <div class="relative h-full w-full has-sidebars">
+        <div class="has-sidebars relative h-full w-full">
             <MapEditor
                 bind:this={editorRef}
                 mapId={currentMapId}

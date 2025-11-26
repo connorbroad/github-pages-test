@@ -241,6 +241,7 @@ export type MapEntity = {
     backgroundTileTints?: Record<string, string>;
     objects: MapObject[];
     view?: { x: number; y: number; zoom: number };
+    isFavorite?: boolean;
 };
 
 /**

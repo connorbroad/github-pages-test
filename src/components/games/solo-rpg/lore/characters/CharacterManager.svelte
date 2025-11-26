@@ -507,7 +507,7 @@
                                         fill="currentColor"
                                         d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m4 11h-5V6h2v5h3Z" />
                                 </svg>
-                                Created (Newest)
+                                Created
                             </button>
                             <button
                                 class="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors last:rounded-b-lg {sortBy ===
@@ -528,7 +528,7 @@
                                         fill="currentColor"
                                         d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1a6.875 6.875 0 0 0 0 9.79a7.02 7.02 0 0 0 9.88 0A6.98 6.98 0 0 0 19 12.1h2a9 9 0 0 1-2.64 6.37A8.97 8.97 0 0 1 5.72 5.72a9 9 0 0 1 12.73 0L21 3v7.12M12.5 8v4.25l3.5 2.08l-.72 1.21L11 13V8h1.5Z" />
                                 </svg>
-                                Updated (Recent)
+                                Updated
                             </button>
                         </div>
                     {/if}
