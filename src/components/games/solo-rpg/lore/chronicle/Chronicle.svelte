@@ -437,12 +437,14 @@
         <div bind:this={bottomRef} class="h-1"></div>
         {#each [...entries].reverse() as entry, index (entry.id)}
             {@const reversedEntries = [...entries].reverse()}
-            {@const prevEntry = index > 0 ? reversedEntries[index - 1] : null}
+            {@const nextEntry =
+                index < reversedEntries.length - 1 ? reversedEntries[index + 1] : null}
             {@const currentDateKey = getDateKey(entry.timestamp)}
-            {@const prevDateKey = prevEntry ? getDateKey(prevEntry.timestamp) : null}
+            {@const nextDateKey = nextEntry ? getDateKey(nextEntry.timestamp) : null}
+            {@const isFirstEntry = index === 0}
             {@const isLastEntry = index === reversedEntries.length - 1}
             {@const showDateSeparator =
-                (prevDateKey && currentDateKey !== prevDateKey) || isLastEntry}
+                isFirstEntry || isLastEntry || (nextDateKey && currentDateKey !== nextDateKey)}
 
             <div
                 in:fly={{
@@ -453,6 +455,14 @@
                 animate:flip={{ duration: 300 }}
                 on:introend={onAnimationEnd}
                 class="flex flex-col gap-2">
+                {#if showDateSeparator}
+                    <div class="flex items-center justify-center pt-4 pb-2">
+                        <span class="text-xs font-medium text-(--text-muted)">
+                            {formatDate(entry.timestamp)}
+                        </span>
+                    </div>
+                {/if}
+
                 <EntryCard
                     {entry}
                     characterName={getCharacterName(entry.characterId)}
@@ -465,14 +475,6 @@
                     on:delete={(e) => deleteEntry(e.detail)}
                     on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
                     on:cancelEdit={cancelEditEntry} />
-
-                {#if showDateSeparator}
-                    <div class="flex items-center justify-center py-2">
-                        <span class="text-xs font-medium text-(--text-muted)">
-                            {formatDate(prevEntry.timestamp)}
-                        </span>
-                    </div>
-                {/if}
             </div>
         {:else}
             <div
