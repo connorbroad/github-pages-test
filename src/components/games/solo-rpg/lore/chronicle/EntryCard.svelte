@@ -47,7 +47,7 @@
     }
 </script>
 
-<div class="{typeConfig.cardClass} shadow-2xl">
+<div class={typeConfig.cardClass}>
     <div class="mb-2 flex items-center justify-between border-b border-(--border-primary) pb-2">
         <span class="text-xs font-semibold tracking-wide text-(--text-secondary) uppercase">
             {typeConfig.icon}

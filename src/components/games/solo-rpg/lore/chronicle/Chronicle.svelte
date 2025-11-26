@@ -411,7 +411,7 @@
     {/if}
 
     <div
-        class="flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary)">
+        class="chronicle-bg flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary) px-3">
         <div bind:this={bottomRef} class="h-1"></div>
         {#each [...entries].reverse() as entry (entry.id)}
             <div
