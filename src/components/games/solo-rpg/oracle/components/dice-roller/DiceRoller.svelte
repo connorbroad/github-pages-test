@@ -170,7 +170,7 @@
                 <div
                     class="border-border-primary bg-bg-secondary flex flex-row justify-between gap-0 overflow-hidden rounded-xl border">
                     <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Sum">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -181,12 +181,13 @@
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
                             on:change={recalculateResult} />
-                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
+                        <span
+                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Sum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Maximum">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -197,12 +198,13 @@
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
                             on:change={recalculateResult} />
-                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
+                        <span
+                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Maximum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Minimum">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -213,12 +215,13 @@
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
                             on:change={recalculateResult} />
-                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
+                        <span
+                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Minimum" size="1em" />
                         </span>
                     </label>
                     <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Subtract">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -229,7 +232,8 @@
                                 (numDice == 1 && diceResults.length == 1)}
                             bind:group={resultOption}
                             on:change={recalculateResult} />
-                        <span class="m-0 h-[30px] text-[1.4rem] group-has-disabled:opacity-60">
+                        <span
+                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Subtract" size="1em" />
                         </span>
                     </label>
@@ -238,13 +242,13 @@
         </div>
         <div class="mb-4 flex flex-wrap items-center justify-center gap-4" transition:slide>
             <button
-                class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                class="border-border-primary bg-accent-primary text-text-inverse hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
                 on:click={onRollButtonClick}>
                 Roll
             </button>
             <button
                 id="take-result-button"
-                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active relative mt-0 mb-0 flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border p-0 px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active relative mt-0 mb-0 flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border p-0 px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                 on:click={onClickTakeResult}
                 disabled={diceResults.length === 0 || finalResult === null || rolling}>
                 {#if diceResults.length > 1 && !rolling}
