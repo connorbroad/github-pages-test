@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
-    export type OracleView = "oracle" | "dice" | "cards";
-    let lastView: OracleView = "dice";
+    export type OracleTabView = "oracle" | "dice" | "cards";
+    let lastView: OracleTabView = "dice";
 </script>
 
 <script lang="ts">
@@ -15,9 +15,9 @@
     import type { FortuneResultData } from "../data/storage-utils";
     import { activeCampaign } from "../game-management/campaign-store";
     import { onMount, createEventDispatcher } from "svelte";
-    import FortuneList from "./components/FortuneList.svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
     import FateConsultation from "./components/FateConsultation.svelte";
+    import OracleView from "./components/OracleView.svelte";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId, type Fortune } from "./scripts/oracleTypes";
 
@@ -48,13 +48,13 @@
     let selectedFortune: Fortune | null = null;
 
     // Persist view selection
-    function updateLastView(v: OracleView) {
+    function updateLastView(v: OracleTabView) {
         lastView = v;
     }
     $: updateLastView(view);
 
     // View state for in-modal navigation
-    let view: OracleView = lastView;
+    let view: OracleTabView = lastView;
 
     // Track the currently displayed character in the selector
     let currentDisplayedCharacterId: string | null = null;
@@ -256,7 +256,7 @@
         dispatch("close");
     }
 
-    function go(viewName: OracleView) {
+    function go(viewName: OracleTabView) {
         view = viewName;
     }
 </script>
@@ -361,95 +361,15 @@
             <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
             {#if view === "oracle"}
-                <div class="flex flex-col gap-5">
-                    <!-- Default Fortunes Section -->
-                    {#if defaultFortunes.length > 0}
-                        <section class="oracle-section">
-                            <h2 class="oracle-section-title">Fortunes</h2>
-                            <div class="oracle-fortune-list">
-                                <FortuneList
-                                    fortunes={defaultFortunes}
-                                    allowReorder={false}
-                                    allowDelete={false}
-                                    on:consultFate={(e) => openFate(e.detail)}
-                                    on:delete={(e) => deleteFortune(e.detail)}
-                                    on:reorder={handleReorder} />
-                            </div>
-                        </section>
-                    {/if}
-
-                    <!-- Campaign Fortunes Section -->
-                    <section class="oracle-section">
-                        <div class="mb-3 flex items-center justify-between gap-3">
-                            <h2 class="oracle-section-title mb-0">Campaign Fortunes</h2>
-                            <button
-                                class="srpg-b srpg-b-simple srpg-b-sm"
-                                on:click={() => (editMode = !editMode)}
-                                aria-label={editMode ? "Exit edit mode" : "Enter edit mode"}>
-                                {#if editMode}
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        width="16"
-                                        height="16"
-                                        aria-hidden="true"
-                                        class="shrink-0">
-                                        <path
-                                            fill="currentColor"
-                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                                    </svg>
-                                    <span>Done</span>
-                                {:else}
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        width="16"
-                                        height="16"
-                                        aria-hidden="true"
-                                        class="shrink-0">
-                                        <path
-                                            fill="currentColor"
-                                            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                    </svg>
-                                    <span>Edit</span>
-                                {/if}
-                            </button>
-                        </div>
-
-                        <button
-                            class="srpg-b srpg-b-create srpg-b-w-full"
-                            on:click={openCreateFortune}>
-                            <svg
-                                viewBox="0 0 24 24"
-                                width="18"
-                                height="18"
-                                fill="none"
-                                aria-hidden="true"
-                                class="shrink-0">
-                                <path
-                                    d="M12 5v14M5 12h14"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round" />
-                            </svg>
-                            Create Campaign Fortune
-                        </button>
-
-                        {#if customFortunes.length > 0}
-                            <div class="oracle-fortune-list mt-3">
-                                <FortuneList
-                                    fortunes={customFortunes}
-                                    allowReorder={editMode}
-                                    allowDelete={editMode}
-                                    on:consultFate={(e) => openFate(e.detail)}
-                                    on:delete={(e) => deleteFortune(e.detail)}
-                                    on:reorder={handleReorder} />
-                            </div>
-                        {:else}
-                            <p class="mt-3 mb-0 text-center text-sm text-(--text-muted) italic">
-                                No campaign fortunes yet. Create one above!
-                            </p>
-                        {/if}
-                    </section>
-                </div>
+                <OracleView
+                    {defaultFortunes}
+                    {customFortunes}
+                    {editMode}
+                    on:consultFate={(e) => openFate(e.detail)}
+                    on:delete={(e) => deleteFortune(e.detail)}
+                    on:reorder={handleReorder}
+                    on:createFortune={openCreateFortune}
+                    on:toggleEditMode={() => (editMode = !editMode)} />
             {:else if view === "dice"}
                 <DiceRoller
                     embedded={true}
@@ -519,30 +439,5 @@
         background: var(--accent-primary);
         color: white;
         box-shadow: 0 2px 8px var(--shadow-md);
-    }
-
-    /* Oracle Sections */
-    .oracle-section {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .oracle-section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0 0 0.75rem 0;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--border-primary);
-    }
-
-    /* Fortune List Container */
-    .oracle-fortune-list {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 10px;
-        padding: 0.5rem;
-        max-height: 280px;
-        overflow-y: auto;
     }
 </style>

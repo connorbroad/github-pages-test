@@ -119,6 +119,8 @@ Use the design system classes for **complex, reusable components**:
 | Forms               | srpg-\* class | `srpg-form-field`              |
 | Modals              | srpg-\* class | `srpg-modal`                   |
 | Sidebar Items       | srpg-\* class | `srpg-sidebar-item`            |
+| Collapsible Section | srpg-\* class | `srpg-collapsible-section`     |
+| Empty States        | srpg-\* class | `srpg-empty-state`             |
 
 ---
 
@@ -383,7 +385,103 @@ For visual separation between groups:
 
 ---
 
-## 📝 Forms
+## � Collapsible Sections
+
+For mobile-friendly sections that can expand/collapse to save space. Useful for grouping related content that users may not need to see all at once.
+
+### Basic Collapsible Section
+
+```svelte
+<section class="srpg-collapsible-section">
+    <button
+        class="srpg-collapsible-header"
+        class:expanded={isExpanded}
+        on:click={() => (isExpanded = !isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls="section-content">
+        <h2 class="srpg-collapsible-title">Section Title</h2>
+        <span class="srpg-collapsible-count">5</span>
+        <svg
+            class="srpg-collapsible-chevron"
+            class:rotated={isExpanded}
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            aria-hidden="true">
+            <path
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+    </button>
+
+    {#if isExpanded}
+        <div id="section-content" class="srpg-collapsible-content">
+            <!-- Content here -->
+        </div>
+    {/if}
+</section>
+```
+
+### Collapsible Section Elements
+
+| Class                               | Purpose                                           |
+| ----------------------------------- | ------------------------------------------------- |
+| `.srpg-collapsible-section`         | Container with card styling (bg, border, rounded) |
+| `.srpg-collapsible-header`          | Clickable header button with hover state          |
+| `.srpg-collapsible-header.expanded` | Adds bottom border when section is open           |
+| `.srpg-collapsible-title`           | Section heading (h2) styled for inline display    |
+| `.srpg-collapsible-count`           | Badge showing item count (pill-shaped)            |
+| `.srpg-collapsible-chevron`         | Chevron icon for expand/collapse indication       |
+| `.srpg-collapsible-chevron.rotated` | Rotates chevron 180° when expanded                |
+| `.srpg-collapsible-content`         | Content container with padding                    |
+
+### Accessibility Notes
+
+- Always use `aria-expanded` on the header button
+- Use `aria-controls` to link header to content region
+- Content should have a matching `id`
+
+---
+
+## 🔲 Empty States
+
+For displaying helpful messages when a list or section has no content.
+
+### Basic Empty State
+
+```html
+<div class="srpg-empty-state">
+    <svg
+        class="srpg-empty-state-icon"
+        viewBox="0 0 24 24"
+        width="32"
+        height="32"
+        fill="none"
+        aria-hidden="true"
+    >
+        <!-- Icon SVG path -->
+    </svg>
+    <p class="srpg-empty-state-text">No items yet</p>
+    <p class="srpg-empty-state-hint">Create one to get started!</p>
+</div>
+```
+
+### Empty State Elements
+
+| Class                    | Purpose                                 |
+| ------------------------ | --------------------------------------- |
+| `.srpg-empty-state`      | Centered flex container with padding    |
+| `.srpg-empty-state-icon` | Muted, semi-transparent icon            |
+| `.srpg-empty-state-text` | Main message (medium weight, secondary) |
+| `.srpg-empty-state-hint` | Smaller hint text (muted color)         |
+
+---
+
+## �📝 Forms
 
 ### Form Structure
 
