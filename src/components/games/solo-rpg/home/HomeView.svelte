@@ -1,8 +1,6 @@
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
-    import GameBlueprintEditor from "../game-management/GameBlueprintEditor.svelte";
-    import CampaignCreator from "../game-management/CampaignCreator.svelte";
     import CampaignLoadConfirm from "../game-management/CampaignLoadConfirm.svelte";
     import {
         loadGameBlueprints,
@@ -142,10 +140,10 @@
 </script>
 
 <SrpgListPage showActiveCampaign={false}>
-    <div slot="header">
+    <div slot="header" class="mb-4 text-center">
         <h1>Solo RPG</h1>
     </div>
-    <div class="mx-auto max-w-[800px] pb-[calc(90px+env(safe-area-inset-bottom))]">
+    <div class="mx-auto max-w-[800px] px-2 pb-[calc(90px+env(safe-area-inset-bottom))]">
         <p class="mb-8 text-center text-[1.1rem] text-(--text-secondary)">
             Welcome to your Solo RPG companion!
         </p>

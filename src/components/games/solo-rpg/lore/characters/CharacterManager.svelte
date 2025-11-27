@@ -353,7 +353,7 @@
 </script>
 
 <SrpgListPage className="character-manager">
-    <div slot="header">
+    <div slot="header" class="px-2">
         {#if selectedCharacter && !isEditing}
             <div
                 class="mb-2 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4">
@@ -600,7 +600,7 @@
             on:rollCheck={handleRollCheck} />
     {:else if filteredCharacters.length > 0}
         <div
-            class="{isCompactView
+            class="px-2 {isCompactView
                 ? 'flex flex-col gap-2'
                 : 'grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4'} py-2 pb-24 md:pb-4">
             {#each filteredCharacters as character}
