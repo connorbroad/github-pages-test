@@ -242,7 +242,7 @@
         </div>
         <div class="mb-4 flex flex-wrap items-center justify-center gap-4" transition:slide>
             <button
-                class="border-border-primary bg-accent-primary text-text-inverse hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                class="border-border-primary bg-accent-primary text-text-primary hover:bg-bg-tertiary active:bg-bg-secondary-active flex w-lg cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
                 on:click={onRollButtonClick}>
                 Roll
             </button>
@@ -260,7 +260,7 @@
                         </span>
                     </div>
                 {/if}
-                <p class="m-0 inline-flex items-center justify-center gap-2 text-[1.2rem]">
+                <p class="m-0 inline-flex items-center justify-center gap-2">
                     Record fate: {rolling ? "..." : finalResult || "..."}
                 </p>
                 {#if diceResults.length > 1 && !rolling}

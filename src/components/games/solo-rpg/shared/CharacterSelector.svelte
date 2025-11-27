@@ -130,7 +130,7 @@
     $: currentDisplayedCharacterId = activeCharacterId;
 </script>
 
-<div class="relative w-full max-w-[300px] sm:max-w-full md:max-w-[350px]">
+<div class="relative w-full sm:max-w-full md:max-w-[350px]">
     <button
         class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-2 p-2.5 text-[0.9375rem] font-medium shadow-sm transition-all duration-200 hover:shadow-[0_2px_6px_rgba(59,130,246,0.15)] active:scale-95 sm:min-h-11 sm:text-sm {isUsingPreselection
             ? 'border-accent-info hover:border-accent-primary bg-[linear-gradient(135deg,var(--card-bg)_0%,rgba(59,130,246,0.05)_100%)] shadow-[0_2px_6px_rgba(59,130,246,0.2)] hover:shadow-[0_2px_8px_rgba(59,130,246,0.25)]'
