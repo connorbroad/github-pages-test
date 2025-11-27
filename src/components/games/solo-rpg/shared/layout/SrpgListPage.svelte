@@ -8,7 +8,7 @@
 </script>
 
 <div
-    class="mx-auto flex h-dvh min-h-0 max-w-[1200px] flex-1 flex-col overflow-y-auto p-4 pb-[calc(70px+env(safe-area-inset-bottom)+1rem)] md:h-screen md:pb-4">
+    class="mx-auto flex h-dvh min-h-0 max-w-[1200px] flex-1 flex-col overflow-y-auto py-4 pb-[calc(70px+env(safe-area-inset-bottom)+1rem)] md:h-screen md:pb-4">
     <div class="flex min-h-0 flex-1 flex-col {className}">
         {#if showActiveCampaign}
             <h4 class="mt-4 mb-4 text-center">{$activeCampaign.title}</h4>
