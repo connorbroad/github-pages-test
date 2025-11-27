@@ -561,6 +561,48 @@ style="background: black"
 padding: 7px 13px;  /* Use rem-based values */
 ```
 
+```html
+<!-- ❌ Don't use emoji icons -->
+<button>🎲 Roll Dice</button>
+<span>✕</span>
+
+<!-- ✅ Use SVG icons instead -->
+<button>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+        <!-- dice icon path -->
+    </svg>
+    Roll Dice
+</button>
+```
+
+---
+
+## 🎨 Icons
+
+**Always use SVG icons** — never use emoji characters for icons:
+
+- SVG icons scale properly and look crisp at all sizes
+- SVG icons can be styled with CSS (color, size, stroke-width)
+- SVG icons are more accessible with proper `aria-hidden="true"` attributes
+- Emoji rendering varies across platforms and can look inconsistent
+
+### Icon Sizing
+
+| Context         | Size                       |
+| --------------- | -------------------------- |
+| Small buttons   | `width="16"` `height="16"` |
+| Default buttons | `width="18"` `height="18"` |
+| Large buttons   | `width="20"` `height="20"` |
+| Sidebar icons   | `width="24"` `height="24"` |
+
+### Icon Styling
+
+```html
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" class="shrink-0">
+    <path stroke="currentColor" stroke-width="2" d="..." />
+</svg>
+```
+
 ---
 
 ## 💡 Tips for AI Assistants

@@ -261,107 +261,112 @@
     }
 </script>
 
-<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="400px" on:close={handleClose}>
-    <div class="flex flex-col gap-3">
-        <!-- Sticky utility header -->
-        <div
-            class="bg-bg-primary border-border-primary sticky top-0 z-2 grid grid-cols-1 gap-3 rounded-2xl border-b p-2">
-            <div class="flex min-w-[150px] justify-center">
+<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="420px" on:close={handleClose}>
+    <div class="flex flex-col gap-4">
+        <!-- Header with character selector and navigation -->
+        <div class="flex flex-col gap-3">
+            <!-- Character Selector -->
+            <div class="flex justify-center">
                 <CharacterSelector {preselectedCharacterId} bind:currentDisplayedCharacterId />
             </div>
-            <nav class="grid grid-cols-3 gap-2" aria-label="Oracle navigation">
+
+            <!-- Navigation Tabs -->
+            <nav class="oracle-nav" aria-label="Oracle navigation">
                 <button
-                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
-                    'oracle'
-                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
-                        : ''}"
+                    class="oracle-nav-tab"
+                    class:active={view === "oracle"}
                     on:click={() => go("oracle")}
-                    aria-label="Oracle">
-                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
-                        <!-- Crystal ball icon -->
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                            <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2" />
-                            <path
-                                d="M6 18h12"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round" />
-                            <path
-                                d="M8.5 6.5c.6-1 1.7-1.7 3-1.9"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round" />
-                        </svg>
-                    </span>
-                    <span class="text-[0.95rem]">Oracle</span>
+                    aria-label="Oracle"
+                    aria-current={view === "oracle" ? "page" : undefined}>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        aria-hidden="true"
+                        class="shrink-0">
+                        <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2" />
+                        <path
+                            d="M6 18h12"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round" />
+                        <path
+                            d="M8.5 6.5c.6-1 1.7-1.7 3-1.9"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span>Oracle</span>
                 </button>
                 <button
-                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
-                    'dice'
-                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
-                        : ''}"
+                    class="oracle-nav-tab"
+                    class:active={view === "dice"}
                     on:click={() => go("dice")}
-                    aria-label="Dice Roller">
-                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
-                        <!-- Dice icon -->
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                            <rect
-                                x="4"
-                                y="4"
-                                width="16"
-                                height="16"
-                                rx="3"
-                                stroke="currentColor"
-                                stroke-width="2" />
-                            <circle cx="9" cy="9" r="1.5" fill="currentColor" />
-                            <circle cx="15" cy="15" r="1.5" fill="currentColor" />
-                        </svg>
-                    </span>
-                    <span class="text-[0.95rem]">Dice</span>
+                    aria-label="Dice Roller"
+                    aria-current={view === "dice" ? "page" : undefined}>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        aria-hidden="true"
+                        class="shrink-0">
+                        <rect
+                            x="4"
+                            y="4"
+                            width="16"
+                            height="16"
+                            rx="3"
+                            stroke="currentColor"
+                            stroke-width="2" />
+                        <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+                        <circle cx="15" cy="15" r="1.5" fill="currentColor" />
+                    </svg>
+                    <span>Dice</span>
                 </button>
                 <button
-                    class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary focus-visible:ring-shadow-md focus-visible:border-accent-primary inline-flex items-center justify-center gap-2 rounded-[10px] border px-[0.8rem] py-[0.55rem] font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:translate-y-px {view ===
-                    'cards'
-                        ? 'bg-accent-primary text-text-inverse border-accent-primary shadow-md'
-                        : ''}"
+                    class="oracle-nav-tab"
+                    class:active={view === "cards"}
                     on:click={() => go("cards")}
-                    aria-label="Card Dealer">
-                    <span class="inline-flex text-[1.1rem] leading-none" aria-hidden="true">
-                        <!-- Card icon -->
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                            <rect
-                                x="6"
-                                y="4"
-                                width="12"
-                                height="16"
-                                rx="2"
-                                stroke="currentColor"
-                                stroke-width="2" />
-                            <path
-                                d="M12 9.5c-1.2-1.4-3-.5-3 .9 0 1.6 1.9 2.7 3 4 1.1-1.3 3-2.4 3-4 0-1.4-1.8-2.3-3-.9z"
-                                fill="currentColor" />
-                        </svg>
-                    </span>
-                    <span class="text-[0.95rem]">Cards</span>
+                    aria-label="Card Dealer"
+                    aria-current={view === "cards" ? "page" : undefined}>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        aria-hidden="true"
+                        class="shrink-0">
+                        <rect
+                            x="6"
+                            y="4"
+                            width="12"
+                            height="16"
+                            rx="2"
+                            stroke="currentColor"
+                            stroke-width="2" />
+                        <path
+                            d="M12 9.5c-1.2-1.4-3-.5-3 .9 0 1.6 1.9 2.7 3 4 1.1-1.3 3-2.4 3-4 0-1.4-1.8-2.3-3-.9z"
+                            fill="currentColor" />
+                    </svg>
+                    <span>Cards</span>
                 </button>
             </nav>
         </div>
 
-        <!-- Scrollable body -->
-        <div class="max-h-[70vh] overflow-y-auto p-0 px-2 pb-2 md:max-h-[60vh]">
-            <!-- No campaign overlay always visible at top of body -->
+        <!-- Content Area -->
+        <div class="max-h-[65vh] overflow-y-auto">
+            <!-- No campaign overlay -->
             <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
 
             {#if view === "oracle"}
-                <div class="w-full">
+                <div class="flex flex-col gap-5">
+                    <!-- Default Fortunes Section -->
                     {#if defaultFortunes.length > 0}
-                        <section class="mb-5">
-                            <h2
-                                class="text-text-primary border-border-primary m-0 flex-1 border-b-2 pb-1 text-xl font-bold">
-                                Fortunes
-                            </h2>
-                            <div
-                                class="border-border-primary bg-card-bg max-h-112 overflow-auto rounded-xl border p-1">
+                        <section class="oracle-section">
+                            <h2 class="oracle-section-title">Fortunes</h2>
+                            <div class="oracle-fortune-list">
                                 <FortuneList
                                     fortunes={defaultFortunes}
                                     allowReorder={false}
@@ -373,22 +378,19 @@
                         </section>
                     {/if}
 
-                    <section class="mb-5">
-                        <div class="mb-2 flex items-center justify-between gap-3">
-                            <h2
-                                class="text-text-primary border-border-primary m-0 flex-1 border-b-2 pb-1 text-xl font-bold">
-                                Campaign Fortunes
-                            </h2>
+                    <!-- Campaign Fortunes Section -->
+                    <section class="oracle-section">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <h2 class="oracle-section-title mb-0">Campaign Fortunes</h2>
                             <button
-                                class="border-border-primary bg-bg-secondary text-text-primary hover:bg-bg-tertiary hover:border-border-secondary inline-flex cursor-pointer items-center gap-[0.4rem] rounded-lg border px-[0.65rem] py-[0.4rem] text-[0.9rem] font-medium transition-all duration-200 active:translate-y-px"
+                                class="srpg-b srpg-b-simple srpg-b-sm"
                                 on:click={() => (editMode = !editMode)}
                                 aria-label={editMode ? "Exit edit mode" : "Enter edit mode"}>
                                 {#if editMode}
-                                    <!-- Done/Check icon -->
                                     <svg
                                         viewBox="0 0 24 24"
-                                        width="18"
-                                        height="18"
+                                        width="16"
+                                        height="16"
                                         aria-hidden="true"
                                         class="shrink-0">
                                         <path
@@ -397,11 +399,10 @@
                                     </svg>
                                     <span>Done</span>
                                 {:else}
-                                    <!-- Edit/Pencil icon -->
                                     <svg
                                         viewBox="0 0 24 24"
-                                        width="18"
-                                        height="18"
+                                        width="16"
+                                        height="16"
                                         aria-hidden="true"
                                         class="shrink-0">
                                         <path
@@ -412,14 +413,28 @@
                                 {/if}
                             </button>
                         </div>
+
                         <button
-                            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-[300px] cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                            class="srpg-b srpg-b-create srpg-b-w-full"
                             on:click={openCreateFortune}>
-                            + Create Campaign Fortune
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                aria-hidden="true"
+                                class="shrink-0">
+                                <path
+                                    d="M12 5v14M5 12h14"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Create Campaign Fortune
                         </button>
+
                         {#if customFortunes.length > 0}
-                            <div
-                                class="border-border-primary bg-card-bg max-h-112 overflow-auto rounded-xl border p-1">
+                            <div class="oracle-fortune-list mt-3">
                                 <FortuneList
                                     fortunes={customFortunes}
                                     allowReorder={editMode}
@@ -429,33 +444,29 @@
                                     on:reorder={handleReorder} />
                             </div>
                         {:else}
-                            <p class="bg-bg-secondary mt-2 mb-0 rounded-lg p-4 italic">
-                                No campaign fortunes yet. Click the button above to create one.
+                            <p class="mt-3 mb-0 text-center text-sm text-(--text-muted) italic">
+                                No campaign fortunes yet. Create one above!
                             </p>
                         {/if}
                     </section>
                 </div>
             {:else if view === "dice"}
-                <div class="flex flex-col gap-3">
-                    <DiceRoller
-                        embedded={true}
-                        onClose={() => {
-                            /* noop in embedded */
-                        }}
-                        on:recordFate={handleDiceRecordFate}
-                        preset={diceRollPreset}
-                        on:clearPreset={() => dispatch("clearPreset")} />
-                </div>
+                <DiceRoller
+                    embedded={true}
+                    onClose={() => {
+                        /* noop in embedded */
+                    }}
+                    on:recordFate={handleDiceRecordFate}
+                    preset={diceRollPreset}
+                    on:clearPreset={() => dispatch("clearPreset")} />
             {:else if view === "cards"}
-                <div class="flex flex-col gap-3">
-                    <CardDealer embedded={true} on:recordFate={handleCardsRecordFate} />
-                </div>
+                <CardDealer embedded={true} on:recordFate={handleCardsRecordFate} />
             {/if}
         </div>
     </div>
 </SrpgModal>
 
-<!-- Modals kept as-is for editor and fate consultation -->
+<!-- Modals for editor and fate consultation -->
 <FortuneEditor
     show={showCreateFortune}
     fortune={editingFortune}
@@ -468,3 +479,70 @@
     fortune={selectedFortune}
     on:close={() => (showFate = false)}
     on:accept={handleAcceptFate} />
+
+<style>
+    /* Oracle Navigation Tabs */
+    .oracle-nav {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        background: var(--bg-secondary);
+        padding: 0.375rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-primary);
+    }
+
+    .oracle-nav-tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 0.75rem;
+
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .oracle-nav-tab:hover:not(.active) {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+
+    .oracle-nav-tab.active {
+        background: var(--accent-primary);
+        color: white;
+        box-shadow: 0 2px 8px var(--shadow-md);
+    }
+
+    /* Oracle Sections */
+    .oracle-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .oracle-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.75rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border-primary);
+    }
+
+    /* Fortune List Container */
+    .oracle-fortune-list {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 0.5rem;
+        max-height: 280px;
+        overflow-y: auto;
+    }
+</style>
