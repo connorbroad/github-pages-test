@@ -429,7 +429,7 @@
     {/if}
 
     <div
-        class="chronicle-bg flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary) px-3">
+        class="chronicle-bg flex h-full flex-col-reverse gap-2 overflow-y-auto border-t border-b border-(--border-primary)">
         <div bind:this={bottomRef} class="h-1"></div>
         {#each [...entries].reverse() as entry, index (entry.id)}
             {@const reversedEntries = [...entries].reverse()}

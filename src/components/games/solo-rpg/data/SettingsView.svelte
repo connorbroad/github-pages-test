@@ -8,7 +8,7 @@
 
 <SrpgListPage className="settings" showActiveCampaign={false}>
     <div slot="header">
-        <h2 class="mb-4 text-center text-2xl">Settings</h2>
+        <h1 class="mb-4 text-center">Settings</h1>
     </div>
 
     <div class="px-2">

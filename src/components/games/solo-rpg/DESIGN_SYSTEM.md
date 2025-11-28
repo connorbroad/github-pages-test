@@ -10,7 +10,170 @@
 
 ---
 
-## 🔀 Hybrid Styling System
+## 🔀 Hybrid| Class | Purpose |
+
+| ------------------------ | --------------------------------------- |
+| `.srpg-empty-state` | Centered flex container with padding |
+| `.srpg-empty-state-icon` | Muted, semi-transparent icon |
+| `.srpg-empty-state-text` | Main message (medium weight, secondary) |
+| `.srpg-empty-state-hint` | Smaller hint text (muted color) |
+
+---
+
+## 📝 Note View
+
+For displaying and editing notes/entries in detail views (like Codex entries).
+
+### Note View Structure
+
+```svelte
+<div class="srpg-note-view">
+    <div class="srpg-note-header">
+        <div class="srpg-note-meta-row">
+            <span class="srpg-badge">
+                <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="currentColor"
+                    aria-hidden="true">
+                    <!-- category icon -->
+                </svg>
+                Category
+            </span>
+            <span class="srpg-badge srpg-badge-info">Subcategory</span>
+        </div>
+
+        <!-- Display mode -->
+        <h1 class="srpg-note-title">Note Title</h1>
+
+        <!-- Edit mode -->
+        <input type="text" class="srpg-note-title-input" value="Note Title" />
+
+        <div class="srpg-note-dates">
+            <span>Created: Jan 15, 2025</span>
+            <span>Updated: Jan 20, 2025</span>
+        </div>
+    </div>
+
+    <div class="srpg-note-content">
+        <!-- Display mode -->
+        <div class="srpg-note-display">Note content goes here...</div>
+
+        <!-- Edit mode -->
+        <textarea class="srpg-textarea" placeholder="Write your notes here..."></textarea>
+    </div>
+</div>
+```
+
+### Note View Elements
+
+| Class                    | Purpose                                   |
+| ------------------------ | ----------------------------------------- |
+| `.srpg-note-view`        | Main container with flex column layout    |
+| `.srpg-note-header`      | Header section with metadata and title    |
+| `.srpg-note-meta-row`    | Flex row for badges/tags                  |
+| `.srpg-note-title`       | Display-mode title (h1 styled)            |
+| `.srpg-note-title-input` | Edit-mode title input field               |
+| `.srpg-note-dates`       | Muted timestamp display                   |
+| `.srpg-note-content`     | Content container                         |
+| `.srpg-note-display`     | Read-only content display with background |
+
+---
+
+## 📋 Nested Lists
+
+For hierarchical data with expandable groups and subgroups.
+
+### Nested List Structure
+
+```svelte
+<div class="srpg-nested-list">
+    <div class="group-section">
+        <div class="srpg-group-header" role="button" tabindex="0">
+            <div class="srpg-group-title">
+                <span class="srpg-expand-icon" class:expanded={isExpanded}>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </span>
+                <svg
+                    class="srpg-group-icon"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                    aria-hidden="true">
+                    <!-- Group icon -->
+                </svg>
+                <span>Group Name</span>
+                <span class="srpg-group-count">5</span>
+            </div>
+        </div>
+
+        {#if isExpanded}
+            <div class="srpg-subgroup-container">
+                <div class="subgroup-section">
+                    <div class="srpg-subgroup-header" role="button" tabindex="0">
+                        <div class="srpg-subgroup-title">
+                            <span class="srpg-expand-icon" class:expanded={isSubExpanded}>
+                                <svg><!-- chevron --></svg>
+                            </span>
+                            <span>Subgroup Name</span>
+                            <span class="srpg-group-count">3</span>
+                        </div>
+                    </div>
+
+                    {#if isSubExpanded}
+                        <div class="srpg-notes-container">
+                            <div class="srpg-list">
+                                <div class="srpg-list-item" role="button" tabindex="0">
+                                    <div class="srpg-list-item-header">
+                                        <span class="srpg-list-item-title">Item Title</span>
+                                    </div>
+                                    <div class="srpg-list-item-meta">Updated Jan 15, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        {/if}
+    </div>
+</div>
+```
+
+### Nested List Elements
+
+| Class                      | Purpose                                      |
+| -------------------------- | -------------------------------------------- |
+| `.srpg-nested-list`        | Container for the full nested list           |
+| `.srpg-group-header`       | Clickable group header with hover state      |
+| `.srpg-group-title`        | Title container with icon and count          |
+| `.srpg-group-icon`         | SVG icon for the group category              |
+| `.srpg-group-count`        | Pill badge showing item count                |
+| `.srpg-expand-icon`        | Chevron that rotates when `.expanded`        |
+| `.srpg-subgroup-container` | Indented container for subgroups             |
+| `.srpg-subgroup-header`    | Clickable subgroup header                    |
+| `.srpg-subgroup-title`     | Subgroup title (smaller than group)          |
+| `.srpg-notes-container`    | Container for list items within subgroup     |
+| `.srpg-list`               | Flex column container for list items         |
+| `.srpg-list-item`          | Clickable card-style list item               |
+| `.srpg-list-item-header`   | Header row with title and optional badges    |
+| `.srpg-list-item-title`    | Bold item title                              |
+| `.srpg-list-item-meta`     | Secondary metadata (dates, etc.)             |
+| `.srpg-character-badge`    | Small icon badge for special item indicators |
+
+---
+
+## 📝 Formsystem
 
 This project uses a **hybrid approach** combining Tailwind utilities with CSS custom properties. Here's when to use each:
 
@@ -121,6 +284,10 @@ Use the design system classes for **complex, reusable components**:
 | Sidebar Items       | srpg-\* class | `srpg-sidebar-item`            |
 | Collapsible Section | srpg-\* class | `srpg-collapsible-section`     |
 | Empty States        | srpg-\* class | `srpg-empty-state`             |
+| Note Views          | srpg-\* class | `srpg-note-view`               |
+| Nested Lists        | srpg-\* class | `srpg-nested-list`             |
+| List Items          | srpg-\* class | `srpg-list-item`               |
+| Badges              | srpg-\* class | `srpg-badge`                   |
 
 ---
 
@@ -348,6 +515,49 @@ For visual separation between groups:
 | Active/Selected | `--sidebar-active` bg + top border accent | `--sidebar-active` bg + left border accent |
 | Disabled        | 50% opacity, no cursor                    | 50% opacity, no cursor                     |
 | Toggleable Off  | 40% opacity                               | 40% opacity                                |
+
+---
+
+## 🏷️ Badges
+
+For displaying labels, categories, and status indicators.
+
+### Basic Badge
+
+```html
+<span class="srpg-badge">Default Badge</span>
+<span class="srpg-badge srpg-badge-info">Info Badge</span>
+<span class="srpg-badge srpg-badge-warning">Warning Badge</span>
+<span class="srpg-badge srpg-badge-danger">Danger Badge</span>
+```
+
+### Badge with Icon
+
+```html
+<span class="srpg-badge">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <!-- icon path -->
+    </svg>
+    Category Name
+</span>
+```
+
+### Badge Sizes
+
+```html
+<span class="srpg-badge">Default</span>
+<span class="srpg-badge srpg-badge-sm">Small</span>
+```
+
+### Badge Variants
+
+| Class                 | Color  | Use Case                       |
+| --------------------- | ------ | ------------------------------ |
+| `.srpg-badge`         | Green  | Default/success state          |
+| `.srpg-badge-info`    | Blue   | Informational, subcategories   |
+| `.srpg-badge-warning` | Orange | Warnings, special indicators   |
+| `.srpg-badge-danger`  | Red    | Errors, destructive indicators |
+| `.srpg-badge-sm`      | -      | Smaller padding and font size  |
 
 ---
 

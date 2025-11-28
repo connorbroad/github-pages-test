@@ -1293,7 +1293,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
     gap: 1rem;
     flex-wrap: wrap;
 }
@@ -1368,4 +1367,136 @@
                 env(safe-area-inset-bottom)
         );
     }
+}
+
+/* ============================================
+   NOTE VIEW STYLES
+   For displaying and editing codex notes
+   ============================================ */
+
+.srpg-note-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.srpg-note-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.srpg-note-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.srpg-note-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+@media (max-width: 767px) {
+    .srpg-note-title {
+        font-size: 1.25rem;
+    }
+}
+
+.srpg-note-title-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    transition: border-color 0.2s ease;
+}
+
+.srpg-note-title-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.srpg-note-title-input:disabled {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+}
+
+.srpg-note-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.srpg-note-content {
+    flex: 1;
+    min-height: 0;
+}
+
+.srpg-note-display {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    line-height: 1.6;
+    min-height: 150px;
+}
+
+/* ============================================
+   GROUP ICON STYLES
+   SVG icons for nested list groups
+   ============================================ */
+
+.srpg-group-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+}
+
+/* Character badge icon for list items */
+.srpg-character-badge {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--accent-warning);
+}
+
+/* ============================================
+   CUSTOM GROUP INPUT STYLES
+   For inline group creation in forms
+   ============================================ */
+
+.srpg-custom-group-input {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.srpg-custom-group-input input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+}
+
+.srpg-custom-group-input input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
 }

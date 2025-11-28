@@ -21,6 +21,36 @@
         "Lore",
     ];
 
+    // SVG icon paths for each group
+    const GROUP_ICONS: Record<string, { path: string; viewBox?: string }> = {
+        "Game Rules": {
+            path: "M12 2L4 7v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V7l-8-5zm-1 14v-2h2v2h-2zm0-4V8h2v4h-2z",
+        },
+        Characters: {
+            path: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+        },
+        Locations: {
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+        },
+        Items: {
+            path: "M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z",
+        },
+        NPCs: {
+            path: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z",
+        },
+        Factions: {
+            path: "M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 9h-2v2H9v-2H7v-2h2V7h2v2h2v2zm-2-6V3.5L16.5 9H11z",
+        },
+        Lore: {
+            path: "M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z",
+        },
+    };
+
+    // Default icon for custom groups
+    const DEFAULT_ICON = {
+        path: "M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
+    };
+
     let codexNotes: CodexNote[] = [];
     let characters: Character[] = [];
     let expandedGroups: Set<string> = new Set();
@@ -274,70 +304,140 @@
         });
     }
 
-    function getGroupIcon(group: string): string {
-        const icons: Record<string, string> = {
-            "Game Rules": "🎲",
-            Characters: "👤",
-            Locations: "📍",
-            Items: "🎒",
-            NPCs: "👥",
-            Factions: "⚔️",
-            Lore: "📜",
-        };
-        return icons[group] || "📝";
+    function getGroupIconData(group: string): { path: string; viewBox?: string } {
+        return GROUP_ICONS[group] || DEFAULT_ICON;
     }
 </script>
 
 <SrpgListPage className="codex">
     <div slot="header" class="srpg-header-actions">
+        <h1 class="srpg-page-header text-center">Notes</h1>
         {#if selectedNote}
-            <button class="srpg-b srpg-b-simple" on:click={backToList}>← Back to List</button>
+            <button class="srpg-b srpg-b-simple" on:click={backToList}>
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Back to List
+            </button>
             {#if isEditing}
                 <div class="srpg-b-group flex-nowrap">
                     <button class="srpg-b srpg-b-create srpg-b-w-full" on:click={saveNote}>
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="shrink-0"
+                            aria-hidden="true">
+                            <path d="M20 6L9 17l-5-5" />
+                        </svg>
                         Save
                     </button>
                     <button class="srpg-b srpg-b-simple" on:click={cancelEdit}>Cancel</button>
                 </div>
             {:else}
-                <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={editNote}>Edit</button>
+                <button class="srpg-b srpg-b-normal srpg-b-w-full" on:click={editNote}>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0"
+                        aria-hidden="true">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Edit
+                </button>
                 {#if !selectedNote.characterId}
-                    <button class="srpg-b srpg-b-danger" on:click={deleteNote}>Delete</button>
+                    <button class="srpg-b srpg-b-danger" on:click={deleteNote}>
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="shrink-0"
+                            aria-hidden="true">
+                            <path
+                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Delete
+                    </button>
                 {/if}
             {/if}
-        {:else}
-            <button class="srpg-b srpg-b-create" on:click={openCreateModal}>+ New Note</button>
         {/if}
     </div>
 
     {#if selectedNote}
-        <div class="note-view">
-            <div class="note-header">
-                <div class="note-meta-row">
+        <div class="srpg-note-view">
+            <div class="srpg-note-header">
+                <div class="srpg-note-meta-row">
                     <span class="srpg-badge">
-                        {getGroupIcon(selectedNote.noteGroup)}
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="14"
+                            height="14"
+                            fill="currentColor"
+                            class="shrink-0"
+                            aria-hidden="true">
+                            <path d={getGroupIconData(selectedNote.noteGroup).path} />
+                        </svg>
                         {selectedNote.noteGroup}
                     </span>
                     {#if selectedNote.subNoteGroup}
                         <span class="srpg-badge srpg-badge-info">{selectedNote.subNoteGroup}</span>
                     {/if}
                     {#if selectedNote.characterId}
-                        <span class="srpg-badge srpg-badge-warning">Character Note</span>
+                        <span class="srpg-badge srpg-badge-warning">
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="14"
+                                height="14"
+                                fill="currentColor"
+                                class="shrink-0"
+                                aria-hidden="true">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                            Character Note
+                        </span>
                     {/if}
                 </div>
 
                 {#if isEditing}
                     <input
                         type="text"
-                        class="note-title-input"
+                        class="srpg-note-title-input"
                         bind:value={selectedNote.title}
                         placeholder="Note title"
                         disabled={!!selectedNote.characterId} />
                 {:else}
-                    <h1 class="note-title">{selectedNote.title}</h1>
+                    <h1 class="srpg-note-title">{selectedNote.title}</h1>
                 {/if}
 
-                <div class="note-dates">
+                <div class="srpg-note-dates">
                     <span>Created: {formatDate(selectedNote.createdAt)}</span>
                     {#if selectedNote.updatedAt !== selectedNote.createdAt}
                         <span>Updated: {formatDate(selectedNote.updatedAt)}</span>
@@ -345,7 +445,7 @@
                 </div>
             </div>
 
-            <div class="note-content">
+            <div class="srpg-note-content">
                 {#if isEditing}
                     <textarea
                         class="srpg-textarea"
@@ -353,16 +453,35 @@
                         placeholder="Write your notes here...">
                     </textarea>
                 {:else}
-                    <div class="note-display">
+                    <div class="srpg-note-display">
                         {selectedNote.content || "No content yet."}
                     </div>
                 {/if}
             </div>
         </div>
     {:else if codexNotes.length === 0}
-        <div class="srpg-empty-message">
-            <p>No codex entries yet.</p>
-            <p class="hint">Create a new entry to start documenting your adventure.</p>
+        <div class="srpg-empty-state">
+            <svg
+                class="srpg-empty-state-icon"
+                viewBox="0 0 24 24"
+                width="48"
+                height="48"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <line x1="10" y1="9" x2="8" y2="9" />
+            </svg>
+            <p class="srpg-empty-state-text">No codex entries yet.</p>
+            <p class="srpg-empty-state-hint">
+                Create a new entry to start documenting your adventure.
+            </p>
         </div>
     {:else}
         <div class="srpg-nested-list">
@@ -379,9 +498,29 @@
                             <span
                                 class="srpg-expand-icon"
                                 class:expanded={expandedGroups.has(group)}>
-                                ▶
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
                             </span>
-                            <span>{getGroupIcon(group)} {group}</span>
+                            <svg
+                                class="srpg-group-icon"
+                                viewBox="0 0 24 24"
+                                width="20"
+                                height="20"
+                                fill="currentColor"
+                                aria-hidden="true">
+                                <path d={getGroupIconData(group).path} />
+                            </svg>
+                            <span>{group}</span>
                             <span class="srpg-group-count">
                                 {Object.values(subGroups).flat().length}
                             </span>
@@ -405,7 +544,18 @@
                                                 class:expanded={expandedSubGroups.has(
                                                     `${group}-${subGroup}`
                                                 )}>
-                                                ▶
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    width="14"
+                                                    height="14"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    aria-hidden="true">
+                                                    <path d="M9 18l6-6-6-6" />
+                                                </svg>
                                             </span>
                                             <span>{subGroup}</span>
                                             <span class="srpg-group-count">{notes.length}</span>
@@ -428,9 +578,16 @@
                                                                 {note.title}
                                                             </span>
                                                             {#if note.characterId}
-                                                                <span class="character-badge">
-                                                                    👤
-                                                                </span>
+                                                                <svg
+                                                                    class="srpg-character-badge"
+                                                                    viewBox="0 0 24 24"
+                                                                    width="16"
+                                                                    height="16"
+                                                                    fill="currentColor"
+                                                                    aria-label="Character note">
+                                                                    <path
+                                                                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                                </svg>
                                                             {/if}
                                                         </div>
                                                         <div class="srpg-list-item-meta">
@@ -449,6 +606,33 @@
             {/each}
         </div>
     {/if}
+
+    <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] pt-2 md:mb-0">
+        {#if !selectedNote}
+            <div class="flex items-center justify-center px-2">
+                <button
+                    class="srpg-b srpg-b-create"
+                    on:click={openCreateModal}
+                    aria-label="Create new note">
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0"
+                        aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Note
+                </button>
+            </div>
+        {/if}
+    </div>
 </SrpgListPage>
 
 <!-- Create Note Modal -->
@@ -470,7 +654,7 @@
             <select id="noteGroup" bind:value={newNoteGroup} class="srpg-select">
                 <option value="">-- Select a group --</option>
                 {#each availableGroups as group}
-                    <option value={group}>{getGroupIcon(group)} {group}</option>
+                    <option value={group}>{group}</option>
                 {/each}
             </select>
         </div>
@@ -479,10 +663,24 @@
             <button
                 class="srpg-b srpg-b-normal srpg-b-sm srpg-b-w-full"
                 on:click={toggleCustomGroupInput}>
-                + Create Custom Group
+                <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create Custom Group
             </button>
         {:else}
-            <div class="custom-group-input">
+            <div class="srpg-custom-group-input">
                 <input
                     type="text"
                     bind:value={customGroupInput}
@@ -525,8 +723,22 @@
                 class="srpg-b srpg-b-create"
                 on:click={createNote}
                 disabled={!newNoteTitle.trim() || !newNoteGroup}>
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Create Note
             </button>
         </div>
     </div>
-</SrpgModal> 
+</SrpgModal>

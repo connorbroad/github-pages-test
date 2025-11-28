@@ -11,8 +11,10 @@
     let tagsSet: Set<string> = new Set(selectedTags);
     let newTagInput: string = "";
     let showNewTagInput: boolean = false;
+    let localAvailableTags: string[] = [];
 
     $: tagsSet = new Set(selectedTags);
+    $: localAvailableTags = [...availableTags];
 
     function toggleTag(tag: string) {
         const newTagsSet = new Set(tagsSet);
@@ -27,7 +29,10 @@
 
     function addNewTag() {
         const trimmed = newTagInput.trim();
-        if (trimmed && !availableTags.includes(trimmed)) {
+        if (trimmed && !localAvailableTags.includes(trimmed)) {
+            // Add to local available tags so it appears in the list
+            localAvailableTags = [...localAvailableTags, trimmed];
+            // Also select the new tag
             const newTagsSet = new Set(tagsSet);
             newTagsSet.add(trimmed);
             tagsSet = newTagsSet;
@@ -58,7 +63,7 @@
     <h2 class="text-text-primary m-0 mb-4 text-xl font-bold">Choose Character Tags</h2>
     <form on:submit|preventDefault={save}>
         <div class="mb-6 flex flex-col gap-2">
-            {#each availableTags as tag}
+            {#each localAvailableTags as tag}
                 <label
                     class="bg-card-bg border-border-primary hover:border-accent-primary hover:bg-bg-tertiary flex cursor-pointer items-center rounded-lg border p-3 transition-all duration-200">
                     <input
@@ -88,7 +93,7 @@
         {#if !showNewTagInput}
             <button
                 type="button"
-                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-center font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
                 on:click={toggleNewTagInput}>
                 + Add New Tag
             </button>
@@ -98,17 +103,17 @@
                     type="text"
                     bind:value={newTagInput}
                     placeholder="Enter new tag name"
-                    class="border-input-border bg-input-bg text-input-text min-w-[150px] flex-1 rounded border p-2 text-base max-md:w-full" />
+                    class="border-input-border bg-input-bg text-input-text min-w-[150px] flex-1 rounded border p-2 max-md:w-full" />
                 <button
                     type="button"
-                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active m-0 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-md:w-full"
+                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active m-0 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-md:w-full"
                     on:click={addNewTag}
                     disabled={!newTagInput.trim()}>
                     Add
                 </button>
                 <button
                     type="button"
-                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg m-0 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm max-md:w-full"
+                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg m-0 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-3 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm max-md:w-full"
                     on:click={toggleNewTagInput}>
                     Cancel
                 </button>
@@ -124,4 +129,3 @@
         </div>
     </form>
 </SrpgModal>
-

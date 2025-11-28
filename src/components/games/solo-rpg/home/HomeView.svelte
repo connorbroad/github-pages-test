@@ -2,6 +2,8 @@
     import { onMount, createEventDispatcher } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
     import CampaignLoadConfirm from "../game-management/CampaignLoadConfirm.svelte";
+    import CampaignCreator from "../game-management/CampaignCreator.svelte";
+    import GameBlueprintEditor from "../game-management/GameBlueprintEditor.svelte";
     import {
         loadGameBlueprints,
         saveGameBlueprints,
@@ -291,3 +293,15 @@
     campaign={selectedCampaignForLoad}
     on:load={handleLoadCampaign}
     on:close={() => (showCampaignLoadConfirm = false)} />
+
+<GameBlueprintEditor
+    bind:show={showBlueprintEditor}
+    blueprint={editingBlueprint}
+    on:save={saveBlueprint}
+    on:close={() => (showBlueprintEditor = false)} />
+
+<CampaignCreator
+    bind:show={showCampaignCreator}
+    blueprint={selectedBlueprint}
+    on:create={createCampaign}
+    on:close={() => (showCampaignCreator = false)} />

@@ -28,6 +28,7 @@
     let sortBy: "alphabetical" | "createdAt" | "updatedAt" = "alphabetical";
     let showSortDropdown: boolean = false;
     let hasLoadedPreferences: boolean = false;
+    let isTagFilterExpanded: boolean = false;
 
     onMount(() => {
         // Load compact view preference from localStorage
@@ -353,7 +354,8 @@
 </script>
 
 <SrpgListPage className="character-manager">
-    <div slot="header" class="px-2">
+    <div slot="header">
+        <h1 class="srpg-page-header text-center">Characters</h1>
         {#if selectedCharacter && !isEditing}
             <div
                 class="mb-2 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4">
@@ -401,15 +403,132 @@
                 </div>
             </div>
         {:else}
-            <div class="mb-6 flex flex-row items-center gap-2">
-                <button
-                    class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md max-[400px]:px-3 max-[400px]:text-sm"
-                    on:click={openCreateModal}>
-                    <span class="max-[350px]:hidden">+</span>
-                    Create
-                    <span class="max-[300px]:hidden">Character</span>
-                </button>
+            {#if availableTags.length > 1}
+                <section class="srpg-collapsible-section mb-6 max-[480px]:mb-2">
+                    <button
+                        class="srpg-collapsible-header"
+                        class:expanded={isTagFilterExpanded}
+                        on:click={() => (isTagFilterExpanded = !isTagFilterExpanded)}
+                        aria-expanded={isTagFilterExpanded}
+                        aria-controls="tag-filter-content">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            class="shrink-0 text-(--text-secondary)">
+                            <path
+                                d="M5.5 7A1.5 1.5 0 0 1 4 5.5A1.5 1.5 0 0 1 5.5 4A1.5 1.5 0 0 1 7 5.5A1.5 1.5 0 0 1 5.5 7m15.91 4.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.11 0-2 .89-2 2v7c0 .55.22 1.05.59 1.41l8.99 9c.37.36.87.59 1.42.59s1.05-.23 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.56-.23-1.06-.59-1.42" />
+                        </svg>
+                        <h2 class="srpg-collapsible-title">Filter by Tag</h2>
+                        <span class="srpg-collapsible-count">{selectedTagFilter}</span>
+                        <svg
+                            class="srpg-collapsible-chevron"
+                            class:rotated={isTagFilterExpanded}
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            aria-hidden="true">
+                            <path
+                                d="M6 9l6 6 6-6"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
 
+                    {#if isTagFilterExpanded}
+                        <div id="tag-filter-content" class="srpg-collapsible-content">
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 transition-all duration-200 active:scale-95 max-[480px]:hidden"
+                                    on:click={(e) => {
+                                        const container =
+                                            e.currentTarget.parentElement.querySelector(
+                                                ".filter-buttons"
+                                            );
+                                        container.scrollBy({ left: -200, behavior: "smooth" });
+                                    }}
+                                    aria-label="Scroll left">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                        fill="none"
+                                        aria-hidden="true">
+                                        <path
+                                            d="M15 18l-6-6 6-6"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="filter-buttons max-[480px]:scrollbar-default scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted flex flex-1 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden scroll-smooth pb-1 max-[480px]:max-h-28 max-[480px]:flex-wrap max-[480px]:overflow-y-auto">
+                                    <button
+                                        class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 {selectedTagFilter ===
+                                        'All'
+                                            ? 'tag-filter-btn-active'
+                                            : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
+                                        on:click={() => (selectedTagFilter = "All")}>
+                                        All ({characters.length})
+                                    </button>
+                                    {#each availableTags as tag}
+                                        {@const count =
+                                            tag === "No Tags"
+                                                ? characters.filter(
+                                                      (c) => !c.tags || c.tags.length === 0
+                                                  ).length
+                                                : characters.filter(
+                                                      (c) => c.tags && c.tags.includes(tag)
+                                                  ).length}
+                                        {#if count > 0}
+                                            <button
+                                                class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
+                                                tag
+                                                    ? 'tag-filter-btn-active'
+                                                    : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
+                                                on:click={() => (selectedTagFilter = tag)}>
+                                                {tag} ({count})
+                                            </button>
+                                        {/if}
+                                    {/each}
+                                </div>
+                                <button
+                                    class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 transition-all duration-200 active:scale-95 max-[480px]:hidden"
+                                    on:click={(e) => {
+                                        const container =
+                                            e.currentTarget.parentElement.querySelector(
+                                                ".filter-buttons"
+                                            );
+                                        container.scrollBy({ left: 200, behavior: "smooth" });
+                                    }}
+                                    aria-label="Scroll right">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                        fill="none"
+                                        aria-hidden="true">
+                                        <path
+                                            d="M9 18l6-6-6-6"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    {/if}
+                </section>
+            {/if}
+
+            <div class="mt-6 flex flex-row items-center justify-end gap-2">
                 <!-- View Toggle Button -->
                 <button
                     class="srpg-b-icon shrink-0"
@@ -531,61 +650,6 @@
                     {/if}
                 </div>
             </div>
-
-            {#if availableTags.length > 1}
-                <div
-                    class="filter-container bg-bg-secondary border-border-primary relative mb-6 flex shrink-0 items-center gap-2 rounded-lg border p-4 max-[480px]:mb-2 max-[480px]:p-3">
-                    <button
-                        class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 text-xl leading-none font-bold transition-all duration-200 active:scale-95 max-[480px]:hidden"
-                        on:click={(e) => {
-                            const container =
-                                e.currentTarget.parentElement.querySelector(".filter-buttons");
-                            container.scrollBy({ left: -200, behavior: "smooth" });
-                        }}
-                        aria-label="Scroll left">
-                        ←
-                    </button>
-                    <div
-                        class="filter-buttons max-[480px]:scrollbar-default scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-border-secondary hover:scrollbar-thumb-text-muted flex flex-1 flex-nowrap gap-2 overflow-x-auto overflow-y-hidden scroll-smooth pb-1 max-[480px]:max-h-[calc(2.5rem*2+0.5rem)] max-[480px]:flex-wrap max-[480px]:overflow-y-auto">
-                        <button
-                            class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 {selectedTagFilter ===
-                            'All'
-                                ? 'tag-filter-btn-active'
-                                : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
-                            on:click={() => (selectedTagFilter = "All")}>
-                            All ({characters.length})
-                        </button>
-                        {#each availableTags as tag}
-                            {@const count =
-                                tag === "No Tags"
-                                    ? characters.filter((c) => !c.tags || c.tags.length === 0)
-                                          .length
-                                    : characters.filter((c) => c.tags && c.tags.includes(tag))
-                                          .length}
-                            {#if count > 0}
-                                <button
-                                    class="tag-filter-btn cursor-pointer rounded-md border-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 max-sm:px-3 max-sm:py-2 max-sm:text-[0.8125rem] {selectedTagFilter ===
-                                    tag
-                                        ? 'tag-filter-btn-active'
-                                        : 'bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary'}"
-                                    on:click={() => (selectedTagFilter = tag)}>
-                                    {tag} ({count})
-                                </button>
-                            {/if}
-                        {/each}
-                    </div>
-                    <button
-                        class="bg-card-bg border-border-primary text-text-secondary hover:border-accent-primary hover:bg-bg-tertiary hover:text-accent-primary flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 p-0 text-xl leading-none font-bold transition-all duration-200 active:scale-95 max-[480px]:hidden"
-                        on:click={(e) => {
-                            const container =
-                                e.currentTarget.parentElement.querySelector(".filter-buttons");
-                            container.scrollBy({ left: 200, behavior: "smooth" });
-                        }}
-                        aria-label="Scroll right">
-                        →
-                    </button>
-                </div>
-            {/if}
         {/if}
     </div>
 
@@ -600,7 +664,7 @@
             on:rollCheck={handleRollCheck} />
     {:else if filteredCharacters.length > 0}
         <div
-            class="px-2 {isCompactView
+            class="{isCompactView
                 ? 'flex flex-col gap-2'
                 : 'grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4'} py-2 pb-24 md:pb-4">
             {#each filteredCharacters as character}
@@ -784,6 +848,33 @@
             </p>
         </div>
     {/if}
+
+    <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] pt-2 md:mb-0">
+        {#if !selectedCharacter}
+            <div class="flex items-center justify-center px-2">
+                <button
+                    class="srpg-b srpg-b-create"
+                    on:click={openCreateModal}
+                    aria-label="Create new character">
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0"
+                        aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Create Character
+                </button>
+            </div>
+        {/if}
+    </div>
 </SrpgListPage>
 
 <SrpgModal bind:show={showCreateModal} maxWidth="400px" on:close={() => (showCreateModal = false)}>
@@ -850,6 +941,81 @@
     on:close={() => (showTagPickerModal = false)} />
 
 <style>
+    /* Collapsible Section */
+    .srpg-collapsible-section {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    /* Collapsible Header */
+    .srpg-collapsible-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.875rem 1rem;
+
+        background: transparent;
+        border: none;
+        cursor: pointer;
+
+        transition: background-color 0.2s ease;
+    }
+
+    .srpg-collapsible-header:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .srpg-collapsible-header.expanded {
+        border-bottom: 1px solid var(--border-primary);
+    }
+
+    /* Collapsible Title */
+    .srpg-collapsible-title {
+        flex: 1;
+        margin: 0;
+
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: left;
+    }
+
+    /* Count Badge */
+    .srpg-collapsible-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.5rem;
+        height: 1.5rem;
+        padding: 0 0.5rem;
+
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+
+        background: var(--bg-tertiary);
+        border-radius: 999px;
+    }
+
+    /* Chevron Icon */
+    .srpg-collapsible-chevron {
+        color: var(--text-muted);
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .srpg-collapsible-chevron.rotated {
+        transform: rotate(180deg);
+    }
+
+    /* Collapsible Content */
+    .srpg-collapsible-content {
+        padding: 0.75rem;
+    }
+
     .character-card {
         position: relative;
         display: flex;
