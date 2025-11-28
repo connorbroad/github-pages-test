@@ -450,10 +450,11 @@ function getGeometry(type: DieType, size: number): THREE.BufferGeometry {
             geometry = new THREE.BoxGeometry(size, size, size);
     }
 
-    geometry = geometry.toNonIndexed();
+    if (geometry.index !== null) {
+        geometry = geometry.toNonIndexed();
+    }
 
     if (type === 4) {
-        // ... (D4 logic unchanged)
         const pos = geometry.getAttribute("position");
         const uniqueVerts: { x: number; y: number; z: number; id: number }[] = [];
 
