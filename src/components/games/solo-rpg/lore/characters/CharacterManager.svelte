@@ -849,29 +849,51 @@
         </div>
     {/if}
 
-    <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] pt-2 md:mb-0">
+    <div slot="footer" class="relative mb-[calc(env(safe-area-inset-bottom))] py-2 md:mb-0">
         {#if !selectedCharacter}
             <div class="flex items-center justify-center px-2">
-                <button
-                    class="srpg-b srpg-b-create"
-                    on:click={openCreateModal}
-                    aria-label="Create new character">
-                    <svg
-                        viewBox="0 0 24 24"
-                        width="18"
-                        height="18"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="shrink-0"
-                        aria-hidden="true">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Create Character
-                </button>
+                {#if characters.length > 0}
+                    <button
+                        class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--border-primary) bg-(--card-bg) text-(--text-secondary) shadow-sm transition-colors hover:bg-(--bg-tertiary) hover:text-(--accent-primary)"
+                        on:click={openCreateModal}
+                        title="Create new character"
+                        aria-label="Create new character">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                {:else}
+                    <button
+                        class="srpg-b srpg-b-create"
+                        on:click={openCreateModal}
+                        aria-label="Create new character">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="shrink-0"
+                            aria-hidden="true">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Create Character
+                    </button>
+                {/if}
             </div>
         {/if}
     </div>
