@@ -2,7 +2,6 @@
     import type { Character } from "../../data/storage-utils";
     import { createEventDispatcher } from "svelte";
     import CharacterSheetSection from "./CharacterSheetSection.svelte";
-    import { loadCharacters } from "../../data/storage-utils";
     import InformationSection from "./character-sheet/InformationSection.svelte";
     import ExperienceSection from "./character-sheet/ExperienceSection.svelte";
     import HealthSection from "./character-sheet/HealthSection.svelte";
@@ -20,8 +19,6 @@
     let editingSection: string | null = null;
 
     let editedCharacter: Character = structuredClone(character);
-    let showAbilityTemplateModal: boolean = false; // moved to AbilitiesSection
-    let showSkillTemplateModal: boolean = false; // moved to AbilitiesSection
 
     // Keep editedCharacter in sync with character prop when not actively editing
     $: if (!isEditing && !editingSection) {
@@ -44,43 +41,6 @@
             "items",
             "combat",
         ];
-    }
-
-    function cancelEdit() {
-        editedCharacter = structuredClone(character);
-        dispatch("cancel");
-    }
-
-    function toggleSectionInclusion(sectionId: string) {
-        if (sectionId === "information") {
-            alert("The Information section cannot be removed.");
-            return;
-        }
-
-        if (!editedCharacter.visibleSections.includes("information")) {
-            editedCharacter.visibleSections.push("information");
-        }
-
-        const isCurrentlyVisible = editedCharacter.visibleSections.includes(sectionId);
-
-        if (isCurrentlyVisible) {
-            editedCharacter.visibleSections = editedCharacter.visibleSections.filter(
-                (s) => s !== sectionId
-            );
-        } else {
-            editedCharacter.visibleSections = [...editedCharacter.visibleSections, sectionId];
-
-            // Scroll to the newly enabled section after a brief delay to allow for rendering
-            setTimeout(() => {
-                const sectionElement = document.getElementById(`section-${sectionId}`);
-                if (sectionElement) {
-                    sectionElement.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                    });
-                }
-            }, 100);
-        }
     }
 
     // Reactive values for each section visibility
@@ -235,6 +195,3 @@
         </div>
     </div>
 </div>
-
-<!-- (template modals moved into AbilitiesSection) -->
-
