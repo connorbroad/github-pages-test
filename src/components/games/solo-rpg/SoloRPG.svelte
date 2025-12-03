@@ -60,11 +60,6 @@
             mapViewComponent?.returnToLanding?.();
             return;
         }
-        // Characters special-case: return to character list when already on characters
-        if (view === "characters" && currentView === "characters") {
-            characterManagerComponent?.resetToList?.();
-            return;
-        }
         // Set view and reset per-view UI
         currentView = view;
         showTertiarySidebar = false;
@@ -175,9 +170,7 @@
                 on:rollCheck={handleRollCheck} />
         {:else}
             <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
-            <em class="block text-center">
-                Select or create a campaign to start managing characters.
-            </em>
+            <em class="block text-center">Select or create a campaign to manage characters.</em>
         {/if}
     {:else if currentView === "story"}
         <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />

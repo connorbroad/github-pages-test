@@ -6,6 +6,7 @@
         type MapEntity,
         type MapObject,
         type TileRef,
+        type CreatureRef,
     } from "../data/storage-utils";
     import { ensureTileMapLoaded, getTileSprite } from "./tilemap-cache";
     import { onMount, onDestroy, createEventDispatcher } from "svelte";
@@ -19,6 +20,7 @@
     export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
+    export let mapMode: "edit" | "combat" = "edit";
 
     // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
@@ -336,6 +338,25 @@
         queueSave();
     }
 
+    export function setSelectedObjectCreature(creatureRef: MapObject["creatureRef"]) {
+        if (!selectedObject) return;
+        selectedObject.creatureRef = creatureRef;
+        scheduleRender();
+        queueSave();
+        emitSelection();
+    }
+
+    /**
+     * Returns array of character IDs that are already assigned to map objects.
+     * Characters can only be assigned to one object at a time.
+     */
+    export function getAssignedCharacterIds(): string[] {
+        if (!map) return [];
+        return map.objects
+            .filter((o) => o.creatureRef?.type === "character")
+            .map((o) => o.creatureRef!.id);
+    }
+
     export function deleteSelectedObject() {
         if (!selectedObject || !map) return;
         const id = selectedObject.id;
@@ -346,6 +367,74 @@
         scheduleRender();
         queueSave();
         emitSelection();
+    }
+
+    /**
+     * Center the camera on a specific object by its ID.
+     * Used to focus on a creature during turn switching in combat.
+     */
+    export function centerOnObject(objectId: string) {
+        if (!map) return;
+
+        const obj = map.objects.find((o) => o.id === objectId);
+        if (!obj) return;
+
+        // Object center is at (obj.x, obj.y) - objects are drawn centered at their position
+        const objCenterX = obj.x;
+        const objCenterY = obj.y;
+
+        // Get canvas dimensions
+        const rect = getCachedRect();
+        const halfCanvasW = rect.width / 2 / camera.zoom;
+        const halfCanvasH = rect.height / 2 / camera.zoom;
+
+        // Set camera so object is centered
+        camera.x = objCenterX - halfCanvasW;
+        camera.y = objCenterY - halfCanvasH;
+
+        clampCameraToBounds();
+        scheduleRender();
+
+        // Save the new view position
+        if (map) {
+            map.view.x = camera.x;
+            map.view.y = camera.y;
+            queueSave();
+        }
+    }
+
+    /**
+     * Returns array of object IDs for creatures currently visible in the viewport.
+     * Used by EncounterSetupModal's "Select Visible" feature.
+     */
+    export function getVisibleCreatureIds(): string[] {
+        if (!map) return [];
+
+        const { vw, vh } = getViewSize();
+        const viewLeft = camera.x;
+        const viewTop = camera.y;
+        const viewRight = camera.x + vw;
+        const viewBottom = camera.y + vh;
+
+        return map.objects
+            .filter((obj) => {
+                if (!obj.creatureRef) return false;
+
+                // Objects are centered at (x, y), so calculate bounds from center
+                const objLeft = obj.x - obj.w / 2;
+                const objRight = obj.x + obj.w / 2;
+                const objTop = obj.y - obj.h / 2;
+                const objBottom = obj.y + obj.h / 2;
+
+                // Check if object overlaps viewport (AABB intersection)
+                return (
+                    objRight > viewLeft &&
+                    objLeft < viewRight &&
+                    objBottom > viewTop &&
+                    objTop < viewBottom
+                );
+            })
+            .map((obj) => obj.id);
     }
 
     $: if (tool !== "move") {
@@ -368,6 +457,7 @@
                           id: obj.id,
                           color: obj.color,
                           canFlip: obj.kind === "tile",
+                          creatureRef: obj.creatureRef ?? null,
                       },
                   }
                 : { selected: false, object: null }
@@ -483,6 +573,24 @@
         }
 
         const { x, y } = screenToWorld(e.clientX, e.clientY);
+
+        // Combat mode: clicking on a creature opens the combat panel
+        if (mapMode === "combat") {
+            const objs = getSortedObjects();
+            const hit = objs.find((o) => isPointInObject(x, y, o));
+            if (hit?.creatureRef) {
+                dispatch("combatCreatureSelect", {
+                    objectId: hit.id,
+                    creatureRef: hit.creatureRef,
+                });
+                return;
+            }
+            // If no creature hit, allow panning
+            isPanning = true;
+            lastPan = { x: e.clientX, y: e.clientY };
+            lastPanTime = e.timeStamp;
+            return;
+        }
 
         if (tool === "move") {
             if (selectedObject && isPointInObject(x, y, selectedObject)) {
@@ -837,6 +945,8 @@
         scheduleRender();
     }
 
+    let resizeObserver: ResizeObserver | null = null;
+
     onMount(() => {
         ctxBg = canvasBg.getContext("2d")!;
         ctxFg = canvasFg.getContext("2d")!;
@@ -845,6 +955,16 @@
         if (map) preloadMapAssets(map);
 
         window.addEventListener("resize", resizeCanvas, { passive: true });
+
+        // Use ResizeObserver to watch for container size changes
+        const container = canvasBg.parentElement;
+        if (container && typeof ResizeObserver !== "undefined") {
+            resizeObserver = new ResizeObserver(() => {
+                resizeCanvas();
+            });
+            resizeObserver.observe(container);
+        }
+
         resizeCanvas();
     });
 
@@ -888,6 +1008,10 @@
 
     onDestroy(() => {
         window.removeEventListener("resize", resizeCanvas);
+        if (resizeObserver) {
+            resizeObserver.disconnect();
+            resizeObserver = null;
+        }
         if (map) {
             map.view = camera;
             queueSave();
@@ -908,8 +1032,8 @@
         canvasBg.height = Math.max(1, Math.floor(rect.height * dpr));
         canvasFg.width = Math.max(1, Math.floor(rect.width * dpr));
         canvasFg.height = Math.max(1, Math.floor(rect.height * dpr));
-        // Update cached bg color on resize as well
-        cachedBgColor = getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
+        cachedBgColor =
+            getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
         scheduleRender();
     }
 
@@ -955,7 +1079,7 @@
     }
 </script>
 
-<div class="relative flex h-dvh w-full flex-col">
+<div class="relative flex h-full w-full flex-col">
     {#if map}
         <div
             class="border-border-primary bg-bg-primary pointer-events-none absolute top-0 right-0 left-0 z-10 border-b">

@@ -3,12 +3,17 @@
     import { quintOut } from "svelte/easing";
     import { createEventDispatcher, onMount } from "svelte";
     import CharacterSheetControls from "./lore/characters/CharacterSheetControls.svelte";
+    import CreatureAssignmentModal from "./map/CreatureAssignmentModal.svelte";
     import {
         loadTileMaps,
+        loadCharacters,
         type TileRef,
         type TileMap,
         type TileMapTile,
+        type CreatureRef,
+        type Character,
     } from "./data/storage-utils";
+    import { generateUUID } from "./map/uuid";
 
     export let show: boolean = false;
     export let mode: "story" | "map" = "story"; // Which context are we in?
@@ -38,6 +43,9 @@
     export let moveHasSelection: boolean = false;
     export let moveSelectedColor: string | null = null; // current selected object's color/tint
     export let moveCanFlip: boolean = false; // only tile objects can flip
+    export let moveSelectedCreatureRef: CreatureRef | null = null; // creature assigned to selected object
+    export let campaignId: string | null = null; // current campaign for loading creatures
+    export let mapId: string | null = null; // current map for creature assignment
 
     const dispatch = createEventDispatcher();
 
@@ -169,6 +177,47 @@
     function moveDelete() {
         dispatch("moveDelete");
     }
+
+    // Creature assignment for move tool
+    let characters: Character[] = [];
+    $: if (campaignId && mode === "map" && moveHasSelection) {
+        characters = loadCharacters().filter((c) => c.campaignId === campaignId);
+    }
+
+    function assignCreature(type: "character", id: string) {
+        const ref: CreatureRef = {
+            type,
+            id,
+            instanceId: generateUUID(),
+        };
+        dispatch("creatureAssign", ref);
+    }
+
+    function clearCreature() {
+        dispatch("creatureAssign", null);
+    }
+
+    function getCreatureName(ref: CreatureRef | null): string {
+        if (!ref) return "None";
+        if (ref.type === "character") {
+            const char = characters.find((c) => c.id === ref.id);
+            return char?.name ?? "Unknown Character";
+        }
+        return "Unknown";
+    }
+
+    // Modal state for creature selector
+    let showCreatureModal = false;
+
+    function handleCreatureSelect(e: CustomEvent<{ type: "character"; id: string }>) {
+        assignCreature(e.detail.type, e.detail.id);
+        showCreatureModal = false;
+    }
+
+    function handleCreatureRemove() {
+        clearCreature();
+        showCreatureModal = false;
+    }
 </script>
 
 {#if show || showTertiaryOnMap}
@@ -233,6 +282,24 @@
                                     d="M15 21h2v-2h-2zm4-12h2V7h-2zM3 5v14c0 1.1.9 2 2 2h4v-2H5V5h4V3H5c-1.1 0-2 .9-2 2m16-2v2h2c0-1.1-.9-2-2-2m-8 20h2V1h-2zm8-6h2v-2h-2zM15 5h2V3h-2zm4 8h2v-2h-2zm0 8c1.1 0 2-.9 2-2h-2z" />
                             </svg>
                             <span class="sidebar-label">Flip</span>
+                        </button>
+                        <!-- Creature assignment button -->
+                        <button
+                            class="srpg-sidebar-item sticky-item"
+                            class:active={moveSelectedCreatureRef !== null}
+                            on:click={() => (showCreatureModal = true)}
+                            aria-label="Assign creature">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                class="sidebar-icon">
+                                <path
+                                    fill="currentColor"
+                                    d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4" />
+                            </svg>
+                            <span class="sidebar-label text-[10px]">
+                                {moveSelectedCreatureRef ? "Assigned" : "Assign"}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -457,4 +524,16 @@
             </nav>
         {/if}
     </aside>
+{/if}
+
+<!-- Creature Assignment Modal -->
+{#if showCreatureModal && campaignId && mapId}
+    <CreatureAssignmentModal
+        show={showCreatureModal}
+        {campaignId}
+        {mapId}
+        currentCreatureRef={moveSelectedCreatureRef}
+        on:assign={handleCreatureSelect}
+        on:clear={handleCreatureRemove}
+        on:close={() => (showCreatureModal = false)} />
 {/if}

@@ -201,6 +201,16 @@ type Outcome = {
 };
 
 // Map types
+
+/** Reference to a creature (character) assigned to a map object */
+export type CreatureRef = {
+    type: "character";
+    id: string; // Character.id
+    instanceId: string; // Unique instance ID for this placement
+    currentHitPoints?: number; // Override HP for this instance (undefined = use template max)
+    initiative?: number; // Initiative roll for combat ordering
+};
+
 export type MapObject = {
     /** Unique identifier for the object */
     id: string;
@@ -223,6 +233,28 @@ export type MapObject = {
     tile?: TileRef;
     z?: number;
     locked?: boolean;
+    /** Optional creature (character or monster) assigned to this object */
+    creatureRef?: CreatureRef;
+};
+
+/** Initiative entry for combat turn order */
+export type InitiativeEntry = {
+    objectId: string;
+    name: string;
+    initiative: number;
+    currentHP: number;
+    maxHP: number;
+    isActive: boolean;
+};
+
+/** Combat state persisted per map */
+export type CombatState = {
+    initiativeOrder: InitiativeEntry[];
+    currentTurnIndex: number;
+    /** Whether an active encounter is in progress */
+    hasActiveEncounter: boolean;
+    /** Object ID of creature to return to after an interrupting add (for "Next Turn" logic) */
+    pendingNextObjectId?: string;
 };
 
 export type MapEntity = {
@@ -242,6 +274,8 @@ export type MapEntity = {
     objects: MapObject[];
     view?: { x: number; y: number; zoom: number };
     isFavorite?: boolean;
+    /** Combat state - persists initiative order across creature/map switches */
+    combatState?: CombatState;
 };
 
 /**
@@ -657,4 +691,43 @@ export function saveCodexNotes(codexNotes: CodexNote[]): void {
     const data = loadData();
     data.codexNotes = codexNotes;
     saveData(data);
+}
+
+/**
+ * Unified tag system - collects tags from characters for a campaign
+ */
+export function loadCampaignTags(campaignId: string): string[] {
+    const characters = loadCharacters().filter((c) => c.campaignId === campaignId);
+
+    const tagSet = new Set<string>();
+
+    // Collect tags from characters
+    for (const char of characters) {
+        if (char.tags) {
+            for (const tag of char.tags) {
+                tagSet.add(tag);
+            }
+        }
+    }
+
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Get all unique tags across all campaigns (for global tag suggestions)
+ */
+export function loadAllTags(): string[] {
+    const characters = loadCharacters();
+
+    const tagSet = new Set<string>();
+
+    for (const char of characters) {
+        if (char.tags) {
+            for (const tag of char.tags) {
+                tagSet.add(tag);
+            }
+        }
+    }
+
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
 }
