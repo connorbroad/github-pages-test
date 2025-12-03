@@ -950,7 +950,7 @@
     let resizeObserver: ResizeObserver | null = null;
     let resizeThrottleTimer: ReturnType<typeof setTimeout> | null = null;
     let lastResizeTime = 0;
-    const RESIZE_THROTTLE_MS = 150; // Throttle resize to ~4fps during rapid changes (matches animation duration)
+    const RESIZE_THROTTLE_MS = 250; // Throttle resize to ~4fps during rapid changes (matches animation duration)
 
     function throttledResize() {
         const now = Date.now();
