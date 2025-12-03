@@ -307,6 +307,11 @@
         }
     }
 
+    function handleCombatCreatureDeselect() {
+        // Clicking on empty map space deselects the creature
+        combatSelectedCreature = null;
+    }
+
     function handleCombatSelectCreature(
         e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
     ) {
@@ -596,9 +601,14 @@
 
     // Combat panel height for mobile layout (CSS variable)
     let combatPanelHeight = 50;
+    let combatPanelDragging = false;
 
     function handlePanelHeightChanged(e: CustomEvent<{ heightPercent: number }>) {
         combatPanelHeight = e.detail.heightPercent;
+    }
+
+    function handlePanelDragStateChanged(e: CustomEvent<{ isDragging: boolean }>) {
+        combatPanelDragging = e.detail.isDragging;
     }
 
     function setMapMode(mode: "edit" | "combat") {
@@ -645,6 +655,8 @@
         <div
             class="map-view-container"
             class:combat-mode={showCombatPanel}
+            class:combat-panel-collapsed={showCombatPanel && !combatSelectedCreature && !combatPanelDragging}
+            class:panel-dragging={combatPanelDragging}
             style="--combat-panel-height: {combatPanelHeight}%;">
             <!-- Secondary Sidebar (tools) -->
             <SecondarySidebar
@@ -698,6 +710,7 @@
                     on:initiativeRolled={handleInitiativeRolled}
                     on:turnChanged={handleTurnChanged}
                     on:panelHeightChanged={handlePanelHeightChanged}
+                    on:panelDragStateChanged={handlePanelDragStateChanged}
                     on:addToEncounter={handleAddToEncounter} />
 
                 <!-- Initiative Bar (bottom of screen in combat mode) -->
@@ -776,7 +789,8 @@
                         selectedTile={selectedTileRef}
                         {mapMode}
                         on:selectionChange={handleEditorSelectionChange}
-                        on:combatCreatureSelect={handleCombatCreatureSelect} />
+                        on:combatCreatureSelect={handleCombatCreatureSelect}
+                        on:combatCreatureDeselect={handleCombatCreatureDeselect} />
                 </div>
             </div>
         </div>
@@ -839,6 +853,18 @@
         .map-view-container.combat-mode .map-main-area {
             /* Combat panel takes var(--panel-height) from bottom */
             bottom: var(--combat-panel-height, 40%);
+            /* Match the combat panel transition timing */
+            transition: bottom 0.25s ease-out;
+        }
+
+        /* When combat panel is collapsed (no creature selected), use smaller bottom offset */
+        .map-view-container.combat-mode.combat-panel-collapsed .map-main-area {
+            bottom: 15%; /* Matches COLLAPSED_HEIGHT in CombatPanel */
+        }
+
+        /* Disable transition during drag */
+        .map-view-container.panel-dragging .map-main-area {
+            transition: none !important;
         }
     }
 
@@ -846,6 +872,18 @@
     @media (min-width: 768px) {
         .map-view-container.combat-mode .map-main-area {
             left: 320px; /* Width of combat panel */
+            /* Match the combat panel transition timing */
+            transition: left 0.25s ease-out;
+        }
+
+        /* When combat panel is collapsed (no creature selected), use smaller left offset */
+        .map-view-container.combat-mode.combat-panel-collapsed .map-main-area {
+            left: 80px; /* Matches collapsed width in CombatPanel */
+        }
+
+        /* Disable transition during drag */
+        .map-view-container.panel-dragging .map-main-area {
+            transition: none !important;
         }
     }
 

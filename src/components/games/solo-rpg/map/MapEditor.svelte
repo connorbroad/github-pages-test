@@ -585,6 +585,8 @@
                 });
                 return;
             }
+            // Clicking on empty space deselects creature
+            dispatch("combatCreatureDeselect");
             // If no creature hit, allow panning
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
@@ -946,6 +948,27 @@
     }
 
     let resizeObserver: ResizeObserver | null = null;
+    let resizeThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastResizeTime = 0;
+    const RESIZE_THROTTLE_MS = 250; // Throttle resize to ~4fps during rapid changes (matches animation duration)
+
+    function throttledResize() {
+        const now = Date.now();
+        const timeSinceLastResize = now - lastResizeTime;
+        
+        if (timeSinceLastResize >= RESIZE_THROTTLE_MS) {
+            // Enough time has passed, resize immediately
+            lastResizeTime = now;
+            resizeCanvas();
+        } else {
+            // Schedule a resize after the throttle period
+            if (resizeThrottleTimer) clearTimeout(resizeThrottleTimer);
+            resizeThrottleTimer = setTimeout(() => {
+                lastResizeTime = Date.now();
+                resizeCanvas();
+            }, RESIZE_THROTTLE_MS - timeSinceLastResize);
+        }
+    }
 
     onMount(() => {
         ctxBg = canvasBg.getContext("2d")!;
@@ -960,7 +983,7 @@
         const container = canvasBg.parentElement;
         if (container && typeof ResizeObserver !== "undefined") {
             resizeObserver = new ResizeObserver(() => {
-                resizeCanvas();
+                throttledResize();
             });
             resizeObserver.observe(container);
         }
@@ -1011,6 +1034,10 @@
         if (resizeObserver) {
             resizeObserver.disconnect();
             resizeObserver = null;
+        }
+        if (resizeThrottleTimer) {
+            clearTimeout(resizeThrottleTimer);
+            resizeThrottleTimer = null;
         }
         if (map) {
             map.view = camera;

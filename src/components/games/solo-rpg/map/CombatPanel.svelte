@@ -36,12 +36,17 @@
     let dragStartY = 0;
     let dragStartHeight = 0;
 
+    // Collapsed state when no creature is selected (but not while dragging)
+    const COLLAPSED_HEIGHT = 15; // percent for mobile, or fixed px for desktop
+    $: isCollapsed = !selectedCreature && !isDragging;
+
     const dispatch = createEventDispatcher<{
         selectCreature: { objectId: string; creatureRef: CreatureRef };
         focusCreature: { objectId: string };
         initiativeRolled: { order: InitiativeEntry[]; turnIndex: number };
         turnChanged: { turnIndex: number; order: InitiativeEntry[] };
         panelHeightChanged: { heightPercent: number };
+        panelDragStateChanged: { isDragging: boolean };
         addToEncounter: { entry: InitiativeEntry };
     }>();
 
@@ -175,8 +180,10 @@
     function handleDragStart(e: PointerEvent) {
         isDragging = true;
         dragStartY = e.clientY;
-        dragStartHeight = panelHeightPercent;
+        // When collapsed, use the collapsed height as base for dragging
+        dragStartHeight = isCollapsed ? COLLAPSED_HEIGHT : panelHeightPercent;
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        dispatch("panelDragStateChanged", { isDragging: true });
     }
 
     function handleDragMove(e: PointerEvent) {
@@ -186,7 +193,10 @@
         const viewportHeight = window.innerHeight;
         const deltaPercent = (deltaY / viewportHeight) * 100;
 
+        // Update the saved height even when collapsed, so user can pre-size
         panelHeightPercent = Math.max(30, Math.min(70, dragStartHeight + deltaPercent));
+        // Dispatch during drag for real-time map adjustment
+        dispatch("panelHeightChanged", { heightPercent: panelHeightPercent });
     }
 
     function handleDragEnd(e: PointerEvent) {
@@ -194,13 +204,15 @@
         isDragging = false;
         (e.target as HTMLElement).releasePointerCapture(e.pointerId);
         savePanelHeight();
+        dispatch("panelDragStateChanged", { isDragging: false });
     }
 </script>
 
 <aside
     class="combat-panel"
     class:is-dragging={isDragging}
-    style="--panel-height: {panelHeightPercent}%;"
+    class:is-collapsed={isCollapsed}
+    style="--panel-height: {panelHeightPercent}%; --collapsed-height: {COLLAPSED_HEIGHT}%;"
     transition:fly={{
         duration: 300,
         easing: quintOut,
@@ -351,6 +363,17 @@
             height: var(--panel-height);
             border-radius: 16px 16px 0 0;
             border-bottom: none;
+            /* Animate height changes for select/deselect */
+            transition: height 0.25s ease-out;
+        }
+
+        .combat-panel.is-collapsed {
+            height: var(--collapsed-height);
+        }
+
+        /* Disable transitions during drag for instant feedback */
+        .combat-panel.is-dragging {
+            transition: none !important;
         }
     }
 
@@ -365,6 +388,17 @@
             border-top: none;
             border-bottom: none;
             border-left: none;
+            /* Animate width changes for select/deselect */
+            transition: width 0.25s ease-out;
+        }
+
+        .combat-panel.is-collapsed {
+            width: 80px;
+        }
+
+        /* Disable transitions during drag for instant feedback */
+        .combat-panel.is-dragging {
+            transition: none !important;
         }
     }
 
@@ -582,7 +616,8 @@
         gap: 0.75rem;
         color: var(--text-muted);
         text-align: center;
-        padding: 2rem;
+        padding: 1rem;
+        transition: opacity 0.2s ease;
     }
 
     .no-creature-selected svg {
@@ -592,5 +627,34 @@
     .no-creature-selected p {
         margin: 0;
         font-size: 0.875rem;
+    }
+
+    /* Hide text on desktop when collapsed */
+    @media (min-width: 768px) {
+        .is-collapsed .no-creature-selected p {
+            display: none;
+        }
+
+        .is-collapsed .no-creature-selected {
+            padding: 0.5rem;
+            gap: 0;
+        }
+    }
+
+    /* Mobile collapsed state - minimal padding */
+    @media (max-width: 767px) {
+        .is-collapsed .no-creature-selected {
+            padding: 0.5rem;
+            gap: 0.25rem;
+        }
+
+        .is-collapsed .no-creature-selected svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .is-collapsed .no-creature-selected p {
+            font-size: 0.75rem;
+        }
     }
 </style>
