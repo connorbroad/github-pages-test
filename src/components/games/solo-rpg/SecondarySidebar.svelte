@@ -9,7 +9,7 @@
 
     export let mode: "story" | "map" = "story";
     export let tool: "paint" | "object" | "move" = "move";
-    export let mapMode: "edit" | "combat" = "edit"; // Map sub-mode (passed from MapView for tool visibility)
+    export let mapMode: "edit" | "play" = "edit"; // Map sub-mode (passed from MapView for tool visibility)
 
     const dispatch = createEventDispatcher();
 

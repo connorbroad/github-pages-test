@@ -195,8 +195,8 @@
     // Selected tile reference for map tools
     let selectedTileRef: { tileMapId: string; tileId: string } | null = null;
 
-    // Map mode: edit (normal editing) or combat (battle mode)
-    let mapMode: "edit" | "combat" = "edit";
+    // Map mode: edit (normal editing) or play (battle/encounter mode)
+    let mapMode: "edit" | "play" = "edit";
 
     // Track sidebar visibility for smooth animations
     let showSecondarySidebar = false;
@@ -212,11 +212,11 @@
     }
 
     // Reactive statement to show sidebars when a map is opened
-    // In combat mode, hide the secondary sidebar to make room for combat panel
+    // In play mode, hide the secondary sidebar to make room for encounter panel
     $: if (currentMapId) {
         // Small delay to ensure DOM is ready and transition can play
         setTimeout(() => {
-            showSecondarySidebar = mapMode !== "combat";
+            showSecondarySidebar = mapMode !== "play";
         }, 10);
     } else {
         showSecondarySidebar = false;
@@ -225,7 +225,7 @@
 
     // Also update when mode changes
     $: if (currentMapId) {
-        showSecondarySidebar = mapMode !== "combat";
+        showSecondarySidebar = mapMode !== "play";
     }
 
     // Editor selection state for Move tool controls
@@ -273,8 +273,8 @@
 
     // Update tertiary sidebar visibility based on tool and mode
     $: if (currentMapId) {
-        // In combat mode, hide tertiary sidebar (combat panel shows instead)
-        if (mapMode === "combat") {
+        // In play mode, hide tertiary sidebar (encounter panel shows instead)
+        if (mapMode === "play") {
             showTertiarySidebar = false;
         } else {
             showTertiarySidebar =
@@ -282,17 +282,17 @@
         }
     }
 
-    // Combat mode state - no longer need creature selection for panel visibility
-    let combatSelectedCreature: {
+    // Encounter mode state - no longer need creature selection for panel visibility
+    let encounterSelectedCreature: {
         objectId: string;
         creatureRef: CreatureRef;
     } | null = null;
 
-    function handleCombatCreatureSelect(
+    function handleEncounterCreatureSelect(
         e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
     ) {
-        // In combat mode, clicking a creature switches to their turn
-        combatSelectedCreature = e.detail;
+        // In play mode, clicking a creature switches to their turn
+        encounterSelectedCreature = e.detail;
 
         // Find this creature in initiative order and set them as current turn
         const index = initiativeOrder.findIndex((entry) => entry.objectId === e.detail.objectId);
@@ -307,19 +307,19 @@
         }
     }
 
-    function handleCombatCreatureDeselect() {
+    function handleEncounterCreatureDeselect() {
         // Clicking on empty map space deselects the creature
-        combatSelectedCreature = null;
+        encounterSelectedCreature = null;
     }
 
-    function handleCombatSelectCreature(
+    function handleEncounterSelectCreature(
         e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
     ) {
-        // Switch which creature is displayed in the combat panel
-        combatSelectedCreature = e.detail;
+        // Switch which creature is displayed in the encounter panel
+        encounterSelectedCreature = e.detail;
     }
 
-    function handleCombatFocusCreature(e: CustomEvent<{ objectId: string }>) {
+    function handleEncounterFocusCreature(e: CustomEvent<{ objectId: string }>) {
         // Center map on the creature's object
         editorRef?.centerOnObject?.(e.detail.objectId);
     }
@@ -347,7 +347,7 @@
 
         const obj = map.objects.find((o) => o.id === objectId);
         if (obj?.creatureRef) {
-            combatSelectedCreature = {
+            encounterSelectedCreature = {
                 objectId: obj.id,
                 creatureRef: obj.creatureRef,
             };
@@ -434,7 +434,7 @@
         currentTurnIndex = 0;
         hasActiveEncounter = false;
         pendingNextObjectId = undefined;
-        combatSelectedCreature = null;
+        encounterSelectedCreature = null;
         saveCombatState();
     }
 
@@ -599,24 +599,24 @@
         return editorRef?.getVisibleCreatureIds?.() ?? [];
     }
 
-    // Combat panel height for mobile layout (CSS variable)
-    let combatPanelHeight = 50;
-    let combatPanelDragging = false;
+    // Encounter panel height for mobile layout (CSS variable)
+    let encounterPanelHeight = 50;
+    let encounterPanelDragging = false;
 
     function handlePanelHeightChanged(e: CustomEvent<{ heightPercent: number }>) {
-        combatPanelHeight = e.detail.heightPercent;
+        encounterPanelHeight = e.detail.heightPercent;
     }
 
     function handlePanelDragStateChanged(e: CustomEvent<{ isDragging: boolean }>) {
-        combatPanelDragging = e.detail.isDragging;
+        encounterPanelDragging = e.detail.isDragging;
     }
 
-    function setMapMode(mode: "edit" | "combat") {
+    function setMapMode(mode: "edit" | "play") {
         mapMode = mode;
         if (mode === "edit") {
-            combatSelectedCreature = null;
-        } else if (mode === "combat") {
-            // When entering combat mode, select the first creature in initiative if available
+            encounterSelectedCreature = null;
+        } else if (mode === "play") {
+            // When entering play mode, select the first creature in initiative if available
             if (initiativeOrder.length > 0) {
                 const currentEntry = initiativeOrder[currentTurnIndex];
                 if (currentEntry) {
@@ -633,8 +633,8 @@
         }
     }
 
-    // Check if we should show combat panel (combat mode is active)
-    $: showCombatPanel = mapMode === "combat";
+    // Check if we should show encounter panel (play mode is active)
+    $: showEncounterPanel = mapMode === "play";
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -651,13 +651,15 @@
                 on:updateMap={updateMap} />
         </div>
     {:else}
-        <!-- Map View Container: uses flexbox to accommodate combat panel -->
+        <!-- Map View Container: uses flexbox to accommodate encounter panel -->
         <div
             class="map-view-container"
-            class:combat-mode={showCombatPanel}
-            class:combat-panel-collapsed={showCombatPanel && !combatSelectedCreature && !combatPanelDragging}
-            class:panel-dragging={combatPanelDragging}
-            style="--combat-panel-height: {combatPanelHeight}%;">
+            class:play-mode={showEncounterPanel}
+            class:encounter-panel-collapsed={showEncounterPanel &&
+                !encounterSelectedCreature &&
+                !encounterPanelDragging}
+            class:panel-dragging={encounterPanelDragging}
+            style="--encounter-panel-height: {encounterPanelHeight}%;">
             <!-- Secondary Sidebar (tools) -->
             <SecondarySidebar
                 show={showSecondarySidebar}
@@ -696,17 +698,17 @@
                 on:moveDelete={handleMoveDelete}
                 on:creatureAssign={handleCreatureAssign} />
 
-            <!-- Combat Panel (left side on desktop, bottom on mobile) -->
-            {#if showCombatPanel}
+            <!-- Encounter Panel (left side on desktop, bottom on mobile) -->
+            {#if showEncounterPanel}
                 <CombatPanel
                     {campaignId}
                     mapId={currentMapId}
-                    selectedCreature={combatSelectedCreature}
+                    selectedCreature={encounterSelectedCreature}
                     {initiativeOrder}
                     {currentTurnIndex}
                     {hasActiveEncounter}
-                    on:selectCreature={handleCombatSelectCreature}
-                    on:focusCreature={handleCombatFocusCreature}
+                    on:selectCreature={handleEncounterSelectCreature}
+                    on:focusCreature={handleEncounterFocusCreature}
                     on:initiativeRolled={handleInitiativeRolled}
                     on:turnChanged={handleTurnChanged}
                     on:panelHeightChanged={handlePanelHeightChanged}
@@ -734,7 +736,7 @@
                     {getVisibleCreatureIds}
                     on:beginEncounter={handleBeginEncounter}
                     on:cancel={() => (showEncounterSetup = false)} />
-            {/if}
+            {/if}<!-- End showEncounterPanel -->
 
             <!-- Main Map Area -->
             <div class="map-main-area">
@@ -760,9 +762,9 @@
                         </button>
                         <button
                             class="srpg-segment"
-                            class:active={mapMode === "combat"}
-                            on:click={() => setMapMode("combat")}
-                            aria-pressed={mapMode === "combat"}>
+                            class:active={mapMode === "play"}
+                            on:click={() => setMapMode("play")}
+                            aria-pressed={mapMode === "play"}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -773,7 +775,7 @@
                                 <path
                                     d="m6.92 5H5l4 4l1.47-1.47L6.92 5m5.86 4.41l4.75 4.75a1.67 1.67 0 0 1 0 2.36L13.7 20.3a1.66 1.66 0 0 1-2.36 0L7 16l-1.41-1.41l3.29-3.29l-3.88-3.89V5h2.41l3.88 3.88l3.47-3.47a1.66 1.66 0 0 1 2.36 0l.83.83a1.67 1.67 0 0 1 0 2.36l-3.47 3.47l.83.82" />
                             </svg>
-                            <span>Combat</span>
+                            <span>Play</span>
                         </button>
                     </div>
                 </div>
@@ -789,8 +791,8 @@
                         selectedTile={selectedTileRef}
                         {mapMode}
                         on:selectionChange={handleEditorSelectionChange}
-                        on:combatCreatureSelect={handleCombatCreatureSelect}
-                        on:combatCreatureDeselect={handleCombatCreatureDeselect} />
+                        on:encounterCreatureSelect={handleEncounterCreatureSelect}
+                        on:encounterCreatureDeselect={handleEncounterCreatureDeselect} />
                 </div>
             </div>
         </div>
@@ -815,10 +817,10 @@
         flex-direction: column;
     }
 
-    /* Mobile combat mode: secondary sidebar hides, so reduce bottom offset */
+    /* Mobile play mode: secondary sidebar hides, so reduce bottom offset */
     /* Add space for initiative bar (48px) */
     @media (max-width: 767px) {
-        .map-view-container.combat-mode {
+        .map-view-container.play-mode {
             bottom: calc(70px + 48px + env(safe-area-inset-bottom));
         }
     }
@@ -831,8 +833,8 @@
             left: 170px;
         }
 
-        /* In combat mode, secondary sidebar is hidden, add space for initiative bar (44px) */
-        .map-view-container.combat-mode {
+        /* In play mode, secondary sidebar is hidden, add space for initiative bar (44px) */
+        .map-view-container.play-mode {
             left: 80px; /* Only primary sidebar */
             bottom: 44px; /* Initiative bar height */
         }
@@ -848,17 +850,17 @@
         overflow: hidden;
     }
 
-    /* Mobile: When in combat mode, reduce height for bottom combat panel */
+    /* Mobile: When in play mode, reduce height for bottom encounter panel */
     @media (max-width: 767px) {
-        .map-view-container.combat-mode .map-main-area {
-            /* Combat panel takes var(--panel-height) from bottom */
-            bottom: var(--combat-panel-height, 40%);
-            /* Match the combat panel transition timing */
+        .map-view-container.play-mode .map-main-area {
+            /* Encounter panel takes var(--panel-height) from bottom */
+            bottom: var(--encounter-panel-height, 40%);
+            /* Match the encounter panel transition timing */
             transition: bottom 0.25s ease-out;
         }
 
-        /* When combat panel is collapsed (no creature selected), use smaller bottom offset */
-        .map-view-container.combat-mode.combat-panel-collapsed .map-main-area {
+        /* When encounter panel is collapsed (no creature selected), use smaller bottom offset */
+        .map-view-container.play-mode.encounter-panel-collapsed .map-main-area {
             bottom: 15%; /* Matches COLLAPSED_HEIGHT in CombatPanel */
         }
 
@@ -868,16 +870,16 @@
         }
     }
 
-    /* Desktop: When in combat mode, add left offset for combat panel */
+    /* Desktop: When in play mode, add left offset for encounter panel */
     @media (min-width: 768px) {
-        .map-view-container.combat-mode .map-main-area {
-            left: 320px; /* Width of combat panel */
-            /* Match the combat panel transition timing */
+        .map-view-container.play-mode .map-main-area {
+            left: 320px; /* Width of encounter panel */
+            /* Match the encounter panel transition timing */
             transition: left 0.25s ease-out;
         }
 
-        /* When combat panel is collapsed (no creature selected), use smaller left offset */
-        .map-view-container.combat-mode.combat-panel-collapsed .map-main-area {
+        /* When encounter panel is collapsed (no creature selected), use smaller left offset */
+        .map-view-container.play-mode.encounter-panel-collapsed .map-main-area {
             left: 80px; /* Matches collapsed width in CombatPanel */
         }
 

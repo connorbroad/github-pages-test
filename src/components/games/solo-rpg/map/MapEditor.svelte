@@ -20,7 +20,7 @@
     export let tool: "paint" | "object" | "move" = "move";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
-    export let mapMode: "edit" | "combat" = "edit";
+    export let mapMode: "edit" | "play" = "edit";
 
     // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
@@ -574,19 +574,19 @@
 
         const { x, y } = screenToWorld(e.clientX, e.clientY);
 
-        // Combat mode: clicking on a creature opens the combat panel
-        if (mapMode === "combat") {
+        // Play mode: clicking on a creature opens the encounter panel
+        if (mapMode === "play") {
             const objs = getSortedObjects();
             const hit = objs.find((o) => isPointInObject(x, y, o));
             if (hit?.creatureRef) {
-                dispatch("combatCreatureSelect", {
+                dispatch("encounterCreatureSelect", {
                     objectId: hit.id,
                     creatureRef: hit.creatureRef,
                 });
                 return;
             }
             // Clicking on empty space deselects creature
-            dispatch("combatCreatureDeselect");
+            dispatch("encounterCreatureDeselect");
             // If no creature hit, allow panning
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
@@ -950,12 +950,12 @@
     let resizeObserver: ResizeObserver | null = null;
     let resizeThrottleTimer: ReturnType<typeof setTimeout> | null = null;
     let lastResizeTime = 0;
-    const RESIZE_THROTTLE_MS = 250; // Throttle resize to ~4fps during rapid changes (matches animation duration)
+    const RESIZE_THROTTLE_MS = 150; // Throttle resize to ~4fps during rapid changes (matches animation duration)
 
     function throttledResize() {
         const now = Date.now();
         const timeSinceLastResize = now - lastResizeTime;
-        
+
         if (timeSinceLastResize >= RESIZE_THROTTLE_MS) {
             // Enough time has passed, resize immediately
             lastResizeTime = now;
