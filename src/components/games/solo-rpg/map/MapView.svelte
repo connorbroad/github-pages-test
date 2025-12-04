@@ -292,6 +292,7 @@
         e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
     ) {
         // In play mode, clicking a creature switches to their turn
+        const wasCollapsed = !encounterSelectedCreature;
         encounterSelectedCreature = e.detail;
 
         // Find this creature in initiative order and set them as current turn
@@ -305,6 +306,10 @@
             initiativeOrder = newOrder;
             saveCombatState();
         }
+
+        // Center on the selected creature with animation
+        // Use forceExpanded=true if panel was collapsed, so we account for where it's animating to
+        centerOnCreature(e.detail.objectId, true, wasCollapsed);
     }
 
     function handleEncounterCreatureDeselect() {
@@ -316,12 +321,16 @@
         e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
     ) {
         // Switch which creature is displayed in the encounter panel
+        const wasCollapsed = !encounterSelectedCreature;
         encounterSelectedCreature = e.detail;
+
+        // Center on creature with animation, accounting for panel expansion
+        centerOnCreature(e.detail.objectId, true, wasCollapsed);
     }
 
     function handleEncounterFocusCreature(e: CustomEvent<{ objectId: string }>) {
         // Center map on the creature's object
-        editorRef?.centerOnObject?.(e.detail.objectId);
+        centerOnCreature(e.detail.objectId);
     }
 
     function handleInitiativeRolled(
@@ -336,7 +345,7 @@
             const firstEntry = e.detail.order[e.detail.turnIndex];
             selectCreatureByObjectId(firstEntry.objectId);
             // Center the map on the first creature
-            editorRef?.centerOnObject?.(firstEntry.objectId);
+            centerOnCreature(firstEntry.objectId);
         }
     }
 
@@ -364,7 +373,7 @@
         if (currentEntry) {
             selectCreatureByObjectId(currentEntry.objectId);
             // Center the map on this creature
-            editorRef?.centerOnObject?.(currentEntry.objectId);
+            centerOnCreature(currentEntry.objectId);
         }
     }
 
@@ -425,7 +434,7 @@
         // Focus on first creature
         if (entries.length > 0) {
             selectCreatureByObjectId(entries[0].objectId);
-            editorRef?.centerOnObject?.(entries[0].objectId);
+            centerOnCreature(entries[0].objectId);
         }
     }
 
@@ -483,7 +492,7 @@
         // Focus on first creature
         if (entries.length > 0) {
             selectCreatureByObjectId(entries[0].objectId);
-            editorRef?.centerOnObject?.(entries[0].objectId);
+            centerOnCreature(entries[0].objectId);
         }
     }
 
@@ -516,11 +525,11 @@
         initiativeOrder = newOrder;
         saveCombatState();
 
-        // Focus on new creature
+        // Focus on new creature with animation
         const entry = newOrder[newIndex];
         if (entry) {
             selectCreatureByObjectId(entry.objectId);
-            editorRef?.centerOnObject?.(entry.objectId);
+            centerOnCreature(entry.objectId, true);
         }
     }
 
@@ -540,11 +549,11 @@
         initiativeOrder = newOrder;
         saveCombatState();
 
-        // Focus on new creature
+        // Focus on new creature with animation
         const entry = newOrder[newIndex];
         if (entry) {
             selectCreatureByObjectId(entry.objectId);
-            editorRef?.centerOnObject?.(entry.objectId);
+            centerOnCreature(entry.objectId, true);
         }
     }
 
@@ -565,7 +574,7 @@
         saveCombatState();
 
         selectCreatureByObjectId(objectId);
-        editorRef?.centerOnObject?.(objectId);
+        centerOnCreature(objectId, true);
     }
 
     function handleAddToEncounter(e: CustomEvent<{ entry: InitiativeEntry }>) {
@@ -591,12 +600,65 @@
 
         // Select and focus on new creature
         selectCreatureByObjectId(newEntry.objectId);
-        editorRef?.centerOnObject?.(newEntry.objectId);
+        centerOnCreature(newEntry.objectId);
     }
 
     // Get visible creature IDs from MapEditor (for EncounterSetupModal)
     function getVisibleCreatureIds(): string[] {
         return editorRef?.getVisibleCreatureIds?.() ?? [];
+    }
+
+    // Constants for combat panel dimensions (must match CombatPanel.svelte CSS)
+    const DESKTOP_PANEL_WIDTH = 320;
+    const DESKTOP_COLLAPSED_WIDTH = 80;
+    const MOBILE_COLLAPSED_HEIGHT_PERCENT = 15;
+
+    /**
+     * Calculate focus offset to account for overlaying combat panel.
+     * Returns offset in screen pixels - positive X shifts focus right, positive Y shifts focus down.
+     * This ensures the focused creature appears in the visible (non-obscured) center of the map.
+     * @param forceExpanded - If true, calculate offset as if panel will be expanded (for predictive focusing)
+     */
+    function getFocusOffset(forceExpanded: boolean = false): { x: number; y: number } {
+        // Only apply offset when in play mode with panel visible
+        if (!showEncounterPanel) return { x: 0, y: 0 };
+
+        const isCollapsed = forceExpanded
+            ? false
+            : !encounterSelectedCreature && !encounterPanelDragging;
+
+        if (isMobile) {
+            // Mobile: panel at bottom, shift creature UP on screen (into visible area)
+            const panelPercent = isCollapsed
+                ? MOBILE_COLLAPSED_HEIGHT_PERCENT
+                : encounterPanelHeight;
+            // Panel height is a percentage of viewport (window.innerHeight)
+            const panelHeightPx = (window.innerHeight * panelPercent) / 100;
+            // To shift creature UP on screen, camera needs to move DOWN (positive Y)
+            // Shift by full panel height to center creature in visible area above panel
+            const yOffset = 2.4;
+            return { x: 0, y: panelHeightPx / yOffset };
+        } else {
+            // Desktop: panel on left, shift focus RIGHT by half of panel width
+            const panelWidth = isCollapsed ? DESKTOP_COLLAPSED_WIDTH : DESKTOP_PANEL_WIDTH;
+            // Positive X to shift focus point rightward (camera moves left)
+            return { x: panelWidth / 2, y: 0 };
+        }
+    }
+
+    /**
+     * Center map on a creature with offset to account for overlay panel.
+     * @param objectId - The ID of the object to center on
+     * @param animate - Whether to animate the camera movement
+     * @param forceExpanded - Calculate offset as if panel will be expanded
+     */
+    function centerOnCreature(
+        objectId: string,
+        animate: boolean = false,
+        forceExpanded: boolean = false
+    ) {
+        const offset = getFocusOffset(forceExpanded);
+        editorRef?.centerOnObject?.(objectId, offset.x, offset.y, animate);
     }
 
     // Encounter panel height for mobile layout (CSS variable)
@@ -848,45 +910,6 @@
         right: 0;
         bottom: 0;
         overflow: hidden;
-    }
-
-    /* Mobile: When in play mode, reduce height for bottom encounter panel */
-    @media (max-width: 767px) {
-        .map-view-container.play-mode .map-main-area {
-            /* Encounter panel takes var(--panel-height) from bottom */
-            bottom: var(--encounter-panel-height, 40%);
-            /* Match the encounter panel transition timing */
-            transition: bottom 0.25s ease-out;
-        }
-
-        /* When encounter panel is collapsed (no creature selected), use smaller bottom offset */
-        .map-view-container.play-mode.encounter-panel-collapsed .map-main-area {
-            bottom: 15%; /* Matches COLLAPSED_HEIGHT in CombatPanel */
-        }
-
-        /* Disable transition during drag */
-        .map-view-container.panel-dragging .map-main-area {
-            transition: none !important;
-        }
-    }
-
-    /* Desktop: When in play mode, add left offset for encounter panel */
-    @media (min-width: 768px) {
-        .map-view-container.play-mode .map-main-area {
-            left: 320px; /* Width of encounter panel */
-            /* Match the encounter panel transition timing */
-            transition: left 0.25s ease-out;
-        }
-
-        /* When encounter panel is collapsed (no creature selected), use smaller left offset */
-        .map-view-container.play-mode.encounter-panel-collapsed .map-main-area {
-            left: 80px; /* Matches collapsed width in CombatPanel */
-        }
-
-        /* Disable transition during drag */
-        .map-view-container.panel-dragging .map-main-area {
-            transition: none !important;
-        }
     }
 
     /* Map mode toggle header */

@@ -369,11 +369,23 @@
         emitSelection();
     }
 
+    // Animation state for smooth camera transitions
+    let cameraAnimationRaf: number | null = null;
+
     /**
      * Center the camera on a specific object by its ID.
      * Used to focus on a creature during turn switching in combat.
+     * @param objectId - The ID of the object to center on
+     * @param offsetX - Optional X offset in screen pixels (positive = shift focus right)
+     * @param offsetY - Optional Y offset in screen pixels (positive = shift focus down)
+     * @param animate - Whether to animate the camera movement (default: false)
      */
-    export function centerOnObject(objectId: string) {
+    export function centerOnObject(
+        objectId: string,
+        offsetX: number = 0,
+        offsetY: number = 0,
+        animate: boolean = false
+    ) {
         if (!map) return;
 
         const obj = map.objects.find((o) => o.id === objectId);
@@ -388,18 +400,67 @@
         const halfCanvasW = rect.width / 2 / camera.zoom;
         const halfCanvasH = rect.height / 2 / camera.zoom;
 
-        // Set camera so object is centered
-        camera.x = objCenterX - halfCanvasW;
-        camera.y = objCenterY - halfCanvasH;
+        // Convert screen pixel offsets to world units and apply
+        const worldOffsetX = offsetX / camera.zoom;
+        const worldOffsetY = offsetY / camera.zoom;
 
-        clampCameraToBounds();
-        scheduleRender();
+        // Calculate target camera position
+        const targetX = objCenterX - halfCanvasW + worldOffsetX;
+        const targetY = objCenterY - halfCanvasH + worldOffsetY;
 
-        // Save the new view position
-        if (map) {
-            map.view.x = camera.x;
-            map.view.y = camera.y;
-            queueSave();
+        if (animate) {
+            // Cancel any existing animation
+            if (cameraAnimationRaf) {
+                cancelAnimationFrame(cameraAnimationRaf);
+                cameraAnimationRaf = null;
+            }
+
+            const startX = camera.x;
+            const startY = camera.y;
+            const startTime = performance.now();
+            const duration = 250; // ms - matches panel animation timing
+
+            const animateStep = (currentTime: number) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Ease-out cubic for smooth deceleration
+                const eased = 1 - Math.pow(1 - progress, 3);
+
+                camera.x = startX + (targetX - startX) * eased;
+                camera.y = startY + (targetY - startY) * eased;
+
+                clampCameraToBounds();
+                scheduleRender();
+
+                if (progress < 1) {
+                    cameraAnimationRaf = requestAnimationFrame(animateStep);
+                } else {
+                    cameraAnimationRaf = null;
+                    // Save final position
+                    if (map) {
+                        map.view.x = camera.x;
+                        map.view.y = camera.y;
+                        queueSave();
+                    }
+                }
+            };
+
+            cameraAnimationRaf = requestAnimationFrame(animateStep);
+        } else {
+            // Immediate positioning
+            camera.x = targetX;
+            camera.y = targetY;
+
+            clampCameraToBounds();
+            scheduleRender();
+
+            // Save the new view position
+            if (map) {
+                map.view.x = camera.x;
+                map.view.y = camera.y;
+                queueSave();
+            }
         }
     }
 
