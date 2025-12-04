@@ -369,11 +369,6 @@
         background: rgba(255, 255, 255, 0.2);
         color: white;
     }
-
-    .initiative-item.active .init-hp {
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-
     .initiative-item.pending-next {
         border-color: var(--accent-info);
         box-shadow: 0 0 0 1px var(--accent-info);
@@ -402,11 +397,6 @@
 
     .initiative-item.active .init-name {
         color: white;
-    }
-
-    .init-hp {
-        font-size: 0.6875rem;
-        font-weight: 600;
     }
 
     .next-indicator {
