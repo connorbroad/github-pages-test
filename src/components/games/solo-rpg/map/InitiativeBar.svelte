@@ -176,25 +176,6 @@
 
             <!-- Center: Initiative order with scroll -->
             <div class="initiative-scroll-wrapper">
-                <button
-                    class="scroll-nav scroll-nav-prev"
-                    on:click={handlePrevTurn}
-                    title="Previous Turn"
-                    aria-label="Previous turn">
-                    <svg
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                </button>
-
                 <div class="initiative-scroll" bind:this={scrollContainer}>
                     {#each initiativeOrder as entry, index (entry.objectId)}
                         <button
@@ -209,33 +190,9 @@
                             {#if entry.objectId === pendingNextObjectId}
                                 <span class="next-indicator">next</span>
                             {/if}
-                            <span
-                                class="init-hp"
-                                style="color: {getHPColor(entry.currentHP, entry.maxHP)}">
-                                {entry.currentHP}
-                            </span>
                         </button>
                     {/each}
                 </div>
-
-                <button
-                    class="scroll-nav scroll-nav-next"
-                    on:click={handleNextTurn}
-                    title="Next Turn"
-                    aria-label="Next turn">
-                    <svg
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true">
-                        <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                </button>
             </div>
 
             <!-- Right: Next Turn button -->
@@ -313,7 +270,7 @@
         gap: 0.5rem;
         width: 100%;
         height: 100%;
-        padding: 0 0.5rem;
+        padding: 0;
     }
 
     .bar-content-centered {
@@ -362,26 +319,6 @@
         gap: 0.25rem;
     }
 
-    .scroll-nav {
-        flex-shrink: 0;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-primary);
-        border-radius: 4px;
-        cursor: pointer;
-        color: var(--text-secondary);
-        transition: all 0.15s ease;
-    }
-
-    .scroll-nav:hover {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-    }
-
     .initiative-scroll {
         display: flex;
         gap: 0.375rem;
@@ -406,7 +343,7 @@
         display: flex;
         align-items: center;
         gap: 0.375rem;
-        padding: 0.375rem 0.625rem;
+        padding: 0.375rem;
         background: var(--card-bg);
         border: 1px solid var(--border-primary);
         border-radius: 6px;
