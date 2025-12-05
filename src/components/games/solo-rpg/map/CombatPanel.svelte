@@ -345,7 +345,7 @@
     /* Combat Panel - responsive positioning */
     .combat-panel {
         position: fixed;
-        z-index: 25;
+        z-index: 30; /* Below SecondarySidebar (z-40) */
         background: var(--bg-elevated);
         border: 1px solid var(--border-primary);
         box-shadow: var(--shadow-lg);
@@ -354,10 +354,10 @@
         overflow: hidden;
     }
 
-    /* Mobile: Bottom panel - above primary sidebar (70px) + initiative bar (48px) */
+    /* Mobile: Bottom panel - above both sidebars (130px) + initiative bar (48px) */
     @media (max-width: 767px) {
         .combat-panel {
-            bottom: calc(70px + 48px + env(safe-area-inset-bottom));
+            bottom: calc(130px + 48px + env(safe-area-inset-bottom));
             left: 0;
             right: 0;
             height: var(--panel-height);
@@ -377,11 +377,11 @@
         }
     }
 
-    /* Desktop: Left side panel - after primary sidebar (80px) only, since secondary sidebar hides in combat mode */
+    /* Desktop: Left side panel - after both sidebars (80px primary + 90px secondary = 170px) */
     @media (min-width: 768px) {
         .combat-panel {
             top: 0;
-            left: 80px; /* Just after primary sidebar */
+            left: 170px; /* After both sidebars */
             bottom: 44px; /* Above initiative bar */
             width: 320px;
             border-radius: 0;

@@ -1011,18 +1011,18 @@ function setMapMode(mode: "edit" | "play") {
 - [x] **UPDATED:** Add `isErasing` state and pass to MapEditor
 - [x] **UPDATED:** FloatingToolToggle displays "Add" label (internal state remains "paint")
 - [x] **UPDATED:** FloatingPaintOptions hidden when `isErasing === true` in Background mode
-- [ ] Test: Full workflow edit → play → edit, all panels appear/hide correctly
+- [x] Test: Full workflow edit → play → edit, all panels appear/hide correctly
 
 ### Phase 10: Update InitiativeBar Positioning
 
-- [ ] Update mobile CSS: `bottom: calc(130px + env(safe-area-inset-bottom))`
-- [ ] Update desktop CSS: `left: 170px`
+- [x] Update mobile CSS: `bottom: calc(130px + env(safe-area-inset-bottom))`
+- [x] Update desktop CSS: `left: 170px`
 - [ ] Test: Bar positions correctly in play mode
 
 ### Phase 11: Update CombatPanel Positioning
 
-- [ ] Update mobile CSS: `bottom: calc(130px + 48px + env(safe-area-inset-bottom))`
-- [ ] Update desktop CSS: `left: 170px`
+- [x] Update mobile CSS: `bottom: calc(130px + 48px + env(safe-area-inset-bottom))`
+- [x] Update desktop CSS: `left: 170px`
 - [ ] Test: Panel positions correctly in play mode
 
 ### Phase 12: Clean Up TertiarySidebar
