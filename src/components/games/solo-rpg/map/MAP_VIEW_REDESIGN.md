@@ -1037,9 +1037,9 @@ function setMapMode(mode: "edit" | "play") {
 
 ### Phase 13: Remove Old FloatingToolPanel
 
-- [ ] Delete `FloatingToolPanel.svelte` file
-- [ ] Verify no remaining imports reference it
-- [ ] Test: No build errors
+- [x] Delete `FloatingToolPanel.svelte` file
+- [x] Verify no remaining imports reference it
+- [x] Test: No build errors _(TypeScript cache may need refresh)_
 
 ### Phase 14: Add Tests
 
