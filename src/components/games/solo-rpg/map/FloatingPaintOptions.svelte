@@ -345,7 +345,7 @@
         border: 1px solid var(--border-primary);
         border-radius: 12px;
         box-shadow: var(--shadow-lg);
-        max-width: 80vw;
+        width: min(600px, 90vw);
         max-height: 80vh;
         display: flex;
         flex-direction: column;

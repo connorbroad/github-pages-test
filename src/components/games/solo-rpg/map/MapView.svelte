@@ -27,7 +27,10 @@
     import FloatingPaintModeToggle from "./FloatingPaintModeToggle.svelte";
     import FloatingBrushModeToggle from "./FloatingBrushModeToggle.svelte";
     import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
-    import FloatingSelectionPanel from "./FloatingSelectionPanel.svelte";
+    // Split selection panels
+    import FloatingDeletePanel from "./FloatingDeletePanel.svelte";
+    import FloatingAssignPanel from "./FloatingAssignPanel.svelte";
+    import FloatingFlipColorPanel from "./FloatingFlipColorPanel.svelte";
     import {
         rollInitiativeForCreatures,
         getNextTurnIndex,
@@ -770,18 +773,21 @@
                     {/if}
                 {/if}
 
-                <!-- Selection panel - visible when object selected in Move mode -->
+                <!-- Selection panels - visible when object selected in Move mode (split into 3 panels) -->
                 {#if showFloatingSelectionPanel}
-                    <FloatingSelectionPanel
-                        selectedColor={moveSelectedColor}
-                        canFlip={moveCanFlip}
+                    <FloatingDeletePanel on:delete={handleMoveDelete} />
+
+                    <FloatingAssignPanel
                         creatureRef={moveSelectedCreatureRef}
                         {campaignId}
                         mapId={currentMapId}
-                        on:colorChange={handleMoveColorChange}
-                        on:flip={handleMoveFlip}
-                        on:delete={handleMoveDelete}
                         on:creatureAssign={handleCreatureAssign} />
+
+                    <FloatingFlipColorPanel
+                        selectedColor={moveSelectedColor}
+                        canFlip={moveCanFlip}
+                        on:colorChange={handleMoveColorChange}
+                        on:flip={handleMoveFlip} />
                 {/if}
             </FloatingPanelContainer>
 

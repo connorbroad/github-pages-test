@@ -699,20 +699,13 @@
             return;
         }
 
-        if (tool === "paint") {
+        // Background paint mode: grid-locked painting
+        if (tool === "paint" && paintMode === "background") {
             paintAt(e.clientX, e.clientY);
             return;
         }
 
-        const objs = getSortedObjects();
-        const hit = objs.find((o) => isPointInObject(x, y, o));
-        if (hit) {
-            draggingObj = hit;
-            dragOffset.x = x - hit.x;
-            dragOffset.y = y - hit.y;
-            return;
-        }
-
+        // Object paint mode: place objects at exact position (not grid-locked)
         if (tool === "paint" && paintMode === "object" && (e.button === 0 || e.button === -1)) {
             if (selectedTile) {
                 const id = generateUUID();
@@ -891,7 +884,7 @@
             draggingObj.x = x - dragOffset.x;
             draggingObj.y = y - dragOffset.y;
             scheduleRender();
-        } else if (tool === "paint" && e.buttons & 1) {
+        } else if (tool === "paint" && paintMode === "background" && e.buttons & 1) {
             paintAt(e.clientX, e.clientY);
         }
     }
