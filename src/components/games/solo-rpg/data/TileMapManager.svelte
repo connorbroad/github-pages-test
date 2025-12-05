@@ -202,33 +202,51 @@
 </script>
 
 <div
-    class="bg-card-bg text-text-primary border-card-border mx-auto w-full max-w-[500px] rounded-lg border p-0 shadow-md">
-    <div class="border-border-primary flex items-center justify-between border-b p-6">
-        <h2 class="text-text-primary m-0 text-2xl">Tilemap Manager</h2>
-        <div class="flex flex-wrap gap-3">
-            <button
-                class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                on:click={startCreate}>
-                Create Tilemap
-            </button>
-        </div>
+    class="mx-auto w-full max-w-[600px] rounded-lg border border-(--card-border) bg-(--card-bg) p-0 text-(--text-primary) shadow-md">
+    <div class="flex items-center justify-between border-b border-(--border-primary) p-6">
+        <h2 class="m-0 text-2xl font-bold text-(--text-primary)">Tilemap Manager</h2>
+        <button class="srpg-b srpg-b-create" on:click={startCreate}>
+            <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Create Tilemap
+        </button>
     </div>
 
     <div class="p-6">
-        <p class="text-text-secondary mt-0 mb-4">Manage tilesheets for use in the Map tool.</p>
+        <p class="mt-0 mb-2 text-(--text-secondary)">Manage tilesheets for use in the Map tool.</p>
+        <p class="mt-0 text-sm text-(--text-muted)">
+            <strong class="text-(--text-secondary)">BG</strong>
+            = background tiles (terrain, floors).
+        </p>
+        <p class="mt-0 mb-4 text-sm text-(--text-muted)">
+            <strong class="text-(--text-secondary)">TOK</strong>
+            = tokens (moveable characters, objects).
+        </p>
 
         {#if creating}
             <div class="creator">
-                <div class="mb-4 flex flex-col gap-1">
-                    <label class="text-text-secondary" for="tilemap-name">Name</label>
+                <div class="srpg-form-field">
+                    <label class="text-sm font-medium text-(--text-secondary)" for="tilemap-name">
+                        Name
+                    </label>
                     <input
                         id="tilemap-name"
                         type="text"
                         bind:value={name}
                         placeholder="My Tilesheet" />
                 </div>
-                <div class="mb-4 flex flex-col gap-1">
-                    <label class="text-text-secondary" for="tilemap-size">Tile size (px)</label>
+                <div class="srpg-form-field">
+                    <label class="text-sm font-medium text-(--text-secondary)" for="tilemap-size">
+                        Tile size (px)
+                    </label>
                     <input
                         id="tilemap-size"
                         type="number"
@@ -243,16 +261,28 @@
                             }
                         }} />
                 </div>
-                <div class="mb-4 flex flex-col gap-1">
-                    <label class="text-text-secondary" for="tilemap-image">Image</label>
-                    <div class="flex flex-wrap gap-3">
-                        <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
-                            on:click={() => fileInput.click()}>
+                <div class="srpg-form-field">
+                    <label class="text-sm font-medium text-(--text-secondary)" for="tilemap-image">
+                        Image
+                    </label>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button class="srpg-b srpg-b-simple" on:click={() => fileInput.click()}>
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="M21 15l-5-5L5 21" />
+                            </svg>
                             Choose Image
                         </button>
                         {#if imageValue}
-                            <span class="text-text-secondary text-sm">
+                            <span class="srpg-badge srpg-badge-info">
                                 {columns} × {rows} tiles @ {tileSize}px
                             </span>
                         {/if}
@@ -269,63 +299,81 @@
                 {#if imageValue}
                     <div class="mt-2 mb-3 flex flex-wrap gap-2">
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => selectAll(true)}>
                             Include all
                         </button>
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => selectAll(false)}>
                             Exclude all
                         </button>
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => setAllBg(true)}>
                             BG on
                         </button>
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => setAllBg(false)}>
                             BG off
                         </button>
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => setAllFg(true)}>
-                            FG on
+                            TOK on
                         </button>
                         <button
-                            class="border-border-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200"
+                            class="srpg-b srpg-b-simple srpg-b-sm"
                             on:click={() => setAllFg(false)}>
-                            FG off
+                            TOK off
                         </button>
                     </div>
 
                     <div
-                        class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3"
+                        class="grid grid-cols-[repeat(auto-fill,minmax(130px,1fr))] gap-3"
                         style="--tile-size: {tileSize}px;">
                         {#each tiles as t}
                             <div
-                                class="border-border-primary flex items-center gap-2 rounded-md border p-2">
+                                class="flex items-center gap-3 rounded-lg border border-(--card-border) bg-(--card-bg) p-2">
+                                <!-- Include toggle on the left -->
+                                <input
+                                    type="checkbox"
+                                    bind:checked={t.include}
+                                    class="h-4 w-4 shrink-0 cursor-pointer accent-(--accent-primary)"
+                                    title="Include tile" />
+
+                                <!-- Tile preview -->
                                 <div
-                                    class="border-border-primary relative h-6 w-6 shrink-0 overflow-hidden rounded border">
+                                    class="relative h-8 w-8 shrink-0 overflow-hidden rounded border border-(--border-primary)">
                                     <div
                                         class="absolute top-0 left-0 shrink-0 origin-[top_left] rounded-none border-none bg-no-repeat [image-rendering:pixelated]"
-                                        style="background-image: url('{imageValue}'); background-position: {-t.x}px {-t.y}px; width: {tileSize}px; height: {tileSize}px; transform: scale({24 /
+                                        style="background-image: url('{imageValue}'); background-position: {-t.x}px {-t.y}px; width: {tileSize}px; height: {tileSize}px; transform: scale({32 /
                                             tileSize});">
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <label>
-                                        <input type="checkbox" bind:checked={t.include} />
-                                        Include
-                                    </label>
-                                    <label>
-                                        <input type="checkbox" bind:checked={t.allowBackground} />
+
+                                <!-- BG/OBJ toggles -->
+                                <div class="flex flex-col gap-3">
+                                    <label
+                                        class="flex items-center gap-1 text-sm text-(--text-secondary)"
+                                        class:opacity-50={!t.include}>
+                                        <input
+                                            type="checkbox"
+                                            bind:checked={t.allowBackground}
+                                            disabled={!t.include}
+                                            class="h-3.5 w-3.5 cursor-pointer accent-(--accent-primary) disabled:cursor-not-allowed disabled:opacity-50" />
                                         BG
                                     </label>
-                                    <label>
-                                        <input type="checkbox" bind:checked={t.allowForeground} />
-                                        FG
+                                    <label
+                                        class="flex items-center gap-1 text-sm text-(--text-secondary)"
+                                        class:opacity-50={!t.include}>
+                                        <input
+                                            type="checkbox"
+                                            bind:checked={t.allowForeground}
+                                            disabled={!t.include}
+                                            class="h-3.5 w-3.5 cursor-pointer accent-(--accent-primary) disabled:cursor-not-allowed disabled:opacity-50" />
+                                        TOKEN
                                     </label>
                                 </div>
                             </div>
@@ -335,61 +383,92 @@
 
                 {#if importError}
                     <div
-                        class="bg-danger-bg border-danger text-danger-text mt-4 rounded border-l-4 p-4">
+                        class="mt-4 rounded border-l-4 border-(--accent-danger) bg-(--accent-danger)/10 p-4 text-(--accent-danger)">
                         {importError}
                     </div>
                 {/if}
 
-                <div class="flex flex-wrap gap-3" style="margin-top:1rem;">
-                    <button
-                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                        on:click={saveTileMap}>
+                <div class="srpg-b-group mt-4">
+                    <button class="srpg-b srpg-b-normal" on:click={saveTileMap}>
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true">
+                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                            <polyline points="17,21 17,13 7,13 7,21" />
+                            <polyline points="7,3 7,8 15,8" />
+                        </svg>
                         {editingId ? "Save Changes" : "Save Tilemap"}
                     </button>
-                    <button
-                        class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                        on:click={cancelCreate}>
-                        Cancel
-                    </button>
+                    <button class="srpg-b srpg-b-simple" on:click={cancelCreate}>Cancel</button>
                 </div>
             </div>
         {/if}
 
         {#if tileMaps.length === 0}
-            <em>No tilemaps yet.</em>
+            <div class="srpg-empty-state">
+                <svg
+                    class="srpg-empty-state-icon"
+                    viewBox="0 0 24 24"
+                    width="32"
+                    height="32"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                    <line x1="9" y1="21" x2="9" y2="9" />
+                </svg>
+                <p class="srpg-empty-state-text">No tilemaps yet</p>
+                <p class="srpg-empty-state-hint">Create one to get started!</p>
+            </div>
         {:else}
-            <div class="mt-2 flex flex-col gap-2">
+            <div class="srpg-list mt-4">
                 {#each tileMaps as tm}
-                    <div
-                        class="border-border-primary flex justify-between gap-4 rounded-md border p-3 px-4">
+                    <div class="srpg-list-item flex items-center justify-between gap-4">
                         <button
-                            class="border-border-primary hover:bg-bg-secondary hover:text-accent-danger flex h-8 w-8 cursor-pointer items-center justify-center rounded border bg-transparent p-1 text-2xl transition-all duration-200"
+                            class="srpg-b-icon delete-icon shrink-0"
                             aria-label="Delete tilemap"
                             on:click={() => deleteTileMap(tm.id)}>
                             <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                viewBox="0 0 16 16">
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true">
                                 <path
-                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0                             0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                    d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                             </svg>
                         </button>
-                        <div class="meta">
-                            <strong>{tm.name}</strong>
-                            <div class="text-text-secondary text-sm">
+                        <div class="min-w-0 flex-1">
+                            <div class="srpg-list-item-title">{tm.name}</div>
+                            <div class="srpg-list-item-meta">
                                 {tm.columns}×{tm.rows} @ {tm.tileSize}px • {tm.tiles.filter(
                                     (t) => t.include
                                 ).length} included
                             </div>
                         </div>
                         <button
-                            class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                            class="srpg-b srpg-b-normal srpg-b-sm shrink-0"
                             on:click={() => editTileMap(tm.id)}>
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true">
+                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
                             Edit
                         </button>
                     </div>
@@ -398,8 +477,19 @@
         {/if}
 
         {#if importSuccess}
-            <div class="bg-success-bg border-success text-success-text mt-4 rounded border-l-4 p-4">
-                ✓ Tilemap saved.
+            <div
+                class="mt-4 flex items-center gap-2 rounded border-l-4 border-(--accent-success) bg-(--accent-success)/10 p-4 text-(--accent-success)">
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true">
+                    <polyline points="20,6 9,17 4,12" />
+                </svg>
+                Tilemap saved.
             </div>
         {/if}
     </div>
