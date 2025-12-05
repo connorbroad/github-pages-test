@@ -1043,14 +1043,14 @@ function setMapMode(mode: "edit" | "play") {
 
 ### Phase 14: Add Tests
 
-- [ ] Create `map/__tests__/floating-panel.test.ts`
-- [ ] Test tool defaults to Move
-- [ ] Test paint sub-mode toggle
-- [ ] Test color drawer toggle behavior
-- [ ] Test tile modal auto-close
-- [ ] Test panels hidden in play mode
-- [ ] Test tool resets on play mode exit
-- [ ] Test panel positions remain stable when toggles change
+- [x] Create `map/__tests__/floating-panel.test.ts`
+- [x] Test tool defaults to Move
+- [x] Test paint sub-mode toggle
+- [x] Test color drawer toggle behavior _(covered by visibility rules)_
+- [x] Test tile modal auto-close _(covered by visibility rules)_
+- [x] Test panels hidden in play mode
+- [x] Test tool resets on play mode exit
+- [x] Test panel positions remain stable when toggles change
 
 ---
 
