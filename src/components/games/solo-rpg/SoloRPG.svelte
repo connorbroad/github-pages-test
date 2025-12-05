@@ -129,11 +129,7 @@
 
 <TertiarySidebar
     show={showTertiarySidebar}
-    mode="story"
     hasSecondarySidebar={false}
-    tool="paint"
-    currentShape="square"
-    color="#2980b9"
     visibleSections={tertiaryVisibleSections}
     selectedSections={tertiarySelectedSections}
     isEditingSections={tertiaryIsEditingSections}

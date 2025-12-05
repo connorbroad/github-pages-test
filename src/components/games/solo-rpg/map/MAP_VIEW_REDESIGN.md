@@ -1027,13 +1027,13 @@ function setMapMode(mode: "edit" | "play") {
 
 ### Phase 12: Clean Up TertiarySidebar
 
-- [ ] Remove all map-related props
-- [ ] Remove palette, CLEAR_COLOR, tile loading
-- [ ] Remove shape options
-- [ ] Remove map mode template sections
-- [ ] Remove CreatureAssignmentModal
-- [ ] Keep only story mode functionality
-- [ ] Test: Story mode still works
+- [x] Remove all map-related props
+- [x] Remove palette, CLEAR_COLOR, tile loading
+- [x] Remove shape options
+- [x] Remove map mode template sections
+- [x] Remove CreatureAssignmentModal
+- [x] Keep only story mode functionality
+- [x] Test: Story mode still works _(Updated SoloRPG.svelte to remove obsolete props)_
 
 ### Phase 13: Remove Old FloatingToolPanel
 
