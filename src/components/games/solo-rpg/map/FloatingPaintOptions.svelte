@@ -337,7 +337,17 @@
         align-items: center;
         justify-content: center;
         z-index: 1000;
+        /* Account for bottom sidebars on mobile (130px + safe area) */
         padding: 1rem;
+        padding-bottom: calc(140px + env(safe-area-inset-bottom));
+    }
+
+    /* Desktop: sidebars are on the left, not bottom */
+    @media (min-width: 768px) {
+        .tile-modal-backdrop {
+            padding: 1rem;
+            padding-left: calc(170px + 1rem); /* Account for left sidebars */
+        }
     }
 
     .tile-modal {
