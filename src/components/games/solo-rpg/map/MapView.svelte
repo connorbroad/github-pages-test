@@ -21,7 +21,13 @@
     import InitiativeBar from "./InitiativeBar.svelte";
     import EncounterSetupModal from "./EncounterSetupModal.svelte";
     import SecondarySidebar from "../SecondarySidebar.svelte";
-    import TertiarySidebar from "../TertiarySidebar.svelte";
+    // Floating panels (redesigned)
+    import FloatingPanelContainer from "./FloatingPanelContainer.svelte";
+    import FloatingToolToggle from "./FloatingToolToggle.svelte";
+    import FloatingPaintModeToggle from "./FloatingPaintModeToggle.svelte";
+    import FloatingBrushModeToggle from "./FloatingBrushModeToggle.svelte";
+    import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
+    import FloatingSelectionPanel from "./FloatingSelectionPanel.svelte";
     import {
         rollInitiativeForCreatures,
         getNextTurnIndex,
@@ -188,19 +194,22 @@
         }
     }
 
-    // Editor UI state routed to sidebars
-    let tool: "paint" | "object" | "move" = "move";
+    // Editor UI state routed to floating panels
+    let tool: "move" | "paint" = "move";
     let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     let color = "#2980b9";
     // Selected tile reference for map tools
     let selectedTileRef: { tileMapId: string; tileId: string } | null = null;
+    // Paint mode: background or object layer
+    let paintMode: "background" | "object" = "background";
+    // Eraser mode for background painting (clears tiles)
+    let isErasing: boolean = false;
 
     // Map mode: edit (normal editing) or play (battle/encounter mode)
     let mapMode: "edit" | "play" = "edit";
 
     // Track sidebar visibility for smooth animations
     let showSecondarySidebar = false;
-    let showTertiarySidebar = false;
 
     // Detect if we're on mobile
     let isMobile = false;
@@ -212,20 +221,14 @@
     }
 
     // Reactive statement to show sidebars when a map is opened
-    // In play mode, hide the secondary sidebar to make room for encounter panel
+    // SecondarySidebar is always visible when map is open (per redesign)
     $: if (currentMapId) {
         // Small delay to ensure DOM is ready and transition can play
         setTimeout(() => {
-            showSecondarySidebar = mapMode !== "play";
+            showSecondarySidebar = true;
         }, 10);
     } else {
         showSecondarySidebar = false;
-        showTertiarySidebar = false;
-    }
-
-    // Also update when mode changes
-    $: if (currentMapId) {
-        showSecondarySidebar = mapMode !== "play";
     }
 
     // Editor selection state for Move tool controls
@@ -271,15 +274,13 @@
         moveSelectedCreatureRef = e.detail;
     }
 
-    // Update tertiary sidebar visibility based on tool and mode
-    $: if (currentMapId) {
-        // In play mode, hide tertiary sidebar (encounter panel shows instead)
-        if (mapMode === "play") {
-            showTertiarySidebar = false;
-        } else {
-            showTertiarySidebar =
-                tool === "paint" || tool === "object" || (tool === "move" && moveHasSelection);
-        }
+    // Floating panels visibility based on mode
+    $: showFloatingToolPanel = currentMapId && mapMode === "edit";
+    $: showFloatingSelectionPanel = currentMapId && mapMode === "edit" && moveHasSelection;
+
+    // Handle modeChange from SecondarySidebar
+    function handleModeChange(e: CustomEvent<"edit" | "play">) {
+        setMapMode(e.detail);
     }
 
     // Encounter mode state - no longer need creature selection for panel visibility
@@ -677,6 +678,8 @@
         mapMode = mode;
         if (mode === "edit") {
             encounterSelectedCreature = null;
+            // Reset tool to "move" when entering edit mode (per redesign spec)
+            tool = "move";
         } else if (mode === "play") {
             // When entering play mode, select the first creature in initiative if available
             if (initiativeOrder.length > 0) {
@@ -722,43 +725,65 @@
                 !encounterPanelDragging}
             class:panel-dragging={encounterPanelDragging}
             style="--encounter-panel-height: {encounterPanelHeight}%;">
-            <!-- Secondary Sidebar (tools) -->
+            <!-- Secondary Sidebar (Edit/Play mode toggle) -->
             <SecondarySidebar
                 show={showSecondarySidebar}
                 mode="map"
-                {tool}
                 {mapMode}
                 activeTab="characters"
                 onTabChange={() => {}}
-                on:toolChange={(e) => (tool = e.detail)}
+                on:modeChange={handleModeChange}
                 on:close={closeMap} />
 
-            <!-- Tertiary Sidebar (tool options) -->
-            <TertiarySidebar
-                show={showTertiarySidebar}
-                hasSecondarySidebar={showSecondarySidebar}
-                mode="map"
-                {tool}
-                {currentShape}
-                {color}
-                selectedTile={selectedTileRef}
-                visibleSections={[]}
-                selectedSections={new Set()}
-                isEditingSections={false}
-                onToggleSection={() => {}}
-                on:shapeChange={(e) => (currentShape = e.detail)}
-                on:colorChange={(e) => (color = e.detail)}
-                on:tileSelect={(e) => (selectedTileRef = e.detail)}
-                {moveHasSelection}
-                {moveSelectedColor}
-                {moveCanFlip}
-                {moveSelectedCreatureRef}
-                {campaignId}
-                mapId={currentMapId}
-                on:moveColorChange={handleMoveColorChange}
-                on:moveFlip={handleMoveFlip}
-                on:moveDelete={handleMoveDelete}
-                on:creatureAssign={handleCreatureAssign} />
+            <!-- Floating Panels Container (edit mode only) -->
+            <FloatingPanelContainer show={showFloatingToolPanel}>
+                <!-- Move/Add toggle - always visible in edit mode -->
+                <FloatingToolToggle {tool} on:toolChange={(e) => (tool = e.detail)} />
+
+                <!-- Background/Object toggle - visible when Add tool selected -->
+                {#if tool === "paint"}
+                    <FloatingPaintModeToggle
+                        {paintMode}
+                        on:paintModeChange={(e) => {
+                            paintMode = e.detail;
+                            // Reset eraser when switching modes
+                            isErasing = false;
+                        }} />
+
+                    <!-- Paint/Erase toggle - visible when Add + Background mode -->
+                    {#if paintMode === "background"}
+                        <FloatingBrushModeToggle
+                            {isErasing}
+                            on:brushModeChange={(e) => (isErasing = e.detail)} />
+                    {/if}
+
+                    <!-- Color, Tile & Shape options - visible when Add tool selected, hidden when erasing -->
+                    {#if paintMode === "object" || !isErasing}
+                        <FloatingPaintOptions
+                            {paintMode}
+                            {color}
+                            selectedTile={selectedTileRef}
+                            {currentShape}
+                            on:colorChange={(e) => (color = e.detail)}
+                            on:tileSelect={(e) => (selectedTileRef = e.detail)}
+                            on:shapeChange={(e) => (currentShape = e.detail)} />
+                    {/if}
+                {/if}
+
+                <!-- Selection panel - visible when object selected in Move mode -->
+                {#if showFloatingSelectionPanel}
+                    <FloatingSelectionPanel
+                        selectedColor={moveSelectedColor}
+                        canFlip={moveCanFlip}
+                        creatureRef={moveSelectedCreatureRef}
+                        {campaignId}
+                        mapId={currentMapId}
+                        on:colorChange={handleMoveColorChange}
+                        on:flip={handleMoveFlip}
+                        on:delete={handleMoveDelete}
+                        on:creatureAssign={handleCreatureAssign} />
+                {/if}
+            </FloatingPanelContainer>
 
             <!-- Encounter Panel (left side on desktop, bottom on mobile) -->
             {#if showEncounterPanel}
@@ -802,54 +827,16 @@
 
             <!-- Main Map Area -->
             <div class="map-main-area">
-                <!-- Mode Toggle Header -->
-                <div class="map-mode-header">
-                    <div class="srpg-segmented-control">
-                        <button
-                            class="srpg-segment"
-                            class:active={mapMode === "edit"}
-                            on:click={() => setMapMode("edit")}
-                            aria-pressed={mapMode === "edit"}>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                aria-hidden="true">
-                                <path
-                                    d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z" />
-                            </svg>
-                            <span>Edit</span>
-                        </button>
-                        <button
-                            class="srpg-segment"
-                            class:active={mapMode === "play"}
-                            on:click={() => setMapMode("play")}
-                            aria-pressed={mapMode === "play"}>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                aria-hidden="true">
-                                <path
-                                    d="m6.92 5H5l4 4l1.47-1.47L6.92 5m5.86 4.41l4.75 4.75a1.67 1.67 0 0 1 0 2.36L13.7 20.3a1.66 1.66 0 0 1-2.36 0L7 16l-1.41-1.41l3.29-3.29l-3.88-3.89V5h2.41l3.88 3.88l3.47-3.47a1.66 1.66 0 0 1 2.36 0l.83.83a1.67 1.67 0 0 1 0 2.36l-3.47 3.47l.83.82" />
-                            </svg>
-                            <span>Play</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Map Editor Canvas -->
                 <div class="map-editor-wrapper">
                     <MapEditor
                         bind:this={editorRef}
                         mapId={currentMapId}
                         {tool}
+                        {paintMode}
                         {currentShape}
                         {color}
+                        {isErasing}
                         selectedTile={selectedTileRef}
                         {mapMode}
                         on:selectionChange={handleEditorSelectionChange}
@@ -861,7 +848,6 @@
 
         <!-- <FloatingOracleButton
             hasSecondarySidebar={showSecondarySidebar}
-            hasTertiarySidebar={showTertiarySidebar}
             on:navigateToStory /> -->
     {/if}
 {/if}
@@ -879,11 +865,10 @@
         flex-direction: column;
     }
 
-    /* Mobile play mode: secondary sidebar hides, so reduce bottom offset */
-    /* Add space for initiative bar (48px) */
+    /* Mobile play mode: keep sidebars visible, add space for initiative bar (48px) */
     @media (max-width: 767px) {
         .map-view-container.play-mode {
-            bottom: calc(70px + 48px + env(safe-area-inset-bottom));
+            bottom: calc(130px + 48px + env(safe-area-inset-bottom));
         }
     }
 
@@ -895,9 +880,9 @@
             left: 170px;
         }
 
-        /* In play mode, secondary sidebar is hidden, add space for initiative bar (44px) */
+        /* In play mode, keep secondary sidebar visible, add space for initiative bar (44px) */
         .map-view-container.play-mode {
-            left: 80px; /* Only primary sidebar */
+            left: 170px; /* Keep both sidebars */
             bottom: 44px; /* Initiative bar height */
         }
     }
@@ -910,57 +895,6 @@
         right: 0;
         bottom: 0;
         overflow: hidden;
-    }
-
-    /* Map mode toggle header */
-    .map-mode-header {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 20;
-        padding: 0.5rem;
-    }
-
-    /* Segmented control styles */
-    .srpg-segmented-control {
-        display: inline-flex;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-primary);
-        border-radius: 8px;
-        padding: 3px;
-        gap: 2px;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .srpg-segment {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.5rem 0.875rem;
-        border: none;
-        background: transparent;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        font-weight: 500;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .srpg-segment:hover:not(.active) {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-    }
-
-    .srpg-segment.active {
-        background: var(--accent-primary);
-        color: white;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .srpg-segment svg {
-        flex-shrink: 0;
     }
 
     /* Map editor wrapper fills the entire map-main-area */

@@ -8,14 +8,11 @@
     export let show: boolean = false;
 
     export let mode: "story" | "map" = "story";
-    export let tool: "paint" | "object" | "move" = "move";
-    export let mapMode: "edit" | "play" = "edit"; // Map sub-mode (passed from MapView for tool visibility)
+    export let mapMode: "edit" | "play" = "edit"; // For displaying active state
 
-    const dispatch = createEventDispatcher();
-
-    function setTool(t: typeof tool) {
-        if (tool !== t) dispatch("toolChange", t);
-    }
+    const dispatch = createEventDispatcher<{
+        modeChange: "edit" | "play";
+    }>();
 
     // Detect if we're on mobile
     let isMobile = false;
@@ -60,66 +57,47 @@
                         <span class="sidebar-label">Codex</span>
                     </button>
                 {:else if mode === "map"}
-                    <!-- Map mode: Tool buttons (Edit/Combat toggle moved to MapView header) -->
-                    {#if mapMode === "edit"}
-                        <!-- Edit mode tools -->
-                        <button
-                            class="srpg-sidebar-item"
-                            class:active={tool === "move"}
-                            on:click={() => setTool("move")}
-                            aria-label="Move">
-                            <svg
-                                class="sidebar-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2">
-                                <polyline points="5 9 2 12 5 15"></polyline>
-                                <polyline points="9 5 12 2 15 5"></polyline>
-                                <polyline points="15 19 12 22 9 19"></polyline>
-                                <polyline points="19 9 22 12 19 15"></polyline>
-                                <line x1="2" y1="12" x2="22" y2="12"></line>
-                                <line x1="12" y1="2" x2="12" y2="22"></line>
-                            </svg>
-                            <span class="sidebar-label">Move</span>
-                        </button>
+                    <!-- Map mode: Edit/Play mode buttons -->
+                    <button
+                        class="srpg-sidebar-item"
+                        class:active={mapMode === "edit"}
+                        on:click={() => dispatch("modeChange", "edit")}
+                        aria-label="Edit Mode">
+                        <svg
+                            class="sidebar-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z">
+                            </path>
+                        </svg>
+                        <span class="sidebar-label">Edit</span>
+                    </button>
 
-                        <button
-                            class="srpg-sidebar-item"
-                            class:active={tool === "paint"}
-                            on:click={() => setTool("paint")}
-                            aria-label="Paint">
-                            <svg
-                                class="sidebar-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z">
-                                </path>
-                                <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
-                                <path d="M14.5 17.5 4.5 15"></path>
-                            </svg>
-                            <span class="sidebar-label">Background</span>
-                        </button>
-
-                        <button
-                            class="srpg-sidebar-item"
-                            class:active={tool === "object"}
-                            on:click={() => setTool("object")}
-                            aria-label="Object">
-                            <svg
-                                class="sidebar-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            </svg>
-                            <span class="sidebar-label">Object</span>
-                        </button>
-                    {/if}
+                    <button
+                        class="srpg-sidebar-item"
+                        class:active={mapMode === "play"}
+                        on:click={() => dispatch("modeChange", "play")}
+                        aria-label="Play Mode">
+                        <svg
+                            class="sidebar-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <!-- Crossed swords icon -->
+                            <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+                            <path d="M13 19l6-6"></path>
+                            <path d="M16 16l4 4"></path>
+                            <path d="M19 21l2-2"></path>
+                            <path d="M9.5 6.5L21 18v3h-3L6.5 9.5"></path>
+                            <path d="M5 8l4-4"></path>
+                            <path d="M8 5L4 1"></path>
+                            <path d="M3 2l2 2"></path>
+                        </svg>
+                        <span class="sidebar-label">Play</span>
+                    </button>
                 {/if}
             </div>
         </nav>

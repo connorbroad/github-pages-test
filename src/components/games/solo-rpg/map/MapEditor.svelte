@@ -17,10 +17,12 @@
     import { activeCampaign } from "../game-management/campaign-store";
 
     export let mapId: string;
-    export let tool: "paint" | "object" | "move" = "move";
+    export let tool: "move" | "paint" = "move";
+    export let paintMode: "background" | "object" = "background";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
     export let mapMode: "edit" | "play" = "edit";
+    export let isErasing: boolean = false;
 
     // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
@@ -301,7 +303,8 @@
         const { x, y } = screenToWorld(sx, sy);
         const { tx, ty } = worldToTile(x, y);
         const key = `${tx},${ty}`;
-        if (color === "clear") {
+        // Eraser mode clears the tile (same as old "clear" color behavior)
+        if (isErasing) {
             if (map.backgroundTiles && map.backgroundTiles[key]) delete map.backgroundTiles[key];
             if (map.backgroundTileTints && map.backgroundTileTints[key])
                 delete map.backgroundTileTints[key];
@@ -710,7 +713,7 @@
             return;
         }
 
-        if (tool === "object" && (e.button === 0 || e.button === -1)) {
+        if (tool === "paint" && paintMode === "object" && (e.button === 0 || e.button === -1)) {
             if (selectedTile) {
                 const id = generateUUID();
                 const ts = map.tileSize;
