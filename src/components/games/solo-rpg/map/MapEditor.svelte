@@ -17,8 +17,8 @@
     import { activeCampaign } from "../game-management/campaign-store";
 
     export let mapId: string;
-    export let tool: "move" | "paint" = "move";
-    export let paintMode: "background" | "object" = "background";
+    export let editMode: "move" | "background" | "object" = "move";
+    export let objectMode: "select" | "add" = "select";
     export let currentShape: MapObject["type"] = "square";
     export let color: string = "#2980b9";
     export let mapMode: "edit" | "play" = "edit";
@@ -76,7 +76,7 @@
     let velocity = { x: 0, y: 0 }; // world units per ms for camera
     let inertiaRaf: number | null = null;
 
-    // Object selection state for move tool
+    // Object selection state for Object/Select mode
     let selectedObject: MapObject | null = null;
     let isDraggingHandle = false;
 
@@ -266,7 +266,7 @@
             camera,
             map,
             selectedObject,
-            tool,
+            showSelectionHandles: editMode === "object" && objectMode === "select",
             getDpr,
             onInvalidate: scheduleRender,
             viewRect: getCachedRect(),
@@ -328,6 +328,41 @@
     export function setSelectedObjectColor(newColor: string) {
         if (!selectedObject) return;
         selectedObject.color = newColor;
+        scheduleRender();
+        queueSave();
+        emitSelection();
+    }
+
+    export function setSelectedObjectShape(newShape: MapObject["type"]) {
+        if (!selectedObject) return;
+        selectedObject.type = newShape;
+        scheduleRender();
+        queueSave();
+        emitSelection();
+    }
+
+    export function setSelectedObjectTile(newTile: { tileMapId: string; tileId: string }) {
+        if (!selectedObject || !map) return;
+        // Load the tile to get its dimensions
+        const tileMap = getTileMapById(newTile.tileMapId);
+        if (!tileMap) return;
+        const tile = tileMap.tiles.find((t) => t.id === newTile.tileId);
+        if (!tile) return;
+
+        // Set the tile reference
+        selectedObject.tile = {
+            tileMapId: newTile.tileMapId,
+            tileId: newTile.tileId,
+        };
+        // Update the kind to "tile" since it now has a tile
+        selectedObject.kind = "tile";
+        // Keep the existing object size - don't update dimensions
+
+        // Ensure the tile is loaded for rendering
+        ensureTileMapLoaded(tileMap).then(() => {
+            scheduleRender();
+        });
+
         scheduleRender();
         queueSave();
         emitSelection();
@@ -501,7 +536,8 @@
             .map((obj) => obj.id);
     }
 
-    $: if (tool !== "move") {
+    // Clear selection when not in Object/Select mode
+    $: if (!(editMode === "object" && objectMode === "select")) {
         if (selectedObject) {
             selectedObject = null;
             if (map) scheduleRender();
@@ -520,12 +556,25 @@
                       object: {
                           id: obj.id,
                           color: obj.color,
+                          shape: obj.type,
+                          tile: obj.tile
+                              ? { tileMapId: obj.tile.tileMapId, tileId: obj.tile.tileId }
+                              : null,
                           canFlip: obj.kind === "tile",
                           creatureRef: obj.creatureRef ?? null,
                       },
                   }
                 : { selected: false, object: null }
         );
+    }
+
+    /** Clear the current selection (exported for external use) */
+    export function clearSelection() {
+        if (selectedObject) {
+            selectedObject = null;
+            if (map) scheduleRender();
+            emitSelection();
+        }
     }
 
     function cancelInertia() {
@@ -613,7 +662,7 @@
         }
 
         const isTouch = e.pointerType === "touch";
-        const allowDoubleTap = isTouch && tool === "move";
+        const allowDoubleTap = isTouch && editMode === "move";
         if (allowDoubleTap && e.button === 0) {
             const now = e.timeStamp;
             const dt = now - lastTapTime;
@@ -658,7 +707,20 @@
             return;
         }
 
-        if (tool === "move") {
+        // Move mode: allows panning and selecting existing objects (for dragging)
+        if (editMode === "move") {
+            // No selection functionality in pure Move mode - just panning
+            selectedObject = null;
+            isPanning = true;
+            lastPan = { x: e.clientX, y: e.clientY };
+            lastPanTime = e.timeStamp;
+            scheduleRender();
+            emitSelection();
+            return;
+        }
+
+        // Object + Select mode: select and drag objects
+        if (editMode === "object" && objectMode === "select") {
             if (selectedObject && isPointInObject(x, y, selectedObject)) {
                 isDraggingHandle = true;
                 draggingObj = selectedObject;
@@ -699,14 +761,14 @@
             return;
         }
 
-        // Background paint mode: grid-locked painting
-        if (tool === "paint" && paintMode === "background") {
+        // Background mode: grid-locked painting
+        if (editMode === "background") {
             paintAt(e.clientX, e.clientY);
             return;
         }
 
-        // Object paint mode: place objects at exact position (not grid-locked)
-        if (tool === "paint" && paintMode === "object" && (e.button === 0 || e.button === -1)) {
+        // Object + Add mode: place objects at exact position (not grid-locked)
+        if (editMode === "object" && objectMode === "add" && (e.button === 0 || e.button === -1)) {
             if (selectedTile) {
                 const id = generateUUID();
                 const ts = map.tileSize;
@@ -777,7 +839,11 @@
             pendingSelect = null;
         }
 
-        if (tool === "move" && !isDraggingHandle && !isPanning) {
+        if (
+            (editMode === "move" || (editMode === "object" && objectMode === "select")) &&
+            !isDraggingHandle &&
+            !isPanning
+        ) {
             const { x, y } = screenToWorld(e.clientX, e.clientY);
             const target = e.currentTarget as HTMLElement;
             if (selectedObject && isPointInHandle(x, y, selectedObject)) {
@@ -785,7 +851,9 @@
             } else {
                 const objs = getSortedObjects();
                 const hit = objs.find((o) => isPointInObject(x, y, o));
-                target.style.cursor = hit ? "pointer" : "default";
+                // In move mode, no hover states. In object/select, show pointer cursor.
+                target.style.cursor =
+                    editMode === "object" && objectMode === "select" && hit ? "pointer" : "default";
             }
         } else if (isDraggingHandle) {
             const target = e.currentTarget as HTMLElement;
@@ -845,7 +913,11 @@
             return;
         }
 
-        if (tool === "move" && pendingSelect && e.pointerId === pendingSelect.pointerId) {
+        if (
+            (editMode === "move" || (editMode === "object" && objectMode === "select")) &&
+            pendingSelect &&
+            e.pointerId === pendingSelect.pointerId
+        ) {
             const dx0 = e.clientX - pendingSelect.startX;
             const dy0 = e.clientY - pendingSelect.startY;
             if (Math.hypot(dx0, dy0) > DRAG_SLOP) {
@@ -884,7 +956,7 @@
             draggingObj.x = x - dragOffset.x;
             draggingObj.y = y - dragOffset.y;
             scheduleRender();
-        } else if (tool === "paint" && paintMode === "background" && e.buttons & 1) {
+        } else if (editMode === "background" && e.buttons & 1) {
             paintAt(e.clientX, e.clientY);
         }
     }

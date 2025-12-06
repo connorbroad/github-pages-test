@@ -2,9 +2,11 @@
     /**
      * FloatingPaintOptions.svelte
      *
-     * Color, Tile, and Shape options for paint mode. Visible when Paint tool is selected.
-     * This panel appears to the right of FloatingPaintModeToggle with a gap.
-     * Shape option only appears in Object mode.
+     * Shape, Tile, and Color options for paint/object mode.
+     * Used both for adding new objects (Add mode) and editing selected objects (Select mode).
+     *
+     * In Select mode with no selection, all controls are disabled.
+     * In Select mode with a selection, controls reflect and modify the selected object.
      */
     import { createEventDispatcher, onMount } from "svelte";
     import {
@@ -15,11 +17,20 @@
     } from "../data/storage-utils";
     import ColorDrawer from "./shared/ColorDrawer.svelte";
     import ShapeIcon from "./shared/ShapeIcon.svelte";
+    import { CLEAR_COLOR } from "./shared/color-palette";
 
-    export let paintMode: "background" | "object" = "background";
+    /** Context for filtering tile options: "background" or "object" */
+    export let context: "background" | "object" = "object";
+    /** Whether controls should be disabled (e.g., Select mode with no selection) */
+    export let disabled: boolean = false;
+    /** Current color value */
     export let color: string = "#2980b9";
+    /** Current selected tile reference */
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
+    /** Current shape (only shown in object context) */
     export let currentShape: "square" | "circle" | "triangle" | "star" = "square";
+    /** Whether to show the Shape option (only in object context) */
+    export let showShape: boolean = true;
 
     const dispatch = createEventDispatcher<{
         colorChange: string;
@@ -58,13 +69,13 @@
         } catch {}
     });
 
-    // Rebuild tile options when paintMode changes
-    $: if (paintMode) {
+    // Rebuild tile options when context changes
+    $: if (context) {
         rebuildTileOptions();
     }
 
     function rebuildTileOptions() {
-        const allowField = paintMode === "background" ? "allowBackground" : "allowForeground";
+        const allowField = context === "background" ? "allowBackground" : "allowForeground";
         const opts: Array<{
             tileMapId: string;
             image: string;
@@ -89,6 +100,7 @@
     }
 
     function selectColor(c: string) {
+        if (disabled) return;
         dispatch("colorChange", c);
         showColorDrawer = false;
     }
@@ -102,22 +114,26 @@
     }
 
     function selectTile(ref: TileRef) {
+        if (disabled) return;
         dispatch("tileSelect", ref);
         showTileModal = false;
     }
 
     function selectShape(s: typeof currentShape) {
+        if (disabled) return;
         dispatch("shapeChange", s);
         showShapeDrawer = false;
     }
 
     function toggleColorDrawer() {
+        if (disabled) return;
         showColorDrawer = !showColorDrawer;
         showTileModal = false;
         showShapeDrawer = false;
     }
 
     function openTileModal() {
+        if (disabled) return;
         showTileModal = true;
         showColorDrawer = false;
         showShapeDrawer = false;
@@ -128,20 +144,22 @@
     }
 
     function toggleShapeDrawer() {
+        if (disabled) return;
         showShapeDrawer = !showShapeDrawer;
         showColorDrawer = false;
         showTileModal = false;
     }
 </script>
 
-<div class="floating-panel floating-paint-options">
+<div class="floating-panel floating-paint-options" class:disabled>
     <div class="options-row">
-        <!-- Shape Button with Drawer (Object mode only) -->
-        {#if paintMode === "object"}
+        <!-- Shape Button with Drawer (Object context only when showShape is true) -->
+        {#if context === "object" && showShape}
             <div class="option-wrapper">
                 <button
                     class="option-btn"
                     on:click={toggleShapeDrawer}
+                    {disabled}
                     aria-label="Select Shape"
                     aria-expanded={showShapeDrawer}>
                     <ShapeIcon shape={currentShape} />
@@ -165,7 +183,7 @@
         {/if}
 
         <!-- Tile Button -->
-        <button class="option-btn" on:click={openTileModal} aria-label="Select Tile">
+        <button class="option-btn" on:click={openTileModal} {disabled} aria-label="Select Tile">
             <div class="tile-preview">
                 {#if selectedTile && tileMaps.length}
                     {#each tileMaps as tm}
@@ -190,9 +208,14 @@
             <button
                 class="option-btn"
                 on:click={toggleColorDrawer}
+                {disabled}
                 aria-label="Select Color"
                 aria-expanded={showColorDrawer}>
-                <div class="color-swatch" style="background: {color}"></div>
+                {#if color === CLEAR_COLOR}
+                    <div class="color-swatch clear-pattern"></div>
+                {:else}
+                    <div class="color-swatch" style="background: {color}"></div>
+                {/if}
                 <span class="option-label">Color</span>
             </button>
         </div>
@@ -260,6 +283,10 @@
         padding: 0.25rem;
     }
 
+    .floating-panel.disabled {
+        opacity: 0.5;
+    }
+
     .options-row {
         display: flex;
         gap: 0.25rem;
@@ -288,9 +315,13 @@
         min-width: 56px;
     }
 
-    .option-btn:hover {
+    .option-btn:hover:not(:disabled) {
         background: var(--bg-tertiary);
         color: var(--text-primary);
+    }
+
+    .option-btn:disabled {
+        cursor: not-allowed;
     }
 
     .option-label {
@@ -306,6 +337,16 @@
         height: 20px;
         border-radius: 4px;
         border: 1px solid var(--border-primary);
+    }
+
+    .color-swatch.clear-pattern {
+        background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 3px,
+            var(--border-primary) 3px,
+            var(--border-primary) 6px
+        );
     }
 
     /* Tile Preview */

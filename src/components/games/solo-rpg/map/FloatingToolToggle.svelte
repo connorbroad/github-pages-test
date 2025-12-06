@@ -2,20 +2,20 @@
     /**
      * FloatingToolToggle.svelte
      *
-     * Move/Add toggle button group. Always visible in edit mode.
+     * Move/Background/Object triple-toggle. Always visible in edit mode.
      * This panel's position never changes when other panels appear/disappear.
      */
     import { createEventDispatcher } from "svelte";
 
-    export let tool: "move" | "paint" = "move";
+    export let editMode: "move" | "background" | "object" = "move";
 
     const dispatch = createEventDispatcher<{
-        toolChange: "move" | "paint";
+        editModeChange: "move" | "background" | "object";
     }>();
 
-    function setTool(t: "move" | "paint") {
-        if (tool !== t) {
-            dispatch("toolChange", t);
+    function setEditMode(mode: "move" | "background" | "object") {
+        if (editMode !== mode) {
+            dispatch("editModeChange", mode);
         }
     }
 </script>
@@ -24,10 +24,10 @@
     <div class="toggle-group">
         <button
             class="toggle-btn"
-            class:active={tool === "move"}
-            on:click={() => setTool("move")}
-            aria-label="Move tool"
-            aria-pressed={tool === "move"}>
+            class:active={editMode === "move"}
+            on:click={() => setEditMode("move")}
+            aria-label="Move mode"
+            aria-pressed={editMode === "move"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
@@ -45,21 +45,41 @@
         </button>
         <button
             class="toggle-btn"
-            class:active={tool === "paint"}
-            on:click={() => setTool("paint")}
-            aria-label="Add tool"
-            aria-pressed={tool === "paint"}>
+            class:active={editMode === "background"}
+            on:click={() => setEditMode("background")}
+            aria-label="Background mode"
+            aria-pressed={editMode === "background"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Plus icon -->
-                <path d="M12 5v14" />
-                <path d="M5 12h14" />
+                <!-- Grid/background icon -->
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
             </svg>
-            <span class="toggle-label">Add</span>
+            <span class="toggle-label">Backgnd</span>
+        </button>
+        <button
+            class="toggle-btn"
+            class:active={editMode === "object"}
+            on:click={() => setEditMode("object")}
+            aria-label="Object mode"
+            aria-pressed={editMode === "object"}>
+            <svg
+                class="toggle-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <!-- Token/object icon (circle with dot) -->
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="3" fill="currentColor" />
+            </svg>
+            <span class="toggle-label">Object</span>
         </button>
     </div>
 </div>

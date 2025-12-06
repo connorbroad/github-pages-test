@@ -1,67 +1,63 @@
 <script lang="ts">
     /**
-     * FloatingPaintModeToggle.svelte
+     * FloatingObjectModeToggle.svelte
      *
-     * Background/Object toggle button group. Visible when Paint tool is selected.
-     * This panel appears to the right of FloatingToolToggle with a gap.
+     * Select/Add toggle for Object mode. Visible when editMode === "object".
+     * - Select: allows selecting and editing existing tokens
+     * - Add: allows placing new tokens on the map
      */
     import { createEventDispatcher } from "svelte";
 
-    export let paintMode: "background" | "object" = "background";
+    export let objectMode: "select" | "add" = "select";
 
     const dispatch = createEventDispatcher<{
-        paintModeChange: "background" | "object";
+        objectModeChange: "select" | "add";
     }>();
 
-    function setPaintMode(mode: "background" | "object") {
-        if (paintMode !== mode) {
-            dispatch("paintModeChange", mode);
+    function setObjectMode(mode: "select" | "add") {
+        if (objectMode !== mode) {
+            dispatch("objectModeChange", mode);
         }
     }
 </script>
 
-<div class="floating-panel floating-paint-mode-toggle">
+<div class="floating-panel floating-object-mode-toggle">
     <div class="toggle-group">
         <button
             class="toggle-btn"
-            class:active={paintMode === "background"}
-            on:click={() => setPaintMode("background")}
-            aria-label="Background layer"
-            aria-pressed={paintMode === "background"}>
+            class:active={objectMode === "select"}
+            on:click={() => setObjectMode("select")}
+            aria-label="Select mode"
+            aria-pressed={objectMode === "select"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Grid/background icon -->
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M3 9h18" />
-                <path d="M3 15h18" />
-                <path d="M9 3v18" />
-                <path d="M15 3v18" />
+                <!-- Cursor/pointer icon -->
+                <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+                <path d="M13 13l6 6" />
             </svg>
-            <span class="toggle-label">Backgnd</span>
+            <span class="toggle-label">Select</span>
         </button>
         <button
             class="toggle-btn"
-            class:active={paintMode === "object"}
-            on:click={() => setPaintMode("object")}
-            aria-label="Object layer"
-            aria-pressed={paintMode === "object"}>
+            class:active={objectMode === "add"}
+            on:click={() => setObjectMode("add")}
+            aria-label="Add mode"
+            aria-pressed={objectMode === "add"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Cube/object icon -->
-                <path
-                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
+                <!-- Plus icon -->
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
             </svg>
-            <span class="toggle-label">Object</span>
+            <span class="toggle-label">Add</span>
         </button>
     </div>
 </div>

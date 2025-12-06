@@ -25,6 +25,7 @@
         align-content: flex-start;
         gap: 0.5rem;
         pointer-events: none; /* Allow clicks to pass through container */
+        margin-top: 60px;
     }
 
     .floating-panel-container > :global(*) {

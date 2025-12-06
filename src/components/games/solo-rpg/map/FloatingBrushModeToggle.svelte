@@ -25,25 +25,6 @@
     <div class="toggle-group">
         <button
             class="toggle-btn"
-            class:active={!isErasing}
-            on:click={() => setBrushMode(false)}
-            aria-label="Paint mode"
-            aria-pressed={!isErasing}>
-            <svg
-                class="toggle-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2">
-                <!-- Paint brush icon -->
-                <path d="M19 11H5a4 4 0 0 0-4 4v0a2 2 0 0 0 2 2h2.5a1.5 1.5 0 0 1 0 3H4" />
-                <path d="M19 11V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v5" />
-                <path d="M19 11a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2" />
-            </svg>
-            <span class="toggle-label">Paint</span>
-        </button>
-        <button
-            class="toggle-btn"
             class:active={isErasing}
             on:click={() => setBrushMode(true)}
             aria-label="Erase mode"
@@ -61,6 +42,25 @@
                 <path d="m5 11 9 9" />
             </svg>
             <span class="toggle-label">Erase</span>
+        </button>
+        <button
+            class="toggle-btn"
+            class:active={!isErasing}
+            on:click={() => setBrushMode(false)}
+            aria-label="Paint mode"
+            aria-pressed={!isErasing}>
+            <svg
+                class="toggle-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <!-- Paint brush icon -->
+                <path d="M19 11H5a4 4 0 0 0-4 4v0a2 2 0 0 0 2 2h2.5a1.5 1.5 0 0 1 0 3H4" />
+                <path d="M19 11V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v5" />
+                <path d="M19 11a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2" />
+            </svg>
+            <span class="toggle-label">Paint</span>
         </button>
     </div>
 </div>

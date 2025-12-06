@@ -13,12 +13,16 @@ export function drawGrid(opts: {
     getDpr: () => number;
     onInvalidate: () => void; // call when async sprite loads to schedule a repaint
     bgColor?: string;
-    viewRect?: DOMRect; 
+    viewRect?: DOMRect;
 }) {
-    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate, bgColor, viewRect } = opts;
+    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate, bgColor, viewRect } =
+        opts;
     if (!ctxBg) return;
 
-    const bgFill = bgColor || getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
+    const bgFill =
+        bgColor ||
+        getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") ||
+        "#111";
 
     if (isLoading) {
         clearCanvas(ctxBg, canvasBg, bgFill);
@@ -54,11 +58,11 @@ export function drawGrid(opts: {
     if (camera.zoom < 0.35) gridStep = 0;
     else if (camera.zoom < 0.5) gridStep = 4;
     else if (camera.zoom < 0.75) gridStep = 2;
- 
+
     if (gridStep > 0) {
         const gridStartTx = Math.floor(startTx / gridStep) * gridStep;
         const gridStartTy = Math.floor(startTy / gridStep) * gridStep;
-        
+
         ctxBg.beginPath();
         for (let tx = gridStartTx; tx <= endTx; tx += gridStep) {
             const gx = Math.round(tx * ts) + px;
@@ -144,12 +148,22 @@ export function drawFgObjects(opts: {
     camera: Camera;
     map: MapEntity;
     selectedObject: MapObject | null;
-    tool: "move" | "paint" | "object";
+    showSelectionHandles: boolean;
     getDpr: () => number;
     onInvalidate: () => void;
     viewRect?: DOMRect;
 }) {
-    const { ctxFg, canvasFg, camera, map, selectedObject, tool, getDpr, onInvalidate, viewRect } = opts;
+    const {
+        ctxFg,
+        canvasFg,
+        camera,
+        map,
+        selectedObject,
+        showSelectionHandles,
+        getDpr,
+        onInvalidate,
+        viewRect,
+    } = opts;
     if (!ctxFg) return;
 
     clearCanvas(ctxFg, canvasFg);
@@ -238,7 +252,7 @@ export function drawFgObjects(opts: {
         }
     }
 
-    if (selectedObject && tool === "move") {
+    if (selectedObject && showSelectionHandles) {
         const handleSize = 16 / (camera.zoom * dpr);
         const handleOffset = 8 / (camera.zoom * dpr);
 
