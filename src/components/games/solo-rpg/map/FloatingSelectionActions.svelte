@@ -136,6 +136,13 @@
         gap: 0.125rem;
     }
 
+    /* Desktop: vertical layout */
+    @media (min-width: 768px) {
+        .actions-row {
+            flex-direction: column;
+        }
+    }
+
     .action-btn {
         display: flex;
         flex-direction: column;

@@ -45,14 +45,14 @@
         }
     }
 
-    /* Desktop: top-left, after sidebars */
+    /* Desktop: top-left, after sidebars, grows downward then wraps to new column */
     @media (min-width: 768px) {
         .floating-panel-container {
             top: 0.5rem;
+            bottom: 0.5rem;
             /* After primary (80px) + secondary (90px) sidebars + margin */
             left: calc(170px + 0.5rem);
-            right: 0.5rem;
-            flex-direction: row;
+            flex-direction: column;
             flex-wrap: wrap;
             align-content: flex-start;
         }

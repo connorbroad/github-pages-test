@@ -77,6 +77,13 @@
         gap: 0.125rem;
     }
 
+    /* Desktop: vertical layout */
+    @media (min-width: 768px) {
+        .toggle-group {
+            flex-direction: column;
+        }
+    }
+
     .toggle-btn {
         display: flex;
         flex-direction: column;

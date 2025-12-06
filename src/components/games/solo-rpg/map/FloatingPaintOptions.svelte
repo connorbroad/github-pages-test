@@ -293,6 +293,14 @@
         align-items: flex-start;
     }
 
+    /* Desktop: vertical layout, centered */
+    @media (min-width: 768px) {
+        .options-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
     .option-wrapper {
         position: relative;
     }
