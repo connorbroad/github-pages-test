@@ -131,17 +131,18 @@
                     {/if}
                     <span class="option-label">Color</span>
                 </button>
-
-                {#if showColorDrawer}
-                    <ColorDrawer
-                        {selectedColor}
-                        showClearOption={canFlip}
-                        on:select={(e) => handleColorSelect(e.detail)} />
-                {/if}
             </div>
         </div>
     {/if}
 </div>
+
+<!-- Color Selection Modal -->
+{#if showColorDrawer}
+    <ColorDrawer
+        {selectedColor}
+        on:select={(e) => handleColorSelect(e.detail)}
+        on:close={() => (showColorDrawer = false)} />
+{/if}
 
 <!-- Creature Assignment Modal -->
 {#if showCreatureModal && campaignId && mapId}

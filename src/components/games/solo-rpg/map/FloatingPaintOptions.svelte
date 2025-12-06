@@ -13,7 +13,6 @@
         type TileMap,
         type TileMapTile,
     } from "../data/storage-utils";
-    import { COLOR_PALETTE } from "./shared/color-palette";
     import ColorDrawer from "./shared/ColorDrawer.svelte";
     import ShapeIcon from "./shared/ShapeIcon.svelte";
 
@@ -98,6 +97,10 @@
         selectColor(e.detail);
     }
 
+    function handleColorClose() {
+        showColorDrawer = false;
+    }
+
     function selectTile(ref: TileRef) {
         dispatch("tileSelect", ref);
         showTileModal = false;
@@ -133,43 +136,6 @@
 
 <div class="floating-panel floating-paint-options">
     <div class="options-row">
-        <!-- Color Button with Drawer -->
-        <div class="option-wrapper">
-            <button
-                class="option-btn"
-                on:click={toggleColorDrawer}
-                aria-label="Select Color"
-                aria-expanded={showColorDrawer}>
-                <div class="color-swatch" style="background: {color}"></div>
-                <span class="option-label">Color</span>
-            </button>
-
-            {#if showColorDrawer}
-                <ColorDrawer selectedColor={color} on:select={handleColorSelect} />
-            {/if}
-        </div>
-
-        <!-- Tile Button -->
-        <button class="option-btn" on:click={openTileModal} aria-label="Select Tile">
-            <div class="tile-preview">
-                {#if selectedTile && tileMaps.length}
-                    {#each tileMaps as tm}
-                        {#if tm.id === selectedTile.tileMapId}
-                            {#each tm.tiles as t}
-                                {#if t.id === selectedTile.tileId}
-                                    <div
-                                        class="tile-sprite"
-                                        style={`${tilePreviewStyle({ image: tm.image.value, tile: t })} transform: scale(${20 / t.w}, ${20 / t.h});`}>
-                                    </div>
-                                {/if}
-                            {/each}
-                        {/if}
-                    {/each}
-                {/if}
-            </div>
-            <span class="option-label">Tile</span>
-        </button>
-
         <!-- Shape Button with Drawer (Object mode only) -->
         {#if paintMode === "object"}
             <div class="option-wrapper">
@@ -197,8 +163,46 @@
                 {/if}
             </div>
         {/if}
+
+        <!-- Tile Button -->
+        <button class="option-btn" on:click={openTileModal} aria-label="Select Tile">
+            <div class="tile-preview">
+                {#if selectedTile && tileMaps.length}
+                    {#each tileMaps as tm}
+                        {#if tm.id === selectedTile.tileMapId}
+                            {#each tm.tiles as t}
+                                {#if t.id === selectedTile.tileId}
+                                    <div
+                                        class="tile-sprite"
+                                        style={`${tilePreviewStyle({ image: tm.image.value, tile: t })} transform: scale(${20 / t.w}, ${20 / t.h});`}>
+                                    </div>
+                                {/if}
+                            {/each}
+                        {/if}
+                    {/each}
+                {/if}
+            </div>
+            <span class="option-label">Tile</span>
+        </button>
+
+        <!-- Color Button with Drawer -->
+        <div class="option-wrapper">
+            <button
+                class="option-btn"
+                on:click={toggleColorDrawer}
+                aria-label="Select Color"
+                aria-expanded={showColorDrawer}>
+                <div class="color-swatch" style="background: {color}"></div>
+                <span class="option-label">Color</span>
+            </button>
+        </div>
     </div>
 </div>
+
+<!-- Color Selection Modal -->
+{#if showColorDrawer}
+    <ColorDrawer selectedColor={color} on:select={handleColorSelect} on:close={handleColorClose} />
+{/if}
 
 <!-- Tile Selection Modal -->
 {#if showTileModal}
