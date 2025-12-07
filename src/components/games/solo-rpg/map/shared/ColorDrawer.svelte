@@ -6,7 +6,7 @@
      * Used by FloatingPaintOptions and FloatingSelectionPanel.
      */
     import { createEventDispatcher } from "svelte";
-    import { COLOR_PALETTE, CLEAR_COLOR } from "./color-palette";
+    import { COLOR_PALETTE } from "./color-palette";
 
     export let selectedColor: string;
 
@@ -43,14 +43,18 @@
             </button>
         </div>
         <div class="color-drawer">
-            {#each COLOR_PALETTE as c}
-                <button
-                    class="color-swatch-btn"
-                    class:active={selectedColor === c}
-                    on:click={() => selectColor(c)}
-                    aria-label={c}>
-                    <div class="color-swatch" style="background: {c}"></div>
-                </button>
+            {#each Object.values(COLOR_PALETTE) as palette}
+                <div class="color-palette-section">
+                    {#each palette as c}
+                        <button
+                            class="color-swatch-btn"
+                            class:active={selectedColor === c}
+                            on:click={() => selectColor(c)}
+                            aria-label={c}>
+                            <div class="color-swatch" style="background: {c}"></div>
+                        </button>
+                    {/each}
+                </div>
             {/each}
         </div>
     </div>
@@ -85,7 +89,7 @@
         border: 1px solid var(--border-primary);
         border-radius: 12px;
         box-shadow: var(--shadow-lg);
-        width: min(320px, 90vw);
+        width: min(300px, 90vw);
         max-height: 80vh;
         display: flex;
         flex-direction: column;
@@ -134,10 +138,18 @@
 
     .color-drawer {
         padding: 1rem;
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
+        display: flex;
+        flex-wrap: wrap;
+        justify-items: center;
+        justify-content: center;
         gap: 0.5rem;
         overflow-y: auto;
+    }
+
+    .color-palette-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .color-swatch-btn {
