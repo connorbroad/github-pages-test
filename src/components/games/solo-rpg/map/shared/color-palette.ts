@@ -3,7 +3,7 @@
  */
 export const COLOR_PALETTE = {
     BlackWhite: ["#f5eee4", "#000000"],
-    Muted: ["#4e3d3b", "#544d54", "#786c64", "#a09a92"],
+    Muted: ["#a09a92", "#786c64", "#544d54", "#4e3d3b"],
     Blues: ["#64d5df", "#478fca", "#2f588d", "#252f40"],
     Reds: ["#f4dc6d", "#d87945", "#9e3227", "#63250e"],
     Greens: ["#89aa55", "#4e8357", "#386956", "#2b4a3c"],
