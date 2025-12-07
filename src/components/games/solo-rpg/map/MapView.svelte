@@ -833,11 +833,12 @@
                 {/if}
 
                 <!-- Paint options: Shape, Tile, Color -->
-                <!-- Shown for Background mode (no eraser) and Object mode -->
-                {#if showPaintOptions && (editMode !== "background" || !isErasing)}
+                <!-- Shown for Background mode and Object mode -->
+                <!-- Disabled when erasing in background mode, or in Object/Select with no selection -->
+                {#if showPaintOptions}
                     <FloatingPaintOptions
                         context={editMode === "background" ? "background" : "object"}
-                        disabled={paintOptionsDisabled}
+                        disabled={paintOptionsDisabled || (editMode === "background" && isErasing)}
                         color={editMode === "object" && objectMode === "select" && hasSelection
                             ? (selectedColor ?? color)
                             : color}
