@@ -79,7 +79,7 @@
                 <path d="M14 11v6" />
                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
             </svg>
-            <span class="action-label">Delete</span>
+            <span class="action-label">Del</span>
         </button>
 
         <!-- Assign Button -->

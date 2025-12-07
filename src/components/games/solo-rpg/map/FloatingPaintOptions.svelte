@@ -283,10 +283,6 @@
         padding: 0.25rem;
     }
 
-    .floating-panel.disabled {
-        opacity: 0.5;
-    }
-
     .options-row {
         display: flex;
         gap: 0.25rem;
@@ -329,6 +325,7 @@
     }
 
     .option-btn:disabled {
+        opacity: 0.4;
         cursor: not-allowed;
     }
 

@@ -832,19 +832,6 @@
                         on:brushModeChange={(e) => (isErasing = e.detail)} />
                 {/if}
 
-                <!-- Object/Select mode: Selection action buttons (Delete, Assign, Flip) -->
-                {#if showSelectionActions}
-                    <FloatingSelectionActions
-                        disabled={!hasSelection}
-                        creatureRef={selectedCreatureRef}
-                        canFlip={selectedCanFlip}
-                        {campaignId}
-                        mapId={currentMapId}
-                        on:delete={handleDelete}
-                        on:creatureAssign={handleCreatureAssign}
-                        on:flip={handleFlip} />
-                {/if}
-
                 <!-- Paint options: Shape, Tile, Color -->
                 <!-- Shown for Background mode (no eraser) and Object mode -->
                 {#if showPaintOptions && (editMode !== "background" || !isErasing)}
@@ -868,6 +855,19 @@
                         on:colorChange={handleColorChange}
                         on:tileSelect={handleTileSelect}
                         on:shapeChange={handleShapeChange} />
+                {/if}
+
+                <!-- Object/Select mode: Selection action buttons (Delete, Assign, Flip) -->
+                {#if showSelectionActions}
+                    <FloatingSelectionActions
+                        disabled={!hasSelection}
+                        creatureRef={selectedCreatureRef}
+                        canFlip={selectedCanFlip}
+                        {campaignId}
+                        mapId={currentMapId}
+                        on:delete={handleDelete}
+                        on:creatureAssign={handleCreatureAssign}
+                        on:flip={handleFlip} />
                 {/if}
             </FloatingPanelContainer>
 

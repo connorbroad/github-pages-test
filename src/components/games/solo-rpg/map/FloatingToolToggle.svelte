@@ -79,7 +79,7 @@
                 <circle cx="12" cy="12" r="9" />
                 <circle cx="12" cy="12" r="3" fill="currentColor" />
             </svg>
-            <span class="toggle-label">Object</span>
+            <span class="toggle-label">Token</span>
         </button>
     </div>
 </div>
