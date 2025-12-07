@@ -124,15 +124,20 @@
     function queueSave() {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
-            if (!map) return;
-            map.updatedAt = Date.now();
-            const all = loadMaps();
-            const i = all.findIndex((m) => m.id === map!.id);
-            if (i >= 0) {
-                all[i] = map!;
-                saveMaps(all);
-            }
+            saveMapNow();
         }, 600);
+    }
+
+    // Immediate save (used on destroy to ensure camera state is persisted)
+    function saveMapNow() {
+        if (!map) return;
+        map.updatedAt = Date.now();
+        const all = loadMaps();
+        const i = all.findIndex((m) => m.id === map!.id);
+        if (i >= 0) {
+            all[i] = map!;
+            saveMaps(all);
+        }
     }
 
     function getDpr() {
@@ -671,7 +676,8 @@
         }
 
         const isTouch = e.pointerType === "touch";
-        const allowDoubleTap = isTouch && editMode === "move";
+        const allowDoubleTap =
+            isTouch && (editMode === "move" || (editMode === "object" && objectMode === "select"));
         if (allowDoubleTap && e.button === 0) {
             const now = e.timeStamp;
             const dt = now - lastTapTime;
@@ -1151,6 +1157,17 @@
         map = allMaps.find((m) => m.id === mapId) || null;
 
         if (map) {
+            // Restore camera state from saved view, with defaults
+            if (map.view) {
+                camera.x = map.view.x ?? 0;
+                camera.y = map.view.y ?? 0;
+                camera.zoom = clampNum(map.view.zoom ?? 1, MIN_ZOOM, MAX_ZOOM);
+            } else {
+                camera.x = 0;
+                camera.y = 0;
+                camera.zoom = 1;
+            }
+
             const refByMapId = new Map<string, boolean>();
             if (map.backgroundTiles) {
                 for (const key in map.backgroundTiles) {
@@ -1181,6 +1198,17 @@
                 );
                 invalidateSortedObjects();
             }
+
+            // Perform bounds check after loading to ensure camera is in valid location
+            // This needs to happen after canvas is ready, so we defer it
+            requestAnimationFrame(() => {
+                if (map) {
+                    invalidateBounds(); // Ensure bounds are recalculated for this map
+                    clampCameraToBounds();
+                    // Sync camera back to map view after clamping
+                    map.view = { x: camera.x, y: camera.y, zoom: camera.zoom };
+                }
+            });
         }
     }
 
@@ -1194,9 +1222,12 @@
             clearTimeout(resizeThrottleTimer);
             resizeThrottleTimer = null;
         }
+        // Clear any pending debounced save
+        clearTimeout(saveTimer);
         if (map) {
-            map.view = camera;
-            queueSave();
+            // Persist camera state immediately on destroy
+            map.view = { x: camera.x, y: camera.y, zoom: camera.zoom };
+            saveMapNow();
         }
     });
 
