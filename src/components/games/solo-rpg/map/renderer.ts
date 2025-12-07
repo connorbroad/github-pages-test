@@ -14,10 +14,28 @@ export function drawGrid(opts: {
     onInvalidate: () => void; // call when async sprite loads to schedule a repaint
     bgColor?: string;
     viewRect?: DOMRect;
+    editMode?: "move" | "background" | "object";
+    mapMode?: "edit" | "play";
 }) {
-    const { ctxBg, canvasBg, camera, map, isLoading, getDpr, onInvalidate, bgColor, viewRect } =
-        opts;
+    const {
+        ctxBg,
+        canvasBg,
+        camera,
+        map,
+        isLoading,
+        getDpr,
+        onInvalidate,
+        bgColor,
+        viewRect,
+        editMode,
+        mapMode,
+    } = opts;
     if (!ctxBg) return;
+
+    // Apply faded effect when in object mode AND edit mode (background should be less prominent)
+    // In play mode, always render at full opacity
+    const shouldFade = mapMode === "edit" && editMode === "object";
+    const fadeAlpha = shouldFade ? 0.4 : 1.0;
 
     const bgFill =
         bgColor ||
@@ -45,6 +63,7 @@ export function drawGrid(opts: {
     ctxBg.scale(dpr * camera.zoom, dpr * camera.zoom);
     ctxBg.translate(-camera.x, -camera.y);
     ctxBg.imageSmoothingEnabled = false;
+    ctxBg.globalAlpha = fadeAlpha;
     ctxBg.strokeStyle = "rgba(255,255,255,0.1)";
     ctxBg.lineWidth = 1 / (camera.zoom * dpr);
 
@@ -139,6 +158,7 @@ export function drawGrid(opts: {
         }
     }
     ctxBg.restore();
+    ctxBg.globalAlpha = 1.0;
     ctxBg.globalCompositeOperation = "source-over";
 }
 
@@ -152,6 +172,8 @@ export function drawFgObjects(opts: {
     getDpr: () => number;
     onInvalidate: () => void;
     viewRect?: DOMRect;
+    editMode?: "move" | "background" | "object";
+    mapMode?: "edit" | "play";
 }) {
     const {
         ctxFg,
@@ -163,14 +185,22 @@ export function drawFgObjects(opts: {
         getDpr,
         onInvalidate,
         viewRect,
+        editMode,
+        mapMode,
     } = opts;
     if (!ctxFg) return;
 
     clearCanvas(ctxFg, canvasFg);
 
+    // Apply transparent effect when in background mode AND edit mode (objects should be less prominent)
+    // In play mode, always render at full opacity
+    const shouldFade = mapMode === "edit" && editMode === "background";
+    const fadeAlpha = shouldFade ? 0.3 : 1.0;
+
     const dpr = getDpr();
     ctxFg.save();
     ctxFg.globalCompositeOperation = "source-over";
+    ctxFg.globalAlpha = fadeAlpha;
     ctxFg.scale(dpr * camera.zoom, dpr * camera.zoom);
     ctxFg.translate(-camera.x, -camera.y);
     ctxFg.imageSmoothingEnabled = false;
@@ -283,5 +313,6 @@ export function drawFgObjects(opts: {
         ctxFg.setLineDash([]);
     }
     ctxFg.restore();
+    ctxFg.globalAlpha = 1.0;
     ctxFg.globalCompositeOperation = "source-over";
 }

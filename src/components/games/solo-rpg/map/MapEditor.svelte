@@ -255,6 +255,8 @@
             onInvalidate: scheduleRender,
             bgColor: cachedBgColor,
             viewRect: getCachedRect(),
+            editMode,
+            mapMode,
         });
     }
 
@@ -270,6 +272,8 @@
             getDpr,
             onInvalidate: scheduleRender,
             viewRect: getCachedRect(),
+            editMode,
+            mapMode,
         });
     }
 
@@ -544,6 +548,11 @@
             emitSelection();
         }
         pendingSelect = null;
+    }
+
+    // Re-render when editMode or mapMode changes to update transparency/fading
+    $: if ((editMode || mapMode) && map) {
+        scheduleRender();
     }
 
     function emitSelection() {
