@@ -268,7 +268,7 @@
             camera,
             map,
             selectedObject,
-            showSelectionHandles: editMode === "object" && objectMode === "select",
+            showSelectionHandles: editMode === "object" && !!selectedObject,
             getDpr,
             onInvalidate: scheduleRender,
             viewRect: getCachedRect(),
@@ -540,8 +540,8 @@
             .map((obj) => obj.id);
     }
 
-    // Clear selection when not in Object/Select mode
-    $: if (!(editMode === "object" && objectMode === "select")) {
+    // Clear selection when not in Object mode (either Add or Select)
+    $: if (editMode !== "object") {
         if (selectedObject) {
             selectedObject = null;
             if (map) scheduleRender();
@@ -777,7 +777,18 @@
         }
 
         // Object + Add mode: place objects at exact position (not grid-locked)
+        // Also allows dragging the currently selected object
         if (editMode === "object" && objectMode === "add" && (e.button === 0 || e.button === -1)) {
+            // If clicking on the currently selected object, initiate drag instead of adding
+            if (selectedObject && isPointInObject(x, y, selectedObject)) {
+                isDraggingHandle = true;
+                draggingObj = selectedObject;
+                dragOffset.x = x - selectedObject.x;
+                dragOffset.y = y - selectedObject.y;
+                return;
+            }
+
+            // Add new object and auto-select it
             if (selectedTile) {
                 const id = generateUUID();
                 const ts = map.tileSize;
@@ -807,8 +818,11 @@
                 } else {
                     invalidateBounds();
                 }
+                // Auto-select the newly added object
+                selectedObject = obj;
                 queueSave();
                 scheduleRender();
+                emitSelection();
                 return;
             }
             const newObj: MapObject = {
@@ -834,8 +848,11 @@
             } else {
                 invalidateBounds();
             }
+            // Auto-select the newly added object
+            selectedObject = newObj;
             queueSave();
             scheduleRender();
+            emitSelection();
             return;
         }
     }

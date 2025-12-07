@@ -263,37 +263,51 @@
         selectedCanFlip = !!e.detail?.object?.canFlip;
         selectedCreatureRef = e.detail?.object?.creatureRef ?? null;
         selectedObjectId = e.detail?.object?.id ?? null;
+
+        // Sync paint props to selected object's values so next added token matches
+        // This ensures SHAPE/TILE/COLOR only changes via manual edits or selection
+        if (e.detail?.selected && e.detail.object) {
+            color = e.detail.object.color;
+            currentShape = e.detail.object.shape;
+            selectedTileRef = e.detail.object.tile;
+        }
     }
 
     function handleColorChange(e: CustomEvent<string>) {
-        if (editMode === "object" && objectMode === "select" && hasSelection) {
-            // In select mode, update the selected object's color
+        if (editMode === "object" && hasSelection) {
+            // In object mode with selection, update the selected object's color
             editorRef?.setSelectedObjectColor?.(e.detail);
             selectedColor = e.detail;
+            // Also update paint color so next added token uses same color
+            color = e.detail;
         } else {
-            // In add mode or background mode, update the paint color
+            // No selection or background mode, update the paint color
             color = e.detail;
         }
     }
 
     function handleShapeChange(e: CustomEvent<"square" | "circle" | "triangle" | "star">) {
-        if (editMode === "object" && objectMode === "select" && hasSelection) {
-            // In select mode, update the selected object's shape
+        if (editMode === "object" && hasSelection) {
+            // In object mode with selection, update the selected object's shape
             editorRef?.setSelectedObjectShape?.(e.detail);
             selectedShape = e.detail;
+            // Also update paint shape so next added token uses same shape
+            currentShape = e.detail;
         } else {
-            // In add mode, update the paint shape
+            // No selection, update the paint shape
             currentShape = e.detail;
         }
     }
 
     function handleTileSelect(e: CustomEvent<{ tileMapId: string; tileId: string }>) {
-        if (editMode === "object" && objectMode === "select" && hasSelection) {
-            // In select mode, update the selected object's tile
+        if (editMode === "object" && hasSelection) {
+            // In object mode with selection, update the selected object's tile
             editorRef?.setSelectedObjectTile?.(e.detail);
             selectedTile = e.detail;
+            // Also update paint tile so next added token uses same tile
+            selectedTileRef = e.detail;
         } else {
-            // In add mode or background mode, update the selected tile for painting
+            // No selection or background mode, update the selected tile for painting
             selectedTileRef = e.detail;
         }
     }
@@ -309,16 +323,16 @@
         selectedCreatureRef = e.detail;
     }
 
-    // Clear selection when switching away from Object/Select mode
+    // Clear selection when leaving Object mode entirely (preserve selection within Object mode)
     function clearSelectionIfNeeded(
         newEditMode: "move" | "background" | "object",
         newObjectMode?: "select" | "add"
     ) {
-        const wasInSelectMode = editMode === "object" && objectMode === "select";
-        const willBeInSelectMode =
-            newEditMode === "object" && (newObjectMode ?? objectMode) === "select";
+        const wasInObjectMode = editMode === "object";
+        const willBeInObjectMode = newEditMode === "object";
 
-        if (wasInSelectMode && !willBeInSelectMode) {
+        // Only clear selection when leaving Object mode entirely
+        if (wasInObjectMode && !willBeInObjectMode) {
             editorRef?.clearSelection?.();
             hasSelection = false;
             selectedColor = null;
@@ -348,11 +362,12 @@
     $: showFloatingToolPanel = currentMapId && mapMode === "edit";
     // Show object mode toggle when in object edit mode
     $: showObjectModeToggle = editMode === "object";
-    // Show selection actions in Object/Select mode (always visible, but disabled when no selection)
-    $: showSelectionActions = editMode === "object" && objectMode === "select";
+    // Show selection actions in Object mode (both Add and Select), disabled when no selection
+    $: showSelectionActions = editMode === "object";
     // Show paint options for background or object modes
     $: showPaintOptions = editMode === "background" || editMode === "object";
     // In Object/Select mode, disable paint options when nothing is selected
+    // In Object/Add mode, paint options are always enabled (configure next token to add)
     $: paintOptionsDisabled = editMode === "object" && objectMode === "select" && !hasSelection;
 
     // Handle modeChange from SecondarySidebar
@@ -839,17 +854,13 @@
                     <FloatingPaintOptions
                         context={editMode === "background" ? "background" : "object"}
                         disabled={paintOptionsDisabled || (editMode === "background" && isErasing)}
-                        color={editMode === "object" && objectMode === "select" && hasSelection
+                        color={editMode === "object" && hasSelection
                             ? (selectedColor ?? color)
                             : color}
-                        selectedTile={editMode === "object" &&
-                        objectMode === "select" &&
-                        hasSelection
+                        selectedTile={editMode === "object" && hasSelection
                             ? selectedTile
                             : selectedTileRef}
-                        currentShape={editMode === "object" &&
-                        objectMode === "select" &&
-                        hasSelection
+                        currentShape={editMode === "object" && hasSelection
                             ? (selectedShape ?? currentShape)
                             : currentShape}
                         showShape={editMode === "object"}

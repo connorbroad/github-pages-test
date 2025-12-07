@@ -26,7 +26,12 @@
 
     function handleDelete() {
         if (disabled) return;
-        if (confirm("Delete this object?")) {
+        // Only prompt for confirmation if a creature is assigned to this token
+        if (creatureRef) {
+            if (confirm("Delete this object? It has a creature assigned.")) {
+                dispatch("delete");
+            }
+        } else {
             dispatch("delete");
         }
     }
