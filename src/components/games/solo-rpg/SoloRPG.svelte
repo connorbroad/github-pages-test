@@ -34,6 +34,9 @@
     let currentCharacter: any = null;
     let selectedCharacterId: string | null = null;
 
+    // Track if views have nested state that can be "returned" from
+    let mapHasOpenMap: boolean = false;
+
     let characterManagerComponent: any;
     let mapViewComponent: any;
 
@@ -58,6 +61,11 @@
         // Map special-case: toggle to landing when already on map
         if (view === "map" && currentView === "map") {
             mapViewComponent?.returnToLanding?.();
+            return;
+        }
+        // Characters special-case: return to list when already on characters view
+        if (view === "characters" && currentView === "characters") {
+            characterManagerComponent?.resetToList?.();
             return;
         }
         // Set view and reset per-view UI
@@ -123,9 +131,21 @@
         // Animation only works for entries added directly on the Chronicle page
         handleNavigate("chronicle");
     }
+
+    function handleMapOpened() {
+        mapHasOpenMap = true;
+    }
+
+    function handleMapClosed() {
+        mapHasOpenMap = false;
+    }
 </script>
 
-<Sidebar {currentView} onNavigate={handleNavigate} />
+<Sidebar
+    {currentView}
+    onNavigate={handleNavigate}
+    canReturnFromCharacters={currentView === "characters" && selectedCharacterId !== null}
+    canReturnFromMap={currentView === "map" && mapHasOpenMap} />
 
 <TertiarySidebar
     show={showTertiarySidebar}
@@ -181,7 +201,9 @@
         <MapView
             bind:this={mapViewComponent}
             on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={handleNavigateToChronicle} />
+            on:navigateToStory={handleNavigateToChronicle}
+            on:mapOpened={handleMapOpened}
+            on:mapClosed={handleMapClosed} />
     {:else if currentView === "settings"}
         <SettingsView />
     {/if}

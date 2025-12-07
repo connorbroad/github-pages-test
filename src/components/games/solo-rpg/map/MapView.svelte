@@ -66,6 +66,7 @@
                 currentMapId = activeMapId;
                 // Load combat state for this map
                 loadCombatState(activeMapId);
+                dispatch("mapOpened");
             } else {
                 currentMapId = null;
                 saveActiveMapId(null);
@@ -147,6 +148,7 @@
         saveActiveMapId(currentMapId);
         // Load combat state for this map
         loadCombatState(e.detail.id);
+        dispatch("mapOpened");
     }
 
     function closeMap() {
@@ -158,6 +160,7 @@
         hasActiveEncounter = false;
         pendingNextObjectId = undefined;
         showEncounterSetup = false;
+        dispatch("mapClosed");
     }
 
     function renameMap(e: CustomEvent<{ id: string; name: string }>) {
@@ -939,7 +942,8 @@
                         {mapMode}
                         on:selectionChange={handleEditorSelectionChange}
                         on:encounterCreatureSelect={handleEncounterCreatureSelect}
-                        on:encounterCreatureDeselect={handleEncounterCreatureDeselect} />
+                        on:encounterCreatureDeselect={handleEncounterCreatureDeselect}
+                        on:close={closeMap} />
                 </div>
             </div>
         </div>

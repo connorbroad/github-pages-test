@@ -1295,8 +1295,18 @@
 <div class="relative flex h-full w-full flex-col">
     {#if map}
         <div
-            class="border-border-primary bg-bg-primary pointer-events-none absolute top-0 right-0 left-0 z-10 border-b">
-            <h4 class="text-text-primary m-4 text-center">{map.name}</h4>
+            class="border-border-primary bg-bg-primary absolute top-0 right-0 left-0 z-10 border-b">
+            <div class="m-4 flex items-center justify-between gap-4">
+                <button
+                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                    on:click={() => dispatch("close")}
+                    aria-label="Back to maps">
+                    ←
+                </button>
+                <h4 class="text-text-primary text-center">{map.name}</h4>
+                <!-- Spacer to center the title -->
+                <div class="w-[52px]"></div>
+            </div>
         </div>
     {/if}
     <div

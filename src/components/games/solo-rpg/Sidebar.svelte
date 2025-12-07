@@ -19,6 +19,10 @@
             | "chronicle"
             | "characters"
     ) => void = () => {};
+
+    // Indicates if tapping the button again will "return" to a list/landing state
+    export let canReturnFromCharacters: boolean = false;
+    export let canReturnFromMap: boolean = false;
 </script>
 
 <aside
@@ -87,35 +91,63 @@
             <button
                 class="srpg-sidebar-item"
                 class:active={currentView === "characters"}
+                class:can-return={currentView === "characters" && canReturnFromCharacters}
                 on:click={() => onNavigate("characters")}
                 aria-label="Characters">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    class="sidebar-icon"
-                    stroke-width="2">
-                    <path
-                        fill="currentColor"
-                        d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4" />
-                </svg>
+                <div class="sidebar-icon-wrapper">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="sidebar-icon"
+                        stroke-width="2">
+                        <path
+                            fill="currentColor"
+                            d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4" />
+                    </svg>
+                    {#if currentView === "characters" && canReturnFromCharacters}
+                        <span class="return-badge" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                        </span>
+                    {/if}
+                </div>
                 <span class="sidebar-label"></span>
             </button>
 
             <button
                 class="srpg-sidebar-item"
                 class:active={currentView === "map"}
+                class:can-return={currentView === "map" && canReturnFromMap}
                 on:click={() => onNavigate("map")}
                 aria-label="Map">
-                <svg
-                    class="sidebar-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="0">
-                    <path
-                        fill="currentColor"
-                        d="m20.5 3l-.16.03L15 5.1L9 3L3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1l5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5M10 5.47l4 1.4v11.66l-4-1.4zm-5 .99l3-1.01v11.7l-3 1.16zm14 11.08l-3 1.01V6.86l3-1.16z" />
-                </svg>
+                <div class="sidebar-icon-wrapper">
+                    <svg
+                        class="sidebar-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="0">
+                        <path
+                            fill="currentColor"
+                            d="m20.5 3l-.16.03L15 5.1L9 3L3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1l5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5M10 5.47l4 1.4v11.66l-4-1.4zm-5 .99l3-1.01v11.7l-3 1.16zm14 11.08l-3 1.01V6.86l3-1.16z" />
+                    </svg>
+                    {#if currentView === "map" && canReturnFromMap}
+                        <span class="return-badge" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                        </span>
+                    {/if}
+                </div>
 
                 <span class="sidebar-label"></span>
             </button>

@@ -204,6 +204,26 @@
     color: var(--accent-success);
 }
 
+/* Icon wrapper for return badge positioning */
+.srpg-sidebar-item .sidebar-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Return badge - shows when tapping will go "back" */
+/* Removed for now. Can be added later if desired */
+.srpg-sidebar-item .return-badge {
+    display: none;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item .return-badge {
+        display: none;
+    }
+}
+
 /* Label inside sidebar item */
 .srpg-sidebar-item .sidebar-label {
     font-size: 0.7rem;
