@@ -943,10 +943,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- <FloatingOracleButton
-            hasSecondarySidebar={showSecondarySidebar}
-            on:navigateToStory /> -->
     {/if}
 {/if}
 
