@@ -48,15 +48,12 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Crossed swords icon -->
-                <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
-                <path d="M13 19l6-6" />
-                <path d="M16 16l4 4" />
-                <path d="M19 21l2-2" />
-                <path d="M9.5 6.5L21 18v3h-3L6.5 9.5" />
-                <path d="M5 8l4-4" />
-                <path d="M8 5L4 1" />
-                <path d="M3 2l2 2" />
+                <!-- Compass icon - represents exploration, adventure, discovery -->
+                <circle cx="12" cy="12" r="10" />
+                <polygon
+                    points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
+                    fill="currentColor"
+                    stroke="none" />
             </svg>
             <span class="toggle-label">Play</span>
         </button>
