@@ -591,6 +591,17 @@
         }
     }
 
+    /** Select an object by ID (exported for external use, e.g., after token tap in move mode) */
+    export function selectObjectById(objectId: string) {
+        if (!map) return;
+        const obj = map.objects.find((o) => o.id === objectId);
+        if (obj) {
+            selectedObject = obj;
+            scheduleRender();
+            emitSelection();
+        }
+    }
+
     function cancelInertia() {
         if (inertiaRaf !== null) {
             cancelAnimationFrame(inertiaRaf);
@@ -722,9 +733,27 @@
             return;
         }
 
-        // Move mode: allows panning and selecting existing objects (for dragging)
+        // Move mode: allows panning; tapping a token switches to Token/Select mode
         if (editMode === "move") {
-            // No selection functionality in pure Move mode - just panning
+            // Check if we tapped on an object
+            const objs = getSortedObjects();
+            const hit = objs.find((o) => isPointInObject(x, y, o));
+            if (hit) {
+                // Emit event to switch to Token/Select mode and select this object
+                dispatch("tokenTapInMoveMode", {
+                    objectId: hit.id,
+                    object: {
+                        id: hit.id,
+                        color: hit.color,
+                        shape: hit.type,
+                        tile: hit.tile ?? null,
+                        canFlip: !!hit.tile,
+                        creatureRef: hit.creatureRef ?? null,
+                    },
+                });
+                return;
+            }
+            // No object hit - just panning
             selectedObject = null;
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };

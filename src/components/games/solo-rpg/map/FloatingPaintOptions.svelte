@@ -31,11 +31,14 @@
     export let currentShape: "square" | "circle" | "triangle" | "star" = "square";
     /** Whether to show the Shape option (only in object context) */
     export let showShape: boolean = true;
+    /** Initial tab to open on mount (for sidebar-triggered modals) */
+    export let initialTab: "tile" | "color" | "shape" | null = null;
 
     const dispatch = createEventDispatcher<{
         colorChange: string;
         tileSelect: { tileMapId: string; tileId: string };
         shapeChange: "square" | "circle" | "triangle" | "star";
+        close: void;
     }>();
 
     // Shape options (for object mode)
@@ -67,6 +70,15 @@
             tileMaps = loadTileMaps();
             rebuildTileOptions();
         } catch {}
+
+        // Open initial tab if specified (for sidebar-triggered modals)
+        if (initialTab === "tile") {
+            showTileModal = true;
+        } else if (initialTab === "color") {
+            showColorDrawer = true;
+        } else if (initialTab === "shape") {
+            showShapeDrawer = true;
+        }
     });
 
     // Rebuild tile options when context changes
@@ -103,6 +115,7 @@
         if (disabled) return;
         dispatch("colorChange", c);
         showColorDrawer = false;
+        dispatch("close");
     }
 
     function handleColorSelect(e: CustomEvent<string>) {
@@ -111,18 +124,21 @@
 
     function handleColorClose() {
         showColorDrawer = false;
+        dispatch("close");
     }
 
     function selectTile(ref: TileRef) {
         if (disabled) return;
         dispatch("tileSelect", ref);
         showTileModal = false;
+        dispatch("close");
     }
 
     function selectShape(s: typeof currentShape) {
         if (disabled) return;
         dispatch("shapeChange", s);
         showShapeDrawer = false;
+        dispatch("close");
     }
 
     function toggleColorDrawer() {
@@ -141,6 +157,7 @@
 
     function closeTileModal() {
         showTileModal = false;
+        dispatch("close");
     }
 
     function toggleShapeDrawer() {

@@ -1,73 +1,75 @@
 <script lang="ts">
     /**
-     * FloatingBrushModeToggle.svelte
+     * FloatingEditPlayToggle.svelte
      *
-     * Paint/Erase toggle button group for background mode.
-     * Visible only when `tool === "paint" && paintMode === "background"`.
-     * This panel appears after the Background/Object toggle.
+     * Edit/Play toggle floating panel. Positioned top-center, below map header.
+     * Allows switching between map editing and combat/play mode.
      */
-    import { createEventDispatcher } from "svelte";
+    import { fly } from "svelte/transition";
+    import { quintOut } from "svelte/easing";
 
-    export let isErasing: boolean = false;
+    export let mapMode: "edit" | "play" = "edit";
+    export let onModeChange: (mode: "edit" | "play") => void;
 
-    const dispatch = createEventDispatcher<{
-        brushModeChange: boolean; // true = erasing, false = painting
-    }>();
-
-    function setBrushMode(erasing: boolean) {
-        if (isErasing !== erasing) {
-            dispatch("brushModeChange", erasing);
+    function setMode(mode: "edit" | "play") {
+        if (mapMode !== mode) {
+            onModeChange(mode);
         }
     }
 </script>
 
-<div class="floating-panel floating-brush-mode-toggle">
+<div class="floating-edit-play-toggle" transition:fly={{ duration: 300, easing: quintOut, y: -20 }}>
     <div class="toggle-group">
         <button
             class="toggle-btn"
-            class:active={isErasing}
-            on:click={() => setBrushMode(true)}
-            aria-label="Erase mode"
-            aria-pressed={isErasing}>
+            class:active={mapMode === "edit"}
+            on:click={() => setMode("edit")}
+            aria-label="Edit Mode"
+            aria-pressed={mapMode === "edit"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Eraser icon -->
-                <path
-                    d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
-                <path d="M22 21H7" />
-                <path d="m5 11 9 9" />
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
             </svg>
-            <span class="toggle-label">Erase</span>
+            <span class="toggle-label">Edit</span>
         </button>
         <button
             class="toggle-btn"
-            class:active={!isErasing}
-            on:click={() => setBrushMode(false)}
-            aria-label="Paint mode"
-            aria-pressed={!isErasing}>
+            class:active={mapMode === "play"}
+            on:click={() => setMode("play")}
+            aria-label="Play Mode"
+            aria-pressed={mapMode === "play"}>
             <svg
                 class="toggle-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2">
-                <!-- Paint brush icon -->
-                <path
-                    d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z" />
-                <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7" />
-                <path d="M14.5 17.5 4.5 15" />
+                <!-- Crossed swords icon -->
+                <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
+                <path d="M13 19l6-6" />
+                <path d="M16 16l4 4" />
+                <path d="M19 21l2-2" />
+                <path d="M9.5 6.5L21 18v3h-3L6.5 9.5" />
+                <path d="M5 8l4-4" />
+                <path d="M8 5L4 1" />
+                <path d="M3 2l2 2" />
             </svg>
-            <span class="toggle-label">Paint</span>
+            <span class="toggle-label">Play</span>
         </button>
     </div>
 </div>
 
 <style>
-    .floating-panel {
+    .floating-edit-play-toggle {
+        position: fixed;
+        top: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 45;
         background: var(--bg-elevated);
         border: 1px solid var(--border-primary);
         border-radius: 8px;
@@ -75,17 +77,17 @@
         padding: 0.25rem;
     }
 
+    /* Mobile: account for safe area */
+    @media (max-width: 767px) {
+        .floating-edit-play-toggle {
+            top: calc(0.5rem + env(safe-area-inset-top));
+        }
+    }
+
     .toggle-group {
         display: flex;
         flex-direction: row;
         gap: 0.125rem;
-    }
-
-    /* Desktop: vertical layout */
-    @media (min-width: 768px) {
-        .toggle-group {
-            flex-direction: column;
-        }
     }
 
     .toggle-btn {

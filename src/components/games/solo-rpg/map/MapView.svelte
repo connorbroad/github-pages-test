@@ -20,13 +20,13 @@
     import InitiativeBar from "./InitiativeBar.svelte";
     import EncounterSetupModal from "./EncounterSetupModal.svelte";
     import SecondarySidebar from "../SecondarySidebar.svelte";
-    // Floating panels (redesigned)
-    import FloatingPanelContainer from "./FloatingPanelContainer.svelte";
-    import FloatingToolToggle from "./FloatingToolToggle.svelte";
-    import FloatingObjectModeToggle from "./FloatingObjectModeToggle.svelte";
-    import FloatingBrushModeToggle from "./FloatingBrushModeToggle.svelte";
+    import TertiarySidebar from "../TertiarySidebar.svelte";
+    // Floating panels
+    import FloatingEditPlayToggle from "./FloatingEditPlayToggle.svelte";
     import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
-    import FloatingSelectionActions from "./FloatingSelectionActions.svelte";
+    import ShapeModal from "./ShapeModal.svelte";
+    import TokenSelectorModal from "./TokenSelectorModal.svelte";
+    import CreatureAssignmentModal from "./CreatureAssignmentModal.svelte";
     import {
         rollInitiativeForCreatures,
         getNextTurnIndex,
@@ -276,6 +276,42 @@
         }
     }
 
+    // Handle token tap in Move mode - switch to Token/Select mode and select the token
+    function handleTokenTapInMoveMode(
+        e: CustomEvent<{
+            objectId: string;
+            object: {
+                id: string;
+                color: string;
+                shape: "square" | "circle" | "triangle" | "star";
+                tile: { tileMapId: string; tileId: string } | null;
+                canFlip: boolean;
+                creatureRef: CreatureRef | null;
+            };
+        }>
+    ) {
+        // Switch to Token/Select mode
+        editMode = "object";
+        objectMode = "select";
+
+        // Update selection state
+        hasSelection = true;
+        selectedColor = e.detail.object.color;
+        selectedShape = e.detail.object.shape;
+        selectedTile = e.detail.object.tile;
+        selectedCanFlip = e.detail.object.canFlip;
+        selectedCreatureRef = e.detail.object.creatureRef;
+        selectedObjectId = e.detail.object.id;
+
+        // Sync paint props
+        color = e.detail.object.color;
+        currentShape = e.detail.object.shape;
+        selectedTileRef = e.detail.object.tile;
+
+        // Tell MapEditor to select this object
+        editorRef?.selectObjectById?.(e.detail.objectId);
+    }
+
     function handleColorChange(e: CustomEvent<string>) {
         if (editMode === "object" && hasSelection) {
             // In object mode with selection, update the selected object's color
@@ -347,35 +383,114 @@
         }
     }
 
-    function handleEditModeChange(e: CustomEvent<"move" | "background" | "object">) {
-        clearSelectionIfNeeded(e.detail);
-        editMode = e.detail;
+    function handleEditModeChange(newMode: "move" | "background" | "object") {
+        clearSelectionIfNeeded(newMode);
+        editMode = newMode;
         // Reset eraser when leaving background mode
-        if (e.detail !== "background") {
+        if (newMode !== "background") {
             isErasing = false;
         }
     }
 
-    function handleObjectModeChange(e: CustomEvent<"select" | "add">) {
-        clearSelectionIfNeeded(editMode, e.detail);
-        objectMode = e.detail;
+    function handleObjectModeChange(newMode: "select" | "add") {
+        clearSelectionIfNeeded(editMode, newMode);
+        objectMode = newMode;
     }
 
-    // Floating panels visibility based on mode
-    $: showFloatingToolPanel = currentMapId && mapMode === "edit";
-    // Show object mode toggle when in object edit mode
-    $: showObjectModeToggle = editMode === "object";
-    // Show selection actions in Object mode (both Add and Select), disabled when no selection
-    $: showSelectionActions = editMode === "object";
-    // Show paint options for background or object modes
-    $: showPaintOptions = editMode === "background" || editMode === "object";
-    // In Object/Select mode, disable paint options when nothing is selected
-    // In Object/Add mode, paint options are always enabled (configure next token to add)
-    $: paintOptionsDisabled = editMode === "object" && objectMode === "select" && !hasSelection;
+    function handleBrushModeChange(erasing: boolean) {
+        isErasing = erasing;
+    }
 
-    // Handle modeChange from SecondarySidebar
-    function handleModeChange(e: CustomEvent<"edit" | "play">) {
-        setMapMode(e.detail);
+    // Modal state for paint options (tile, color, shape)
+    let showTileModal = false;
+    let showColorModal = false;
+    let showShapeModal = false;
+    let showTokenModal = false;
+    let showAssignModal = false;
+
+    function openTileModal() {
+        showTileModal = true;
+        showColorModal = false;
+        showShapeModal = false;
+        showTokenModal = false;
+    }
+
+    function openColorModal() {
+        showColorModal = true;
+        showTileModal = false;
+        showShapeModal = false;
+        showTokenModal = false;
+    }
+
+    function openShapeModal() {
+        showShapeModal = true;
+        showTileModal = false;
+        showColorModal = false;
+        showTokenModal = false;
+    }
+
+    function openTokenModal() {
+        showTokenModal = true;
+        showTileModal = false;
+        showColorModal = false;
+        showShapeModal = false;
+    }
+
+    function openAssignModal() {
+        showAssignModal = true;
+    }
+
+    function closeAllModals() {
+        showTileModal = false;
+        showColorModal = false;
+        showShapeModal = false;
+        showTokenModal = false;
+        showAssignModal = false;
+    }
+
+    // Handle token selector modal confirm
+    function handleTokenConfirm(
+        e: CustomEvent<{
+            shape: "square" | "circle" | "triangle" | "star";
+            color: string;
+            tile: { tileMapId: string; tileId: string } | null;
+        }>
+    ) {
+        const { shape, color: newColor, tile } = e.detail;
+
+        if (editMode === "object" && hasSelection) {
+            // Update selected object
+            editorRef?.setSelectedObjectShape?.(shape);
+            editorRef?.setSelectedObjectColor?.(newColor);
+            editorRef?.setSelectedObjectTile?.(tile);
+            selectedShape = shape;
+            selectedColor = newColor;
+            selectedTile = tile;
+        }
+
+        // Update current paint options for new tokens
+        currentShape = shape;
+        color = newColor;
+        selectedTileRef = tile;
+
+        showTokenModal = false;
+    }
+
+    // Show floating Edit/Play toggle when a map is open
+    $: showEditPlayToggle = currentMapId && mapMode === "edit";
+    // Show tertiary sidebar when in background or object mode (not move)
+    $: showTertiarySidebar = currentMapId && mapMode === "edit" && editMode !== "move";
+    // Determine paint options context
+    let paintOptionsContext: "background" | "object" = "object";
+    $: paintOptionsContext = editMode === "background" ? "background" : "object";
+    // Paint options disabled when erasing or in select mode with no selection
+    $: paintOptionsDisabled =
+        (editMode === "background" && isErasing) ||
+        (editMode === "object" && objectMode === "select" && !hasSelection);
+
+    // Handle modeChange from FloatingEditPlayToggle
+    function handleMapModeChange(mode: "edit" | "play") {
+        setMapMode(mode);
     }
 
     // Encounter mode state - no longer need creature selection for panel visibility
@@ -821,70 +936,118 @@
                 !encounterPanelDragging}
             class:panel-dragging={encounterPanelDragging}
             style="--encounter-panel-height: {encounterPanelHeight}%;">
-            <!-- Secondary Sidebar (Edit/Play mode toggle) -->
+            <!-- Secondary Sidebar (Move/Background/Token tool toggle) -->
             <SecondarySidebar
                 show={showSecondarySidebar}
                 mode="map"
-                {mapMode}
+                {editMode}
                 activeTab="characters"
                 onTabChange={() => {}}
-                on:modeChange={handleModeChange}
-                on:close={closeMap} />
+                onEditModeChange={handleEditModeChange} />
 
-            <!-- Floating Panels Container (edit mode only) -->
-            <FloatingPanelContainer show={showFloatingToolPanel}>
-                <!-- Move/Background/Object toggle - always visible in edit mode -->
-                <FloatingToolToggle {editMode} on:editModeChange={handleEditModeChange} />
+            <!-- Tertiary Sidebar (tool-specific options) -->
+            <TertiarySidebar
+                show={showTertiarySidebar}
+                mode="map"
+                hasSecondarySidebar={true}
+                {editMode}
+                {objectMode}
+                {isErasing}
+                {hasSelection}
+                {selectedCanFlip}
+                currentColor={editMode === "object" && hasSelection
+                    ? (selectedColor ?? color)
+                    : color}
+                currentTile={editMode === "object" && hasSelection ? selectedTile : selectedTileRef}
+                currentShape={editMode === "object" && hasSelection
+                    ? (selectedShape ?? currentShape)
+                    : currentShape}
+                onObjectModeChange={handleObjectModeChange}
+                onBrushModeChange={handleBrushModeChange}
+                onOpenTileModal={openTileModal}
+                onOpenColorModal={openColorModal}
+                onOpenShapeModal={openShapeModal}
+                onOpenTokenModal={openTokenModal}
+                onFlip={handleFlip}
+                onDelete={handleDelete}
+                onOpenAssignModal={openAssignModal} />
 
-                <!-- Object mode: Select/Add toggle -->
-                {#if showObjectModeToggle}
-                    <FloatingObjectModeToggle
-                        {objectMode}
-                        on:objectModeChange={handleObjectModeChange} />
-                {/if}
+            <!-- Floating Edit/Play Toggle (top center, only in edit mode) -->
+            {#if showEditPlayToggle}
+                <FloatingEditPlayToggle {mapMode} onModeChange={handleMapModeChange} />
+            {/if}
 
-                <!-- Background mode: Paint/Erase toggle -->
-                {#if editMode === "background"}
-                    <FloatingBrushModeToggle
-                        {isErasing}
-                        on:brushModeChange={(e) => (isErasing = e.detail)} />
-                {/if}
+            <!-- Paint Options Modal (Tile/Color selection) -->
+            {#if showTileModal || showColorModal}
+                <FloatingPaintOptions
+                    context={paintOptionsContext}
+                    disabled={paintOptionsDisabled}
+                    color={editMode === "object" && hasSelection ? (selectedColor ?? color) : color}
+                    selectedTile={editMode === "object" && hasSelection
+                        ? selectedTile
+                        : selectedTileRef}
+                    currentShape={editMode === "object" && hasSelection
+                        ? (selectedShape ?? currentShape)
+                        : currentShape}
+                    showShape={false}
+                    initialTab={showTileModal ? "tile" : "color"}
+                    on:colorChange={handleColorChange}
+                    on:tileSelect={handleTileSelect}
+                    on:shapeChange={handleShapeChange}
+                    on:close={closeAllModals} />
+            {/if}
 
-                <!-- Paint options: Shape, Tile, Color -->
-                <!-- Shown for Background mode and Object mode -->
-                <!-- Disabled when erasing in background mode, or in Object/Select with no selection -->
-                {#if showPaintOptions}
-                    <FloatingPaintOptions
-                        context={editMode === "background" ? "background" : "object"}
-                        disabled={paintOptionsDisabled || (editMode === "background" && isErasing)}
-                        color={editMode === "object" && hasSelection
-                            ? (selectedColor ?? color)
-                            : color}
-                        selectedTile={editMode === "object" && hasSelection
-                            ? selectedTile
-                            : selectedTileRef}
-                        currentShape={editMode === "object" && hasSelection
-                            ? (selectedShape ?? currentShape)
-                            : currentShape}
-                        showShape={editMode === "object"}
-                        on:colorChange={handleColorChange}
-                        on:tileSelect={handleTileSelect}
-                        on:shapeChange={handleShapeChange} />
-                {/if}
+            <!-- Shape Selection Modal -->
+            <ShapeModal
+                show={showShapeModal}
+                currentShape={editMode === "object" && hasSelection
+                    ? (selectedShape ?? currentShape)
+                    : currentShape}
+                on:select={(e) => {
+                    handleShapeChange(e);
+                    showShapeModal = false;
+                }}
+                on:close={() => (showShapeModal = false)} />
 
-                <!-- Object/Select mode: Selection action buttons (Delete, Assign, Flip) -->
-                {#if showSelectionActions}
-                    <FloatingSelectionActions
-                        disabled={!hasSelection}
-                        creatureRef={selectedCreatureRef}
-                        canFlip={selectedCanFlip}
-                        {campaignId}
-                        mapId={currentMapId}
-                        on:delete={handleDelete}
-                        on:creatureAssign={handleCreatureAssign}
-                        on:flip={handleFlip} />
-                {/if}
-            </FloatingPanelContainer>
+            <!-- Token Selector Modal (combined Shape/Tile/Color) -->
+            <TokenSelectorModal
+                show={showTokenModal}
+                currentShape={editMode === "object" && hasSelection
+                    ? (selectedShape ?? currentShape)
+                    : currentShape}
+                currentColor={editMode === "object" && hasSelection
+                    ? (selectedColor ?? color)
+                    : color}
+                currentTile={editMode === "object" && hasSelection ? selectedTile : selectedTileRef}
+                on:confirm={handleTokenConfirm}
+                on:close={() => (showTokenModal = false)} />
+
+            <!-- Creature Assignment Modal -->
+            {#if showAssignModal && campaignId && currentMapId}
+                <CreatureAssignmentModal
+                    show={showAssignModal}
+                    {campaignId}
+                    mapId={currentMapId}
+                    currentCreatureRef={selectedCreatureRef}
+                    on:assign={(e) => {
+                        import("./uuid").then(({ generateUUID }) => {
+                            const ref: CreatureRef = {
+                                type: e.detail.type,
+                                id: e.detail.id,
+                                instanceId: generateUUID(),
+                            };
+                            editorRef?.setSelectedObjectCreature?.(ref);
+                            selectedCreatureRef = ref;
+                            showAssignModal = false;
+                        });
+                    }}
+                    on:clear={() => {
+                        editorRef?.setSelectedObjectCreature?.(null);
+                        selectedCreatureRef = null;
+                        showAssignModal = false;
+                    }}
+                    on:close={() => (showAssignModal = false)} />
+            {/if}
 
             <!-- Encounter Panel (left side on desktop, bottom on mobile) -->
             {#if showEncounterPanel}
@@ -941,6 +1104,7 @@
                         selectedTile={selectedTileRef}
                         {mapMode}
                         on:selectionChange={handleEditorSelectionChange}
+                        on:tokenTapInMoveMode={handleTokenTapInMoveMode}
                         on:encounterCreatureSelect={handleEncounterCreatureSelect}
                         on:encounterCreatureDeselect={handleEncounterCreatureDeselect}
                         on:close={closeMap} />

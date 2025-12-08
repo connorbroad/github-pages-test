@@ -1,18 +1,22 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
-    import { createEventDispatcher } from "svelte";
 
     export let activeTab: "characters" | "codex" = "characters";
     export let onTabChange: (tab: "characters" | "codex") => void;
     export let show: boolean = false;
 
     export let mode: "story" | "map" = "story";
-    export let mapMode: "edit" | "play" = "edit"; // For displaying active state
 
-    const dispatch = createEventDispatcher<{
-        modeChange: "edit" | "play";
-    }>();
+    // Map mode props
+    export let editMode: "move" | "background" | "object" = "move";
+    export let onEditModeChange: (mode: "move" | "background" | "object") => void = () => {};
+
+    function setEditMode(newMode: "move" | "background" | "object") {
+        if (editMode !== newMode) {
+            onEditModeChange(newMode);
+        }
+    }
 
     // Detect if we're on mobile
     let isMobile = false;
@@ -57,46 +61,64 @@
                         <span class="sidebar-label">Codex</span>
                     </button>
                 {:else if mode === "map"}
-                    <!-- Map mode: Edit/Play mode buttons -->
+                    <!-- Map mode: Move/Background/Token tool buttons -->
                     <button
                         class="srpg-sidebar-item"
-                        class:active={mapMode === "edit"}
-                        on:click={() => dispatch("modeChange", "edit")}
-                        aria-label="Edit Mode">
+                        class:active={editMode === "move"}
+                        on:click={() => setEditMode("move")}
+                        aria-label="Move">
                         <svg
                             class="sidebar-icon"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2">
-                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z">
-                            </path>
+                            <polyline points="5 9 2 12 5 15"></polyline>
+                            <polyline points="9 5 12 2 15 5"></polyline>
+                            <polyline points="15 19 12 22 9 19"></polyline>
+                            <polyline points="19 9 22 12 19 15"></polyline>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="12" y1="2" x2="12" y2="22"></line>
                         </svg>
-                        <span class="sidebar-label">Edit</span>
+                        <span class="sidebar-label">Move</span>
                     </button>
 
                     <button
                         class="srpg-sidebar-item"
-                        class:active={mapMode === "play"}
-                        on:click={() => dispatch("modeChange", "play")}
-                        aria-label="Play Mode">
+                        class:active={editMode === "background"}
+                        on:click={() => setEditMode("background")}
+                        aria-label="Background">
                         <svg
                             class="sidebar-icon"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2">
-                            <!-- Crossed swords icon -->
-                            <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
-                            <path d="M13 19l6-6"></path>
-                            <path d="M16 16l4 4"></path>
-                            <path d="M19 21l2-2"></path>
-                            <path d="M9.5 6.5L21 18v3h-3L6.5 9.5"></path>
-                            <path d="M5 8l4-4"></path>
-                            <path d="M8 5L4 1"></path>
-                            <path d="M3 2l2 2"></path>
+                            <path
+                                d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z">
+                            </path>
+                            <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"></path>
+                            <path d="M14.5 17.5 4.5 15"></path>
                         </svg>
-                        <span class="sidebar-label">Play</span>
+                        <span class="sidebar-label">Background</span>
+                    </button>
+
+                    <button
+                        class="srpg-sidebar-item"
+                        class:active={editMode === "object"}
+                        on:click={() => setEditMode("object")}
+                        aria-label="Token">
+                        <svg
+                            class="sidebar-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <!-- Token/object icon (circle with dot) -->
+                            <circle cx="12" cy="12" r="9" />
+                            <circle cx="12" cy="12" r="3" fill="currentColor" />
+                        </svg>
+                        <span class="sidebar-label">Token</span>
                     </button>
                 {/if}
             </div>
