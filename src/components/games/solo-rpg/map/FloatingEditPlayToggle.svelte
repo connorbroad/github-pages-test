@@ -66,7 +66,7 @@
 <style>
     .floating-edit-play-toggle {
         position: fixed;
-        top: 0.5rem;
+        top: 5.5rem;
         left: 50%;
         transform: translateX(-50%);
         z-index: 45;
@@ -80,7 +80,7 @@
     /* Mobile: account for safe area */
     @media (max-width: 767px) {
         .floating-edit-play-toggle {
-            top: calc(0.5rem + env(safe-area-inset-top));
+            top: calc(5.5rem + env(safe-area-inset-top));
         }
     }
 
@@ -92,20 +92,17 @@
 
     .toggle-btn {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 0.125rem;
-        padding: 0.5rem 0.75rem;
-        background: transparent;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
         border: none;
-        border-radius: 6px;
+        background: transparent;
         color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 6px;
         cursor: pointer;
-        transition:
-            background-color 0.15s ease,
-            color 0.15s ease;
-        min-width: 56px;
+        transition: all 0.2s ease;
     }
 
     .toggle-btn:hover {
