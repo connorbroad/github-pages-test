@@ -892,6 +892,18 @@
             editMode = "move";
             objectMode = "add";
         } else if (mode === "play") {
+            // Clear any edit-mode selection when entering play mode
+            editorRef?.clearSelection?.();
+            hasSelection = false;
+            selectedColor = null;
+            selectedShape = null;
+            selectedTile = null;
+            selectedCanFlip = false;
+            selectedCreatureRef = null;
+            selectedObjectId = null;
+            // Reset editMode to "move" in play mode
+            editMode = "move";
+
             // When entering play mode, select the first creature in initiative if available
             if (initiativeOrder.length > 0) {
                 const currentEntry = initiativeOrder[currentTurnIndex];
