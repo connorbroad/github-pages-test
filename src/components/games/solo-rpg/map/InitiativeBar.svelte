@@ -248,7 +248,7 @@
         bottom: calc(70px + env(safe-area-inset-bottom));
         left: 0;
         right: 0;
-        height: var(--initiative-bar-height, 48px);
+        height: var(--initiative-bar-height, 64px);
         background: var(--bg-secondary);
         border-top: 1px solid var(--border-primary);
         z-index: 35; /* Below SecondarySidebar (z-40) */
@@ -261,7 +261,7 @@
         .initiative-bar {
             left: 80px; /* Primary sidebar width only */
             bottom: 0; /* Desktop sidebars are on left, not bottom */
-            height: var(--initiative-bar-height, 44px);
+            height: var(--initiative-bar-height, 64px);
         }
     }
 

@@ -37,7 +37,7 @@
     let dragStartHeight = 0;
 
     // Collapsed state when no creature is selected (but not while dragging)
-    const COLLAPSED_HEIGHT = 15; // percent for mobile, or fixed px for desktop
+    const COLLAPSED_HEIGHT = 0; // percent for mobile, or fixed px for desktop
     $: isCollapsed = !selectedCreature && !isDragging;
 
     const dispatch = createEventDispatcher<{
@@ -610,13 +610,12 @@
     .no-creature-selected {
         flex: 1;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
         gap: 0.75rem;
         color: var(--text-muted);
         text-align: center;
-        padding: 1rem;
         transition: opacity 0.2s ease;
     }
 

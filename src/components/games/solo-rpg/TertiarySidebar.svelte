@@ -43,9 +43,6 @@
     export let onDelete: () => void = () => {};
     export let onOpenAssignModal: () => void = () => {};
 
-    // Computed visibility for tertiary based on map editMode
-    $: showInMapMode = mode === "map" && editMode !== "move";
-
     // Tile preview data
     let tileMaps: TileMap[] = [];
     onMount(() => {
@@ -73,7 +70,7 @@
     }
 </script>
 
-{#if show || showInMapMode}
+{#if show}
     <aside
         class="bg-sidebar-bg fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0
                z-30 flex h-(--tertiary-height,60px) w-full flex-col shadow-md

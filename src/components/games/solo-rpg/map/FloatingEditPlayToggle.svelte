@@ -63,7 +63,7 @@
 <style>
     .floating-edit-play-toggle {
         position: fixed;
-        top: 5.5rem;
+        top: 3.5rem;
         left: 50%;
         transform: translateX(-50%);
         z-index: 45;
@@ -77,7 +77,7 @@
     /* Mobile: account for safe area */
     @media (max-width: 767px) {
         .floating-edit-play-toggle {
-            top: calc(5.5rem + env(safe-area-inset-top));
+            top: calc(3.5rem + env(safe-area-inset-top));
         }
     }
 
