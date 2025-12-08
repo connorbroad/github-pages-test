@@ -354,10 +354,10 @@
         overflow: hidden;
     }
 
-    /* Mobile: Bottom panel - above both sidebars (130px) + initiative bar (48px) */
+    /* Mobile: Bottom panel - above primary sidebar (70px) + initiative bar (48px) */
     @media (max-width: 767px) {
         .combat-panel {
-            bottom: calc(130px + 48px + env(safe-area-inset-bottom));
+            bottom: calc(70px + 48px + env(safe-area-inset-bottom));
             left: 0;
             right: 0;
             height: var(--panel-height);
@@ -377,11 +377,11 @@
         }
     }
 
-    /* Desktop: Left side panel - after both sidebars (80px primary + 90px secondary = 170px) */
+    /* Desktop: Left side panel - after primary sidebar only (80px) */
     @media (min-width: 768px) {
         .combat-panel {
             top: 0;
-            left: 170px; /* After both sidebars */
+            left: 80px; /* After primary sidebar only */
             bottom: 44px; /* Above initiative bar */
             width: 320px;
             border-radius: 0;

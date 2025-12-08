@@ -476,8 +476,8 @@
         showTokenModal = false;
     }
 
-    // Show floating Edit/Play toggle when a map is open
-    $: showEditPlayToggle = currentMapId && mapMode === "edit";
+    // Show floating Edit/Play toggle when a map is open (visible in both edit and play modes)
+    $: showEditPlayToggle = currentMapId;
     // Show tertiary sidebar when in background or object mode (not move)
     $: showTertiarySidebar = currentMapId && mapMode === "edit" && editMode !== "move";
     // Determine paint options context
@@ -936,9 +936,9 @@
                 !encounterPanelDragging}
             class:panel-dragging={encounterPanelDragging}
             style="--encounter-panel-height: {encounterPanelHeight}%;">
-            <!-- Secondary Sidebar (Move/Background/Token tool toggle) -->
+            <!-- Secondary Sidebar (Move/Background/Token tool toggle) - hidden in play mode -->
             <SecondarySidebar
-                show={showSecondarySidebar}
+                show={showSecondarySidebar && mapMode === "edit"}
                 mode="map"
                 {editMode}
                 activeTab="characters"
@@ -966,7 +966,6 @@
                 onBrushModeChange={handleBrushModeChange}
                 onOpenTileModal={openTileModal}
                 onOpenColorModal={openColorModal}
-                onOpenShapeModal={openShapeModal}
                 onOpenTokenModal={openTokenModal}
                 onFlip={handleFlip}
                 onDelete={handleDelete}
@@ -1127,10 +1126,10 @@
         flex-direction: column;
     }
 
-    /* Mobile play mode: keep sidebars visible, add space for initiative bar (48px) */
+    /* Mobile play mode: hide secondary sidebar (only primary 70px), add space for initiative bar (48px) */
     @media (max-width: 767px) {
         .map-view-container.play-mode {
-            bottom: calc(130px + 48px + env(safe-area-inset-bottom));
+            bottom: calc(70px + 48px + env(safe-area-inset-bottom));
         }
     }
 
@@ -1142,9 +1141,9 @@
             left: 170px;
         }
 
-        /* In play mode, keep secondary sidebar visible, add space for initiative bar (44px) */
+        /* In play mode, hide secondary sidebar, only show primary (80px), add space for initiative bar (44px) */
         .map-view-container.play-mode {
-            left: 170px; /* Keep both sidebars */
+            left: 80px; /* Only primary sidebar */
             bottom: 44px; /* Initiative bar height */
         }
     }

@@ -209,6 +209,71 @@
                     {/if}
                 </div>
 
+                <!-- Color Accordion -->
+                <div class="accordion-section">
+                    <button
+                        class="accordion-header"
+                        class:expanded={expandedSection === "color"}
+                        on:click={() => toggleSection("color")}
+                        aria-expanded={expandedSection === "color"}>
+                        <span class="accordion-title">
+                            {#if selectedColor === CLEAR_COLOR}
+                                <div class="header-color-swatch clear-pattern"></div>
+                            {:else}
+                                <div
+                                    class="header-color-swatch"
+                                    style="background: {selectedColor}">
+                                </div>
+                            {/if}
+                            Color
+                        </span>
+                        <svg
+                            class="accordion-chevron"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    {#if expandedSection === "color"}
+                        <div
+                            class="accordion-content"
+                            transition:slide={{ duration: 200, easing: quintOut }}>
+                            <div class="color-section">
+                                <!-- Clear color button -->
+                                <button
+                                    class="color-clear-btn"
+                                    class:active={selectedColor === CLEAR_COLOR}
+                                    on:click={() => selectColor(CLEAR_COLOR)}
+                                    aria-label="Clear/No tint">
+                                    <div class="color-swatch-btn clear-pattern"></div>
+                                    <span>None</span>
+                                </button>
+                                <!-- Color palette -->
+                                <div class="color-palette">
+                                    {#each Object.values(COLOR_PALETTE) as palette}
+                                        <div class="color-row">
+                                            {#each palette as c}
+                                                <button
+                                                    class="color-option"
+                                                    class:active={selectedColor === c}
+                                                    on:click={() => selectColor(c)}
+                                                    aria-label={c}>
+                                                    <div
+                                                        class="color-swatch"
+                                                        style="background: {c}">
+                                                    </div>
+                                                </button>
+                                            {/each}
+                                        </div>
+                                    {/each}
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+
                 <!-- Tile Accordion -->
                 <div class="accordion-section">
                     <button
@@ -308,71 +373,6 @@
                         </div>
                     {/if}
                 </div>
-
-                <!-- Color Accordion -->
-                <div class="accordion-section">
-                    <button
-                        class="accordion-header"
-                        class:expanded={expandedSection === "color"}
-                        on:click={() => toggleSection("color")}
-                        aria-expanded={expandedSection === "color"}>
-                        <span class="accordion-title">
-                            {#if selectedColor === CLEAR_COLOR}
-                                <div class="header-color-swatch clear-pattern"></div>
-                            {:else}
-                                <div
-                                    class="header-color-swatch"
-                                    style="background: {selectedColor}">
-                                </div>
-                            {/if}
-                            Color
-                        </span>
-                        <svg
-                            class="accordion-chevron"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M6 9l6 6 6-6" />
-                        </svg>
-                    </button>
-                    {#if expandedSection === "color"}
-                        <div
-                            class="accordion-content"
-                            transition:slide={{ duration: 200, easing: quintOut }}>
-                            <div class="color-section">
-                                <!-- Clear color button -->
-                                <button
-                                    class="color-clear-btn"
-                                    class:active={selectedColor === CLEAR_COLOR}
-                                    on:click={() => selectColor(CLEAR_COLOR)}
-                                    aria-label="Clear/No tint">
-                                    <div class="color-swatch-btn clear-pattern"></div>
-                                    <span>None</span>
-                                </button>
-                                <!-- Color palette -->
-                                <div class="color-palette">
-                                    {#each Object.values(COLOR_PALETTE) as palette}
-                                        <div class="color-row">
-                                            {#each palette as c}
-                                                <button
-                                                    class="color-option"
-                                                    class:active={selectedColor === c}
-                                                    on:click={() => selectColor(c)}
-                                                    aria-label={c}>
-                                                    <div
-                                                        class="color-swatch"
-                                                        style="background: {c}">
-                                                    </div>
-                                                </button>
-                                            {/each}
-                                        </div>
-                                    {/each}
-                                </div>
-                            </div>
-                        </div>
-                    {/if}
-                </div>
             </div>
 
             <!-- Footer with Confirm button -->
@@ -397,7 +397,7 @@
         justify-content: center;
         z-index: 1000;
         padding: 1rem;
-        padding-bottom: calc(140px + env(safe-area-inset-bottom));
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
 
     @media (min-width: 768px) {
@@ -412,9 +412,9 @@
         border: 1px solid var(--border-primary);
         border-radius: 12px;
         box-shadow: var(--shadow-xl);
-        max-width: 360px;
+        max-width: 400px;
         width: 100%;
-        max-height: 80vh;
+        max-height: 90vh;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -635,7 +635,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
         gap: 0.375rem;
-        max-height: 200px;
+        max-height: 250px;
         overflow-y: auto;
     }
 

@@ -244,8 +244,8 @@
 <style>
     .initiative-bar {
         position: fixed;
-        /* Mobile: Above both sidebars (70px primary + 60px secondary = 130px) */
-        bottom: calc(130px + env(safe-area-inset-bottom));
+        /* Mobile: Above primary sidebar only (70px) - secondary sidebar is hidden in play mode */
+        bottom: calc(70px + env(safe-area-inset-bottom));
         left: 0;
         right: 0;
         height: var(--initiative-bar-height, 48px);
@@ -256,10 +256,10 @@
         align-items: center;
     }
 
-    /* Desktop: account for both sidebars on left (80px primary + 90px secondary = 170px), sit at bottom */
+    /* Desktop: account for primary sidebar on left only (80px), sit at bottom */
     @media (min-width: 769px) {
         .initiative-bar {
-            left: 170px; /* Both sidebars width */
+            left: 80px; /* Primary sidebar width only */
             bottom: 0; /* Desktop sidebars are on left, not bottom */
             height: var(--initiative-bar-height, 44px);
         }

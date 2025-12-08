@@ -2,7 +2,6 @@
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
     import CharacterSheetControls from "./lore/characters/CharacterSheetControls.svelte";
-    import ShapeIcon from "./map/shared/ShapeIcon.svelte";
     import TokenPreview from "./map/shared/TokenPreview.svelte";
     import { CLEAR_COLOR } from "./map/shared/color-palette";
     import { loadTileMaps, type TileMap, type TileMapTile } from "./data/storage-utils";
@@ -39,7 +38,6 @@
     export let onBrushModeChange: (erasing: boolean) => void = () => {};
     export let onOpenTileModal: () => void = () => {};
     export let onOpenColorModal: () => void = () => {};
-    export let onOpenShapeModal: () => void = () => {};
     export let onOpenTokenModal: () => void = () => {};
     export let onFlip: () => void = () => {};
     export let onDelete: () => void = () => {};
@@ -106,25 +104,6 @@
                         <!-- Background mode: Paint/Erase, Tile+Color -->
                         <button
                             class="srpg-sidebar-item"
-                            class:active={!isErasing}
-                            on:click={() => onBrushModeChange(false)}
-                            aria-label="Paint mode">
-                            <svg
-                                class="sidebar-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z" />
-                                <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7" />
-                                <path d="M14.5 17.5 4.5 15" />
-                            </svg>
-                            <span class="sidebar-label">Paint</span>
-                        </button>
-
-                        <button
-                            class="srpg-sidebar-item"
                             class:active={isErasing}
                             on:click={() => onBrushModeChange(true)}
                             aria-label="Erase mode">
@@ -142,7 +121,39 @@
                             <span class="sidebar-label">Erase</span>
                         </button>
 
+                        <button
+                            class="srpg-sidebar-item"
+                            class:active={!isErasing}
+                            on:click={() => onBrushModeChange(false)}
+                            aria-label="Paint mode">
+                            <svg
+                                class="sidebar-icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z" />
+                                <path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7" />
+                                <path d="M14.5 17.5 4.5 15" />
+                            </svg>
+                            <span class="sidebar-label">Paint</span>
+                        </button>
+
                         <div class="srpg-sidebar-divider"></div>
+
+                        <button
+                            class="srpg-sidebar-item"
+                            on:click={onOpenColorModal}
+                            disabled={isErasing}
+                            aria-label="Select color">
+                            {#if currentColor === CLEAR_COLOR}
+                                <div class="color-swatch clear-pattern"></div>
+                            {:else}
+                                <div class="color-swatch" style="background: {currentColor}"></div>
+                            {/if}
+                            <span class="sidebar-label">Color</span>
+                        </button>
 
                         <button
                             class="srpg-sidebar-item"
@@ -170,19 +181,6 @@
                                 {/if}
                             </div>
                             <span class="sidebar-label">Tile</span>
-                        </button>
-
-                        <button
-                            class="srpg-sidebar-item"
-                            on:click={onOpenColorModal}
-                            disabled={isErasing}
-                            aria-label="Select color">
-                            {#if currentColor === CLEAR_COLOR}
-                                <div class="color-swatch clear-pattern"></div>
-                            {:else}
-                                <div class="color-swatch" style="background: {currentColor}"></div>
-                            {/if}
-                            <span class="sidebar-label">Color</span>
                         </button>
                     {:else if editMode === "object"}
                         <!-- Token mode: Select/Add, Shape+Tile+Color+Flip, Assign+Del -->
