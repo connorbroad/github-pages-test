@@ -230,7 +230,7 @@
                                     shape={currentShape}
                                     color={currentColor}
                                     tile={currentTile}
-                                    size={24} />
+                                    size={28} />
                             </div>
                             <span class="sidebar-label">Token</span>
                         </button>

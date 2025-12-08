@@ -78,10 +78,14 @@
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        const dpr = window.devicePixelRatio || 1;
+        // Use higher internal resolution for sharper rendering
+        const dpr = Math.max(window.devicePixelRatio || 1, 2);
         canvas.width = size * dpr;
         canvas.height = size * dpr;
         ctx.scale(dpr, dpr);
+
+        // Disable image smoothing for crisp pixel art
+        ctx.imageSmoothingEnabled = false;
 
         // Clear
         ctx.clearRect(0, 0, size, size);

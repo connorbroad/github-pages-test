@@ -61,12 +61,12 @@
                         <span class="sidebar-label">Codex</span>
                     </button>
                 {:else if mode === "map"}
-                    <!-- Map mode: Move/Background/Token tool buttons -->
+                    <!-- Map mode: View/Background/Token tool buttons -->
                     <button
                         class="srpg-sidebar-item"
                         class:active={editMode === "move"}
                         on:click={() => setEditMode("move")}
-                        aria-label="Move">
+                        aria-label="View">
                         <svg
                             class="sidebar-icon"
                             viewBox="0 0 24 24"
@@ -80,7 +80,7 @@
                             <line x1="2" y1="12" x2="22" y2="12"></line>
                             <line x1="12" y1="2" x2="12" y2="22"></line>
                         </svg>
-                        <span class="sidebar-label">Move</span>
+                        <span class="sidebar-label">View</span>
                     </button>
 
                     <button
