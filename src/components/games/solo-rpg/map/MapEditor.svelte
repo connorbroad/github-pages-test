@@ -271,7 +271,7 @@
             camera,
             map,
             selectedObject,
-            showSelectionHandles: editMode === "object" && !!selectedObject,
+            showSelectionHandles: (editMode === "object" || mapMode === "play") && !!selectedObject,
             getDpr,
             onInvalidate: scheduleRender,
             viewRect: getCachedRect(),
@@ -543,8 +543,8 @@
             .map((obj) => obj.id);
     }
 
-    // Clear selection when not in Object mode (either Add or Select)
-    $: if (editMode !== "object") {
+    // Clear selection when not in Object mode (either Add or Select), but keep selection in play mode
+    $: if (editMode !== "object" && mapMode !== "play") {
         if (selectedObject) {
             selectedObject = null;
             if (map) scheduleRender();
@@ -711,18 +711,38 @@
 
         const { x, y } = screenToWorld(e.clientX, e.clientY);
 
-        // Play mode: clicking on a creature opens the encounter panel
+        // Play mode: clicking on a creature opens the encounter panel and allows dragging
         if (mapMode === "play") {
+            // If clicking on currently selected object, start dragging it
+            if (selectedObject && isPointInObject(x, y, selectedObject)) {
+                isDraggingHandle = true;
+                draggingObj = selectedObject;
+                dragOffset.x = x - selectedObject.x;
+                dragOffset.y = y - selectedObject.y;
+                return;
+            }
+
             const objs = getSortedObjects();
             const hit = objs.find((o) => isPointInObject(x, y, o));
-            if (hit?.creatureRef) {
-                dispatch("encounterCreatureSelect", {
-                    objectId: hit.id,
-                    creatureRef: hit.creatureRef,
-                });
+            if (hit) {
+                // Select the object internally for visual feedback and dragging
+                selectedObject = hit;
+                scheduleRender();
+                emitSelection();
+
+                // Also dispatch for encounter panel if it has a creature ref
+                if (hit.creatureRef) {
+                    dispatch("encounterCreatureSelect", {
+                        objectId: hit.id,
+                        creatureRef: hit.creatureRef,
+                    });
+                }
                 return;
             }
             // Clicking on empty space deselects creature
+            selectedObject = null;
+            scheduleRender();
+            emitSelection();
             dispatch("encounterCreatureDeselect");
             // If no creature hit, allow panning
             isPanning = true;
@@ -899,7 +919,9 @@
         }
 
         if (
-            (editMode === "move" || (editMode === "object" && objectMode === "select")) &&
+            (editMode === "move" ||
+                (editMode === "object" && objectMode === "select") ||
+                mapMode === "play") &&
             !isDraggingHandle &&
             !isPanning
         ) {
@@ -910,9 +932,12 @@
             } else {
                 const objs = getSortedObjects();
                 const hit = objs.find((o) => isPointInObject(x, y, o));
-                // In move mode, no hover states. In object/select, show pointer cursor.
+                // In move mode, no hover states. In object/select or play mode, show pointer cursor.
                 target.style.cursor =
-                    editMode === "object" && objectMode === "select" && hit ? "pointer" : "default";
+                    ((editMode === "object" && objectMode === "select") || mapMode === "play") &&
+                    hit
+                        ? "pointer"
+                        : "default";
             }
         } else if (isDraggingHandle) {
             const target = e.currentTarget as HTMLElement;

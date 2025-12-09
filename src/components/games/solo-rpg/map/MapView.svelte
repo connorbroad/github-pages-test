@@ -572,6 +572,11 @@
                 creatureRef: obj.creatureRef,
             };
         }
+
+        // Also update editor selection for visual feedback in play mode
+        if (mapMode === "play") {
+            editorRef?.selectObjectById?.(objectId);
+        }
     }
 
     function handleTurnChanged(e: CustomEvent<{ turnIndex: number; order: InitiativeEntry[] }>) {
@@ -885,15 +890,32 @@
     }
 
     function setMapMode(mode: "edit" | "play") {
+        const previousMode = mapMode;
         mapMode = mode;
+
         if (mode === "edit") {
+            // Transfer play mode selection to edit mode
+            const previousEncounterObjectId = encounterSelectedCreature?.objectId ?? null;
             encounterSelectedCreature = null;
-            // Reset editMode to "move" when entering edit mode (per redesign spec)
-            editMode = "move";
-            objectMode = "add";
+
+            // If we had a creature selected in play mode, switch to object/select mode
+            // Otherwise reset to move mode (per redesign spec)
+            if (previousMode === "play" && previousEncounterObjectId) {
+                editMode = "object";
+                objectMode = "select";
+                // Use tick to ensure mode change is processed first
+                setTimeout(() => {
+                    editorRef?.selectObjectById?.(previousEncounterObjectId);
+                }, 0);
+            } else {
+                editMode = "move";
+                objectMode = "add";
+            }
         } else if (mode === "play") {
-            // Clear any edit-mode selection when entering play mode
-            editorRef?.clearSelection?.();
+            // Transfer edit mode selection to play mode
+            const previousEditObjectId = selectedObjectId;
+
+            // Clear edit-mode selection state in MapView (but not in editor - we'll set it below)
             hasSelection = false;
             selectedColor = null;
             selectedShape = null;
@@ -904,12 +926,22 @@
             // Reset editMode to "move" in play mode
             editMode = "move";
 
-            // When entering play mode, select the first creature in initiative if available
-            if (initiativeOrder.length > 0) {
+            // If we had an object selected in edit mode, keep it selected in play mode
+            if (previousMode === "edit" && previousEditObjectId) {
+                // Set encounter panel selection
+                selectCreatureByObjectId(previousEditObjectId);
+                // Editor selection is already set, no need to change
+            } else if (initiativeOrder.length > 0) {
+                // Otherwise, select the first creature in initiative if available
                 const currentEntry = initiativeOrder[currentTurnIndex];
                 if (currentEntry) {
                     selectCreatureByObjectId(currentEntry.objectId);
+                    // Select in editor for visual feedback
+                    editorRef?.selectObjectById?.(currentEntry.objectId);
                 }
+            } else {
+                // No selection to transfer and no initiative - clear editor selection
+                editorRef?.clearSelection?.();
             }
         }
     }
