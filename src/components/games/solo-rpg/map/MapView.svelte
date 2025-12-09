@@ -404,6 +404,16 @@
     function handleEditModeChange(newMode: "move" | "background" | "object") {
         clearSelectionIfNeeded(newMode);
         editMode = newMode;
+        // Default to 'select' mode if tokens exist, otherwise 'add' mode
+        if (newMode === "object") {
+            const allMaps = loadMaps();
+            const map = allMaps.find((m) => m.id === currentMapId);
+            if (map && map.objects.length > 0) {
+                objectMode = "select";
+            } else {
+                objectMode = "add";
+            }
+        }
         // Reset eraser when leaving background mode
         if (newMode !== "background") {
             isErasing = false;
@@ -521,21 +531,10 @@
     function handleEncounterCreatureSelect(
         e: CustomEvent<{ objectId: string; creatureRef?: CreatureRef; quickStats?: QuickStats }>
     ) {
-        // In play mode, clicking a creature switches to their turn
+        // In play mode, clicking a creature in the map updates the combat panel
+        // but does NOT change the initiative order turn - only the initiative bar controls that
         const wasCollapsed = !encounterSelectedCreature;
         encounterSelectedCreature = e.detail;
-
-        // Find this creature in initiative order and set them as current turn
-        const index = initiativeOrder.findIndex((entry) => entry.objectId === e.detail.objectId);
-        if (index >= 0 && index !== currentTurnIndex) {
-            const newOrder = initiativeOrder.map((entry, i) => ({
-                ...entry,
-                isActive: i === index,
-            }));
-            currentTurnIndex = index;
-            initiativeOrder = newOrder;
-            saveCombatState();
-        }
 
         // Center on the selected creature with animation
         // Use forceExpanded=true if panel was collapsed, so we account for where it's animating to
@@ -1152,7 +1151,8 @@
             if (previousMode === "edit" && previousEditObjectId) {
                 // Set encounter panel selection
                 selectCreatureByObjectId(previousEditObjectId);
-                // Editor selection is already set, no need to change
+                // Focus on the selected creature so combat panel doesn't hide it
+                centerOnCreature(previousEditObjectId, true, true);
             } else if (initiativeOrder.length > 0) {
                 // Otherwise, select the first creature in initiative if available
                 const currentEntry = initiativeOrder[currentTurnIndex];

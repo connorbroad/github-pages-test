@@ -111,8 +111,7 @@
                         type="text"
                         class="form-input"
                         placeholder="Enter name..."
-                        bind:value={name}
-                        autofocus />
+                        bind:value={name} />
                 </div>
 
                 <!-- Track HP Checkbox -->
