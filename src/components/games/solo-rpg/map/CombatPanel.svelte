@@ -80,8 +80,12 @@
 
     // Load creature data
     let creatureData: Character | null = null;
+    // Counter to force re-fetching creature data when HP changes locally
+    let hpRefreshCounter = 0;
 
     $: {
+        // Including hpRefreshCounter in this reactive block forces it to re-run when HP is modified
+        const _ = hpRefreshCounter;
         if (selectedCreature?.creatureRef.type === "character") {
             const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
             creatureData = chars.find((c) => c.id === selectedCreature.creatureRef.id) ?? null;
@@ -92,11 +96,13 @@
 
     function getCurrentHP(): number {
         if (!selectedCreature) return 0;
-        if (selectedCreature.creatureRef.currentHitPoints !== undefined) {
-            return selectedCreature.creatureRef.currentHitPoints;
-        }
+        // Always prefer freshly loaded creatureData to avoid stale prop values
         if (creatureData) {
             return creatureData.currentHitPoints ?? creatureData.hitPointMaximum ?? 10;
+        }
+        // Fallback to prop value if creatureData not loaded yet
+        if (selectedCreature.creatureRef.currentHitPoints !== undefined) {
+            return selectedCreature.creatureRef.currentHitPoints;
         }
         return 10;
     }
@@ -108,8 +114,19 @@
         return 10;
     }
 
-    $: currentHP = selectedCreature ? getCurrentHP() : 0;
-    $: maxHP = selectedCreature ? getMaxHP() : 10;
+    // Re-compute HP when selectedCreature, creatureData, or hpRefreshCounter changes
+    // Using void to establish dependency without lint warnings
+    let currentHP = 0;
+    let maxHP = 10;
+    $: {
+        void hpRefreshCounter;
+        void creatureData;
+        currentHP = selectedCreature ? getCurrentHP() : 0;
+    }
+    $: {
+        void creatureData;
+        maxHP = selectedCreature ? getMaxHP() : 10;
+    }
 
     // HP modification
     let quickHealAmount = 1;
@@ -155,6 +172,9 @@
             newOrder[initIndex] = { ...newOrder[initIndex], currentHP: hp };
             dispatch("turnChanged", { turnIndex: currentTurnIndex, order: newOrder });
         }
+
+        // Increment counter to trigger reactive update of creatureData and currentHP
+        hpRefreshCounter++;
     }
 
     // Add creature to encounter
