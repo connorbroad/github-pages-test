@@ -512,6 +512,7 @@
     /**
      * Returns array of object IDs for creatures currently visible in the viewport.
      * Used by EncounterSetupModal's "Select Visible" feature.
+     * Includes both assigned characters (creatureRef) and unassigned tokens (quickStats).
      */
     export function getVisibleCreatureIds(): string[] {
         if (!map) return [];
@@ -524,7 +525,8 @@
 
         return map.objects
             .filter((obj) => {
-                if (!obj.creatureRef) return false;
+                // Include tokens with either creatureRef or quickStats
+                if (!obj.creatureRef && !obj.quickStats) return false;
 
                 // Objects are centered at (x, y), so calculate bounds from center
                 const objLeft = obj.x - obj.w / 2;
@@ -598,6 +600,18 @@
             scheduleRender();
             emitSelection();
         }
+    }
+
+    /** Reload map data from storage (call after external changes like quickStats) */
+    export function refreshMapData() {
+        const selectedId = selectedObject?.id;
+        loadMap();
+        invalidateSortedObjects();
+        // Re-select the object if it was selected before
+        if (selectedId && map) {
+            selectedObject = map.objects.find((o) => o.id === selectedId) ?? null;
+        }
+        scheduleRender();
     }
 
     function cancelInertia() {
@@ -730,13 +744,12 @@
                 scheduleRender();
                 emitSelection();
 
-                // Also dispatch for encounter panel if it has a creature ref
-                if (hit.creatureRef) {
-                    dispatch("encounterCreatureSelect", {
-                        objectId: hit.id,
-                        creatureRef: hit.creatureRef,
-                    });
-                }
+                // Dispatch for encounter panel - all tokens, not just those with creatureRef
+                dispatch("encounterCreatureSelect", {
+                    objectId: hit.id,
+                    creatureRef: hit.creatureRef, // may be undefined
+                    quickStats: hit.quickStats, // may be undefined
+                });
                 return;
             }
             // Clicking on empty space deselects creature

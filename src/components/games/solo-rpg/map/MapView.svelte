@@ -10,9 +10,12 @@
         saveActiveMapId,
         loadActiveMapId,
         loadCharacters,
+        saveCharacters,
         type MapEntity,
         type CreatureRef,
         type InitiativeEntry,
+        type QuickStats,
+        type Character,
     } from "../data/storage-utils";
     import MapLanding from "./MapLanding.svelte";
     import MapEditor from "./MapEditor.svelte";
@@ -27,6 +30,7 @@
     import ShapeModal from "./ShapeModal.svelte";
     import TokenSelectorModal from "./TokenSelectorModal.svelte";
     import CreatureAssignmentModal from "./CreatureAssignmentModal.svelte";
+    import QuickStatsModal from "./QuickStatsModal.svelte";
     import {
         rollInitiativeForCreatures,
         getNextTurnIndex,
@@ -50,6 +54,11 @@
 
     // Encounter setup modal state
     let showEncounterSetup = false;
+
+    // Quick stats modal state
+    let showQuickStatsModal = false;
+    let quickStatsModalObjectId: string | null = null;
+    let quickStatsModalExistingStats: QuickStats | null = null;
 
     function handleNavigateHome() {
         dispatch("navigateHome");
@@ -160,6 +169,15 @@
         hasActiveEncounter = false;
         pendingNextObjectId = undefined;
         showEncounterSetup = false;
+        // Clear encounter and edit selection state
+        encounterSelectedCreature = null;
+        hasSelection = false;
+        selectedColor = null;
+        selectedShape = null;
+        selectedTile = null;
+        selectedCanFlip = false;
+        selectedCreatureRef = null;
+        selectedObjectId = null;
         dispatch("mapClosed");
     }
 
@@ -493,14 +511,15 @@
         setMapMode(mode);
     }
 
-    // Encounter mode state - no longer need creature selection for panel visibility
+    // Encounter mode state - supports both assigned characters and unassigned tokens
     let encounterSelectedCreature: {
         objectId: string;
-        creatureRef: CreatureRef;
+        creatureRef?: CreatureRef;
+        quickStats?: QuickStats;
     } | null = null;
 
     function handleEncounterCreatureSelect(
-        e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
+        e: CustomEvent<{ objectId: string; creatureRef?: CreatureRef; quickStats?: QuickStats }>
     ) {
         // In play mode, clicking a creature switches to their turn
         const wasCollapsed = !encounterSelectedCreature;
@@ -544,6 +563,181 @@
         centerOnCreature(e.detail.objectId);
     }
 
+    // Handle quick stats updates from CombatPanel
+    function handleQuickStatsUpdate(e: CustomEvent<{ objectId: string; quickStats: QuickStats }>) {
+        if (!currentMapId) return;
+        const allMaps = loadMaps();
+        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
+        if (mapIndex < 0) return;
+
+        const map = allMaps[mapIndex];
+        const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
+        if (objIndex < 0) return;
+
+        map.objects[objIndex].quickStats = e.detail.quickStats;
+        map.updatedAt = Date.now();
+        allMaps[mapIndex] = map;
+        saveMaps(allMaps);
+
+        // Refresh MapEditor's cached map data
+        editorRef?.refreshMapData?.();
+
+        // Update local state
+        if (encounterSelectedCreature?.objectId === e.detail.objectId) {
+            encounterSelectedCreature = {
+                ...encounterSelectedCreature,
+                quickStats: e.detail.quickStats,
+            };
+        }
+
+        // Update initiative order if token is in encounter
+        const initIndex = initiativeOrder.findIndex(
+            (entry) => entry.objectId === e.detail.objectId
+        );
+        if (initIndex >= 0) {
+            const newOrder = [...initiativeOrder];
+            newOrder[initIndex] = {
+                ...newOrder[initIndex],
+                name: e.detail.quickStats.name || newOrder[initIndex].name,
+                currentHP: e.detail.quickStats.currentHitPoints ?? newOrder[initIndex].currentHP,
+                maxHP: e.detail.quickStats.maxHitPoints ?? newOrder[initIndex].maxHP,
+            };
+            initiativeOrder = newOrder;
+            saveCombatState();
+        }
+    }
+
+    // Handle converting quick stats token to a full character
+    function handleConvertToCharacter(
+        e: CustomEvent<{ objectId: string; quickStats: QuickStats }>
+    ) {
+        if (!currentMapId || !campaignId) return;
+        const qs = e.detail.quickStats;
+        if (!qs.name) return; // Name is required
+
+        // Create new character
+        const now = Date.now();
+        const newCharacter: Character = {
+            id: generateId(),
+            campaignId,
+            name: qs.name,
+            hitPointMaximum: qs.maxHitPoints ?? 10,
+            currentHitPoints: qs.currentHitPoints ?? 10,
+            abilities: [],
+            skills: [],
+            createdAt: now,
+            updatedAt: now,
+        };
+
+        // Save the new character
+        const chars = loadCharacters();
+        chars.push(newCharacter);
+        saveCharacters(chars);
+
+        // Update the map object to use creatureRef instead of quickStats
+        const allMaps = loadMaps();
+        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
+        if (mapIndex < 0) return;
+
+        const map = allMaps[mapIndex];
+        const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
+        if (objIndex < 0) return;
+
+        const obj = map.objects[objIndex];
+        obj.creatureRef = {
+            type: "character",
+            id: newCharacter.id,
+            instanceId: generateId(),
+            currentHitPoints: qs.currentHitPoints ?? 10,
+        };
+        delete obj.quickStats; // Clear quickStats
+
+        map.updatedAt = Date.now();
+        allMaps[mapIndex] = map;
+        saveMaps(allMaps);
+
+        // Update local state to show the newly assigned character
+        encounterSelectedCreature = {
+            objectId: obj.id,
+            creatureRef: obj.creatureRef,
+        };
+
+        // Update initiative order if token is in encounter
+        const initIndex = initiativeOrder.findIndex(
+            (entry) => entry.objectId === e.detail.objectId
+        );
+        if (initIndex >= 0) {
+            // Name and HP stay the same, the token just now has a character backing it
+            saveCombatState();
+        }
+    }
+
+    // Handle opening the quick stats modal from CombatPanel
+    function handleOpenQuickStatsModal(
+        e: CustomEvent<{ objectId: string; existingStats: QuickStats | null }>
+    ) {
+        quickStatsModalObjectId = e.detail.objectId;
+        quickStatsModalExistingStats = e.detail.existingStats;
+        showQuickStatsModal = true;
+    }
+
+    // Handle saving quick stats from the modal
+    function handleQuickStatsSave(e: CustomEvent<{ quickStats: QuickStats }>) {
+        if (!currentMapId || !quickStatsModalObjectId) return;
+
+        const allMaps = loadMaps();
+        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
+        if (mapIndex < 0) return;
+
+        const map = allMaps[mapIndex];
+        const objIndex = map.objects.findIndex((o) => o.id === quickStatsModalObjectId);
+        if (objIndex < 0) return;
+
+        map.objects[objIndex].quickStats = e.detail.quickStats;
+        map.updatedAt = Date.now();
+        allMaps[mapIndex] = map;
+        saveMaps(allMaps);
+
+        // Refresh MapEditor's cached map data so re-selecting the token shows updated quickStats
+        editorRef?.refreshMapData?.();
+
+        // Update local state
+        if (encounterSelectedCreature?.objectId === quickStatsModalObjectId) {
+            encounterSelectedCreature = {
+                ...encounterSelectedCreature,
+                quickStats: e.detail.quickStats,
+            };
+        }
+
+        // Update initiative order if token is in encounter
+        const initIndex = initiativeOrder.findIndex(
+            (entry) => entry.objectId === quickStatsModalObjectId
+        );
+        if (initIndex >= 0) {
+            const newOrder = [...initiativeOrder];
+            newOrder[initIndex] = {
+                ...newOrder[initIndex],
+                name: e.detail.quickStats.name || newOrder[initIndex].name,
+                currentHP: e.detail.quickStats.currentHitPoints ?? newOrder[initIndex].currentHP,
+                maxHP: e.detail.quickStats.maxHitPoints ?? newOrder[initIndex].maxHP,
+            };
+            initiativeOrder = newOrder;
+            saveCombatState();
+        }
+
+        // Close the modal
+        showQuickStatsModal = false;
+        quickStatsModalObjectId = null;
+        quickStatsModalExistingStats = null;
+    }
+
+    // Handle closing the quick stats modal
+    function handleQuickStatsClose() {
+        showQuickStatsModal = false;
+        quickStatsModalObjectId = null;
+        quickStatsModalExistingStats = null;
+    }
+
     function handleInitiativeRolled(
         e: CustomEvent<{ order: InitiativeEntry[]; turnIndex: number }>
     ) {
@@ -566,10 +760,11 @@
         if (!map) return;
 
         const obj = map.objects.find((o) => o.id === objectId);
-        if (obj?.creatureRef) {
+        if (obj) {
             encounterSelectedCreature = {
                 objectId: obj.id,
                 creatureRef: obj.creatureRef,
+                quickStats: obj.quickStats,
             };
         }
 
@@ -609,25 +804,39 @@
 
         const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
 
-        // Build creature inputs for selected objects
+        // Build creature inputs for selected objects (supports both creatureRef and quickStats)
         const creatureInputs: CreatureInitiativeInput[] = [];
         for (const objectId of e.detail.selectedObjectIds) {
             const obj = map.objects.find((o) => o.id === objectId);
-            if (!obj?.creatureRef) continue;
+            if (!obj) continue;
 
-            const ref = obj.creatureRef;
-            if (ref.type === "character") {
-                const char = chars.find((c) => c.id === ref.id);
-                if (char) {
-                    const maxHp = char.hitPointMaximum ?? 10;
-                    creatureInputs.push({
-                        objectId: obj.id,
-                        name: char.name,
-                        initMod: char.initiative ?? 0,
-                        hp: ref.currentHitPoints ?? char.currentHitPoints ?? maxHp,
-                        maxHp,
-                    });
+            // Handle assigned characters
+            if (obj.creatureRef) {
+                const ref = obj.creatureRef;
+                if (ref.type === "character") {
+                    const char = chars.find((c) => c.id === ref.id);
+                    if (char) {
+                        const maxHp = char.hitPointMaximum ?? 10;
+                        creatureInputs.push({
+                            objectId: obj.id,
+                            name: char.name,
+                            initMod: char.initiative ?? 0,
+                            hp: ref.currentHitPoints ?? char.currentHitPoints ?? maxHp,
+                            maxHp,
+                        });
+                    }
                 }
+            }
+            // Handle quick stats tokens
+            else if (obj.quickStats) {
+                const qs = obj.quickStats;
+                creatureInputs.push({
+                    objectId: obj.id,
+                    name: qs.name || "Unknown",
+                    initMod: 0, // No initiative modifier for quick stats tokens
+                    hp: qs.currentHitPoints ?? 10,
+                    maxHp: qs.maxHitPoints ?? 10,
+                });
             }
         }
 
@@ -676,20 +885,33 @@
         const creatureInputs: CreatureInitiativeInput[] = [];
         for (const entry of initiativeOrder) {
             const obj = map.objects.find((o) => o.id === entry.objectId);
-            if (!obj?.creatureRef) continue;
+            if (!obj) continue;
 
-            const ref = obj.creatureRef;
-            if (ref.type === "character") {
-                const char = chars.find((c) => c.id === ref.id);
-                if (char) {
-                    creatureInputs.push({
-                        objectId: obj.id,
-                        name: entry.name,
-                        initMod: char.initiative ?? 0,
-                        hp: entry.currentHP,
-                        maxHp: entry.maxHP,
-                    });
+            // Handle assigned characters
+            if (obj.creatureRef) {
+                const ref = obj.creatureRef;
+                if (ref.type === "character") {
+                    const char = chars.find((c) => c.id === ref.id);
+                    if (char) {
+                        creatureInputs.push({
+                            objectId: obj.id,
+                            name: entry.name,
+                            initMod: char.initiative ?? 0,
+                            hp: entry.currentHP,
+                            maxHp: entry.maxHP,
+                        });
+                    }
                 }
+            }
+            // Handle quick stats tokens
+            else if (obj.quickStats) {
+                creatureInputs.push({
+                    objectId: obj.id,
+                    name: entry.name,
+                    initMod: 0, // No initiative modifier for quick stats tokens
+                    hp: entry.currentHP,
+                    maxHp: entry.maxHP,
+                });
             }
         }
 
@@ -1107,7 +1329,10 @@
                     on:turnChanged={handleTurnChanged}
                     on:panelHeightChanged={handlePanelHeightChanged}
                     on:panelDragStateChanged={handlePanelDragStateChanged}
-                    on:addToEncounter={handleAddToEncounter} />
+                    on:addToEncounter={handleAddToEncounter}
+                    on:quickStatsUpdate={handleQuickStatsUpdate}
+                    on:convertToCharacter={handleConvertToCharacter}
+                    on:openQuickStatsModal={handleOpenQuickStatsModal} />
 
                 <!-- Initiative Bar (bottom of screen in combat mode) -->
                 <InitiativeBar
@@ -1130,6 +1355,13 @@
                     {getVisibleCreatureIds}
                     on:beginEncounter={handleBeginEncounter}
                     on:cancel={() => (showEncounterSetup = false)} />
+
+                <!-- Quick Stats Modal -->
+                <QuickStatsModal
+                    show={showQuickStatsModal}
+                    existingStats={quickStatsModalExistingStats}
+                    on:save={handleQuickStatsSave}
+                    on:close={handleQuickStatsClose} />
             {/if}<!-- End showEncounterPanel -->
 
             <!-- Main Map Area -->

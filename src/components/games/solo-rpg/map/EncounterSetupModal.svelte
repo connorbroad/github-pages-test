@@ -27,10 +27,11 @@
     type CreatureDisplay = {
         objectId: string;
         name: string;
-        characterId: string;
+        characterId: string | null; // null for quick stats tokens
         currentHP: number;
         maxHP: number;
         initiative: number;
+        isQuickStats: boolean;
     };
 
     let creatures: CreatureDisplay[] = [];
@@ -54,22 +55,37 @@
 
         creatures = [];
         for (const obj of map.objects) {
-            if (!obj.creatureRef) continue;
-
-            const ref = obj.creatureRef;
-            if (ref.type === "character") {
-                const char = chars.find((c) => c.id === ref.id);
-                if (char) {
-                    const maxHP = char.hitPointMaximum ?? 10;
-                    creatures.push({
-                        objectId: obj.id,
-                        name: char.name,
-                        characterId: char.id,
-                        currentHP: ref.currentHitPoints ?? char.currentHitPoints ?? maxHP,
-                        maxHP,
-                        initiative: char.initiative ?? 0,
-                    });
+            // Handle assigned characters
+            if (obj.creatureRef) {
+                const ref = obj.creatureRef;
+                if (ref.type === "character") {
+                    const char = chars.find((c) => c.id === ref.id);
+                    if (char) {
+                        const maxHP = char.hitPointMaximum ?? 10;
+                        creatures.push({
+                            objectId: obj.id,
+                            name: char.name,
+                            characterId: char.id,
+                            currentHP: ref.currentHitPoints ?? char.currentHitPoints ?? maxHP,
+                            maxHP,
+                            initiative: char.initiative ?? 0,
+                            isQuickStats: false,
+                        });
+                    }
                 }
+            }
+            // Handle quick stats tokens
+            else if (obj.quickStats) {
+                const qs = obj.quickStats;
+                creatures.push({
+                    objectId: obj.id,
+                    name: qs.name || "Unknown",
+                    characterId: null,
+                    currentHP: qs.currentHitPoints ?? 10,
+                    maxHP: qs.maxHitPoints ?? 10,
+                    initiative: 0, // Quick stats tokens have no initiative modifier
+                    isQuickStats: true,
+                });
             }
         }
 

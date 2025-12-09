@@ -8,6 +8,7 @@
         type Character,
         type CreatureRef,
         type InitiativeEntry,
+        type QuickStats,
     } from "../data/storage-utils";
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
@@ -17,9 +18,11 @@
     export let mapId: string;
 
     // Selected creature (can be null if none selected yet)
+    // Now supports both assigned characters (creatureRef) and unassigned tokens (quickStats)
     export let selectedCreature: {
         objectId: string;
-        creatureRef: CreatureRef;
+        creatureRef?: CreatureRef;
+        quickStats?: QuickStats;
     } | null = null;
 
     // Initiative state passed from parent (persisted in MapView)
@@ -48,12 +51,20 @@
         panelHeightChanged: { heightPercent: number };
         panelDragStateChanged: { isDragging: boolean };
         addToEncounter: { entry: InitiativeEntry };
+        quickStatsUpdate: { objectId: string; quickStats: QuickStats };
+        convertToCharacter: { objectId: string; quickStats: QuickStats };
+        openQuickStatsModal: { objectId: string; existingStats: QuickStats | null };
     }>();
 
     // Computed: is the selected creature already in the encounter?
     $: isInEncounter = selectedCreature
         ? initiativeOrder.some((e) => e.objectId === selectedCreature.objectId)
         : false;
+
+    // Computed: is this an assigned character or an unassigned token?
+    $: isAssignedCharacter = selectedCreature?.creatureRef !== undefined;
+    $: isUnassignedToken = selectedCreature && !selectedCreature.creatureRef;
+    $: hasQuickStats = selectedCreature?.quickStats?.name !== undefined;
 
     // Detect if we're on mobile
     let isMobile = false;
@@ -86,9 +97,9 @@
     $: {
         // Including hpRefreshCounter in this reactive block forces it to re-run when HP is modified
         const _ = hpRefreshCounter;
-        if (selectedCreature?.creatureRef.type === "character") {
+        if (selectedCreature?.creatureRef?.type === "character") {
             const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
-            creatureData = chars.find((c) => c.id === selectedCreature.creatureRef.id) ?? null;
+            creatureData = chars.find((c) => c.id === selectedCreature!.creatureRef!.id) ?? null;
         } else {
             creatureData = null;
         }
@@ -96,6 +107,10 @@
 
     function getCurrentHP(): number {
         if (!selectedCreature) return 0;
+        // For unassigned tokens, use quickStats
+        if (!selectedCreature.creatureRef) {
+            return selectedCreature.quickStats?.currentHitPoints ?? 10;
+        }
         // Always prefer freshly loaded creatureData to avoid stale prop values
         if (creatureData) {
             return creatureData.currentHitPoints ?? creatureData.hitPointMaximum ?? 10;
@@ -108,6 +123,10 @@
     }
 
     function getMaxHP(): number {
+        // For unassigned tokens, use quickStats
+        if (!selectedCreature?.creatureRef) {
+            return selectedCreature?.quickStats?.maxHitPoints ?? 10;
+        }
         if (creatureData) {
             return creatureData.hitPointMaximum ?? 10;
         }
@@ -143,57 +162,125 @@
         if (objIndex < 0) return;
 
         const obj = map.objects[objIndex];
-        if (!obj.creatureRef) return;
 
-        let hp = obj.creatureRef.currentHitPoints ?? currentHP;
-        hp = Math.max(0, Math.min(maxHP, hp + amount));
-        obj.creatureRef.currentHitPoints = hp;
+        // Handle assigned character
+        if (obj.creatureRef) {
+            let hp = obj.creatureRef.currentHitPoints ?? currentHP;
+            hp = Math.max(0, Math.min(maxHP, hp + amount));
+            obj.creatureRef.currentHitPoints = hp;
 
-        maps[mapIndex] = map;
-        saveMaps(maps);
+            maps[mapIndex] = map;
+            saveMaps(maps);
 
-        // Also update the character's currentHitPoints to sync with CharacterSheet
-        if (selectedCreature.creatureRef.type === "character") {
-            const chars = loadCharacters();
-            const charIndex = chars.findIndex((c) => c.id === selectedCreature.creatureRef.id);
-            if (charIndex >= 0) {
-                chars[charIndex].currentHitPoints = hp;
-                chars[charIndex].updatedAt = Date.now();
-                saveCharacters(chars);
+            // Also update the character's currentHitPoints to sync with CharacterSheet
+            if (selectedCreature.creatureRef?.type === "character") {
+                const chars = loadCharacters();
+                const charIndex = chars.findIndex((c) => c.id === selectedCreature.creatureRef!.id);
+                if (charIndex >= 0) {
+                    chars[charIndex].currentHitPoints = hp;
+                    chars[charIndex].updatedAt = Date.now();
+                    saveCharacters(chars);
+                }
             }
-        }
 
-        // Update initiative order HP as well
-        const initIndex = initiativeOrder.findIndex(
-            (e) => e.objectId === selectedCreature.objectId
-        );
-        if (initIndex >= 0) {
-            const newOrder = [...initiativeOrder];
-            newOrder[initIndex] = { ...newOrder[initIndex], currentHP: hp };
-            dispatch("turnChanged", { turnIndex: currentTurnIndex, order: newOrder });
+            // Update initiative order HP as well
+            const initIndex = initiativeOrder.findIndex(
+                (e) => e.objectId === selectedCreature.objectId
+            );
+            if (initIndex >= 0) {
+                const newOrder = [...initiativeOrder];
+                newOrder[initIndex] = { ...newOrder[initIndex], currentHP: hp };
+                dispatch("turnChanged", { turnIndex: currentTurnIndex, order: newOrder });
+            }
+        } else {
+            // Handle unassigned token with quickStats
+            const currentQS = obj.quickStats ?? { currentHitPoints: 10, maxHitPoints: 10 };
+            let hp = currentQS.currentHitPoints ?? 10;
+            const max = currentQS.maxHitPoints ?? 10;
+            hp = Math.max(0, Math.min(max, hp + amount));
+            obj.quickStats = { ...currentQS, currentHitPoints: hp };
+
+            maps[mapIndex] = map;
+            saveMaps(maps);
+
+            // Dispatch update so parent can update local state
+            dispatch("quickStatsUpdate", {
+                objectId: selectedCreature.objectId,
+                quickStats: obj.quickStats,
+            });
+
+            // Update initiative order HP as well
+            const initIndex = initiativeOrder.findIndex(
+                (e) => e.objectId === selectedCreature.objectId
+            );
+            if (initIndex >= 0) {
+                const newOrder = [...initiativeOrder];
+                newOrder[initIndex] = { ...newOrder[initIndex], currentHP: hp };
+                dispatch("turnChanged", { turnIndex: currentTurnIndex, order: newOrder });
+            }
         }
 
         // Increment counter to trigger reactive update of creatureData and currentHP
         hpRefreshCounter++;
     }
 
+    function handleConvertToCharacter() {
+        if (!selectedCreature || selectedCreature.creatureRef) return;
+        if (!selectedCreature.quickStats?.name) return; // Name is required
+
+        dispatch("convertToCharacter", {
+            objectId: selectedCreature.objectId,
+            quickStats: selectedCreature.quickStats,
+        });
+    }
+
+    function handleOpenQuickStatsModal() {
+        if (!selectedCreature || selectedCreature.creatureRef) return;
+        dispatch("openQuickStatsModal", {
+            objectId: selectedCreature.objectId,
+            existingStats: selectedCreature.quickStats ?? null,
+        });
+    }
+
     // Add creature to encounter
     function handleAddToEncounter() {
-        if (!selectedCreature || !creatureData) return;
+        if (!selectedCreature) return;
 
-        const initMod = creatureData.initiative ?? 0;
-        const hp = getCurrentHP();
-        const maxHp = getMaxHP();
+        // For assigned characters
+        if (selectedCreature.creatureRef && creatureData) {
+            const initMod = creatureData.initiative ?? 0;
+            const hp = getCurrentHP();
+            const maxHp = getMaxHP();
 
-        const entry = rollInitiativeForCreature(
-            selectedCreature.objectId,
-            creatureData.name,
-            initMod,
-            hp,
-            maxHp
-        );
+            const entry = rollInitiativeForCreature(
+                selectedCreature.objectId,
+                creatureData.name,
+                initMod,
+                hp,
+                maxHp
+            );
 
-        dispatch("addToEncounter", { entry });
+            dispatch("addToEncounter", { entry });
+            return;
+        }
+
+        // For unassigned tokens with quickStats
+        if (!selectedCreature.creatureRef) {
+            const qs = selectedCreature.quickStats;
+            const name = qs?.name || "Unknown";
+            const hp = qs?.currentHitPoints ?? 10;
+            const maxHp = qs?.maxHitPoints ?? 10;
+
+            const entry = rollInitiativeForCreature(
+                selectedCreature.objectId,
+                name,
+                0, // No initiative modifier for quick stats tokens
+                hp,
+                maxHp
+            );
+
+            dispatch("addToEncounter", { entry });
+        }
     }
 
     // Drag resize handlers for mobile panel
@@ -257,7 +344,7 @@
 
     <!-- Panel Content -->
     <div class="combat-panel-content">
-        <!-- Selected Creature Section -->
+        <!-- Assigned Character Section -->
         {#if selectedCreature && creatureData}
             <section class="creature-section">
                 <h2 class="creature-name">{creatureData.name}</h2>
@@ -340,6 +427,158 @@
                         </svg>
                         Add to Encounter
                     </button>
+                {/if}
+            </section>
+            <!-- Unassigned Token Section (Quick Stats) -->
+        {:else if selectedCreature && !selectedCreature.creatureRef}
+            <section class="creature-section">
+                {#if hasQuickStats}
+                    <!-- Token has quick stats - show name, HP, and edit button -->
+                    <div class="quick-stats-header">
+                        <h2 class="creature-name">{selectedCreature.quickStats?.name}</h2>
+                        <button
+                            class="edit-stats-btn"
+                            on:click={handleOpenQuickStatsModal}
+                            title="Edit stats"
+                            aria-label="Edit stats">
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                </path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- HP Section (only if tracking HP) -->
+                    {#if selectedCreature.quickStats?.maxHitPoints !== undefined}
+                        {@const qs = selectedCreature.quickStats}
+                        {@const qsCurrentHP = qs.currentHitPoints ?? 0}
+                        {@const qsMaxHP = qs.maxHitPoints ?? 10}
+                        <div class="hp-section">
+                            <div class="hp-header">
+                                <span class="hp-label">Hit Points</span>
+                                <span class="hp-value">{qsCurrentHP} / {qsMaxHP}</span>
+                            </div>
+                            <div class="hp-bar-bg">
+                                <div
+                                    class="hp-bar-fill"
+                                    style="width: {Math.max(
+                                        0,
+                                        Math.min(100, (qsCurrentHP / qsMaxHP) * 100)
+                                    )}%;
+                                           --hp-color: {qsCurrentHP / qsMaxHP > 0.5
+                                        ? 'var(--accent-success)'
+                                        : qsCurrentHP / qsMaxHP > 0.25
+                                          ? 'var(--accent-warning)'
+                                          : 'var(--accent-danger)'};">
+                                </div>
+                            </div>
+
+                            <!-- Quick HP Controls -->
+                            <div class="hp-controls">
+                                <button
+                                    class="hp-btn hp-btn-damage"
+                                    on:click={() => modifyHP(-quickHealAmount)}>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    {quickHealAmount}
+                                </button>
+                                <input
+                                    type="number"
+                                    class="hp-input"
+                                    bind:value={quickHealAmount}
+                                    min="1"
+                                    max="999" />
+                                <button
+                                    class="hp-btn hp-btn-heal"
+                                    on:click={() => modifyHP(quickHealAmount)}>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    {quickHealAmount}
+                                </button>
+                            </div>
+                        </div>
+                    {/if}
+
+                    <!-- Add to Encounter button -->
+                    {#if hasActiveEncounter && !isInEncounter}
+                        <button class="add-to-encounter-btn" on:click={handleAddToEncounter}>
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true">
+                                <path d="M12 5v14M5 12h14"></path>
+                            </svg>
+                            Add to Encounter
+                        </button>
+                    {/if}
+
+                    <!-- Save as Character button -->
+                    <button
+                        class="save-as-character-btn"
+                        on:click={handleConvertToCharacter}
+                        title="Convert to a full character">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="14"
+                            height="14"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true">
+                            <path
+                                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z">
+                            </path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save as Character
+                    </button>
+                {:else}
+                    <!-- Token has no quick stats - show Add Stats button -->
+                    <div class="no-stats-section">
+                        <p class="no-stats-text">This token has no stats assigned.</p>
+                        <button class="add-stats-btn" on:click={handleOpenQuickStatsModal}>
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true">
+                                <path d="M12 5v14M5 12h14"></path>
+                            </svg>
+                            Add Stats
+                        </button>
+                    </div>
                 {/if}
             </section>
         {:else}
@@ -675,5 +914,98 @@
         .is-collapsed .no-creature-selected p {
             font-size: 0.75rem;
         }
+    }
+
+    /* Save as Character button */
+    .save-as-character-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px dashed var(--border-secondary);
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        margin-top: 0.5rem;
+    }
+
+    .save-as-character-btn:hover:not(:disabled) {
+        color: var(--accent-primary);
+        border-color: var(--accent-primary);
+        background: var(--bg-secondary);
+    }
+
+    .save-as-character-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Quick Stats Header with Edit button */
+    .quick-stats-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .edit-stats-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.375rem;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-secondary);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .edit-stats-btn:hover {
+        color: var(--accent-primary);
+        border-color: var(--accent-primary);
+        background: var(--bg-secondary);
+    }
+
+    /* No Stats section */
+    .no-stats-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem 1rem;
+        text-align: center;
+    }
+
+    .no-stats-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .add-stats-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: var(--accent-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+    .add-stats-btn:hover {
+        background: var(--accent-primary-hover);
     }
 </style>

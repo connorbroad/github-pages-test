@@ -211,6 +211,13 @@ export type CreatureRef = {
     initiative?: number; // Initiative roll for combat ordering
 };
 
+/** Quick stats for unassigned tokens - mutually exclusive with CreatureRef */
+export type QuickStats = {
+    name?: string;
+    currentHitPoints?: number;
+    maxHitPoints?: number;
+};
+
 export type MapObject = {
     /** Unique identifier for the object */
     id: string;
@@ -235,6 +242,8 @@ export type MapObject = {
     locked?: boolean;
     /** Optional creature (character or monster) assigned to this object */
     creatureRef?: CreatureRef;
+    /** Quick stats for unassigned tokens - mutually exclusive with creatureRef */
+    quickStats?: QuickStats;
 };
 
 /** Initiative entry for combat turn order */
