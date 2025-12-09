@@ -624,6 +624,7 @@
             currentHitPoints: qs.currentHitPoints ?? 10,
             abilities: [],
             skills: [],
+            visibleSections: ["information", "health"], // Include health since we have HP data
             createdAt: now,
             updatedAt: now,
         };
