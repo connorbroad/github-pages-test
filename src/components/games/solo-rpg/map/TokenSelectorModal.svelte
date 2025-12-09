@@ -157,14 +157,14 @@
 
             <!-- Preview Section (sticky at top) -->
             <div class="token-preview-section">
-                <div class="preview-label">Preview</div>
                 <div class="preview-container">
                     <TokenPreview
                         shape={selectedShape}
                         color={selectedColor}
                         tile={selectedTile}
-                        size={64} />
+                        size={48} />
                 </div>
+                <div class="preview-label">Preview</div>
             </div>
 
             <!-- Scrollable Content -->
@@ -461,9 +461,9 @@
     /* Preview Section */
     .token-preview-section {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
         padding: 1rem;
         background: var(--bg-secondary);
         border-bottom: 1px solid var(--border-primary);
@@ -476,6 +476,7 @@
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        margin-top: 0.5rem;
     }
 
     .preview-container {
