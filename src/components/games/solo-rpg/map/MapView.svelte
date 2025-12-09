@@ -774,16 +774,19 @@
     }
 
     function handleTurnChanged(e: CustomEvent<{ turnIndex: number; order: InitiativeEntry[] }>) {
+        const turnActuallyChanged = currentTurnIndex !== e.detail.turnIndex;
         currentTurnIndex = e.detail.turnIndex;
         initiativeOrder = e.detail.order;
         saveCombatState();
 
-        // Auto-select the creature whose turn it is and focus on them
-        const currentEntry = e.detail.order[e.detail.turnIndex];
-        if (currentEntry) {
-            selectCreatureByObjectId(currentEntry.objectId);
-            // Center the map on this creature
-            centerOnCreature(currentEntry.objectId);
+        // Only auto-select and focus if the turn actually changed (not just HP updates)
+        if (turnActuallyChanged) {
+            const currentEntry = e.detail.order[e.detail.turnIndex];
+            if (currentEntry) {
+                selectCreatureByObjectId(currentEntry.objectId);
+                // Center the map on this creature
+                centerOnCreature(currentEntry.objectId);
+            }
         }
     }
 
