@@ -18,7 +18,7 @@
                 <button
                     class="border-border-primary bg-card-bg text-text-secondary hover:border-accent-primary hover:bg-bg-secondary focus-visible:outline-accent-primary flex min-w-[120px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-md focus:shadow-[0_0_0_3px_var(--shadow-sm)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 max-md:min-h-11 max-md:text-base {$theme ===
                     'light'
-                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-white shadow-md'
+                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-text-on-accent shadow-md'
                         : ''}"
                     class:active={$theme === "light"}
                     on:click={() => theme.setTheme("light")}
@@ -39,7 +39,7 @@
                 <button
                     class="border-border-primary bg-card-bg text-text-secondary hover:border-accent-primary hover:bg-bg-secondary focus-visible:outline-accent-primary flex min-w-[120px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 hover:-translate-y-px hover:shadow-md focus:shadow-[0_0_0_3px_var(--shadow-sm)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 max-md:min-h-11 max-md:text-base {$theme ===
                     'dark'
-                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-white shadow-md'
+                        ? 'border-accent-primary bg-accent-primary hover:bg-accent-primary-hover hover:border-accent-primary-hover text-text-on-accent shadow-md'
                         : ''}"
                     class:active={$theme === "dark"}
                     on:click={() => theme.setTheme("dark")}

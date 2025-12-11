@@ -81,6 +81,13 @@
         }
     }
 
+    /* Desktop: offset center to account for primary sidebar (80px / 2 = 40px) */
+    @media (min-width: 768px) {
+        .floating-edit-play-toggle {
+            left: calc(50% + 40px);
+        }
+    }
+
     .toggle-group {
         display: flex;
         flex-direction: row;

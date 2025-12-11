@@ -13,6 +13,7 @@ export function drawGrid(opts: {
     getDpr: () => number;
     onInvalidate: () => void; // call when async sprite loads to schedule a repaint
     bgColor?: string;
+    gridColor?: string;
     viewRect?: DOMRect;
     editMode?: "move" | "background" | "object";
     mapMode?: "edit" | "play";
@@ -26,6 +27,7 @@ export function drawGrid(opts: {
         getDpr,
         onInvalidate,
         bgColor,
+        gridColor,
         viewRect,
         editMode,
         mapMode,
@@ -64,7 +66,7 @@ export function drawGrid(opts: {
     ctxBg.translate(-camera.x, -camera.y);
     ctxBg.imageSmoothingEnabled = false;
     ctxBg.globalAlpha = fadeAlpha;
-    ctxBg.strokeStyle = "rgba(255,255,255,0.1)";
+    ctxBg.strokeStyle = gridColor || "rgba(255,255,255,0.1)";
     ctxBg.lineWidth = 1 / (camera.zoom * dpr);
 
     const left = startTx * ts;

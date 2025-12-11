@@ -61,13 +61,7 @@
     }
 
     // Detect if we're on mobile
-    let isMobile = false;
-    if (typeof window !== "undefined") {
-        isMobile = window.innerWidth <= 768;
-        window.addEventListener("resize", () => {
-            isMobile = window.innerWidth <= 768;
-        });
-    }
+    import { isMobile } from "./ui-utils";
 </script>
 
 {#if show}
@@ -77,14 +71,14 @@
                {hasSecondarySidebar || mode === 'map'
             ? 'bottom-[calc(130px+env(safe-area-inset-bottom))]'
             : ''}
-               md:fixed md:top-0 md:bottom-auto md:left-20 md:h-screen md:w-20 md:shadow-md
+               md:fixed md:top-[48px] md:bottom-auto md:left-20 md:h-[calc(100vh-48px)] md:w-20 md:shadow-md
                {hasSecondarySidebar ? 'md:left-[170px]' : ''}"
         style="--tertiary-height: 60px;"
         transition:fly={{
             duration: 300,
             easing: quintOut,
-            x: isMobile ? 0 : -80,
-            y: isMobile ? 60 : 0,
+            x: $isMobile ? 0 : -80,
+            y: $isMobile ? 60 : 0,
         }}>
         {#if mode === "story"}
             <div class="md:[&_.section-filter]:static md:[&_.section-filter-icons]:flex-col">

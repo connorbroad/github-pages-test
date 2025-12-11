@@ -19,25 +19,19 @@
     }
 
     // Detect if we're on mobile
-    let isMobile = false;
-    if (typeof window !== "undefined") {
-        isMobile = window.innerWidth <= 768;
-        window.addEventListener("resize", () => {
-            isMobile = window.innerWidth <= 768;
-        });
-    }
+    import { isMobile } from "./ui-utils";
 </script>
 
 {#if show}
     <aside
         class="bg-sidebar-bg fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0
                z-40 flex h-[60px] w-full flex-col shadow-md
-               md:fixed md:top-0 md:left-20 md:h-screen md:w-[90px] md:flex-col md:shadow-md"
+               md:fixed md:top-[48px] md:left-20 md:h-[calc(100vh-48px)] md:w-[90px] md:flex-col md:shadow-md"
         transition:fly={{
             duration: 300,
             easing: quintOut,
-            x: isMobile ? 0 : -90,
-            y: isMobile ? 60 : 0,
+            x: $isMobile ? 0 : -90,
+            y: $isMobile ? 60 : 0,
         }}>
         <nav class="flex h-full w-full flex-row p-0 md:w-full md:flex-col">
             <div class="flex flex-1 flex-row md:flex-none md:flex-col md:gap-0">

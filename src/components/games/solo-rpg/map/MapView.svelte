@@ -233,13 +233,7 @@
     let showSecondarySidebar = false;
 
     // Detect if we're on mobile
-    let isMobile = false;
-    if (typeof window !== "undefined") {
-        isMobile = window.innerWidth < 768;
-        window.addEventListener("resize", () => {
-            isMobile = window.innerWidth < 768;
-        });
-    }
+    import { isMobile } from "../ui-utils";
 
     // Reactive statement to show sidebars when a map is opened
     // SecondarySidebar is always visible when map is open (per redesign)
@@ -508,6 +502,7 @@
     $: showEditPlayToggle = currentMapId;
     // Show tertiary sidebar when in background or object mode (not move)
     $: showTertiarySidebar = currentMapId && mapMode === "edit" && editMode !== "move";
+
     // Determine paint options context
     let paintOptionsContext: "background" | "object" = "object";
     $: paintOptionsContext = editMode === "background" ? "background" : "object";
@@ -536,9 +531,12 @@
         const wasCollapsed = !encounterSelectedCreature;
         encounterSelectedCreature = e.detail;
 
-        // Center on the selected creature with animation
-        // Use forceExpanded=true if panel was collapsed, so we account for where it's animating to
-        centerOnCreature(e.detail.objectId, true, wasCollapsed);
+        // Center on the selected creature with animation (mobile only)
+        // On desktop, auto-focusing is annoying; on mobile, it helps with limited screen space
+        if ($isMobile) {
+            // Use forceExpanded=true if panel was collapsed, so we account for where it's animating to
+            centerOnCreature(e.detail.objectId, true, wasCollapsed);
+        }
     }
 
     function handleEncounterCreatureDeselect() {
@@ -782,7 +780,7 @@
 
         // Only auto-select and focus if the turn actually changed (not just HP updates)
         if (turnActuallyChanged) {
-            const currentEntry = e.detail.order[e.detail.turnIndex];
+            const currentEntry = initiativeOrder[currentTurnIndex];
             if (currentEntry) {
                 selectCreatureByObjectId(currentEntry.objectId);
                 // Center the map on this creature
@@ -1421,10 +1419,11 @@
             left: 170px;
         }
 
-        /* In play mode, hide secondary sidebar, only show primary (80px), add space for initiative bar (44px) */
+        /* In play mode, hide secondary sidebar, only show primary (80px) */
+        /* Initiative bar now floats, so no bottom reservation needed */
         .map-view-container.play-mode {
             left: 80px; /* Only primary sidebar */
-            bottom: 44px; /* Initiative bar height */
+            bottom: 0; /* Initiative bar floats - no reserved space */
         }
     }
 

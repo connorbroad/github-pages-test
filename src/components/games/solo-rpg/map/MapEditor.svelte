@@ -38,6 +38,7 @@
     // Cached values to avoid layout thrashing
     let cachedRect: DOMRect | null = null;
     let cachedBgColor: string = "#111";
+    let cachedGridColor: string = "rgba(255,255,255,0.1)";
     let rectDirty = true;
 
     function getCachedRect(): DOMRect {
@@ -224,6 +225,13 @@
         return cachedBounds!;
     }
 
+    function getCombatPanelOffset(): number {
+        if (typeof window !== "undefined" && window.innerWidth >= 768) {
+            return 160; // Half of 320px
+        }
+        return 0;
+    }
+
     function clampCameraToBounds() {
         if (!map) return;
         const bounds = getContentBounds();
@@ -236,12 +244,17 @@
         const maxY = bounds.maxY + margin;
         const regionW = maxX - minX;
         const regionH = maxY - minY;
-        const cx = (minX + maxX) / 2;
+
+        // Adjust center point for desktop sidebar
+        const desktopOffsetWorld = getCombatPanelOffset() / camera.zoom;
+        const cx = (minX + maxX) / 2 - desktopOffsetWorld;
         const cy = (minY + maxY) / 2;
-        const minCamX = regionW > vw ? minX : cx - vw / 2;
-        const maxCamX = regionW > vw ? maxX - vw : cx - vw / 2;
+
+        const minCamX = regionW > vw ? minX - desktopOffsetWorld : cx - vw / 2;
+        const maxCamX = regionW > vw ? maxX - desktopOffsetWorld - vw : cx - vw / 2;
         const minCamY = regionH > vh ? minY : cy - vh / 2;
         const maxCamY = regionH > vh ? maxY - vh : cy - vh / 2;
+
         camera.x = clampNum(camera.x, minCamX, maxCamX);
         camera.y = clampNum(camera.y, minCamY, maxCamY);
     }
@@ -257,6 +270,7 @@
             getDpr,
             onInvalidate: scheduleRender,
             bgColor: cachedBgColor,
+            gridColor: cachedGridColor,
             viewRect: getCachedRect(),
             editMode,
             mapMode,
@@ -445,8 +459,11 @@
         const halfCanvasW = rect.width / 2 / camera.zoom;
         const halfCanvasH = rect.height / 2 / camera.zoom;
 
+        // Adjust for combat panel on desktop (320px wide on left)
+        const effectiveOffsetX = offsetX - getCombatPanelOffset();
+
         // Convert screen pixel offsets to world units and apply
-        const worldOffsetX = offsetX / camera.zoom;
+        const worldOffsetX = effectiveOffsetX / camera.zoom;
         const worldOffsetY = offsetY / camera.zoom;
 
         // Calculate target camera position
@@ -1311,7 +1328,12 @@
         canvasFg.width = Math.max(1, Math.floor(rect.width * dpr));
         canvasFg.height = Math.max(1, Math.floor(rect.height * dpr));
         cachedBgColor =
-            getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") || "#111";
+            getComputedStyle(document.documentElement).getPropertyValue("--map-editor-bg").trim() ||
+            "#111";
+        cachedGridColor =
+            getComputedStyle(document.documentElement)
+                .getPropertyValue("--map-editor-grid")
+                .trim() || "rgba(255,255,255,0.1)";
         scheduleRender();
     }
 
@@ -1359,19 +1381,22 @@
 
 <div class="relative flex h-full w-full flex-col">
     {#if map}
+        <!-- Map Title Header - spans above secondary/tertiary sidebars on desktop -->
+        <!-- z-50 on desktop to be above SecondarySidebar(z-40) and TertiarySidebar(z-30) -->
         <div
-            class="border-border-primary bg-bg-primary absolute top-0 right-0 left-0 z-10 border-b">
-            <div class="m-0 flex items-center justify-between gap-4">
-                <button
-                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                    on:click={() => dispatch("close")}
-                    aria-label="Back to maps">
-                    ←
-                </button>
-                <h4 class="text-text-primary text-center">{map.name}</h4>
-                <!-- Spacer to center the title -->
-                <div class="w-[52px]"></div>
-            </div>
+            class="map-header-nav border-border-primary bg-bg-primary absolute top-0 right-0 left-0 z-20 border-b md:fixed md:left-20 md:z-50">
+            <!-- Title - absolutely centered across full width, behind button -->
+            <h4
+                class="text-text-primary pointer-events-none absolute inset-0 m-0 flex items-center justify-center truncate px-12 text-center">
+                {map.name}
+            </h4>
+            <!-- Back button - in normal flow to define header height -->
+            <button
+                class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg relative z-10 flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                on:click={() => dispatch("close")}
+                aria-label="Back to maps">
+                ←
+            </button>
         </div>
     {/if}
     <div

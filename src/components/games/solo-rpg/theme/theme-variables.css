@@ -90,6 +90,11 @@
     /* Misc */
     --divider: #e0e0e0;
     --disabled-opacity: 0.5;
+
+    /* Map Editor Colors */
+    --map-editor-bg: #e0e0e0;
+    --map-editor-grid: rgba(80, 80, 80, 0.25);
+
     /* Simple Button Colors */
     --button-simple-bg: #e8eaf0;
     --button-simple-border: #c5cad6;
@@ -185,6 +190,11 @@
     /* Misc */
     --divider: #404040;
     --disabled-opacity: 0.4;
+
+    /* Map Editor Colors */
+    --map-editor-bg: #111111;
+    --map-editor-grid: rgba(255, 255, 255, 0.1);
+
     /* Simple Button Colors */
     --button-simple-bg: #3a3f4a;
     --button-simple-border: #4a5568;

@@ -67,13 +67,7 @@
     $: hasQuickStats = selectedCreature?.quickStats?.name !== undefined;
 
     // Detect if we're on mobile
-    let isMobile = false;
-    if (typeof window !== "undefined") {
-        isMobile = window.innerWidth < 768;
-        window.addEventListener("resize", () => {
-            isMobile = window.innerWidth < 768;
-        });
-    }
+    import { isMobile } from "../ui-utils";
 
     onMount(() => {
         const savedHeight = localStorage.getItem(PANEL_HEIGHT_KEY);
@@ -323,24 +317,26 @@
     transition:fly={{
         duration: 300,
         easing: quintOut,
-        x: isMobile ? 0 : -320,
-        y: isMobile ? 300 : 0,
+        x: $isMobile ? 0 : -320,
+        y: $isMobile ? 300 : 0,
     }}>
-    <!-- Mobile drag handle -->
-    <div
-        class="drag-handle md:hidden"
-        on:pointerdown={handleDragStart}
-        on:pointermove={handleDragMove}
-        on:pointerup={handleDragEnd}
-        on:pointercancel={handleDragEnd}
-        role="slider"
-        aria-label="Resize combat panel"
-        aria-valuemin={30}
-        aria-valuemax={70}
-        aria-valuenow={Math.round(panelHeightPercent)}
-        tabindex="0">
-        <div class="drag-indicator"></div>
-    </div>
+    <!-- Mobile drag handle (only rendered on mobile) -->
+    {#if $isMobile}
+        <div
+            class="drag-handle"
+            on:pointerdown={handleDragStart}
+            on:pointermove={handleDragMove}
+            on:pointerup={handleDragEnd}
+            on:pointercancel={handleDragEnd}
+            role="slider"
+            aria-label="Resize combat panel"
+            aria-valuemin={30}
+            aria-valuemax={70}
+            aria-valuenow={Math.round(panelHeightPercent)}
+            tabindex="0">
+            <div class="drag-indicator"></div>
+        </div>
+    {/if}
 
     <!-- Panel Content -->
     <div class="combat-panel-content">
@@ -636,12 +632,12 @@
         }
     }
 
-    /* Desktop: Left side panel - after primary sidebar only (80px) */
+    /* Desktop: Left side panel - after primary sidebar only (80px), below map header (48px) */
     @media (min-width: 768px) {
         .combat-panel {
-            top: 0;
+            top: 48px; /* Below map header nav bar */
             left: 80px; /* After primary sidebar only */
-            bottom: 44px; /* Above initiative bar */
+            bottom: 0; /* Initiative bar floats - panel extends to bottom */
             width: 320px;
             border-radius: 0;
             border-top: none;
@@ -659,6 +655,8 @@
         .combat-panel.is-dragging {
             transition: none !important;
         }
+
+        /* Drag handle is hidden on desktop via md:hidden utility in template */
     }
 
     /* Drag handle for mobile resize */

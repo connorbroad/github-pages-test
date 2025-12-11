@@ -13,6 +13,7 @@
     --text-secondary: #475569;
     --text-muted: #94a3b8;
     --text-inverse: #ffffff;
+    --text-on-accent: #ffffff;
 
     /* Border Colors */
     --border-primary: #e2e8f0;
@@ -96,6 +97,7 @@
     --text-secondary: #cbd5e1;
     --text-muted: #64748b;
     --text-inverse: #0f172a;
+    --text-on-accent: #0f172a;
 
     /* Border Colors */
     --border-primary: #334155;
@@ -179,6 +181,7 @@
     --color-text-secondary: var(--text-secondary);
     --color-text-muted: var(--text-muted);
     --color-text-inverse: var(--text-inverse);
+    --color-text-on-accent: var(--text-on-accent);
 
     /* Border Colors */
     --color-border-primary: var(--border-primary);
