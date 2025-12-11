@@ -444,13 +444,20 @@
                         const speed = velocity.length();
 
                         if (speed > 0.1) {
+                            // 1. Structured Roll: perpendicular to movement
                             const rollAxis = new CANNON.Vec3();
                             velocity.cross(new CANNON.Vec3(0, 1, 0), rollAxis);
                             rollAxis.normalize();
 
-                            // Scale torque by speed (gentle factor)
-                            // We want it to "roll" along the movement
-                            const torqueMagnitude = speed * 1.5;
+                            // 2. Random Tumble: Add noise to prevent "locked" feeling
+                            rollAxis.x += (Math.random() - 0.5) * 1.5;
+                            rollAxis.y += (Math.random() - 0.5) * 1.5;
+                            rollAxis.z += (Math.random() - 0.5) * 1.5;
+                            rollAxis.normalize();
+
+                            // Scale torque by speed
+                            // Negative magnitude to roll "forward" (in direction of movement) instead of backspin
+                            const torqueMagnitude = speed * -1.0;
                             const torque = new CANNON.Vec3();
                             rollAxis.scale(torqueMagnitude, torque);
 
@@ -460,9 +467,9 @@
                         }
                     }
 
-                    // Explicitly dampen angular velocity to prevent spinning out of control
-                    // Less damping than before to allow the swirl
-                    body.angularVelocity.scale(0.9, body.angularVelocity);
+                    // Explicitly dampen angular velocity
+                    // 0.95 allows for more momentum conservation than 0.9, feeling more "loose"
+                    body.angularVelocity.scale(0.95, body.angularVelocity);
                 });
             }
 
