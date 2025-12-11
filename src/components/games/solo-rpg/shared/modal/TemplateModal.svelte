@@ -1,6 +1,5 @@
 <script lang="ts">
     import SrpgModal from "./SrpgModal.svelte";
-    import { createEventDispatcher } from "svelte";
 
     interface Template {
         key: string;
@@ -13,21 +12,21 @@
     export let title: string = "Choose Template";
     export let description: string = "";
     export let templates: Template[] = [];
-
-    const dispatch = createEventDispatcher();
+    export let onSelect: (key: string) => void = () => {};
+    export let onCancel: () => void = () => {};
 
     function selectTemplate(templateKey: string) {
-        dispatch("select", templateKey);
+        onSelect(templateKey);
         show = false;
     }
 
     function cancel() {
-        dispatch("cancel");
+        onCancel();
         show = false;
     }
 </script>
 
-<SrpgModal bind:show maxWidth="500px">
+<SrpgModal bind:show maxWidth="500px" onClose={cancel}>
     <div class="p-4 sm:p-6">
         <h2 class="text-text-primary mt-0 mb-2 text-xl sm:text-2xl">{title}</h2>
         {#if description}
@@ -38,16 +37,14 @@
             {#each templates as template}
                 <button
                     class="bg-card-bg border-border-primary font-inherit hover:border-accent-primary w-full cursor-pointer rounded-lg border-2 p-6 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    on:click={() => selectTemplate(template.key)}
-                >
+                    on:click={() => selectTemplate(template.key)}>
                     <h3 class="text-text-primary m-0 mb-2 text-lg sm:text-xl">{template.title}</h3>
                     <p class="text-text-secondary my-2 text-[0.8125rem] leading-6 sm:text-sm">
                         {template.description}
                     </p>
                     {#if template.note}
                         <span
-                            class="bg-accent-info text-text-inverse mt-2 inline-block rounded px-2 py-1 text-xs font-semibold"
-                        >
+                            class="bg-accent-info text-text-inverse mt-2 inline-block rounded px-2 py-1 text-xs font-semibold">
                             {template.note}
                         </span>
                     {/if}
@@ -58,11 +55,9 @@
         <div class="flex justify-end gap-2">
             <button
                 class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                on:click={cancel}
-            >
+                on:click={cancel}>
                 Cancel
             </button>
         </div>
     </div>
 </SrpgModal>
-

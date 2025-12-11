@@ -3,7 +3,6 @@
      * Reusable Modal Component
      * Provides a consistent modal wrapper with customizable navigation buttons
      */
-    import { createEventDispatcher } from "svelte";
 
     export let show = false;
     export let showCloseButton = true;
@@ -11,15 +10,12 @@
     export let closeOnOverlayClick = true;
     export let ariaLabel = "Close modal";
     export let maxWidth = "500px";
-
-    const dispatch = createEventDispatcher<{
-        close: void;
-        back: void;
-    }>();
+    export let onClose: () => void = () => {};
+    export let onBack: () => void = () => {};
 
     function handleOverlayClick() {
         if (closeOnOverlayClick) {
-            dispatch("close");
+            onClose();
         }
     }
 
@@ -33,16 +29,16 @@
             !["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(tag) &&
             !isEditable
         ) {
-            dispatch("close");
+            onClose();
         }
     }
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleBack() {
-        dispatch("back");
+        onBack();
     }
 </script>
 

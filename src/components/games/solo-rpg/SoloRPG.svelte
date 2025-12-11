@@ -76,8 +76,8 @@
         diceRollPreset = null;
     }
 
-    function handleCharacterSelected(event: CustomEvent) {
-        const { character, isEditingSections, selectedSections, visibleSections } = event.detail;
+    function handleCharacterSelected(detail: any) {
+        const { character, isEditingSections, selectedSections, visibleSections } = detail;
         currentCharacter = character;
         selectedCharacterId = character?.id ?? null;
         tertiaryVisibleSections = visibleSections;
@@ -92,9 +92,9 @@
         selectedCharacterId = null;
     }
 
-    function handleRollCheck(event: CustomEvent) {
+    function handleRollCheck(detail: any) {
         const { characterId, characterName, checkName, diceFormula, modifier, resultOption } =
-            event.detail;
+            detail;
         const match = diceFormula.match(/^(\d+)d(\d+)$/i);
         if (!match) {
             console.error("Invalid dice formula:", diceFormula);
@@ -181,9 +181,9 @@
         {#if $activeCampaign}
             <CharacterManager
                 bind:this={characterManagerComponent}
-                on:characterSelected={handleCharacterSelected}
-                on:characterDeselected={handleCharacterDeselected}
-                on:rollCheck={handleRollCheck} />
+                onCharacterSelected={handleCharacterSelected}
+                onCharacterDeselected={handleCharacterDeselected}
+                onRollCheck={handleRollCheck} />
         {:else}
             <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
             <em class="block text-center">Select or create a campaign to manage characters.</em>

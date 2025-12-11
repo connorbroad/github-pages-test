@@ -1,24 +1,24 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
     export let id: string;
     export let title: string;
     export let isEditing: boolean = false;
     export let showEditButton: boolean = true;
     export let canEdit: boolean = true;
 
-    const dispatch = createEventDispatcher();
+    export let onEdit: () => void = () => {};
+    export let onSave: () => void = () => {};
+    export let onCancel: () => void = () => {};
 
     function handleEdit() {
-        dispatch("edit");
+        onEdit();
     }
 
     function handleSave() {
-        dispatch("save");
+        onSave();
     }
 
     function handleCancel() {
-        dispatch("cancel");
+        onCancel();
     }
 </script>
 

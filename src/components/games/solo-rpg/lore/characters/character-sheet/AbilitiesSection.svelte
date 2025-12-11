@@ -1,13 +1,12 @@
 <script lang="ts">
     import type { Character, Ability, Skill } from "../../../data/storage-utils";
-    import { createEventDispatcher } from "svelte";
+
     import ResultOptionIcon from "../../../oracle/components/dice-roller/components/ResultOptionIcon.svelte";
     import TemplateModal from "../../../shared/modal/TemplateModal.svelte";
 
     export let editedCharacter: Character;
     export let isEditable: boolean;
-
-    const dispatch = createEventDispatcher();
+    export let onRollCheck: (detail: any) => void = () => {};
 
     // Local state for template modals
     let showAbilityTemplateModal = false;
@@ -128,7 +127,8 @@
         showAbilityTemplateModal = true;
     }
 
-    function applyAbilityTemplate(templateKey: "dnd5e" | "daggerheart") {
+    function applyAbilityTemplate(templateKey: string) {
+        if (templateKey !== "dnd5e" && templateKey !== "daggerheart") return;
         const template = abilityTemplates[templateKey];
         const baseTimestamp = Date.now();
         const newAbilities: Ability[] = template.map((abilityData, index) => ({
@@ -150,7 +150,9 @@
         showSkillTemplateModal = true;
     }
 
-    function applySkillTemplate(templateKey: "dnd5e" | "pathfinder2e") {
+    function applySkillTemplate(templateKey: string) {
+        if (templateKey !== "dnd5e" && templateKey !== "pathfinder2e") return;
+
         const template = skillTemplates[templateKey];
         const baseTimestamp = Date.now();
         const newSkills: Skill[] = template
@@ -273,7 +275,7 @@
     function rollAbility(ability: Ability, resultOption: "Sum" | "Maximum" | "Minimum") {
         const diceFormula = editedCharacter.abilityCheckDice || "1d20";
         const adjusted = adjustDiceRollForAdvantageOrDisadvantage(diceFormula, resultOption);
-        dispatch("rollCheck", {
+        onRollCheck({
             checkName: ability.name,
             diceFormula: adjusted,
             modifier: ability.modifier,
@@ -283,7 +285,7 @@
     function rollSkill(skill: Skill, resultOption: "Sum" | "Maximum" | "Minimum") {
         const diceFormula = editedCharacter.skillCheckDice || "1d20";
         const adjusted = adjustDiceRollForAdvantageOrDisadvantage(diceFormula, resultOption);
-        dispatch("rollCheck", {
+        onRollCheck({
             checkName: skill.name,
             diceFormula: adjusted,
             modifier: skill.bonus,
@@ -734,12 +736,12 @@
         title="Choose Ability Template"
         description="Quickly add a set of abilities based on popular RPG systems."
         templates={abilityTemplateOptions}
-        on:select={(e) => applyAbilityTemplate(e.detail)} />
+        onSelect={(key) => applyAbilityTemplate(key)} />
 
     <TemplateModal
         bind:show={showSkillTemplateModal}
         title="Choose Skill Template"
         description="Quickly add a set of skills based on popular RPG systems."
         templates={skillTemplateOptions}
-        on:select={(e) => applySkillTemplate(e.detail)} />
+        onSelect={(key) => applySkillTemplate(key)} />
 </div>

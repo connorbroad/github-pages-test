@@ -1,28 +1,28 @@
 <script lang="ts">
-    import { createEventDispatcher, onMount } from "svelte";
+    import { onMount } from "svelte";
     import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
     import type { CampaignItem } from "../../../../data/storage-utils";
 
     export let show = false;
     export let campaignItems: CampaignItem[] = [];
-
-    const dispatch = createEventDispatcher();
+    export let onSave: (detail: { itemId: string; quantity: number }) => void = () => {};
+    export let onClose: () => void = () => {};
 
     let selectedItemId = "";
     let quantity = 1;
 
     function handleSave() {
         if (!selectedItemId || quantity < 1) return;
-        dispatch("save", { itemId: selectedItemId, quantity });
+        onSave({ itemId: selectedItemId, quantity });
         show = false;
     }
     function handleClose() {
-        dispatch("close");
+        onClose();
         show = false;
     }
 </script>
 
-<SrpgModal bind:show maxWidth="400px" ariaLabel="Add Inventory Item" on:close={handleClose}>
+<SrpgModal bind:show maxWidth="400px" ariaLabel="Add Inventory Item" onClose={handleClose}>
     <div class="modal-content">
         <h2>Add Item from Library</h2>
         <div class="srpg-form-grid">

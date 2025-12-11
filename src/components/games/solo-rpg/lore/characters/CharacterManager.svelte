@@ -5,12 +5,14 @@
     import CharacterSheet from "./CharacterSheet.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
 
-    import { createEventDispatcher, onMount } from "svelte";
+    import { onMount } from "svelte";
     import SectionPickerModal from "./SectionPickerModal.svelte";
     import TagPickerModal from "./TagPickerModal.svelte";
     import SrpgListPage from "../../shared/layout/SrpgListPage.svelte";
 
-    const dispatch = createEventDispatcher();
+    export let onCharacterSelected: (detail: any) => void = () => {};
+    export let onCharacterDeselected: () => void = () => {};
+    export let onRollCheck: (detail: any) => void = () => {};
 
     const COMPACT_VIEW_KEY = "srpg-characters-compact-view";
 
@@ -142,7 +144,7 @@
         selectedCharacter = character;
         isEditing = false;
         isEditingSections = false;
-        dispatch("characterSelected", {
+        onCharacterSelected({
             character,
             isEditing,
             isEditingSections,
@@ -151,8 +153,7 @@
         });
     }
 
-    function saveCharacter(event: CustomEvent<Character>) {
-        const updatedCharacter = event.detail;
+    function saveCharacter(updatedCharacter: Character) {
         const allCharacters = loadCharacters();
         const index = allCharacters.findIndex((c) => c.id === updatedCharacter.id);
 
@@ -171,10 +172,10 @@
         loadCampaignCharacters();
     }
 
-    function handleRollCheck(event: CustomEvent) {
+    function handleRollCheck(detail: any) {
         // Forward the rollCheck event to the parent (StoryView or SoloRPG)
-        dispatch("rollCheck", {
-            ...event.detail,
+        onRollCheck({
+            ...detail,
             characterId: selectedCharacter?.id,
             characterName: selectedCharacter?.name,
         });
@@ -212,7 +213,7 @@
         selectedCharacter = null;
         isEditing = false;
         isEditingSections = false;
-        dispatch("characterDeselected");
+        onCharacterDeselected();
     }
 
     function handleToggleSection(event: CustomEvent<string>) {
@@ -234,7 +235,7 @@
 
         // Emit updated state
         if (selectedCharacter) {
-            dispatch("characterSelected", {
+            onCharacterSelected({
                 character: selectedCharacter,
                 isEditing,
                 isEditingSections,
@@ -347,7 +348,7 @@
         showTagPickerModal = false;
     }
 
-    function handleNewTag(event: CustomEvent<string>) {
+    function handleNewTag(tag: string) {
         // New tag added, trigger reactivity to update availableTags
         characters = characters;
     }
@@ -659,9 +660,9 @@
             {isEditing}
             {isEditingSections}
             {selectedSections}
-            on:save={saveCharacter}
+            onSave={saveCharacter}
             on:cancel={cancelEdit}
-            on:rollCheck={handleRollCheck} />
+            onRollCheck={handleRollCheck} />
     {:else if filteredCharacters.length > 0}
         <div
             class="{isCompactView
@@ -899,7 +900,7 @@
     </div>
 </SrpgListPage>
 
-<SrpgModal bind:show={showCreateModal} maxWidth="400px" on:close={() => (showCreateModal = false)}>
+<SrpgModal bind:show={showCreateModal} maxWidth="400px" onClose={() => (showCreateModal = false)}>
     <div class="p-0">
         <h2 class="text-text-primary mt-0 mb-4">New Character</h2>
         <label class="text-text-secondary mt-0 mb-2 block font-semibold" for="characterName">
@@ -932,35 +933,35 @@
 <SectionPickerModal
     bind:show={showSectionPickerModal}
     selectedSections={selectedCharacter?.visibleSections || ["information"]}
-    on:change={(e) => {
+    onChange={(sections) => {
         if (selectedCharacter) {
-            selectedCharacter.visibleSections = e.detail;
+            selectedCharacter.visibleSections = sections;
             selectedCharacter = selectedCharacter;
-            dispatch("characterSelected", {
+            onCharacterSelected({
                 character: selectedCharacter,
                 isEditing,
                 isEditingSections,
                 selectedSections,
-                visibleSections: e.detail,
+                visibleSections: sections,
             });
         }
     }}
-    on:save={(e) => handleSectionPickerSave(e.detail)}
-    on:close={() => (showSectionPickerModal = false)} />
+    onSave={(sections) => handleSectionPickerSave(sections)}
+    onClose={() => (showSectionPickerModal = false)} />
 
 <TagPickerModal
     bind:show={showTagPickerModal}
     selectedTags={selectedCharacter?.tags || []}
     availableTags={availableTags.filter((t) => t !== "No Tags")}
-    on:change={(e) => {
+    onChange={(tags) => {
         if (selectedCharacter) {
-            selectedCharacter.tags = e.detail;
+            selectedCharacter.tags = tags;
             selectedCharacter = selectedCharacter;
         }
     }}
-    on:newTag={handleNewTag}
-    on:save={(e) => handleTagPickerSave(e.detail)}
-    on:close={() => (showTagPickerModal = false)} />
+    onNewTag={(tag) => handleNewTag(tag)}
+    onSave={(tags) => handleTagPickerSave(tags)}
+    onClose={() => (showTagPickerModal = false)} />
 
 <style>
     /* Collapsible Section */

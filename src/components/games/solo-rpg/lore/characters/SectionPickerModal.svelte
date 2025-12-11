@@ -1,10 +1,10 @@
 <script lang="ts">
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
-    import { createEventDispatcher } from "svelte";
-
     export let show = false;
     export let selectedSections: string[] = ["information"];
-    const dispatch = createEventDispatcher();
+    export let onChange: (sections: string[]) => void = () => {};
+    export let onSave: (sections: string[]) => void = () => {};
+    export let onClose: () => void = () => {};
 
     const availableSections: Array<{
         id: string;
@@ -31,15 +31,15 @@
         }
         // Always enforce 'information' included
         sectionsSet.add("information");
-        dispatch("change", Array.from(sectionsSet));
+        onChange(Array.from(sectionsSet));
     }
 
     function save() {
-        dispatch("save", Array.from(sectionsSet));
+        onSave(Array.from(sectionsSet));
     }
 
     function close() {
-        dispatch("close");
+        onClose();
     }
 </script>
 
@@ -47,7 +47,7 @@
     bind:show
     maxWidth="450px"
     ariaLabel="Pick visible sections for character sheet"
-    on:close={close}>
+    onClose={close}>
     <h2 class="text-text-primary m-0 mb-4 text-xl font-bold">Choose Character Sections</h2>
     <form on:submit|preventDefault={save}>
         <div class="mb-6 flex flex-col gap-2">

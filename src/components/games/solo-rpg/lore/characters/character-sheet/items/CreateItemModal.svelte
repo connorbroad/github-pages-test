@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
     import type { CampaignItem, ItemType, AttackSpec } from "../../../../data/storage-utils";
 
     export let show = false;
     export let campaignId: string;
-
-    const dispatch = createEventDispatcher();
+    export let onSave: (item: CampaignItem) => void = () => {};
+    export let onClose: () => void = () => {};
 
     let name = "";
     let type: ItemType = "simple";
@@ -67,17 +66,17 @@
             };
         }
 
-        dispatch("save", item);
+        onSave(item);
         show = false;
     }
 
     function close() {
-        dispatch("close");
+        onClose();
         show = false;
     }
 </script>
 
-<SrpgModal bind:show maxWidth="420px" ariaLabel="Create Item" on:close={close}>
+<SrpgModal bind:show maxWidth="420px" ariaLabel="Create Item" onClose={close}>
     <div class="modal-content">
         <h2>Create New Item</h2>
         <div class="srpg-form-grid">

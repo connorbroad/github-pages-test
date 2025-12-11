@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
     import CreateItemModal from "./CreateItemModal.svelte";
     import type { CampaignItem } from "../../../../data/storage-utils";
@@ -7,8 +6,9 @@
     export let show = false;
     export let campaignId: string;
     export let campaignItems: CampaignItem[] = [];
-
-    const dispatch = createEventDispatcher();
+    export let onItemCreated: (item: any) => void = () => {};
+    export let onItemDeleted: (itemId: string) => void = () => {};
+    export let onClose: () => void = () => {};
 
     let showCreateItemModal = false;
     let expandedGroups: Set<string> = new Set(["simple", "weapon", "armor"]);
@@ -32,8 +32,8 @@
         showCreateItemModal = true;
     }
 
-    function handleCreateItemSave(event: CustomEvent) {
-        dispatch("itemCreated", event.detail);
+    function handleCreateItemSave(item: any) {
+        onItemCreated(item);
         showCreateItemModal = false;
     }
 
@@ -42,11 +42,11 @@
     }
 
     function handleDeleteItem(itemId: string) {
-        dispatch("itemDeleted", itemId);
+        onItemDeleted(itemId);
     }
 
     function close() {
-        dispatch("close");
+        onClose();
         show = false;
     }
 
@@ -103,7 +103,7 @@
     }
 </script>
 
-<SrpgModal bind:show maxWidth="600px" ariaLabel="Item Library" on:close={close}>
+<SrpgModal bind:show maxWidth="600px" ariaLabel="Item Library" onClose={close}>
     <div class="modal-content">
         <div class="modal-header-sticky">
             <h2 class="srpg-modal-heading">Item Library</h2>
@@ -224,5 +224,5 @@
 <CreateItemModal
     bind:show={showCreateItemModal}
     {campaignId}
-    on:save={handleCreateItemSave}
-    on:close={handleCreateItemClose} />
+    onSave={handleCreateItemSave}
+    onClose={handleCreateItemClose} />

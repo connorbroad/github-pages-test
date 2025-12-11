@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Character } from "../../../data/storage-utils";
-    import { createEventDispatcher } from "svelte";
     import { loadCampaignItems, saveCampaignItems } from "../../../data/storage-utils";
     import ItemLibraryModal from "./items/ItemLibraryModal.svelte";
     import AddInventoryItemModal from "./items/AddInventoryItemModal.svelte";
@@ -63,8 +62,7 @@
         showAddInventoryItemModal = true;
     }
 
-    function handleItemCreated(event: CustomEvent) {
-        const newItem = event.detail;
+    function handleItemCreated(newItem: any) {
         const items = loadCampaignItems();
         items.push(newItem);
         saveCampaignItems(items);
@@ -72,8 +70,7 @@
         saveSection();
     }
 
-    function handleItemDeleted(event: CustomEvent) {
-        const itemId = event.detail;
+    function handleItemDeleted(itemId: string) {
         const items = loadCampaignItems().filter((i) => i.id !== itemId);
         saveCampaignItems(items);
 
@@ -102,8 +99,8 @@
         showItemLibraryModal = false;
     }
 
-    function handleAddInventoryItemSave(event: CustomEvent) {
-        const { itemId, quantity } = event.detail;
+    function handleAddInventoryItemSave(detail: any) {
+        const { itemId, quantity } = detail;
         let inv = editedCharacter.inventory || [];
         const idx = inv.findIndex((i) => i.itemId === itemId);
         if (idx >= 0) {
@@ -505,12 +502,12 @@
     bind:show={showItemLibraryModal}
     campaignId={character.campaignId}
     bind:campaignItems
-    on:itemCreated={handleItemCreated}
-    on:itemDeleted={handleItemDeleted}
-    on:close={handleItemLibraryClose} />
+    onItemCreated={handleItemCreated}
+    onItemDeleted={handleItemDeleted}
+    onClose={handleItemLibraryClose} />
 
 <AddInventoryItemModal
     bind:show={showAddInventoryItemModal}
     {campaignItems}
-    on:save={handleAddInventoryItemSave}
-    on:close={handleAddInventoryItemClose} />
+    onSave={handleAddInventoryItemSave}
+    onClose={handleAddInventoryItemClose} />

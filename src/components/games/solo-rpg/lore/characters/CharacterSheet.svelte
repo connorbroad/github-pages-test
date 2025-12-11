@@ -1,6 +1,5 @@
 <script lang="ts">
-    import type { Character } from "../../data/storage-utils";
-    import { createEventDispatcher } from "svelte";
+    import { type Character } from "../../data/storage-utils";
     import CharacterSheetSection from "./CharacterSheetSection.svelte";
     import InformationSection from "./character-sheet/InformationSection.svelte";
     import ExperienceSection from "./character-sheet/ExperienceSection.svelte";
@@ -13,8 +12,8 @@
     export let isEditing: boolean = false;
     export let isEditingSections: boolean = false;
     export let selectedSections: Set<string> = new Set(); // For filtering visible sections
-
-    const dispatch = createEventDispatcher();
+    export let onSave: (character: Character) => void = () => {};
+    export let onRollCheck: (detail: any) => void = () => {};
 
     let editingSection: string | null = null;
 
@@ -70,7 +69,7 @@
 
     function saveSection() {
         editedCharacter.updatedAt = Date.now();
-        dispatch("save", editedCharacter);
+        onSave(editedCharacter);
         editingSection = null;
     }
 
@@ -99,9 +98,9 @@
                     title="Information"
                     isEditing={isSectionEditing("information")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("information")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("information")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <InformationSection
                         {character}
                         {editedCharacter}
@@ -116,9 +115,9 @@
                     title="Experience"
                     isEditing={isSectionEditing("experience")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("experience")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("experience")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <ExperienceSection
                         {character}
                         {editedCharacter}
@@ -133,9 +132,9 @@
                     title="Health"
                     isEditing={isSectionEditing("health")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("health")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("health")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <HealthSection {character} {editedCharacter} isEditable={isHealthEditable} />
                 </CharacterSheetSection>
             {/if}
@@ -147,13 +146,13 @@
                     title="Abilities"
                     isEditing={isSectionEditing("abilities")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("abilities")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("abilities")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <AbilitiesSection
                         {editedCharacter}
                         isEditable={isAbilitiesEditable}
-                        on:rollCheck={(e) => dispatch("rollCheck", e.detail)} />
+                        {onRollCheck} />
                 </CharacterSheetSection>
             {/if}
 
@@ -164,9 +163,9 @@
                     title="Inventory"
                     isEditing={isSectionEditing("items")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("items")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("items")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <ItemsSection
                         {character}
                         {editedCharacter}
@@ -182,14 +181,14 @@
                     title="Combat Stats"
                     isEditing={isSectionEditing("combat")}
                     showEditButton={!isEditing && !isEditingSections}
-                    on:edit={() => startEditingSection("combat")}
-                    on:save={saveSection}
-                    on:cancel={cancelSectionEdit}>
+                    onEdit={() => startEditingSection("combat")}
+                    onSave={saveSection}
+                    onCancel={cancelSectionEdit}>
                     <CombatSection
                         {character}
                         {editedCharacter}
                         isEditable={isCombatEditable}
-                        on:rollCheck={(e) => dispatch("rollCheck", e.detail)} />
+                        {onRollCheck} />
                 </CharacterSheetSection>
             {/if}
         </div>

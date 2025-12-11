@@ -1,11 +1,8 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
     export let visibleSections: string[] = ["information"];
     export let selectedSections: Set<string> = new Set();
     export let isEditingSections: boolean = false;
-
-    const dispatch = createEventDispatcher();
+    export let onToggleSection: (section: string) => void = () => {};
 
     // Available sections that can be added to a character sheet
     const availableSections: Array<{
@@ -22,7 +19,7 @@
     ];
 
     function toggleSection(section: string) {
-        dispatch("toggleSection", section);
+        onToggleSection(section);
     }
 </script>
 

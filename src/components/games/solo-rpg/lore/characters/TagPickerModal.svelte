@@ -1,12 +1,12 @@
 <script lang="ts">
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
-    import { createEventDispatcher } from "svelte";
-
     export let show = false;
     export let selectedTags: string[] = [];
     export let availableTags: string[] = [];
-
-    const dispatch = createEventDispatcher();
+    export let onChange: (tags: string[]) => void = () => {};
+    export let onNewTag: (tag: string) => void = () => {};
+    export let onSave: (tags: string[]) => void = () => {};
+    export let onClose: () => void = () => {};
 
     let tagsSet: Set<string> = new Set(selectedTags);
     let newTagInput: string = "";
@@ -24,7 +24,7 @@
             newTagsSet.add(tag);
         }
         tagsSet = newTagsSet;
-        dispatch("change", Array.from(tagsSet));
+        onChange(Array.from(tagsSet));
     }
 
     function addNewTag() {
@@ -36,8 +36,8 @@
             const newTagsSet = new Set(tagsSet);
             newTagsSet.add(trimmed);
             tagsSet = newTagsSet;
-            dispatch("change", Array.from(tagsSet));
-            dispatch("newTag", trimmed);
+            onChange(Array.from(tagsSet));
+            onNewTag(trimmed);
             newTagInput = "";
             showNewTagInput = false;
         }
@@ -51,15 +51,15 @@
     }
 
     function save() {
-        dispatch("save", Array.from(tagsSet));
+        onSave(Array.from(tagsSet));
     }
 
     function close() {
-        dispatch("close");
+        onClose();
     }
 </script>
 
-<SrpgModal bind:show maxWidth="450px" ariaLabel="Pick tags for character" on:close={close}>
+<SrpgModal bind:show maxWidth="450px" ariaLabel="Pick tags for character" onClose={close}>
     <h2 class="text-text-primary m-0 mb-4 text-xl font-bold">Choose Character Tags</h2>
     <form on:submit|preventDefault={save}>
         <div class="mb-6 flex flex-col gap-2">

@@ -2,12 +2,11 @@
     import type { Character, WeaponItem, AttackSpec, ArmorItem } from "../../../data/storage-utils";
     import { loadCampaignItems } from "../../../data/storage-utils";
     import ResultOptionIcon from "../../../oracle/components/dice-roller/components/ResultOptionIcon.svelte";
-    import { createEventDispatcher } from "svelte";
+
     export let character: Character;
     export let editedCharacter: Character;
     export let isEditable: boolean;
-
-    const dispatch = createEventDispatcher();
+    export let onRollCheck: (detail: any) => void = () => {};
 
     // Resolve equipped item names from campaign items
     $: campaignItems = loadCampaignItems().filter((i) => i.campaignId === character.campaignId);
@@ -55,7 +54,7 @@
     function rollToHit(weapon: WeaponItem, resultOption: "Sum" | "Maximum" | "Minimum") {
         const { dice, modifier } = parseDiceAndModifier(weapon.toHit || "1d20");
         const adjusted = adjustDiceRollForAdvantageOrDisadvantage(dice, resultOption);
-        dispatch("rollCheck", {
+        onRollCheck({
             checkName: `${weapon.name} to hit`,
             diceFormula: adjusted,
             modifier,
@@ -66,7 +65,7 @@
     function rollDamage(weapon: WeaponItem, attack: AttackSpec) {
         const { dice, modifier } = parseDiceAndModifier(attack.dice);
         const name = attack.name ? `${weapon.name} — ${attack.name}` : `${weapon.name} damage`;
-        dispatch("rollCheck", {
+        onRollCheck({
             checkName: name,
             diceFormula: dice,
             modifier,
@@ -176,7 +175,8 @@
                                     class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
                                     on:click={(e) => {
                                         e.stopPropagation();
-                                        dispatch("rollCheck", {
+                                        e.stopPropagation();
+                                        onRollCheck({
                                             checkName: `${weapon.name} to hit`,
                                             diceFormula: adjustDiceRollForAdvantageOrDisadvantage(
                                                 parseDiceAndModifier(weapon.toHit || "1d20").dice,
@@ -217,7 +217,8 @@
                                     class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
                                     on:click={(e) => {
                                         e.stopPropagation();
-                                        dispatch("rollCheck", {
+                                        e.stopPropagation();
+                                        onRollCheck({
                                             checkName: `${weapon.name} to hit`,
                                             diceFormula: adjustDiceRollForAdvantageOrDisadvantage(
                                                 parseDiceAndModifier(weapon.toHit || "1d20").dice,
