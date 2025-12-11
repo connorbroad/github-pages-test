@@ -16,6 +16,17 @@
 
     const dispatch = createEventDispatcher();
 
+    // Physics Configuration
+    const PHYSICS = {
+        springStiffness: 80,
+        springDamping: 5,
+        springRestLength: 1.5,
+        angularDamping: 0.95, // 0-1, lower is higher damping
+        swirlTorqueScale: -1.0, // Negative for forward roll relative to movement
+        throwForceScale: 1.0, // Scale of velocity transfer on release
+        minThrowSpeed: 0.5, // Threshold to trigger a "throw" vs just a drop
+    };
+
     let container: HTMLDivElement;
     let scene: THREE.Scene;
     let camera: THREE.PerspectiveCamera;
@@ -226,7 +237,7 @@
 
     // Interaction Handlers
     function getRayIntersection(clientX: number, clientY: number): THREE.Vector3 | null {
-        if (!container || !camera) return null;
+        if (!container || !camera || !dragPlane) return null;
 
         const rect = container.getBoundingClientRect();
         mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
@@ -234,12 +245,8 @@
 
         raycaster.setFromCamera(mouse, camera);
 
-        // Cast ray against a virtual horizontal plane at height 5
-        const targetZ = new THREE.Vector3();
-        raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -5), targetZ);
-
-        if (targetZ) return targetZ;
-        return null;
+        const target = new THREE.Vector3();
+        return raycaster.ray.intersectPlane(dragPlane, target);
     }
 
     function onPointerDown(e: PointerEvent) {
@@ -305,32 +312,26 @@
         isDragging = false;
 
         // Apply throw velocity to all dice
-        const throwForce = 1.0;
-
-        // If mouse wasn't moving much, just drop them
         const speed = mouseVelocity.length();
 
         diceBodies.forEach((body) => {
-            if (speed > 2) {
-                // Apply the mouse velocity as impulse
-                const impulse = new CANNON.Vec3();
-                mouseVelocity.scale(body.mass * 0.5, impulse); // Tune power
-                body.velocity.copy(mouseVelocity);
+            // Apply the mouse velocity as impulse/velocity override
+            // Even if speed is low, we impart some momentum
+            const impulse = new CANNON.Vec3();
+            mouseVelocity.scale(body.mass * PHYSICS.throwForceScale, impulse);
+            body.velocity.copy(mouseVelocity);
 
-                // Add some randomness so they don't all fly identically
-                body.angularVelocity.set(
-                    (Math.random() - 0.5) * 10,
-                    (Math.random() - 0.5) * 10,
-                    (Math.random() - 0.5) * 10
-                );
-            }
+            // Add slight random spin if dropping static so they don't land perfectly flat
+            body.angularVelocity.x += (Math.random() - 0.5) * 5;
+            body.angularVelocity.y += (Math.random() - 0.5) * 5;
+            body.angularVelocity.z += (Math.random() - 0.5) * 5;
         });
 
-        if (speed > 2) {
-            dispatch("rollStart");
-            isSimulating = true;
-            checkStopped();
-        }
+        // Always trigger roll if we were dragging, even if just dropping
+        // This ensures the "Record fate" button updates
+        dispatch("rollStart");
+        isSimulating = true;
+        checkStopped();
     }
 
     function rollDice() {
@@ -375,8 +376,9 @@
 
         // Check if all bodies are sleeping or slow
         const allStopped = diceBodies.every((body) => {
+            // Loosened threshold from 0.01 to 0.05 for stability
             return (
-                body.velocity.lengthSquared() < 0.01 && body.angularVelocity.lengthSquared() < 0.01
+                body.velocity.lengthSquared() < 0.05 && body.angularVelocity.lengthSquared() < 0.05
             );
         });
 
@@ -391,6 +393,7 @@
                 }
             }, 500);
         } else {
+            // Recursively check
             setTimeout(checkStopped, 200);
         }
     }
@@ -414,9 +417,9 @@
                         direction.scale(1 / distance, direction); // Normalize
 
                         // Spring-like force with rest length to prevent excessive clustering
-                        const restLength = 1.5;
-                        const stiffness = 80; // Reduced from 150
-                        const damping = 5;
+                        const restLength = PHYSICS.springRestLength;
+                        const stiffness = PHYSICS.springStiffness;
+                        const damping = PHYSICS.springDamping;
 
                         // F = -k * (x - x0) - c * v
                         // Force pulls towards Mouse (equilibrium x0)
@@ -457,7 +460,7 @@
 
                             // Scale torque by speed
                             // Negative magnitude to roll "forward" (in direction of movement) instead of backspin
-                            const torqueMagnitude = speed * -1.0;
+                            const torqueMagnitude = speed * PHYSICS.swirlTorqueScale;
                             const torque = new CANNON.Vec3();
                             rollAxis.scale(torqueMagnitude, torque);
 
@@ -469,7 +472,7 @@
 
                     // Explicitly dampen angular velocity
                     // 0.95 allows for more momentum conservation than 0.9, feeling more "loose"
-                    body.angularVelocity.scale(0.95, body.angularVelocity);
+                    body.angularVelocity.scale(PHYSICS.angularDamping, body.angularVelocity);
                 });
             }
 
