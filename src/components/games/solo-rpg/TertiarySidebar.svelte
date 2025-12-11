@@ -86,7 +86,7 @@
                     {visibleSections}
                     {selectedSections}
                     {isEditingSections}
-                    on:toggleSection={(e) => onToggleSection(e.detail)} />
+                    {onToggleSection} />
             </div>
         {:else if mode === "map"}
             <nav class="flex h-full w-full flex-row p-0 md:flex-col">
