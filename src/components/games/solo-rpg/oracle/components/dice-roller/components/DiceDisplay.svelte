@@ -12,5 +12,10 @@
 </script>
 
 <div class="mt-2 flex w-full justify-center">
-    <DiceScene {numDice} numSides={rolling ? rolledNumSides : numSides} {rolling} on:rollComplete />
+    <DiceScene
+        {numDice}
+        numSides={rolling ? rolledNumSides : numSides}
+        {rolling}
+        on:rollComplete
+        on:rollStart />
 </div>

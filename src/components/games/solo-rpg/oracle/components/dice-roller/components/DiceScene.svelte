@@ -27,6 +27,20 @@
     let animationId: number;
     let isSimulating = false;
 
+    // Interaction state
+    let isDragging = false;
+    let dragConstraint: CANNON.PointToPointConstraint | null = null;
+    let mouseBody: CANNON.Body;
+    let raycaster = new THREE.Raycaster();
+    let mouse = new THREE.Vector2();
+    let dragPlane: THREE.Plane;
+    let dragPlaneMesh: THREE.Mesh; // Invisible mesh for raycasting
+
+    // Track mouse velocity for throw
+    let lastMousePos = new CANNON.Vec3();
+    let mouseVelocity = new CANNON.Vec3();
+    let lastTime = 0;
+
     // Map numSides to DieType
     function getDieType(sides: number): DieType {
         if ([4, 6, 8, 10, 12, 20, 100].includes(sides)) {
@@ -76,6 +90,26 @@
         floorBody.addShape(floorShape);
         floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
         world.addBody(floorBody);
+
+        // Mouse interaction setup
+        const sphereShape = new CANNON.Sphere(0.1);
+        mouseBody = new CANNON.Body({
+            mass: 0,
+            type: CANNON.Body.KINEMATIC,
+            position: new CANNON.Vec3(0, 0, 0),
+        });
+        mouseBody.addShape(sphereShape);
+        mouseBody.collisionFilterGroup = 0; // Don't collide with anything
+        mouseBody.collisionFilterMask = 0;
+        world.addBody(mouseBody);
+
+        // Drag plane (invisible) for raycasting against a plane at a certain height
+        dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -5); // Plane at y=5
+
+        // Add events
+        container.addEventListener("pointerdown", onPointerDown);
+        container.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
     }
 
     let wallBodies: CANNON.Body[] = [];
@@ -190,6 +224,115 @@
         }
     }
 
+    // Interaction Handlers
+    function getRayIntersection(clientX: number, clientY: number): THREE.Vector3 | null {
+        if (!container || !camera) return null;
+
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        // Cast ray against a virtual horizontal plane at height 5
+        const targetZ = new THREE.Vector3();
+        raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -5), targetZ);
+
+        if (targetZ) return targetZ;
+        return null;
+    }
+
+    function onPointerDown(e: PointerEvent) {
+        if (isSimulating) return; // Don't grab while rolling result
+
+        const point = getRayIntersection(e.clientX, e.clientY);
+        if (!point) return;
+
+        isDragging = true;
+
+        // Move mouse body to click point
+        mouseBody.position.set(point.x, point.y, point.z);
+        lastMousePos.copy(mouseBody.position);
+        lastTime = performance.now();
+
+        // Wake up all dice and attract them to the mouse body
+        diceBodies.forEach((body) => {
+            body.wakeUp();
+            body.velocity.set(0, 0, 0);
+            body.angularVelocity.set(0, 0, 0);
+
+            // Create a constraint for each die to the mouse body
+            // We attach them with a bit of slack so they dangle
+            // Use a Spring or PointToPoint? Let's try PointToPoint with some logic locally
+            // Actually, let's just use a spring force in the animation loop for "magnetic" pickup
+            // Or create a constraint on the fly.
+
+            // Let's go with a simple approach:
+            // When dragging, we apply a force to all dice towards the mouse position
+            // This makes them swarm the cursor
+        });
+
+        // Disable orbit controls if we had them (we don't here)
+    }
+
+    function onPointerMove(e: PointerEvent) {
+        if (!isDragging) return;
+
+        const point = getRayIntersection(e.clientX, e.clientY);
+        if (point) {
+            // Update mouse body position (kinematic)
+            mouseBody.position.set(point.x, point.y, point.z);
+
+            // Calculate velocity of mouse for throw
+            const now = performance.now();
+            const dt = (now - lastTime) / 1000;
+            if (dt > 0.01) {
+                const vel = new CANNON.Vec3();
+                mouseBody.position.vsub(lastMousePos, vel);
+                vel.scale(1 / dt, mouseVelocity); // v = dx / dt
+
+                // Smooth it a bit maybe?
+
+                lastMousePos.copy(mouseBody.position);
+                lastTime = now;
+            }
+        }
+    }
+
+    function onPointerUp(e: PointerEvent) {
+        if (!isDragging) return;
+
+        isDragging = false;
+
+        // Apply throw velocity to all dice
+        const throwForce = 1.0;
+
+        // If mouse wasn't moving much, just drop them
+        const speed = mouseVelocity.length();
+
+        diceBodies.forEach((body) => {
+            if (speed > 2) {
+                // Apply the mouse velocity as impulse
+                const impulse = new CANNON.Vec3();
+                mouseVelocity.scale(body.mass * 0.5, impulse); // Tune power
+                body.velocity.copy(mouseVelocity);
+
+                // Add some randomness so they don't all fly identically
+                body.angularVelocity.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+            }
+        });
+
+        if (speed > 2) {
+            dispatch("rollStart");
+            isSimulating = true;
+            checkStopped();
+        }
+    }
+
     function rollDice() {
         if (!world || diceBodies.length === 0) return;
 
@@ -256,6 +399,73 @@
         animationId = requestAnimationFrame(animate);
 
         if (world) {
+            // Apply drag forces
+            // Apply drag forces
+            if (isDragging) {
+                diceBodies.forEach((body) => {
+                    // Attract to mouse
+                    const force = new CANNON.Vec3();
+                    mouseBody.position.vsub(body.position, force);
+
+                    const distance = force.length();
+                    // Avoid division by zero
+                    if (distance > 0.001) {
+                        const direction = force.clone();
+                        direction.scale(1 / distance, direction); // Normalize
+
+                        // Spring-like force with rest length to prevent excessive clustering
+                        const restLength = 1.5;
+                        const stiffness = 80; // Reduced from 150
+                        const damping = 5;
+
+                        // F = -k * (x - x0) - c * v
+                        // Force pulls towards Mouse (equilibrium x0)
+                        // Actually, distance is (Body - Mouse), so Displacement is (distance - restLength)
+
+                        const stretch = Math.max(0, distance - restLength);
+                        const springForceMagnitude = stretch * stiffness;
+
+                        const springForce = new CANNON.Vec3();
+                        direction.scale(springForceMagnitude, springForce);
+
+                        // Damping force
+                        const v = new CANNON.Vec3();
+                        body.velocity.scale(damping, v);
+                        springForce.vsub(v, springForce);
+
+                        // Apply force directly to the body's force accumulator (Center of Mass)
+                        body.force.x += springForce.x;
+                        body.force.y += springForce.y;
+                        body.force.z += springForce.z;
+
+                        // "Swirl" effect: Add gentle torque based on movement
+                        // We cross the velocity with up vector to get a roll axis perpendicular to movement
+                        const velocity = body.velocity;
+                        const speed = velocity.length();
+
+                        if (speed > 0.1) {
+                            const rollAxis = new CANNON.Vec3();
+                            velocity.cross(new CANNON.Vec3(0, 1, 0), rollAxis);
+                            rollAxis.normalize();
+
+                            // Scale torque by speed (gentle factor)
+                            // We want it to "roll" along the movement
+                            const torqueMagnitude = speed * 1.5;
+                            const torque = new CANNON.Vec3();
+                            rollAxis.scale(torqueMagnitude, torque);
+
+                            body.torque.x += torque.x;
+                            body.torque.y += torque.y;
+                            body.torque.z += torque.z;
+                        }
+                    }
+
+                    // Explicitly dampen angular velocity to prevent spinning out of control
+                    // Less damping than before to allow the swirl
+                    body.angularVelocity.scale(0.9, body.angularVelocity);
+                });
+            }
+
             world.step(1 / 60);
 
             // Sync meshes
@@ -301,6 +511,12 @@
     onDestroy(() => {
         if (animationId) cancelAnimationFrame(animationId);
         window.removeEventListener("resize", handleResize);
+        if (container) {
+            container.removeEventListener("pointerdown", onPointerDown);
+            container.removeEventListener("pointermove", onPointerMove);
+        }
+        window.removeEventListener("pointerup", onPointerUp);
+
         if (renderer) {
             renderer.dispose();
         }
@@ -311,4 +527,3 @@
     class="h-[200px] w-full overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
     bind:this={container}>
 </div>
-

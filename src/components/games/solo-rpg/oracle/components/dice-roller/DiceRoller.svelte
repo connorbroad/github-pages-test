@@ -98,6 +98,13 @@
         onClose();
     }
 
+    function onRollStart() {
+        rolling = true;
+        rolledNumSides = numSides;
+        diceResults = [];
+        finalResult = null;
+    }
+
     $: recalculateResult();
 </script>
 
@@ -120,7 +127,8 @@
             {numSides}
             {rolledNumSides}
             {rolling}
-            on:rollComplete={onRollComplete} />
+            on:rollComplete={onRollComplete}
+            on:rollStart={onRollStart} />
         <hr class="border-divider my-4 border-t border-none" />
         <div class="m-4 mb-0 flex flex-col flex-wrap justify-center gap-3">
             <div class="flex flex-wrap justify-center gap-3">
