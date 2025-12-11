@@ -1,6 +1,6 @@
 <script lang="ts">
     import { activeCampaign } from "../../game-management/campaign-store";
-    import { loadCharacters, saveCharacters } from "../../data/storage-utils";
+    import { characterStore } from "../../data/character-store";
     import type { Character } from "../../data/storage-utils";
     import CharacterSheet from "./CharacterSheet.svelte";
     import SrpgModal from "../../shared/modal/SrpgModal.svelte";
@@ -46,8 +46,27 @@
         localStorage.setItem(COMPACT_VIEW_KEY, String(isCompactView));
     }
 
-    $: if ($activeCampaign) {
-        loadCampaignCharacters();
+    $: if ($activeCampaign && $characterStore) {
+        characters = $characterStore
+            .filter((c) => c.campaignId === $activeCampaign.id)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        // If the selected character was updated in the store, update our reference
+        if (selectedCharacter) {
+            const updated = $characterStore.find((c) => c.id === selectedCharacter!.id);
+            if (updated && updated !== selectedCharacter) {
+                // Determine if we need to merge or just replace
+                // If we are editing, replacing might lose unsaved state?
+                // But this comes from the store, so it IS the state.
+                // However, `selectedCharacter` here is the View Model.
+                // If isEditing is true, we might have unsaved changes in the child component.
+                // The child component `CharacterSheet` takes `character` as a prop and copies it to `editedCharacter`.
+                // So if we update `selectedCharacter` here, `CharacterSheet` will see a prop change.
+                // `CharacterSheet` logic: `$: updatedCharacter = structuredClone(character)` only if !isEditing.
+                // So updating `selectedCharacter` is safe for `isEditing=true`.
+                selectedCharacter = updated;
+            }
+        }
     }
 
     // Get all unique tags from all characters
@@ -100,15 +119,6 @@
         return tagArray;
     }
 
-    function loadCampaignCharacters() {
-        if (!$activeCampaign) return;
-
-        const allCharacters = loadCharacters();
-        characters = allCharacters
-            .filter((c) => c.campaignId === $activeCampaign.id)
-            .sort((a, b) => a.name.localeCompare(b.name));
-    }
-
     function openCreateModal() {
         newCharacterName = "";
         showCreateModal = true;
@@ -124,18 +134,15 @@
             tags: [],
             abilities: [],
             skills: [],
-            abilityCheckDice: "1d20", // Default dice formula for ability checks
-            skillCheckDice: "1d20", // Default dice formula for skill checks
-            visibleSections: ["information"], // Default to only showing information section
+            abilityCheckDice: "1d20",
+            skillCheckDice: "1d20",
+            visibleSections: ["information", "health", "abilities", "skills", "items", "combat"], // Default to full view
             createdAt: Date.now(),
             updatedAt: Date.now(),
         };
 
-        const allCharacters = loadCharacters();
-        allCharacters.push(newCharacter);
-        saveCharacters(allCharacters);
+        characterStore.add(newCharacter);
 
-        loadCampaignCharacters();
         isEditing = false;
         showCreateModal = false;
     }
@@ -154,22 +161,15 @@
     }
 
     function saveCharacter(updatedCharacter: Character) {
-        const allCharacters = loadCharacters();
-        const index = allCharacters.findIndex((c) => c.id === updatedCharacter.id);
-
-        if (index !== -1) {
-            allCharacters[index] = updatedCharacter;
-            saveCharacters(allCharacters);
-            loadCampaignCharacters();
-            selectedCharacter = updatedCharacter;
-            isEditing = false;
-            isEditingSections = false;
-        }
+        characterStore.updateCharacter(updatedCharacter);
+        selectedCharacter = updatedCharacter;
+        isEditing = false;
+        isEditingSections = false;
     }
 
     function cancelEdit() {
         isEditing = false;
-        loadCampaignCharacters();
+        // No need to reload, the store is the source of truth
     }
 
     function handleRollCheck(detail: any) {
@@ -189,11 +189,8 @@
         );
         if (!confirmed) return;
 
-        const allCharacters = loadCharacters();
-        const filtered = allCharacters.filter((c) => c.id !== selectedCharacter!.id);
-        saveCharacters(filtered);
+        characterStore.deleteCharacter(selectedCharacter.id);
 
-        loadCampaignCharacters();
         selectedCharacter = null;
         isEditing = false;
         isEditingSections = false;
@@ -295,13 +292,7 @@
         // Update character immediately (auto-save when editing sections)
         if (isEditingSections) {
             selectedCharacter.updatedAt = Date.now();
-            const allCharacters = loadCharacters();
-            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
-            if (index !== -1) {
-                allCharacters[index] = selectedCharacter;
-                saveCharacters(allCharacters);
-                loadCampaignCharacters();
-            }
+            characterStore.updateCharacter(selectedCharacter);
         }
 
         // Trigger reactivity
@@ -316,14 +307,8 @@
         if (selectedCharacter) {
             selectedCharacter.visibleSections = newSections;
             selectedCharacter.updatedAt = Date.now();
-            const allCharacters = loadCharacters();
-            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
-            if (index !== -1) {
-                allCharacters[index] = selectedCharacter;
-                saveCharacters(allCharacters);
-                loadCampaignCharacters();
-            }
-            selectedCharacter = selectedCharacter; // ensure reactivity
+            characterStore.updateCharacter(selectedCharacter);
+            selectedCharacter = selectedCharacter; // ensure reactivity locally if strictly needed, but store update should cycle back
         }
         showSectionPickerModal = false;
     }
@@ -336,13 +321,7 @@
         if (selectedCharacter) {
             selectedCharacter.tags = newTags;
             selectedCharacter.updatedAt = Date.now();
-            const allCharacters = loadCharacters();
-            const index = allCharacters.findIndex((c) => c.id === selectedCharacter.id);
-            if (index !== -1) {
-                allCharacters[index] = selectedCharacter;
-                saveCharacters(allCharacters);
-                loadCampaignCharacters();
-            }
+            characterStore.updateCharacter(selectedCharacter);
             selectedCharacter = selectedCharacter; // ensure reactivity
         }
         showTagPickerModal = false;

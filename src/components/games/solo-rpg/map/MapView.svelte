@@ -39,6 +39,7 @@
         rollInitiativeForCreature,
         type CreatureInitiativeInput,
     } from "./combat-utils";
+    import { characterStore } from "../data/character-store";
     import "../solo-rpg-styles.css";
 
     const dispatch = createEventDispatcher();
@@ -127,6 +128,64 @@
                 currentMapId = null;
                 saveActiveMapId(null);
             }
+        }
+    }
+
+    // Sync map objects with character store updates
+    // This ensures that if HP changes on the character sheet, it updates on the map token
+    $: if (currentMapId && $characterStore.length > 0) {
+        syncMapWithCharacters();
+    }
+
+    function syncMapWithCharacters() {
+        if (!currentMapId) return;
+
+        const allMaps = loadMaps();
+        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
+        if (mapIndex < 0) return;
+
+        let mapChanged = false;
+        const map = allMaps[mapIndex];
+
+        map.objects.forEach((obj) => {
+            if (obj.creatureRef && obj.creatureRef.type === "character") {
+                const character = $characterStore.find((c) => c.id === obj.creatureRef!.id);
+                if (character) {
+                    // Sync HP if different
+                    const charHp = character.currentHitPoints ?? character.hitPointMaximum ?? 10;
+                    if (obj.creatureRef.currentHitPoints !== charHp) {
+                        obj.creatureRef.currentHitPoints = charHp;
+                        mapChanged = true;
+
+                        // If this creature is currently selected in encounter, update local state
+                        if (encounterSelectedCreature?.objectId === obj.id) {
+                            encounterSelectedCreature = {
+                                ...encounterSelectedCreature,
+                                creatureRef: { ...obj.creatureRef },
+                            };
+                        }
+
+                        // Update initiative order if present
+                        const initIndex = initiativeOrder.findIndex((e) => e.objectId === obj.id);
+                        if (initIndex >= 0) {
+                            initiativeOrder[initIndex] = {
+                                ...initiativeOrder[initIndex],
+                                currentHP: charHp,
+                                maxHP: character.hitPointMaximum ?? 10,
+                            };
+                            // Start a save for combat state (will be handled by reactive statement or manual save)
+                            saveCombatState();
+                        }
+                    }
+                }
+            }
+        });
+
+        if (mapChanged) {
+            allMaps[mapIndex] = map;
+            saveMaps(allMaps);
+            // Refresh editor if reference exists
+            editorRef?.refreshMapData?.();
         }
     }
 
@@ -620,17 +679,16 @@
             name: qs.name,
             hitPointMaximum: qs.maxHitPoints ?? 10,
             currentHitPoints: qs.currentHitPoints ?? 10,
-            abilities: [],
+            abilities: [], // Initialize with empty abilities array
             skills: [],
-            visibleSections: ["information", "health"], // Include health since we have HP data
+            // Enable all common sections by default so the user sees a "full" sheet
+            visibleSections: ["information", "health", "abilities", "skills", "items", "combat"],
             createdAt: now,
             updatedAt: now,
         };
 
-        // Save the new character
-        const chars = loadCharacters();
-        chars.push(newCharacter);
-        saveCharacters(chars);
+        // Save the new character using the store
+        characterStore.add(newCharacter);
 
         // Update the map object to use creatureRef instead of quickStats
         const allMaps = loadMaps();
@@ -653,6 +711,9 @@
         map.updatedAt = Date.now();
         allMaps[mapIndex] = map;
         saveMaps(allMaps);
+
+        // Refresh editor to show updated token state (e.g. might change color/border if assigned)
+        editorRef?.refreshMapData?.();
 
         // Update local state to show the newly assigned character
         encounterSelectedCreature = {

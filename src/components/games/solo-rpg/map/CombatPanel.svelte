@@ -1,15 +1,14 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import {
-        loadCharacters,
         loadMaps,
         saveMaps,
-        saveCharacters,
         type Character,
         type CreatureRef,
         type InitiativeEntry,
         type QuickStats,
     } from "../data/storage-utils";
+    import { characterStore } from "../data/character-store";
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
     import { rollInitiativeForCreature } from "./combat-utils";
@@ -85,18 +84,13 @@
 
     // Load creature data
     let creatureData: Character | null = null;
-    // Counter to force re-fetching creature data when HP changes locally
-    let hpRefreshCounter = 0;
 
-    $: {
-        // Including hpRefreshCounter in this reactive block forces it to re-run when HP is modified
-        const _ = hpRefreshCounter;
-        if (selectedCreature?.creatureRef?.type === "character") {
-            const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
-            creatureData = chars.find((c) => c.id === selectedCreature!.creatureRef!.id) ?? null;
-        } else {
-            creatureData = null;
-        }
+    // Reactive update from store
+    $: if (selectedCreature?.creatureRef?.type === "character" && $characterStore) {
+        creatureData =
+            $characterStore.find((c) => c.id === selectedCreature!.creatureRef!.id) ?? null;
+    } else {
+        creatureData = null;
     }
 
     function getCurrentHP(): number {
@@ -132,7 +126,6 @@
     let currentHP = 0;
     let maxHP = 10;
     $: {
-        void hpRefreshCounter;
         void creatureData;
         currentHP = selectedCreature ? getCurrentHP() : 0;
     }
@@ -166,15 +159,13 @@
             maps[mapIndex] = map;
             saveMaps(maps);
 
-            // Also update the character's currentHitPoints to sync with CharacterSheet
-            if (selectedCreature.creatureRef?.type === "character") {
-                const chars = loadCharacters();
-                const charIndex = chars.findIndex((c) => c.id === selectedCreature.creatureRef!.id);
-                if (charIndex >= 0) {
-                    chars[charIndex].currentHitPoints = hp;
-                    chars[charIndex].updatedAt = Date.now();
-                    saveCharacters(chars);
-                }
+            // Also update the character's currentHitPoints via store
+            if (selectedCreature.creatureRef?.type === "character" && creatureData) {
+                characterStore.updateCharacter({
+                    ...creatureData,
+                    currentHitPoints: hp,
+                    updatedAt: Date.now(),
+                });
             }
 
             // Update initiative order HP as well
@@ -213,9 +204,6 @@
                 dispatch("turnChanged", { turnIndex: currentTurnIndex, order: newOrder });
             }
         }
-
-        // Increment counter to trigger reactive update of creatureData and currentHP
-        hpRefreshCounter++;
     }
 
     function handleConvertToCharacter() {
