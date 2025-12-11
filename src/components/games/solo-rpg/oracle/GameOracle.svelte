@@ -10,11 +10,10 @@
         loadGameBlueprints,
         loadChronicleEntries,
         saveChronicleEntries,
-        loadActiveCharacterId,
     } from "../data/storage-utils";
     import type { FortuneResultData } from "../data/storage-utils";
     import { activeCampaign } from "../game-management/campaign-store";
-    import { onMount, createEventDispatcher } from "svelte";
+    import { onMount } from "svelte";
     import FortuneEditor from "./components/FortuneEditor.svelte";
     import FateConsultation from "./components/FateConsultation.svelte";
     import OracleView from "./components/OracleView.svelte";
@@ -40,7 +39,10 @@
     // Optional character ID to preselect (e.g., when opening from a character sheet)
     export let preselectedCharacterId: string | null = null;
 
-    const dispatch = createEventDispatcher();
+    export let onClose: () => void = () => {};
+    export let onNavigateHome: () => void = () => {};
+    export let onNavigateToStory: () => void = () => {};
+    export let onClearPreset: () => void = () => {};
 
     let fortunes: Fortune[] = [];
     let defaultFortunes: Fortune[] = [];
@@ -111,8 +113,7 @@
         showCreateFortune = true;
     }
 
-    function saveFortune(event: CustomEvent<Fortune>) {
-        const fortune = event.detail;
+    function saveFortune(fortune: Fortune) {
         const existingIndex = fortunes.findIndex((f) => f.id === fortune.id);
         if (existingIndex >= 0) {
             fortunes[existingIndex] = { ...fortune };
@@ -148,12 +149,10 @@
     }
 
     function handleNavigateHome() {
-        dispatch("navigateHome");
+        onNavigateHome();
     }
 
-    function handleAcceptFate(event: CustomEvent<FortuneResultData>) {
-        const resultData = event.detail;
-
+    function handleAcceptFate(resultData: FortuneResultData) {
         if (!$activeCampaign) return;
 
         // Create a chronicle entry for this fortune result
@@ -178,7 +177,7 @@
         selectedFortune = null;
 
         // Navigate to story page
-        dispatch("navigateToStory");
+        onNavigateToStory();
     }
 
     function handleDiceRecordFate(event: CustomEvent) {
@@ -219,7 +218,7 @@
         saveChronicleEntries(chronicleEntries);
 
         // Navigate to story page
-        dispatch("navigateToStory");
+        onNavigateToStory();
     }
 
     function handleCardsRecordFate(event: CustomEvent) {
@@ -248,12 +247,12 @@
         saveChronicleEntries(chronicleEntries);
 
         // Navigate to story page
-        dispatch("navigateToStory");
+        onNavigateToStory();
     }
 
     function handleClose() {
-        dispatch("clearPreset");
-        dispatch("close");
+        onClearPreset();
+        onClose();
     }
 
     function go(viewName: OracleTabView) {
@@ -261,7 +260,7 @@
     }
 </script>
 
-<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="420px" on:close={handleClose}>
+<SrpgModal show={true} ariaLabel="Close Oracle" maxWidth="420px" onClose={handleClose}>
     <div class="flex flex-col gap-4">
         <!-- Header with character selector and navigation -->
         <div class="flex flex-col gap-3">
@@ -358,7 +357,7 @@
         <!-- Content Area -->
         <div class="max-h-[65vh] overflow-y-auto">
             <!-- No campaign overlay -->
-            <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
+            <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={handleNavigateHome} />
 
             {#if view === "oracle"}
                 <OracleView
@@ -378,7 +377,7 @@
                     }}
                     on:recordFate={handleDiceRecordFate}
                     preset={diceRollPreset}
-                    on:clearPreset={() => dispatch("clearPreset")} />
+                    on:clearPreset={onClearPreset} />
             {:else if view === "cards"}
                 <CardDealer embedded={true} on:recordFate={handleCardsRecordFate} />
             {/if}
@@ -391,14 +390,14 @@
     show={showCreateFortune}
     fortune={editingFortune}
     showCampaignField={false}
-    on:close={() => (showCreateFortune = false)}
-    on:save={saveFortune} />
+    onClose={() => (showCreateFortune = false)}
+    onSave={saveFortune} />
 
 <FateConsultation
     show={showFate}
     fortune={selectedFortune}
-    on:close={() => (showFate = false)}
-    on:accept={handleAcceptFate} />
+    onClose={() => (showFate = false)}
+    onAccept={handleAcceptFate} />
 
 <style>
     /* Oracle Navigation Tabs */

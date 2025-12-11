@@ -12,7 +12,8 @@
     export let show = false;
     export let fortune: Fortune | null = null;
 
-    const dispatch = createEventDispatcher();
+    export let onClose: () => void = () => {};
+    export let onAccept: (result: any) => void = () => {};
 
     let diceResult: number | null = null;
     let individualDiceResults: number[] = [];
@@ -71,7 +72,7 @@
     }
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleAcceptFate() {
@@ -107,7 +108,7 @@
 </script>
 
 {#if show && fortune}
-    <SrpgModal {show} ariaLabel="Close fate modal" on:close={handleClose}>
+    <SrpgModal {show} ariaLabel="Close fate modal" onClose={handleClose}>
         <h2 class="text-text-primary mt-0">{fortune.title}</h2>
 
         {#if fortune.outcome.diceRoll}

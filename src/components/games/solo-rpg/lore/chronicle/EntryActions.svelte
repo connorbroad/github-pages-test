@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
     export let entryId: string;
     export let characterId: string | undefined = undefined;
     export let characterName: string = "";
@@ -9,18 +7,20 @@
     export let isEditing: boolean = false;
     export let compact: boolean = false; // For fortune cards
 
-    const dispatch = createEventDispatcher();
+    export let onAssignCharacter: (entryId: string) => void = () => {};
+    export let onEdit: (entryId: string) => void = () => {};
+    export let onDelete: (entryId: string) => void = () => {};
 
     function handleAssignCharacter() {
-        dispatch("assignCharacter", entryId);
+        onAssignCharacter(entryId);
     }
 
     function handleEdit() {
-        dispatch("edit", entryId);
+        onEdit(entryId);
     }
 
     function handleDelete() {
-        dispatch("delete", entryId);
+        onDelete(entryId);
     }
 </script>
 

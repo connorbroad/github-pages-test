@@ -167,7 +167,7 @@
     {#if currentView === "home"}
         <HomeView on:loadCampaign={handleHomeLoadCampaign} />
     {:else if currentView === "chronicle"}
-        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign}
             <Chronicle />
         {:else}
@@ -177,7 +177,7 @@
             </em>
         {/if}
     {:else if currentView === "characters"}
-        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign}
             <CharacterManager
                 bind:this={characterManagerComponent}
@@ -189,7 +189,7 @@
             <em class="block text-center">Select or create a campaign to manage characters.</em>
         {/if}
     {:else if currentView === "story"}
-        <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={() => handleNavigate("home")} />
+        <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={() => handleNavigate("home")} />
 
         {#if $activeCampaign}
             <Codex />
@@ -213,8 +213,8 @@
             hasSecondarySidebar={false}
             hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
             {diceRollPreset}
-            on:clearPreset={() => (diceRollPreset = null)}
-            on:navigateToStory={handleNavigateToChronicle}
+            onClearPreset={() => (diceRollPreset = null)}
+            onNavigateToStory={handleNavigateToChronicle}
             currentCharacterId={selectedCharacterId} />
     {/if}
 </main>

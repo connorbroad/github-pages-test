@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "./shared/modal/SrpgModal.svelte";
 
     export let show: boolean = false;
 
-    const dispatch = createEventDispatcher();
+    export let onNavigateHome: () => void = () => {};
 
     function navigateHome() {
-        dispatch("navigateHome");
+        onNavigateHome();
     }
 </script>
 

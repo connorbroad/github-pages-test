@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import type { ChronicleEntry } from "../../data/storage-utils";
     import EntryActions from "./EntryActions.svelte";
     import EntryEditor from "./EntryEditor.svelte";
@@ -12,38 +11,46 @@
     export let editText: string = "";
     export let formatTimestamp: (timestamp: number) => string;
 
-    const dispatch = createEventDispatcher();
+    export let onAssignCharacter: (characterId: string) => void = () => {};
+    export let onEdit: (detail: {
+        entryId: string;
+        isManual: boolean;
+        currentText: string;
+    }) => void = () => {};
+    export let onDelete: (entryId: string) => void = () => {};
+    export let onSave: (detail: { entryId: string; isManual: boolean }) => void = () => {};
+    export let onCancelEdit: () => void = () => {};
 
     $: isEditing = editingEntryId === entry.id;
     $: typeConfig = getEntryTypeConfig(entry);
     $: hasNotes = entry.userNotes && entry.userNotes.trim().length > 0;
 
-    function handleAssignCharacter(event: CustomEvent<string>) {
-        dispatch("assignCharacter", event.detail);
+    function handleAssignCharacter(entryId: string) {
+        onAssignCharacter(entryId);
     }
 
-    function handleEdit(event: CustomEvent<string>) {
+    function handleEdit(entryId: string) {
         const currentText = entry[typeConfig.editField];
-        dispatch("edit", {
-            entryId: event.detail,
+        onEdit({
+            entryId: entryId,
             isManual: typeConfig.editField === "content",
             currentText,
         });
     }
 
-    function handleDelete(event: CustomEvent<string>) {
-        dispatch("delete", event.detail);
+    function handleDelete(entryId: string) {
+        onDelete(entryId);
     }
 
     function handleSave(event: CustomEvent) {
-        dispatch("save", {
+        onSave({
             entryId: event.detail.entryId,
             isManual: typeConfig.editField === "content",
         });
     }
 
     function handleCancelEdit() {
-        dispatch("cancelEdit");
+        onCancelEdit();
     }
 </script>
 
@@ -75,8 +82,8 @@
             bind:value={editText}
             placeholder={typeConfig.editPlaceholder}
             compact={typeConfig.compact}
-            on:save={handleSave}
-            on:cancel={handleCancelEdit} />
+            onSave={handleSave}
+            onCancel={handleCancelEdit} />
     {/if}
 
     <!-- Actions (always shown) -->
@@ -87,7 +94,7 @@
         editButtonLabel={typeConfig.editButtonLabel(entry)}
         {isEditing}
         compact={typeConfig.compact}
-        on:assignCharacter={handleAssignCharacter}
-        on:edit={handleEdit}
-        on:delete={handleDelete} />
+        onAssignCharacter={handleAssignCharacter}
+        onEdit={handleEdit}
+        onDelete={handleDelete} />
 </div>

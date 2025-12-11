@@ -16,12 +16,8 @@
     export let show = false;
     export let fortune: Fortune;
     export let campaigns: string[] = [];
-    export let showCampaignField = true;
-
-    const dispatch = createEventDispatcher<{
-        close: void;
-        save: Fortune;
-    }>();
+    export let onClose: () => void = () => {};
+    export let onSave: (fortune: Fortune) => void = () => {};
 
     let viewMode: "main" | "mappings" = "main";
 
@@ -74,11 +70,11 @@
     }
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleSave() {
-        dispatch("save", fortune);
+        onSave(fortune);
     }
 
     function handleEditOutcome() {
@@ -139,8 +135,8 @@
         {show}
         showBackButton={viewMode === "mappings"}
         ariaLabel="Close fortune editor"
-        on:close={handleClose}
-        on:back={handleBackToMain}>
+        onClose={handleClose}
+        onBack={handleBackToMain}>
         {#if viewMode === "main"}
             <h2 class="text-text-primary mt-0">Create Fortune</h2>
 

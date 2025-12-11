@@ -400,7 +400,7 @@
         <SrpgModal
             show={showCreateChapter}
             ariaLabel="Close create chapter dialog"
-            on:close={cancelCreateChapter}>
+            onClose={cancelCreateChapter}>
             <h3 class="mt-0 mb-4 text-xl text-(--text-primary)">Finish Chapter</h3>
             <p class="m-0 mb-4 text-sm leading-relaxed text-(--text-secondary)">
                 All current entries will be saved to this chapter, and you'll start fresh with a new
@@ -458,12 +458,12 @@
                     {editingEntryId}
                     bind:editText
                     formatTimestamp={formatTime}
-                    on:assignCharacter={(e) => assignCharacter(e.detail)}
-                    on:edit={(e) =>
-                        openEditEntry(e.detail.entryId, e.detail.isManual, e.detail.currentText)}
-                    on:delete={(e) => deleteEntry(e.detail)}
-                    on:save={(e) => saveEditEntry(e.detail.entryId, e.detail.isManual)}
-                    on:cancelEdit={cancelEditEntry} />
+                    onAssignCharacter={(id) => assignCharacter(id)}
+                    onEdit={(detail) =>
+                        openEditEntry(detail.entryId, detail.isManual, detail.currentText)}
+                    onDelete={(id) => deleteEntry(id)}
+                    onSave={(detail) => saveEditEntry(detail.entryId, detail.isManual)}
+                    onCancelEdit={cancelEditEntry} />
             </div>
         {:else}
             <div
@@ -563,7 +563,7 @@
     bind:show={showChaptersList}
     ariaLabel="Chapters List"
     maxWidth="500px"
-    on:close={toggleChaptersList}>
+    onClose={toggleChaptersList}>
     <div class="flex h-[60vh] flex-col">
         <h2 class="mt-0 mb-4 text-xl font-bold text-(--text-primary)">Chapters</h2>
 
@@ -677,17 +677,17 @@
 
 {#if showOracle}
     <GameOracle
-        on:close={() => (showOracle = false)}
-        on:navigateToStory={() => {
+        onClose={() => (showOracle = false)}
+        onNavigateToStory={() => {
             showOracle = false;
             animateEntriesAfter = Date.now() - 5000;
             loadEntries();
         }}
-        on:clearPreset={() => {}} />
+        onClearPreset={() => {}} />
 {/if}
 
 <!-- Character Assignment Modal -->
-<SrpgModal bind:show={showCharacterAssign} maxWidth="450px" on:close={cancelCharacterAssign}>
+<SrpgModal bind:show={showCharacterAssign} maxWidth="450px" onClose={cancelCharacterAssign}>
     <div class="text-left">
         <h2 class="mt-0 mb-2 text-(--text-primary)">Assign Character</h2>
         <p class="m-0 mb-4 text-sm text-(--text-secondary)">
@@ -742,7 +742,7 @@
 <SrpgModal
     bind:show={showReturnConfirm}
     maxWidth="400px"
-    on:close={() => (showReturnConfirm = false)}>
+    onClose={() => (showReturnConfirm = false)}>
     <div class="text-left">
         <h2 class="mt-0 mb-2 text-(--text-primary)">Return to Current Chapter?</h2>
         <p class="m-0 mb-6 text-sm text-(--text-secondary)">

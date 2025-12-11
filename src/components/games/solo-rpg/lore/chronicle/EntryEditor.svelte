@@ -1,19 +1,18 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
     export let entryId: string;
     export let value: string = "";
     export let placeholder: string = "Add your notes...";
     export let compact: boolean = false;
 
-    const dispatch = createEventDispatcher();
+    export let onSave: (detail: { entryId: string; value: string }) => void = () => {};
+    export let onCancel: () => void = () => {};
 
     function handleSave() {
-        dispatch("save", { entryId, value });
+        onSave({ entryId, value });
     }
 
     function handleCancel() {
-        dispatch("cancel");
+        onCancel();
     }
 </script>
 

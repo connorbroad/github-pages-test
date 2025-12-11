@@ -1,19 +1,21 @@
 <script lang="ts">
     import GameOracle from "../oracle/GameOracle.svelte";
-    import { createEventDispatcher } from "svelte";
-
-    const dispatch = createEventDispatcher();
 
     export let hasSecondarySidebar = false;
     export let hasTertiarySidebar = false;
     export let diceRollPreset: any = null;
     export let currentCharacterId: string | null = null; // Currently viewed character ID
 
-    let showOracle = false;
+    export let onNavigateToStory: () => void = () => {};
+    export let onClearPreset: () => void = () => {};
 
-    // Automatically open oracle when preset is provided
-    $: if (diceRollPreset && !showOracle) {
+    let showOracle = false;
+    let lastPreset: any = null;
+
+    // Automatically open oracle when preset is provided and changed
+    $: if (diceRollPreset && diceRollPreset !== lastPreset) {
         showOracle = true;
+        lastPreset = diceRollPreset;
     }
 
     function toggleOracle() {
@@ -26,7 +28,11 @@
 
     function handleNavigateToStory() {
         showOracle = false; // Close the oracle when navigating to story
-        dispatch("navigateToStory");
+        onNavigateToStory();
+    }
+
+    function handleClearPreset() {
+        onClearPreset();
     }
 </script>
 
@@ -51,9 +57,8 @@
 {#if showOracle}
     <GameOracle
         {diceRollPreset}
-        on:close={closeOracle}
-        on:navigateToStory={handleNavigateToStory}
-        on:clearPreset
+        onClose={closeOracle}
+        onNavigateToStory={handleNavigateToStory}
+        onClearPreset={handleClearPreset}
         preselectedCharacterId={diceRollPreset?.characterId || currentCharacterId} />
 {/if}
-
