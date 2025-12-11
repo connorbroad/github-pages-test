@@ -1296,11 +1296,11 @@
                     {campaignId}
                     mapId={currentMapId}
                     currentCreatureRef={selectedCreatureRef}
-                    on:assign={(e) => {
+                    onAssign={(detail) => {
                         import("./uuid").then(({ generateUUID }) => {
                             const ref: CreatureRef = {
-                                type: e.detail.type,
-                                id: e.detail.id,
+                                type: detail.type,
+                                id: detail.id,
                                 instanceId: generateUUID(),
                             };
                             editorRef?.setSelectedObjectCreature?.(ref);
@@ -1308,12 +1308,12 @@
                             showAssignModal = false;
                         });
                     }}
-                    on:clear={() => {
+                    onClear={() => {
                         editorRef?.setSelectedObjectCreature?.(null);
                         selectedCreatureRef = null;
                         showAssignModal = false;
                     }}
-                    on:close={() => (showAssignModal = false)} />
+                    onClose={() => (showAssignModal = false)} />
             {/if}
 
             <!-- Encounter Panel (left side on desktop, bottom on mobile) -->

@@ -2,17 +2,14 @@
     /**
      * Shared SortDropdown component for sorting options
      */
-    import { createEventDispatcher } from "svelte";
 
     export let sortBy: "alphabetical" | "createdAt" | "updatedAt" = "alphabetical";
     export let showDropdown: boolean = false;
 
-    const dispatch = createEventDispatcher<{
-        sortChange: "alphabetical" | "createdAt" | "updatedAt";
-    }>();
+    export let onSortChange: (sort: "alphabetical" | "createdAt" | "updatedAt") => void = () => {};
 
     function selectSort(sort: "alphabetical" | "createdAt" | "updatedAt") {
-        dispatch("sortChange", sort);
+        onSortChange(sort);
         showDropdown = false;
     }
 

@@ -3,7 +3,7 @@
      * CreatureAssignmentModal - Mobile-friendly modal for assigning creatures to map objects
      * Characters can only be assigned once.
      */
-    import { createEventDispatcher } from "svelte";
+
     import {
         loadCharacters,
         loadMaps,
@@ -17,11 +17,9 @@
     export let mapId: string;
     export let currentCreatureRef: CreatureRef | null = null;
 
-    const dispatch = createEventDispatcher<{
-        close: void;
-        assign: { type: "character"; id: string };
-        clear: void;
-    }>();
+    export let onClose: () => void = () => {};
+    export let onAssign: (detail: { type: "character"; id: string }) => void = () => {};
+    export let onClear: () => void = () => {};
 
     let characters: Character[] = [];
     let assignedCharacterIds: Set<string> = new Set();
@@ -47,15 +45,15 @@
     }
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleAssign(id: string) {
-        dispatch("assign", { type: "character", id });
+        onAssign({ type: "character", id });
     }
 
     function handleClear() {
-        dispatch("clear");
+        onClear();
     }
 
     function getCreatureName(): string {
@@ -76,7 +74,7 @@
     }
 </script>
 
-<SrpgModal {show} on:close={handleClose} ariaLabel="Assign creature modal" maxWidth="400px">
+<SrpgModal {show} onClose={handleClose} ariaLabel="Assign creature modal" maxWidth="400px">
     <div class="creature-modal">
         <h2 class="modal-title">Assign Character</h2>
 

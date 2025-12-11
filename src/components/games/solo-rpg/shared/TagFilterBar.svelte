@@ -3,25 +3,22 @@
      * Shared TagFilterBar component for filtering by tags
      * Displays collapsible tag filter buttons
      */
-    import { createEventDispatcher } from "svelte";
 
     export let tags: string[] = [];
     export let selectedTag: string = "All";
     export let itemCount: number = 0;
     export let isExpanded: boolean = false;
 
-    const dispatch = createEventDispatcher<{
-        tagSelect: string;
-        toggleExpand: boolean;
-    }>();
+    export let onTagSelect: (tag: string) => void = () => {};
+    export let onToggleExpand: (isExpanded: boolean) => void = () => {};
 
     function selectTag(tag: string) {
-        dispatch("tagSelect", tag);
+        onTagSelect(tag);
     }
 
     function toggleExpand() {
         isExpanded = !isExpanded;
-        dispatch("toggleExpand", isExpanded);
+        onToggleExpand(isExpanded);
     }
 
     function getTagHue(tag: string): number {

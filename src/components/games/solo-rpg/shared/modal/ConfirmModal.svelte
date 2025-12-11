@@ -4,7 +4,6 @@
      * For destructive or important actions that require user confirmation
      */
     import SrpgModal from "./SrpgModal.svelte";
-    import { createEventDispatcher } from "svelte";
 
     export let show = false;
     export let title = "Confirm Action";
@@ -14,28 +13,26 @@
     /** Uses danger styling for confirm button (red) */
     export let danger = false;
 
-    const dispatch = createEventDispatcher<{
-        confirm: void;
-        cancel: void;
-    }>();
+    export let onConfirm: () => void = () => {};
+    export let onCancel: () => void = () => {};
 
     function handleConfirm() {
-        dispatch("confirm");
+        onConfirm();
         show = false;
     }
 
     function handleCancel() {
-        dispatch("cancel");
+        onCancel();
         show = false;
     }
 
     function handleClose() {
-        dispatch("cancel");
+        onCancel();
         show = false;
     }
 </script>
 
-<SrpgModal bind:show maxWidth="400px" on:close={handleClose}>
+<SrpgModal bind:show maxWidth="400px" onClose={handleClose}>
     <div class="flex flex-col gap-4 p-4 sm:gap-5 sm:p-6">
         <h2 class="text-text-primary m-0 text-lg font-semibold sm:text-xl">{title}</h2>
 
