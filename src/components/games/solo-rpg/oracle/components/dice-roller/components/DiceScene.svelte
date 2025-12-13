@@ -257,6 +257,9 @@
 
         isDragging = true;
 
+        // Capture pointer to ensure we get move/up events even if dragging outside
+        container.setPointerCapture(e.pointerId);
+
         // Move mouse body to click point
         mouseBody.position.set(point.x, point.y, point.z);
         lastMousePos.copy(mouseBody.position);
@@ -310,6 +313,7 @@
         if (!isDragging) return;
 
         isDragging = false;
+        container.releasePointerCapture(e.pointerId);
 
         // Apply throw velocity to all dice
         const speed = mouseVelocity.length();
@@ -534,6 +538,6 @@
 </script>
 
 <div
-    class="h-[200px] w-full overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
+    class="h-[200px] w-full touch-none overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
     bind:this={container}>
 </div>
