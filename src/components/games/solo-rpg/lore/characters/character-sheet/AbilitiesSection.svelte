@@ -347,9 +347,9 @@
     <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {#each editedCharacter.abilities as ability}
             <div
-                class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-linear-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
+                class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative flex flex-col overflow-hidden rounded-xl border bg-linear-to-br shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
                 {#if isEditable}
-                    <div class="flex flex-col gap-4">
+                    <div class="p-5">
                         <div class="flex flex-col gap-1">
                             <label
                                 class="text-text-secondary text-sm font-semibold"
@@ -441,40 +441,46 @@
                         </button>
                     </div>
                 {:else}
-                    <h3
-                        class="text-text-primary m-0 text-center text-[1.125rem] font-semibold tracking-tight md:text-[1.1875rem]">
-                        {ability.name}
-                    </h3>
-                    <div class="flex flex-col gap-2 text-center">
-                        <p class="text-text-secondary m-0 min-h-0 p-1.5 text-[0.9375rem]">
-                            <strong>Score:</strong>
-                            {ability.score}
-                        </p>
-                        <p class="text-text-secondary m-0 min-h-0 p-1.5 text-[0.9375rem]">
-                            <strong>Modifier:</strong>
-                            {ability.modifier >= 0 ? "+" : ""}{ability.modifier}
-                        </p>
-                        {#if ability.proficient}
-                            <span
-                                class="from-accent-primary to-accent-info text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-[0_1px_2px_rgba(59,130,246,0.2)]">
-                                Proficient
-                            </span>
-                        {/if}
+                    <div class="flex flex-col justify-between p-5 pb-2">
+                        <div class="flex items-start justify-between">
+                            <div class="flex flex-col">
+                                <h3
+                                    class="text-text-secondary m-0 text-xs font-bold tracking-wider uppercase">
+                                    {ability.name}
+                                </h3>
+                                <p
+                                    class="text-text-primary mt-1 text-5xl leading-none font-black tracking-tight">
+                                    {ability.score}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span
+                                    class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-12 rounded-lg border bg-linear-to-br px-2 py-1 text-center text-xl font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
+                                    {ability.modifier >= 0 ? "+" : ""}{ability.modifier}
+                                </span>
+                                {#if ability.proficient}
+                                    <span
+                                        class="text-text-inverse from-accent-primary to-accent-info rounded-sm bg-linear-to-r px-1.5 py-0.5 text-[0.65rem] font-bold tracking-wider uppercase">
+                                        PRO
+                                    </span>
+                                {/if}
+                            </div>
+                        </div>
                     </div>
+
                     {#if editedCharacter.abilityCheckDice}
-                        <div class="mt-3 flex flex-wrap justify-center gap-1.5">
+                        <div
+                            class="border-border-primary bg-bg-secondary/30 divide-border-primary mt-auto flex w-full divide-x border-t">
                             {#if editedCharacter.abilityCheckDice.startsWith("1d")}
                                 <button
-                                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex min-w-12 flex-none cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                                    class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
                                     on:click={() => rollAbility(ability, "Maximum")}
                                     title="Roll with advantage">
-                                    <span class="inline-block">
-                                        <ResultOptionIcon option="Maximum" size="1.5em" />
-                                    </span>
+                                    <ResultOptionIcon option="Maximum" size="1.25em" />
                                 </button>
                             {/if}
                             <button
-                                class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex min-w-fit flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                                class="text-text-primary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex flex-1 cursor-pointer items-center justify-center gap-2 py-3 text-sm font-bold tracking-wide uppercase transition-colors duration-200"
                                 on:click={() => rollAbility(ability, "Sum")}
                                 title={"Roll " + ability.name + " check"}>
                                 <svg
@@ -482,7 +488,7 @@
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    stroke-width="2">
+                                    stroke-width="2.5">
                                     <rect x="4" y="4" width="16" height="16" rx="3" />
                                     <circle cx="9" cy="9" r="1.5" fill="currentColor" />
                                     <circle cx="15" cy="15" r="1.5" fill="currentColor" />
@@ -491,12 +497,10 @@
                             </button>
                             {#if editedCharacter.abilityCheckDice.startsWith("1d")}
                                 <button
-                                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex min-w-12 flex-none cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                                    class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
                                     on:click={() => rollAbility(ability, "Minimum")}
                                     title="Roll with disadvantage">
-                                    <span class="inline-block">
-                                        <ResultOptionIcon option="Minimum" size="1.5em" />
-                                    </span>
+                                    <ResultOptionIcon option="Minimum" size="1.25em" />
                                 </button>
                             {/if}
                         </div>
@@ -568,135 +572,145 @@
         <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each editedCharacter.skills as skill}
                 <div
-                    class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative overflow-hidden rounded-xl border bg-linear-to-br p-5 shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
+                    class="from-card-bg to-bg-secondary border-border-primary before:from-accent-primary before:via-accent-info before:to-accent-info-hover hover:border-border-secondary relative flex flex-col overflow-hidden rounded-xl border bg-linear-to-br shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
                     {#if isEditable}
-                        <div class="flex flex-col gap-4">
-                            <div class="flex flex-col gap-1">
-                                <label
-                                    class="text-text-secondary text-sm font-semibold"
-                                    for={"skill-name-" + skill.id}>
-                                    Name
-                                </label>
-                                <input
-                                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                                    type="text"
-                                    id={"skill-name-" + skill.id}
-                                    value={skill.name}
-                                    on:input={(e) =>
-                                        updateSkillName(
-                                            skill.id,
-                                            (e.currentTarget as HTMLInputElement).value
-                                        )}
-                                    placeholder="Skill Name" />
-                            </div>
-
-                            <div class="flex flex-col gap-1">
-                                <label
-                                    class="text-text-secondary text-sm font-semibold"
-                                    for={"skill-ability-" + skill.id}>
-                                    Ability
-                                </label>
-                                <select
-                                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                                    id={"skill-ability-" + skill.id}
-                                    value={skill.abilityId}
-                                    on:change={(e) =>
-                                        updateSkillAbility(
-                                            skill.id,
-                                            (e.currentTarget as HTMLSelectElement).value
-                                        )}>
-                                    {#each editedCharacter.abilities as ability}
-                                        <option value={ability.id}>{ability.name}</option>
-                                    {/each}
-                                </select>
-                            </div>
-
-                            <div class="grid grid-cols-[1fr_auto] items-end gap-3">
+                        <div class="p-5 pb-2">
+                            <div class="flex flex-col gap-4">
                                 <div class="flex flex-col gap-1">
                                     <label
                                         class="text-text-secondary text-sm font-semibold"
-                                        for={"skill-bonus-" + skill.id}>
-                                        Bonus
+                                        for={"skill-name-" + skill.id}>
+                                        Name
                                     </label>
                                     <input
                                         class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                                        type="number"
-                                        id={"skill-bonus-" + skill.id}
-                                        value={skill.bonus}
+                                        type="text"
+                                        id={"skill-name-" + skill.id}
+                                        value={skill.name}
                                         on:input={(e) =>
-                                            updateSkillBonus(
+                                            updateSkillName(
                                                 skill.id,
-                                                Number((e.currentTarget as HTMLInputElement).value)
-                                            )} />
+                                                (e.currentTarget as HTMLInputElement).value
+                                            )}
+                                        placeholder="Skill Name" />
                                 </div>
 
-                                <div class="flex min-h-10 items-center justify-center">
+                                <div class="flex flex-col gap-1">
                                     <label
-                                        class="text-text-secondary hover:text-text-primary flex cursor-pointer items-center gap-2 text-sm font-medium transition-colors duration-200">
-                                        <input
-                                            class="accent-accent-primary m-0 w-auto scale-110 cursor-pointer"
-                                            type="checkbox"
-                                            checked={skill.proficient}
-                                            on:change={(e) =>
-                                                updateSkillProficient(
-                                                    skill.id,
-                                                    (e.currentTarget as HTMLInputElement).checked
-                                                )} />
-                                        <span>Prof.</span>
+                                        class="text-text-secondary text-sm font-semibold"
+                                        for={"skill-ability-" + skill.id}>
+                                        Ability
                                     </label>
+                                    <select
+                                        class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
+                                        id={"skill-ability-" + skill.id}
+                                        value={skill.abilityId}
+                                        on:change={(e) =>
+                                            updateSkillAbility(
+                                                skill.id,
+                                                (e.currentTarget as HTMLSelectElement).value
+                                            )}>
+                                        {#each editedCharacter.abilities as ability}
+                                            <option value={ability.id}>{ability.name}</option>
+                                        {/each}
+                                    </select>
                                 </div>
-                            </div>
 
-                            <button
-                                class="border-border-primary bg-accent-danger hover:bg-accent-danger-hover active:bg-accent-danger-active mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                                on:click={() => removeSkill(skill.id)}>
-                                <svg
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2">
-                                    <path
-                                        d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                                Remove
-                            </button>
+                                <div class="grid grid-cols-[1fr_auto] items-end gap-3">
+                                    <div class="flex flex-col gap-1">
+                                        <label
+                                            class="text-text-secondary text-sm font-semibold"
+                                            for={"skill-bonus-" + skill.id}>
+                                            Bonus
+                                        </label>
+                                        <input
+                                            class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
+                                            type="number"
+                                            id={"skill-bonus-" + skill.id}
+                                            value={skill.bonus}
+                                            on:input={(e) =>
+                                                updateSkillBonus(
+                                                    skill.id,
+                                                    Number(
+                                                        (e.currentTarget as HTMLInputElement).value
+                                                    )
+                                                )} />
+                                    </div>
+
+                                    <div class="flex min-h-10 items-center justify-center">
+                                        <label
+                                            class="text-text-secondary hover:text-text-primary flex cursor-pointer items-center gap-2 text-sm font-medium transition-colors duration-200">
+                                            <input
+                                                class="accent-accent-primary m-0 w-auto scale-110 cursor-pointer"
+                                                type="checkbox"
+                                                checked={skill.proficient}
+                                                on:change={(e) =>
+                                                    updateSkillProficient(
+                                                        skill.id,
+                                                        (e.currentTarget as HTMLInputElement)
+                                                            .checked
+                                                    )} />
+                                            <span>Prof.</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button
+                                    class="border-border-primary bg-accent-danger hover:bg-accent-danger-hover active:bg-accent-danger-active mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                                    on:click={() => removeSkill(skill.id)}>
+                                    <svg
+                                        class="h-4 w-4"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    Remove
+                                </button>
+                            </div>
                         </div>
                     {:else}
-                        <div class="flex flex-col gap-2.5 text-center">
-                            <h4
-                                class="text-text-primary m-0 text-[1.125rem] font-semibold tracking-tight md:text-[1.1875rem]">
-                                {skill.name}
-                            </h4>
-                            <p class="m-0 text-[0.8125rem] font-medium tracking-wide">
-                                ({getAbilityName(skill.abilityId)})
-                            </p>
-                            <div class="mt-1 flex flex-wrap items-center justify-center gap-2">
-                                <span
-                                    class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-12 rounded-lg border bg-linear-to-br px-3 py-1.5 text-center text-xl font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
-                                    {skill.bonus >= 0 ? "+" : ""}{skill.bonus}
-                                </span>
-                                {#if skill.proficient}
+                        <div class="flex h-full flex-col justify-between">
+                            <div class="flex items-start justify-between p-5 pb-4">
+                                <div class="flex flex-col gap-0.5">
+                                    <h4
+                                        class="text-text-primary m-0 text-lg font-bold tracking-tight">
+                                        {skill.name}
+                                    </h4>
+                                    <p
+                                        class="text-text-tertiary m-0 text-xs font-bold tracking-wider uppercase">
+                                        {getAbilityName(skill.abilityId)}
+                                    </p>
+                                </div>
+                                <div class="flex flex-col items-end gap-1">
                                     <span
-                                        class="from-accent-primary to-accent-info text-text-inverse rounded bg-linear-to-br px-1.5 py-0.5 text-[0.6875rem] font-semibold tracking-wide">
-                                        Prof
+                                        class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-12 rounded-lg border bg-linear-to-br px-2 py-1 text-center text-xl font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
+                                        {skill.bonus >= 0 ? "+" : ""}{skill.bonus}
                                     </span>
-                                {/if}
+                                    {#if skill.proficient}
+                                        <span
+                                            class="text-text-inverse from-accent-primary to-accent-info rounded-sm bg-linear-to-r px-1.5 py-0.5 text-[0.65rem] font-bold tracking-wider uppercase">
+                                            PRO
+                                        </span>
+                                    {/if}
+                                </div>
                             </div>
+
                             {#if editedCharacter.skillCheckDice}
-                                <div class="mt-3 flex flex-wrap justify-center gap-1.5">
+                                <div
+                                    class="border-border-primary bg-bg-secondary/30 divide-border-primary mt-auto flex w-full divide-x border-t">
                                     {#if editedCharacter.skillCheckDice === "1d20"}
                                         <button
-                                            class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex min-w-12 flex-none cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                                            class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
                                             on:click={() => rollSkill(skill, "Maximum")}
                                             title="Roll with advantage">
-                                            <span class="inline-block">
-                                                <ResultOptionIcon option="Maximum" size="1.5em" />
-                                            </span>
+                                            <ResultOptionIcon option="Maximum" size="1.25em" />
                                         </button>
                                     {/if}
                                     <button
-                                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex min-w-fit flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                                        class="text-text-primary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex flex-1 cursor-pointer items-center justify-center gap-2 py-3 text-sm font-bold tracking-wide uppercase transition-colors duration-200"
                                         on:click={() => rollSkill(skill, "Sum")}
                                         title={"Roll " + skill.name + " check"}>
                                         <svg
@@ -704,7 +718,7 @@
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
-                                            stroke-width="2">
+                                            stroke-width="2.5">
                                             <rect x="4" y="4" width="16" height="16" rx="3" />
                                             <circle cx="9" cy="9" r="1.5" fill="currentColor" />
                                             <circle cx="15" cy="15" r="1.5" fill="currentColor" />
@@ -713,12 +727,10 @@
                                     </button>
                                     {#if editedCharacter.skillCheckDice === "1d20"}
                                         <button
-                                            class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex min-w-12 flex-none cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
+                                            class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
                                             on:click={() => rollSkill(skill, "Minimum")}
                                             title="Roll with disadvantage">
-                                            <span class="inline-block">
-                                                <ResultOptionIcon option="Minimum" size="1.5em" />
-                                            </span>
+                                            <ResultOptionIcon option="Minimum" size="1.25em" />
                                         </button>
                                     {/if}
                                 </div>
