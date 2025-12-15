@@ -24,6 +24,9 @@
 
     // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
+    
+    // ID of the object whose turn it is (for indicator)
+    export let currentTurnObjectId: string | null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -285,6 +288,7 @@
             camera,
             map,
             selectedObject,
+            currentTurnObjectId,
             showSelectionHandles: (editMode === "object" || mapMode === "play") && !!selectedObject,
             getDpr,
             onInvalidate: scheduleRender,
@@ -575,6 +579,23 @@
     // Re-render when editMode or mapMode changes to update transparency/fading
     $: if ((editMode || mapMode) && map) {
         scheduleRender();
+    }
+
+    // Animation loop for turn indicator
+    let indicatorRaf: number | null = null;
+    $: if (mapMode === "play" && currentTurnObjectId) {
+        if (!indicatorRaf) {
+            const loop = () => {
+                scheduleRender();
+                indicatorRaf = requestAnimationFrame(loop);
+            };
+            loop();
+        }
+    } else {
+        if (indicatorRaf) {
+            cancelAnimationFrame(indicatorRaf);
+            indicatorRaf = null;
+        }
     }
 
     function emitSelection() {

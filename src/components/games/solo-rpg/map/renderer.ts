@@ -170,6 +170,7 @@ export function drawFgObjects(opts: {
     camera: Camera;
     map: MapEntity;
     selectedObject: MapObject | null;
+    currentTurnObjectId?: string | null;
     showSelectionHandles: boolean;
     getDpr: () => number;
     onInvalidate: () => void;
@@ -183,6 +184,7 @@ export function drawFgObjects(opts: {
         camera,
         map,
         selectedObject,
+        currentTurnObjectId,
         showSelectionHandles,
         getDpr,
         onInvalidate,
@@ -278,6 +280,53 @@ export function drawFgObjects(opts: {
             if ((o as any).rotation) ctxFg.rotate((o as any).rotation);
 
             beginShapePath(ctxFg, o.type as any, o.w, o.h);
+            ctxFg.fill();
+            ctxFg.stroke();
+            ctxFg.restore();
+        }
+
+        // Draw turn indicator if this is the current turn object
+        if (mapMode === "play" && currentTurnObjectId === o.id) {
+            const time = performance.now();
+
+            // Cute bouncing star above
+            const bounceHeight = 6;
+            const bounceSpeed = 0.004;
+            const offset = Math.sin(time * bounceSpeed) * bounceHeight;
+
+            const indicatorSize = Math.max(20, Math.min(40, o.w * 0.6));
+
+            const starY = o.y - o.h / 2 - indicatorSize / 2 - 8 - Math.abs(offset);
+
+            ctxFg.save();
+            ctxFg.translate(o.x, starY);
+
+            // Add a glow effect
+            ctxFg.shadowColor = "#f1c40f";
+            ctxFg.shadowBlur = 10;
+            ctxFg.fillStyle = "#f1c40f";
+            ctxFg.strokeStyle = "#ffffff";
+            ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+
+            // Stylized triangle (Arrowhead/Chevron)
+            // Points down to the token
+            // Top middle is recessed (lower) than the top corners
+
+            const halfSize = indicatorSize / 2;
+            const indentation = halfSize * 0.4; // How deep the top dip is
+
+            ctxFg.beginPath();
+            // Bottom tip (pointing to token)
+            ctxFg.lineTo(0, halfSize);
+            // Top Right
+            ctxFg.lineTo(halfSize, -halfSize);
+            // Top Middle (recessed)
+            ctxFg.lineTo(0, -halfSize + indentation);
+            // Top Left
+            ctxFg.lineTo(-halfSize, -halfSize);
+
+            ctxFg.closePath();
+
             ctxFg.fill();
             ctxFg.stroke();
             ctxFg.restore();

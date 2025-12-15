@@ -56,6 +56,12 @@
     // Encounter setup modal state
     let showEncounterSetup = false;
 
+    // Derived state for current turn indicator
+    $: currentTurnObjectId =
+        hasActiveEncounter && initiativeOrder.length > 0
+            ? initiativeOrder[currentTurnIndex]?.objectId
+            : null;
+
     // Quick stats modal state
     let showQuickStatsModal = false;
     let quickStatsModalObjectId: string | null = null;
@@ -1441,6 +1447,7 @@
                         {isErasing}
                         selectedTile={selectedTileRef}
                         {mapMode}
+                        {currentTurnObjectId}
                         on:selectionChange={handleEditorSelectionChange}
                         on:tokenTapInMoveMode={handleTokenTapInMoveMode}
                         on:encounterCreatureSelect={handleEncounterCreatureSelect}
