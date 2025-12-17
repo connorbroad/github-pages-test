@@ -200,10 +200,10 @@
     {:else if currentView === "map"}
         <MapView
             bind:this={mapViewComponent}
-            on:navigateHome={() => handleNavigate("home")}
-            on:navigateToStory={handleNavigateToChronicle}
-            on:mapOpened={handleMapOpened}
-            on:mapClosed={handleMapClosed} />
+            onNavigateHome={() => handleNavigate("home")}
+            onNavigateToStory={handleNavigateToChronicle}
+            onMapOpened={handleMapOpened}
+            onMapClosed={handleMapClosed} />
     {:else if currentView === "settings"}
         <SettingsView />
     {/if}

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, createEventDispatcher } from "svelte";
+    import { onMount, untrack } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId } from "../oracle/scripts/oracleTypes";
@@ -11,6 +11,8 @@
         loadActiveMapId,
         loadCharacters,
         saveCharacters,
+        loadMapMode,
+        saveMapMode,
         type MapEntity,
         type CreatureRef,
         type InitiativeEntry,
@@ -43,22 +45,35 @@
     import { characterStore } from "../data/character-store";
     import "../solo-rpg-styles.css";
 
-    const dispatch = createEventDispatcher();
+    // Event callback props
+    interface Props {
+        onNavigateHome?: () => void;
+        onNavigateToStory?: () => void;
+        onMapOpened?: () => void;
+        onMapClosed?: () => void;
+    }
 
-    let currentMapId: string | null = null;
-    let maps: MapEntity[] = [];
+    let {
+        onNavigateHome = () => {},
+        onNavigateToStory = () => {},
+        onMapOpened = () => {},
+        onMapClosed = () => {},
+    }: Props = $props();
+
+    let currentMapId = $state<string | null>(null);
+    let maps = $state<MapEntity[]>([]);
 
     // Initiative state (persisted per map)
-    let initiativeOrder: InitiativeEntry[] = [];
-    let currentTurnIndex: number = 0;
-    let hasActiveEncounter: boolean = false;
-    let pendingNextObjectId: string | undefined = undefined;
+    let initiativeOrder = $state<InitiativeEntry[]>([]);
+    let currentTurnIndex = $state(0);
+    let hasActiveEncounter = $state(false);
+    let pendingNextObjectId = $state<string | undefined>(undefined);
 
     // Encounter setup modal state
-    let showEncounterSetup = false;
+    let showEncounterSetup = $state(false);
 
     // Dice roll preset for ability/skill checks
-    let mapDiceRollPreset: {
+    let mapDiceRollPreset = $state<{
         characterId: string;
         characterName: string;
         checkName: string;
@@ -66,24 +81,25 @@
         numSides: number;
         modifier: number;
         rollType: "normal" | "advantage" | "disadvantage";
-    } | null = null;
+    } | null>(null);
 
     // Derived state for current turn indicator
-    $: currentTurnObjectId =
+    let currentTurnObjectId = $derived(
         hasActiveEncounter && initiativeOrder.length > 0
             ? initiativeOrder[currentTurnIndex]?.objectId
-            : null;
+            : null
+    );
 
     // Quick stats modal state
-    let showQuickStatsModal = false;
-    let quickStatsModalObjectId: string | null = null;
-    let quickStatsModalExistingStats: QuickStats | null = null;
+    let showQuickStatsModal = $state(false);
+    let quickStatsModalObjectId = $state<string | null>(null);
+    let quickStatsModalExistingStats = $state<QuickStats | null>(null);
 
     function handleNavigateHome() {
-        dispatch("navigateHome");
+        onNavigateHome();
     }
 
-    $: campaignId = $activeCampaign?.id;
+    let campaignId = $derived($activeCampaign?.id);
 
     onMount(() => {
         if (campaignId) {
@@ -94,7 +110,9 @@
                 currentMapId = activeMapId;
                 // Load combat state for this map
                 loadCombatState(activeMapId);
-                dispatch("mapOpened");
+                // Load the persisted map mode (edit/play)
+                mapMode = loadMapMode();
+                onMapOpened();
             } else {
                 currentMapId = null;
                 saveActiveMapId(null);
@@ -137,23 +155,28 @@
     }
 
     // Refresh maps when campaign changes and validate active map
-    $: if (campaignId) {
-        maps = loadMapsByCampaign(campaignId);
-        // If there's a current map open, verify it belongs to this campaign
-        if (currentMapId) {
-            const mapBelongsToCampaign = maps.some((m) => m.id === currentMapId);
-            if (!mapBelongsToCampaign) {
-                currentMapId = null;
-                saveActiveMapId(null);
+    $effect(() => {
+        if (campaignId) {
+            const newMaps = loadMapsByCampaign(campaignId);
+            maps = newMaps;
+            // If there's a current map open, verify it belongs to this campaign
+            if (currentMapId) {
+                const mapBelongsToCampaign = newMaps.some((m) => m.id === currentMapId);
+                if (!mapBelongsToCampaign) {
+                    currentMapId = null;
+                    saveActiveMapId(null);
+                }
             }
         }
-    }
+    });
 
     // Sync map objects with character store updates
     // This ensures that if HP changes on the character sheet, it updates on the map token
-    $: if (currentMapId && $characterStore.length > 0) {
-        syncMapWithCharacters();
-    }
+    $effect(() => {
+        if (currentMapId && $characterStore.length > 0) {
+            untrack(() => syncMapWithCharacters());
+        }
+    });
 
     function syncMapWithCharacters() {
         if (!currentMapId) return;
@@ -234,7 +257,7 @@
         saveActiveMapId(currentMapId);
         // Load combat state for this map
         loadCombatState(e.detail.id);
-        dispatch("mapOpened");
+        onMapOpened();
     }
 
     function closeMap() {
@@ -255,7 +278,7 @@
         selectedCanFlip = false;
         selectedCreatureRef = null;
         selectedObjectId = null;
-        dispatch("mapClosed");
+        onMapClosed();
     }
 
     function renameMap(e: CustomEvent<{ id: string; name: string }>) {
@@ -293,47 +316,52 @@
 
     // Editor UI state routed to floating panels
     // editMode: "move" (pan/zoom), "background" (paint background tiles), "object" (add/select tokens)
-    let editMode: "move" | "background" | "object" = "move";
+    let editMode = $state<"move" | "background" | "object">("move");
     // objectMode: "select" (select/edit existing tokens) or "add" (place new tokens)
-    let objectMode: "select" | "add" = "add";
-    let currentShape: "square" | "circle" | "triangle" | "star" = "square";
-    let color = "#2980b9";
+    let objectMode = $state<"select" | "add">("add");
+    let currentShape = $state<"square" | "circle" | "triangle" | "star">("square");
+    let color = $state("#2980b9");
     // Selected tile reference for map tools
-    let selectedTileRef: { tileMapId: string; tileId: string } | null = null;
+    let selectedTileRef = $state<{ tileMapId: string; tileId: string } | null>(null);
     // Eraser mode for background painting (clears tiles)
-    let isErasing: boolean = false;
+    let isErasing = $state(false);
 
     // Map mode: edit (normal editing) or play (battle/encounter mode)
-    let mapMode: "edit" | "play" = "edit";
+    let mapMode = $state<"edit" | "play">("edit");
 
     // Track sidebar visibility for smooth animations
-    let showSecondarySidebar = false;
+    let showSecondarySidebar = $state(false);
 
     // Detect if we're on mobile
     import { isMobile } from "../ui-utils";
 
     // Reactive statement to show sidebars when a map is opened
     // SecondarySidebar is always visible when map is open (per redesign)
-    $: if (currentMapId) {
-        // Small delay to ensure DOM is ready and transition can play
-        setTimeout(() => {
-            showSecondarySidebar = true;
-        }, 10);
-    } else {
-        showSecondarySidebar = false;
-    }
+    $effect(() => {
+        if (currentMapId) {
+            // Small delay to ensure DOM is ready and transition can play
+            const timeoutId = setTimeout(() => {
+                untrack(() => {
+                    showSecondarySidebar = true;
+                });
+            }, 10);
+            return () => clearTimeout(timeoutId);
+        } else {
+            showSecondarySidebar = false;
+        }
+    });
 
     // Editor selection state for Object/Select mode controls
-    let hasSelection = false;
-    let selectedColor: string | null = null;
-    let selectedShape: "square" | "circle" | "triangle" | "star" | null = null;
-    let selectedTile: { tileMapId: string; tileId: string } | null = null;
-    let selectedCanFlip = false;
-    let selectedCreatureRef: CreatureRef | null = null;
-    let selectedObjectId: string | null = null;
+    let hasSelection = $state(false);
+    let selectedColor = $state<string | null>(null);
+    let selectedShape = $state<"square" | "circle" | "triangle" | "star" | null>(null);
+    let selectedTile = $state<{ tileMapId: string; tileId: string } | null>(null);
+    let selectedCanFlip = $state(false);
+    let selectedCreatureRef = $state<CreatureRef | null>(null);
+    let selectedObjectId = $state<string | null>(null);
 
     // Reference to MapEditor to call exported methods
-    let editorRef: any;
+    let editorRef = $state<any>();
 
     function handleEditorSelectionChange(
         e: CustomEvent<{
@@ -501,11 +529,11 @@
     }
 
     // Modal state for paint options (tile, color, shape)
-    let showTileModal = false;
-    let showColorModal = false;
-    let showShapeModal = false;
-    let showTokenModal = false;
-    let showAssignModal = false;
+    let showTileModal = $state(false);
+    let showColorModal = $state(false);
+    let showShapeModal = $state(false);
+    let showTokenModal = $state(false);
+    let showAssignModal = $state(false);
 
     function openTileModal() {
         showTileModal = true;
@@ -576,17 +604,17 @@
     }
 
     // Show floating Edit/Play toggle when a map is open (visible in both edit and play modes)
-    $: showEditPlayToggle = currentMapId;
+    let showEditPlayToggle = $derived(currentMapId);
     // Show tertiary sidebar when in background or object mode (not move)
-    $: showTertiarySidebar = currentMapId && mapMode === "edit" && editMode !== "move";
+    let showTertiarySidebar = $derived(currentMapId && mapMode === "edit" && editMode !== "move");
 
     // Determine paint options context
-    let paintOptionsContext: "background" | "object" = "object";
-    $: paintOptionsContext = editMode === "background" ? "background" : "object";
+    let paintOptionsContext = $derived(editMode === "background" ? ("background" as const) : ("object" as const));
     // Paint options disabled when erasing or in select mode with no selection
-    $: paintOptionsDisabled =
+    let paintOptionsDisabled = $derived(
         (editMode === "background" && isErasing) ||
-        (editMode === "object" && objectMode === "select" && !hasSelection);
+        (editMode === "object" && objectMode === "select" && !hasSelection)
+    );
 
     // Handle modeChange from FloatingEditPlayToggle
     function handleMapModeChange(mode: "edit" | "play") {
@@ -594,11 +622,11 @@
     }
 
     // Encounter mode state - supports both assigned characters and unassigned tokens
-    let encounterSelectedCreature: {
+    let encounterSelectedCreature = $state<{
         objectId: string;
         creatureRef?: CreatureRef;
         quickStats?: QuickStats;
-    } | null = null;
+    } | null>(null);
 
     function handleEncounterCreatureSelect(
         e: CustomEvent<{ objectId: string; creatureRef?: CreatureRef; quickStats?: QuickStats }>
@@ -855,7 +883,7 @@
     }
 
     function handleNavigateToChronicle() {
-        dispatch("navigateToStory");
+        onNavigateToStory();
     }
 
     function handleInitiativeRolled(
@@ -1223,8 +1251,8 @@
     }
 
     // Encounter panel height for mobile layout (CSS variable)
-    let encounterPanelHeight = 50;
-    let encounterPanelDragging = false;
+    let encounterPanelHeight = $state(50);
+    let encounterPanelDragging = $state(false);
 
     function handlePanelHeightChanged(e: CustomEvent<{ heightPercent: number }>) {
         encounterPanelHeight = e.detail.heightPercent;
@@ -1237,6 +1265,8 @@
     function setMapMode(mode: "edit" | "play") {
         const previousMode = mapMode;
         mapMode = mode;
+        // Persist the map mode so it survives tab switches
+        saveMapMode(mode);
 
         if (mode === "edit") {
             // Transfer play mode selection to edit mode
@@ -1300,7 +1330,7 @@
     }
 
     // Check if we should show encounter panel (play mode is active)
-    $: showEncounterPanel = mapMode === "play";
+    let showEncounterPanel = $derived(mapMode === "play");
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -1487,18 +1517,18 @@
                     existingStats={quickStatsModalExistingStats}
                     on:save={handleQuickStatsSave}
                     on:close={handleQuickStatsClose} />
-
-                <!-- Floating Oracle Button for dice rolling in play mode -->
-                <FloatingOracleButton
-                    hasSecondarySidebar={false}
-                    hasTertiarySidebar={false}
-                    diceRollPreset={mapDiceRollPreset}
-                    currentCharacterId={encounterSelectedCreature?.creatureRef?.type === "character"
-                        ? encounterSelectedCreature.creatureRef.id
-                        : null}
-                    onClearPreset={() => (mapDiceRollPreset = null)}
-                    onNavigateToStory={handleNavigateToChronicle} />
             {/if}<!-- End showEncounterPanel -->
+
+            <!-- Floating Oracle Button - always visible in edit and play mode -->
+            <FloatingOracleButton
+                hasSecondarySidebar={mapMode === "edit" ? showSecondarySidebar : hasActiveEncounter}
+                hasTertiarySidebar={showTertiarySidebar}
+                diceRollPreset={mapDiceRollPreset}
+                currentCharacterId={encounterSelectedCreature?.creatureRef?.type === "character"
+                    ? encounterSelectedCreature.creatureRef.id
+                    : null}
+                onClearPreset={() => (mapDiceRollPreset = null)}
+                onNavigateToStory={handleNavigateToChronicle} />
 
             <!-- Main Map Area -->
             <div class="map-main-area">

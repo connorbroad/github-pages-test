@@ -7,6 +7,7 @@ const STORAGE_KEY = "solo-rpg-data";
 const ACTIVE_CAMPAIGN_KEY = "solo-rpg-active-campaign";
 const ACTIVE_CHARACTER_KEY = "solo-rpg-active-character";
 const ACTIVE_MAP_KEY = "solo-rpg-active-map";
+const MAP_MODE_KEY = "solo-rpg-map-mode";
 
 export interface SoloRPGData {
     gameBlueprints?: GameBlueprint[];
@@ -519,6 +520,31 @@ export function saveActiveMapId(mapId: string | null): void {
         }
     } catch (error) {
         console.error("Failed to save active map:", error);
+    }
+}
+
+/**
+ * Load the map mode (edit/play) from localStorage
+ */
+export function loadMapMode(): "edit" | "play" {
+    try {
+        const mode = localStorage.getItem(MAP_MODE_KEY);
+        if (mode === "play") return "play";
+        return "edit"; // Default to edit mode
+    } catch (error) {
+        console.error("Failed to load map mode:", error);
+        return "edit";
+    }
+}
+
+/**
+ * Save the map mode (edit/play) to localStorage
+ */
+export function saveMapMode(mode: "edit" | "play"): void {
+    try {
+        localStorage.setItem(MAP_MODE_KEY, mode);
+    } catch (error) {
+        console.error("Failed to save map mode:", error);
     }
 }
 

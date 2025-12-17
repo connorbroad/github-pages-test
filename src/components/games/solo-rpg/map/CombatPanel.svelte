@@ -441,9 +441,7 @@
                 </div>
 
                 <!-- Attacks placeholder -->
-                <div class="attacks-section">
-                    <p class="attacks-placeholder">Weapon attacks coming soon</p>
-                </div>
+                <div class="attacks-section"></div>
 
                 <!-- Abilities Section -->
                 {#if creatureData.abilities?.length > 0}
@@ -457,7 +455,8 @@
                                 <AbilityCard
                                     {ability}
                                     diceFormula={creatureData.abilityCheckDice || "1d20"}
-                                    onRoll={(resultOption) => handleAbilityRoll(ability, resultOption)} />
+                                    onRoll={(resultOption) =>
+                                        handleAbilityRoll(ability, resultOption)} />
                             {/each}
                         </div>
                     </CollapsibleSection>
@@ -476,7 +475,8 @@
                                     {skill}
                                     abilityName={getAbilityName(skill.abilityId)}
                                     diceFormula={creatureData.skillCheckDice || "1d20"}
-                                    onRoll={(resultOption) => handleSkillRoll(skill, resultOption)} />
+                                    onRoll={(resultOption) =>
+                                        handleSkillRoll(skill, resultOption)} />
                             {/each}
                         </div>
                     </CollapsibleSection>
