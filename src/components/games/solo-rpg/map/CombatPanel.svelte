@@ -902,14 +902,6 @@
         border-radius: 8px;
     }
 
-    .attacks-placeholder {
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 0.875rem;
-        font-style: italic;
-        margin: 0;
-    }
-
     /* Add to Encounter Button */
     .add-to-encounter-btn {
         display: flex;
