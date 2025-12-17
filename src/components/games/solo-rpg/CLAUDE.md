@@ -158,8 +158,26 @@ For floating buttons, panels, or fixed UI:
 - Mobile: Set `bottom` offset = sum of visible sidebar heights + safe-area-inset
 - Check `SoloRPG.svelte` for `showSecondarySidebar` and `showTertiarySidebar` logic
 
-### Utility Classes
+### Layout Helper Utilities
 
+**Use `shared/layout-utils.ts` for pixel calculations:**
+
+```typescript
+import { SIDEBAR_DIMENSIONS, getDesktopLeftOffset, getMobileBottomOffset } from './shared/layout-utils';
+
+// Get pixel offsets for positioning fixed/absolute elements
+const leftOffset = getDesktopLeftOffset({ hasSecondarySidebar: true });
+const bottomOffset = getMobileBottomOffset({ hasSecondarySidebar: true });
+```
+
+**Available exports:**
+- `SIDEBAR_DIMENSIONS` - Pixel constants for all sidebar widths/heights
+- `getDesktopLeftOffset(options)` - Returns total left offset in pixels
+- `getMobileBottomOffset(options)` - Returns total bottom offset in pixels
+
+**Note:** For main content layout, use explicit Tailwind classes in templates (see `SoloRPG.svelte`). Dynamic class generation doesn't work with Tailwind JIT.
+
+**Other utility classes:**
 - `.srpg-scroll-with-sidebars` - Adds proper padding for scrollable content
 - Modal positioning handled by `.srpg-modal` in `solo-rpg-styles.css`
 
