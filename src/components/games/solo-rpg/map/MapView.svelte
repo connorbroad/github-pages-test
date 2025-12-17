@@ -101,8 +101,14 @@
 
     let campaignId = $derived($activeCampaign?.id);
 
-    onMount(() => {
-        if (campaignId) {
+    // Track whether initial load has been done to prevent repeated loading
+    let hasInitialized = $state(false);
+
+    // Initialize map view when campaign is available
+    // Using $effect ensures this runs even if campaignId isn't ready during onMount
+    $effect(() => {
+        if (campaignId && !hasInitialized) {
+            hasInitialized = true;
             maps = loadMapsByCampaign(campaignId);
             const activeMapId = loadActiveMapId();
             // Validate that the active map belongs to the current campaign
@@ -113,6 +119,14 @@
                 // Load the persisted map mode (edit/play)
                 mapMode = loadMapMode();
                 onMapOpened();
+
+                // If in play mode with an active encounter, restore selection to the current turn creature
+                if (mapMode === "play" && hasActiveEncounter && initiativeOrder.length > 0) {
+                    const currentEntry = initiativeOrder[currentTurnIndex];
+                    if (currentEntry) {
+                        selectCreatureByObjectId(currentEntry.objectId);
+                    }
+                }
             } else {
                 currentMapId = null;
                 saveActiveMapId(null);
@@ -122,10 +136,12 @@
 
     // Load combat state from map entity
     function loadCombatState(mapId: string) {
+        // Always read fresh from localStorage to avoid any stale data
         const allMaps = loadMaps();
         const map = allMaps.find((m) => m.id === mapId);
         if (map?.combatState) {
-            initiativeOrder = map.combatState.initiativeOrder;
+            // Create new array/object references to ensure reactivity
+            initiativeOrder = [...map.combatState.initiativeOrder];
             currentTurnIndex = map.combatState.currentTurnIndex;
             hasActiveEncounter = map.combatState.hasActiveEncounter ?? false;
             pendingNextObjectId = map.combatState.pendingNextObjectId;
@@ -144,12 +160,14 @@
         const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
         if (mapIndex < 0) return;
 
-        allMaps[mapIndex].combatState = {
-            initiativeOrder,
+        // Create deep copies to ensure we're saving the current state values
+        const combatStateToSave = {
+            initiativeOrder: initiativeOrder.map((e) => ({ ...e })),
             currentTurnIndex,
             hasActiveEncounter,
             pendingNextObjectId,
         };
+        allMaps[mapIndex].combatState = combatStateToSave;
         allMaps[mapIndex].updatedAt = Date.now();
         saveMaps(allMaps);
     }
@@ -223,8 +241,16 @@
         });
 
         if (mapChanged) {
-            allMaps[mapIndex] = map;
-            saveMaps(allMaps);
+            // Preserve combat state when saving map changes
+            // Re-read to get latest combat state that might have been saved by saveCombatState()
+            const freshMaps = loadMaps();
+            const freshMap = freshMaps[mapIndex];
+            if (freshMap) {
+                // Apply our object changes to the fresh map (preserving its combat state)
+                freshMap.objects = map.objects;
+                freshMap.updatedAt = Date.now();
+                saveMaps(freshMaps);
+            }
             // Refresh editor if reference exists
             editorRef?.refreshMapData?.();
         }
@@ -609,11 +635,13 @@
     let showTertiarySidebar = $derived(currentMapId && mapMode === "edit" && editMode !== "move");
 
     // Determine paint options context
-    let paintOptionsContext = $derived(editMode === "background" ? ("background" as const) : ("object" as const));
+    let paintOptionsContext = $derived(
+        editMode === "background" ? ("background" as const) : ("object" as const)
+    );
     // Paint options disabled when erasing or in select mode with no selection
     let paintOptionsDisabled = $derived(
         (editMode === "background" && isErasing) ||
-        (editMode === "object" && objectMode === "select" && !hasSelection)
+            (editMode === "object" && objectMode === "select" && !hasSelection)
     );
 
     // Handle modeChange from FloatingEditPlayToggle

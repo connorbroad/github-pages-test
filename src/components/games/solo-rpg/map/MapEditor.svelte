@@ -137,7 +137,13 @@
         const all = loadMaps();
         const i = all.findIndex((m) => m.id === map!.id);
         if (i >= 0) {
+            // Preserve combat state from storage (it may have been updated separately)
+            const existingCombatState = all[i].combatState;
             all[i] = map!;
+            // Restore combat state after overwriting
+            if (existingCombatState) {
+                all[i].combatState = existingCombatState;
+            }
             saveMaps(all);
         }
     }
@@ -263,7 +269,7 @@
     }
 
     function drawGrid() {
-        if (!map || !ctxBg) return;
+        if (!map || !ctxBg || !canvasBg) return;
         renderGrid({
             ctxBg,
             canvasBg,
@@ -281,7 +287,7 @@
     }
 
     function drawFgObjects() {
-        if (!map || !ctxFg) return;
+        if (!map || !ctxFg || !canvasFg) return;
         renderFg({
             ctxFg,
             canvasFg,

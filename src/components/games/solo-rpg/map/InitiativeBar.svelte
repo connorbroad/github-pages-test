@@ -183,8 +183,8 @@
     confirmText="End Encounter"
     cancelText="Cancel"
     danger={true}
-    on:confirm={confirmEndEncounter}
-    on:cancel={() => (showEndConfirm = false)} />
+    onConfirm={confirmEndEncounter}
+    onCancel={() => (showEndConfirm = false)} />
 
 <style>
     .initiative-bar {
