@@ -685,6 +685,11 @@
             obj.quickStats = e.detail.quickStats;
         });
 
+        // Update local editor state to avoid overwrite
+        editorRef?.updateLocalObjectData?.(e.detail.objectId, {
+            quickStats: e.detail.quickStats,
+        });
+
         // Refresh MapEditor's cached map data
         editorRef?.refreshMapData?.();
 
@@ -757,6 +762,12 @@
             delete obj.quickStats; // Clear quickStats
         });
 
+        // Update local editor state directly so pending/subsequent saves don't overwrite our atomic update
+        editorRef?.updateLocalObjectData?.(e.detail.objectId, {
+            creatureRef: { ...creatureRef },
+            quickStats: undefined,
+        });
+
         // Refresh editor to show updated token state (e.g. might change color/border if assigned)
         editorRef?.refreshMapData?.();
 
@@ -791,6 +802,11 @@
 
         updateMapObject(currentMapId, quickStatsModalObjectId, (obj) => {
             obj.quickStats = e.detail.quickStats;
+        });
+
+        // Update local editor state directly so pending/subsequent saves don't overwrite our atomic update
+        editorRef?.updateLocalObjectData?.(quickStatsModalObjectId, {
+            quickStats: e.detail.quickStats,
         });
 
         // Refresh MapEditor's cached map data so re-selecting the token shows updated quickStats

@@ -671,6 +671,35 @@
         }
     }
 
+    /**
+     * Updates an object's local data without triggering a save immediately.
+     * Use this when an external component (like MapView) has already persisted a change to disk
+     * and wants to ensure the MapEditor's local state reflects this change so that subsequent
+     * saves (driven by MapEditor) don't overwrite it with stale local data.
+     */
+    export function updateLocalObjectData(objectId: string, updates: Partial<MapObject>) {
+        if (!map) return;
+        const objIndex = map.objects.findIndex((o) => o.id === objectId);
+        if (objIndex >= 0) {
+            const obj = map.objects[objIndex];
+            Object.assign(obj, updates);
+
+            // If the object was 'converting to character', quickStats might be deleted
+            // undefined/null in updates should remove the key
+            for (const key in updates) {
+                if (updates[key as keyof MapObject] === undefined) {
+                    delete obj[key as keyof MapObject];
+                }
+            }
+
+            if (selectedObject?.id === objectId) {
+                selectedObject = obj;
+                emitSelection();
+            }
+            scheduleRender();
+        }
+    }
+
     /** Reload map data from storage (call after external changes like quickStats) */
     export function refreshMapData() {
         // If we have pending changes, save them first!
