@@ -24,6 +24,7 @@
     import EncounterSetupModal from "./EncounterSetupModal.svelte";
     import SecondarySidebar from "../SecondarySidebar.svelte";
     import TertiarySidebar from "../TertiarySidebar.svelte";
+    import FloatingOracleButton from "../shared/FloatingOracleButton.svelte";
     // Floating panels
     import FloatingEditPlayToggle from "./FloatingEditPlayToggle.svelte";
     import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
@@ -55,6 +56,17 @@
 
     // Encounter setup modal state
     let showEncounterSetup = false;
+
+    // Dice roll preset for ability/skill checks
+    let mapDiceRollPreset: {
+        characterId: string;
+        characterName: string;
+        checkName: string;
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        rollType: "normal" | "advantage" | "disadvantage";
+    } | null = null;
 
     // Derived state for current turn indicator
     $: currentTurnObjectId =
@@ -803,6 +815,49 @@
         quickStatsModalExistingStats = null;
     }
 
+    // Handle roll check from CombatPanel
+    function handleCombatPanelRollCheck(detail: {
+        checkName: string;
+        diceFormula: string;
+        modifier: number;
+        resultOption: "Sum" | "Maximum" | "Minimum";
+    }) {
+        if (!campaignId || !encounterSelectedCreature?.creatureRef) return;
+
+        const creatureRef = encounterSelectedCreature.creatureRef;
+        if (creatureRef.type !== "character") return;
+
+        const character = $characterStore.find((c) => c.id === creatureRef.id);
+        if (!character) return;
+
+        const { checkName, diceFormula, modifier, resultOption } = detail;
+        const match = diceFormula.match(/^(\d+)d(\d+)$/i);
+        if (!match) {
+            console.error("Invalid dice formula:", diceFormula);
+            return;
+        }
+
+        const numDice = parseInt(match[1], 10);
+        const numSides = parseInt(match[2], 10);
+        let rollType: "normal" | "advantage" | "disadvantage" = "normal";
+        if (resultOption === "Maximum") rollType = "advantage";
+        else if (resultOption === "Minimum") rollType = "disadvantage";
+
+        mapDiceRollPreset = {
+            characterId: character.id,
+            characterName: character.name,
+            checkName,
+            numDice,
+            numSides,
+            modifier,
+            rollType,
+        };
+    }
+
+    function handleNavigateToChronicle() {
+        dispatch("navigateToStory");
+    }
+
     function handleInitiativeRolled(
         e: CustomEvent<{ order: InitiativeEntry[]; turnIndex: number }>
     ) {
@@ -1401,7 +1456,8 @@
                     on:addToEncounter={handleAddToEncounter}
                     on:quickStatsUpdate={handleQuickStatsUpdate}
                     on:convertToCharacter={handleConvertToCharacter}
-                    on:openQuickStatsModal={handleOpenQuickStatsModal} />
+                    on:openQuickStatsModal={handleOpenQuickStatsModal}
+                    onRollCheck={handleCombatPanelRollCheck} />
 
                 <!-- Initiative Bar (bottom of screen in combat mode) -->
                 <InitiativeBar
@@ -1431,6 +1487,17 @@
                     existingStats={quickStatsModalExistingStats}
                     on:save={handleQuickStatsSave}
                     on:close={handleQuickStatsClose} />
+
+                <!-- Floating Oracle Button for dice rolling in play mode -->
+                <FloatingOracleButton
+                    hasSecondarySidebar={false}
+                    hasTertiarySidebar={false}
+                    diceRollPreset={mapDiceRollPreset}
+                    currentCharacterId={encounterSelectedCreature?.creatureRef?.type === "character"
+                        ? encounterSelectedCreature.creatureRef.id
+                        : null}
+                    onClearPreset={() => (mapDiceRollPreset = null)}
+                    onNavigateToStory={handleNavigateToChronicle} />
             {/if}<!-- End showEncounterPanel -->
 
             <!-- Main Map Area -->

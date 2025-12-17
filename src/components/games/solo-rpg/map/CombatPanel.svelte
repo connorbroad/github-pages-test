@@ -7,11 +7,17 @@
         type CreatureRef,
         type InitiativeEntry,
         type QuickStats,
+        type Ability,
+        type Skill,
     } from "../data/storage-utils";
     import { characterStore } from "../data/character-store";
     import { fly } from "svelte/transition";
     import { quintOut } from "svelte/easing";
     import { rollInitiativeForCreature } from "./combat-utils";
+    import CollapsibleSection from "../shared/CollapsibleSection.svelte";
+    import AbilityCard from "./AbilityCard.svelte";
+    import SkillCard from "./SkillCard.svelte";
+    import { adjustDiceRollForAdvantageOrDisadvantage } from "../lore/characters/character-sheet/dice-utils";
 
     export let campaignId: string;
     export let mapId: string;
@@ -31,6 +37,14 @@
     // Encounter state - whether an active encounter is in progress
     export let hasActiveEncounter: boolean = false;
 
+    // Roll check callback (modern Svelte 5 pattern)
+    export let onRollCheck: (detail: {
+        checkName: string;
+        diceFormula: string;
+        modifier: number;
+        resultOption: "Sum" | "Maximum" | "Minimum";
+    }) => void = () => {};
+
     // Mobile panel resize state
     const PANEL_HEIGHT_KEY = "srpg-combat-panel-height";
     let panelHeightPercent = 50;
@@ -41,6 +55,10 @@
     // Collapsed state when no creature is selected (but not while dragging)
     const COLLAPSED_HEIGHT = 0; // percent for mobile, or fixed px for desktop
     $: isCollapsed = !selectedCreature && !isDragging;
+
+    // Collapsible section state
+    let abilitiesSectionOpen = false;
+    let skillsSectionOpen = false;
 
     const dispatch = createEventDispatcher<{
         selectCreature: { objectId: string; creatureRef: CreatureRef };
@@ -265,6 +283,37 @@
         }
     }
 
+    // Roll check handlers for abilities and skills
+    function handleAbilityRoll(ability: Ability, resultOption: "Sum" | "Maximum" | "Minimum") {
+        if (!creatureData) return;
+        const formula = creatureData.abilityCheckDice || "1d20";
+        const adjusted = adjustDiceRollForAdvantageOrDisadvantage(formula, resultOption);
+        onRollCheck({
+            checkName: ability.name,
+            diceFormula: adjusted,
+            modifier: ability.modifier,
+            resultOption,
+        });
+    }
+
+    function handleSkillRoll(skill: Skill, resultOption: "Sum" | "Maximum" | "Minimum") {
+        if (!creatureData) return;
+        const formula = creatureData.skillCheckDice || "1d20";
+        const adjusted = adjustDiceRollForAdvantageOrDisadvantage(formula, resultOption);
+        onRollCheck({
+            checkName: skill.name,
+            diceFormula: adjusted,
+            modifier: skill.bonus,
+            resultOption,
+        });
+    }
+
+    function getAbilityName(abilityId: string): string {
+        if (!creatureData) return "Unknown";
+        const ability = creatureData.abilities?.find((a) => a.id === abilityId);
+        return ability ? ability.name : "Unknown";
+    }
+
     // Drag resize handlers for mobile panel
     function handleDragStart(e: PointerEvent) {
         isDragging = true;
@@ -395,6 +444,43 @@
                 <div class="attacks-section">
                     <p class="attacks-placeholder">Weapon attacks coming soon</p>
                 </div>
+
+                <!-- Abilities Section -->
+                {#if creatureData.abilities?.length > 0}
+                    <CollapsibleSection
+                        title="Abilities"
+                        isOpen={abilitiesSectionOpen}
+                        badgeCount={creatureData.abilities.length}
+                        onToggle={() => (abilitiesSectionOpen = !abilitiesSectionOpen)}>
+                        <div class="grid grid-cols-1 gap-3 p-3">
+                            {#each creatureData.abilities as ability}
+                                <AbilityCard
+                                    {ability}
+                                    diceFormula={creatureData.abilityCheckDice || "1d20"}
+                                    onRoll={(resultOption) => handleAbilityRoll(ability, resultOption)} />
+                            {/each}
+                        </div>
+                    </CollapsibleSection>
+                {/if}
+
+                <!-- Skills Section -->
+                {#if creatureData.skills?.length > 0}
+                    <CollapsibleSection
+                        title="Skills"
+                        isOpen={skillsSectionOpen}
+                        badgeCount={creatureData.skills.length}
+                        onToggle={() => (skillsSectionOpen = !skillsSectionOpen)}>
+                        <div class="grid grid-cols-1 gap-3 p-3">
+                            {#each creatureData.skills as skill}
+                                <SkillCard
+                                    {skill}
+                                    abilityName={getAbilityName(skill.abilityId)}
+                                    diceFormula={creatureData.skillCheckDice || "1d20"}
+                                    onRoll={(resultOption) => handleSkillRoll(skill, resultOption)} />
+                            {/each}
+                        </div>
+                    </CollapsibleSection>
+                {/if}
 
                 <!-- Add to Encounter button -->
                 {#if hasActiveEncounter && !isInEncounter}
