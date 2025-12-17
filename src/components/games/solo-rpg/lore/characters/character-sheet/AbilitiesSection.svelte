@@ -3,6 +3,7 @@
 
     import ResultOptionIcon from "../../../oracle/components/dice-roller/components/ResultOptionIcon.svelte";
     import TemplateModal from "../../../shared/modal/TemplateModal.svelte";
+    import { adjustDiceRollForAdvantageOrDisadvantage } from "./dice-utils";
 
     export let editedCharacter: Character;
     export let isEditable: boolean;
@@ -254,22 +255,6 @@
     function getAbilityName(abilityId: string): string {
         const ability = editedCharacter.abilities.find((a) => a.id === abilityId);
         return ability ? ability.name : "Unknown";
-    }
-
-    function adjustDiceRollForAdvantageOrDisadvantage(
-        diceFormula: string,
-        resultOption: "Sum" | "Maximum" | "Minimum"
-    ): string {
-        if (diceFormula.includes("+") || diceFormula.includes("-")) return diceFormula;
-        const match = diceFormula.match(/^(\d*)d(\d+)$/);
-        if (match) {
-            const numDice = parseInt(match[1] || "1", 10);
-            const sides = parseInt(match[2], 10);
-            if (numDice === 1 && (resultOption === "Maximum" || resultOption === "Minimum")) {
-                return `2d${sides}`;
-            }
-        }
-        return diceFormula;
     }
 
     function rollAbility(ability: Ability, resultOption: "Sum" | "Maximum" | "Minimum") {
