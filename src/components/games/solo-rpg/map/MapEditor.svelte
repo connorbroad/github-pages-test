@@ -2,11 +2,11 @@
     import {
         getTileMapById,
         loadMaps,
-        saveMaps,
         type MapEntity,
         type MapObject,
         type TileRef,
     } from "../data/storage-utils";
+    import { updateMap } from "../data/map-persistence";
     import { ensureTileMapLoaded, getTileSprite } from "./tilemap-cache";
     import { onMount, onDestroy, createEventDispatcher } from "svelte";
     import { clamp as clampNum, getCappedDpr } from "./canvas-utils";
@@ -24,7 +24,7 @@
 
     // selected tile from tertiary sidebar
     export let selectedTile: { tileMapId: string; tileId: string } | null = null;
-    
+
     // ID of the object whose turn it is (for indicator)
     export let currentTurnObjectId: string | null = null;
 
@@ -133,19 +133,44 @@
     // Immediate save (used on destroy to ensure camera state is persisted)
     function saveMapNow() {
         if (!map) return;
-        map.updatedAt = Date.now();
-        const all = loadMaps();
-        const i = all.findIndex((m) => m.id === map!.id);
-        if (i >= 0) {
-            // Preserve combat state from storage (it may have been updated separately)
-            const existingCombatState = all[i].combatState;
-            all[i] = map!;
-            // Restore combat state after overwriting
-            if (existingCombatState) {
-                all[i].combatState = existingCombatState;
-            }
-            saveMaps(all);
-        }
+        const localMap = map;
+
+        updateMap(localMap.id, (map) => {
+            // Merge simple properties from local state
+            map.view = localMap.view;
+            map.background = localMap.background;
+            if (localMap.backgroundTiles) map.backgroundTiles = localMap.backgroundTiles;
+            if (localMap.backgroundTileTints)
+                map.backgroundTileTints = localMap.backgroundTileTints;
+
+            // Smart Merge for Objects:
+            // We rely on localMap.objects as the source of truth for POSITIONS and VISUALS (editor controlled),
+            // and source of truth for ADDITIONS/DELETIONS made in the editor.
+            // But we must preserve DATA (HP, Stats) from freshMap which might have been updated by MapView.
+            map.objects = localMap.objects.map((localObj) => {
+                const freshObj = map.objects.find((o) => o.id === localObj.id);
+                if (freshObj) {
+                    // Preservation Logic:
+                    // 1. Creature Ref HP/Stats (Synced from character store by MapView)
+                    if (
+                        localObj.creatureRef &&
+                        freshObj.creatureRef &&
+                        localObj.creatureRef.id === freshObj.creatureRef.id
+                    ) {
+                        localObj.creatureRef.currentHitPoints =
+                            freshObj.creatureRef.currentHitPoints;
+                        // localObj.creatureRef.hitPointMaximum = freshObj.creatureRef.hitPointMaximum;
+                    }
+
+                    // 2. QuickStats (Synced from CombatPanel by MapView)
+                    // If local didn't change (still has quickStats), accept update from fresh
+                    if (localObj.quickStats && freshObj.quickStats) {
+                        localObj.quickStats = freshObj.quickStats;
+                    }
+                }
+                return localObj;
+            });
+        });
     }
 
     function getDpr() {
@@ -648,6 +673,13 @@
 
     /** Reload map data from storage (call after external changes like quickStats) */
     export function refreshMapData() {
+        // If we have pending changes, save them first!
+        // This ensures local moves are merged with the incoming data update
+        if (saveTimer) {
+            clearTimeout(saveTimer);
+            saveMapNow();
+        }
+
         const selectedId = selectedObject?.id;
         loadMap();
         invalidateSortedObjects();

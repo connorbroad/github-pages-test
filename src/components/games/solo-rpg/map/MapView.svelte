@@ -1,16 +1,14 @@
 <script lang="ts">
-    import { onMount, untrack } from "svelte";
+    import { untrack } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
     import NoCampaignOverlay from "../NoCampaignOverlay.svelte";
     import { generateId } from "../oracle/scripts/oracleTypes";
     import {
         loadMapsByCampaign,
-        saveMaps,
         loadMaps,
         saveActiveMapId,
         loadActiveMapId,
         loadCharacters,
-        saveCharacters,
         loadMapMode,
         saveMapMode,
         type MapEntity,
@@ -39,9 +37,15 @@
         getNextTurnIndex,
         getPrevTurnIndex,
         insertCreatureAtIndex,
-        rollInitiativeForCreature,
         type CreatureInitiativeInput,
     } from "./combat-utils";
+    import {
+        updateMap,
+        updateMapObject,
+        saveCombatState as persistCombatState,
+        addMap,
+        deleteMap as removeMap,
+    } from "../data/map-persistence";
     import { characterStore } from "../data/character-store";
     import "../solo-rpg-styles.css";
 
@@ -156,9 +160,6 @@
     // Save combat state to map entity
     function saveCombatState() {
         if (!currentMapId) return;
-        const allMaps = loadMaps();
-        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
-        if (mapIndex < 0) return;
 
         // Create deep copies to ensure we're saving the current state values
         const combatStateToSave = {
@@ -167,9 +168,8 @@
             hasActiveEncounter,
             pendingNextObjectId,
         };
-        allMaps[mapIndex].combatState = combatStateToSave;
-        allMaps[mapIndex].updatedAt = Date.now();
-        saveMaps(allMaps);
+
+        persistCombatState(currentMapId, combatStateToSave);
     }
 
     // Refresh maps when campaign changes and validate active map
@@ -199,61 +199,54 @@
     function syncMapWithCharacters() {
         if (!currentMapId) return;
 
-        const allMaps = loadMaps();
-        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
-        if (mapIndex < 0) return;
+        updateMap(currentMapId, (map) => {
+            let mapChanged = false;
+            map.objects.forEach((obj) => {
+                if (obj.creatureRef && obj.creatureRef.type === "character") {
+                    const character = $characterStore.find((c) => c.id === obj.creatureRef!.id);
+                    if (character) {
+                        // Sync HP if different
+                        const charHp =
+                            character.currentHitPoints ?? character.hitPointMaximum ?? 10;
+                        if (obj.creatureRef.currentHitPoints !== charHp) {
+                            obj.creatureRef.currentHitPoints = charHp;
+                            mapChanged = true;
 
-        let mapChanged = false;
-        const map = allMaps[mapIndex];
+                            // If this creature is currently selected in encounter, update local state
+                            if (encounterSelectedCreature?.objectId === obj.id) {
+                                encounterSelectedCreature = {
+                                    ...encounterSelectedCreature,
+                                    creatureRef: { ...obj.creatureRef },
+                                };
+                            }
 
-        map.objects.forEach((obj) => {
-            if (obj.creatureRef && obj.creatureRef.type === "character") {
-                const character = $characterStore.find((c) => c.id === obj.creatureRef!.id);
-                if (character) {
-                    // Sync HP if different
-                    const charHp = character.currentHitPoints ?? character.hitPointMaximum ?? 10;
-                    if (obj.creatureRef.currentHitPoints !== charHp) {
-                        obj.creatureRef.currentHitPoints = charHp;
-                        mapChanged = true;
-
-                        // If this creature is currently selected in encounter, update local state
-                        if (encounterSelectedCreature?.objectId === obj.id) {
-                            encounterSelectedCreature = {
-                                ...encounterSelectedCreature,
-                                creatureRef: { ...obj.creatureRef },
-                            };
-                        }
-
-                        // Update initiative order if present
-                        const initIndex = initiativeOrder.findIndex((e) => e.objectId === obj.id);
-                        if (initIndex >= 0) {
-                            initiativeOrder[initIndex] = {
-                                ...initiativeOrder[initIndex],
-                                currentHP: charHp,
-                                maxHP: character.hitPointMaximum ?? 10,
-                            };
-                            // Start a save for combat state (will be handled by reactive statement or manual save)
-                            saveCombatState();
+                            // Update initiative order if present
+                            const initIndex = initiativeOrder.findIndex(
+                                (e) => e.objectId === obj.id
+                            );
+                            if (initIndex >= 0) {
+                                initiativeOrder[initIndex] = {
+                                    ...initiativeOrder[initIndex],
+                                    currentHP: charHp,
+                                    maxHP: character.hitPointMaximum ?? 10,
+                                };
+                            }
                         }
                     }
                 }
+            });
+
+            // If map changed, the 'map' object is already mutated in place, updateMap will save it.
+            // But we also need to update the combat state on the map object if we modified initiativeOrder
+            if (mapChanged) {
+                // Sync local initiative changes back to map's combat state to be safe
+                if (map.combatState) {
+                    map.combatState.initiativeOrder = initiativeOrder.map((e) => ({ ...e }));
+                }
+                // Refresh editor
+                setTimeout(() => editorRef?.refreshMapData?.(), 0);
             }
         });
-
-        if (mapChanged) {
-            // Preserve combat state when saving map changes
-            // Re-read to get latest combat state that might have been saved by saveCombatState()
-            const freshMaps = loadMaps();
-            const freshMap = freshMaps[mapIndex];
-            if (freshMap) {
-                // Apply our object changes to the fresh map (preserving its combat state)
-                freshMap.objects = map.objects;
-                freshMap.updatedAt = Date.now();
-                saveMaps(freshMaps);
-            }
-            // Refresh editor if reference exists
-            editorRef?.refreshMapData?.();
-        }
     }
 
     function createMap(e: CustomEvent<{ name: string }>) {
@@ -272,9 +265,7 @@
             objects: [],
             view: { x: 0, y: 0, zoom: 1 },
         };
-        const all = loadMaps();
-        all.push(newMap);
-        saveMaps(all);
+        addMap(newMap);
         maps = loadMapsByCampaign(campaignId);
     }
 
@@ -309,19 +300,15 @@
 
     function renameMap(e: CustomEvent<{ id: string; name: string }>) {
         const { id, name } = e.detail;
-        const all = loadMaps();
-        const idx = all.findIndex((m) => m.id === id);
-        if (idx >= 0) {
-            all[idx] = { ...all[idx], name, updatedAt: Date.now() };
-            saveMaps(all);
-            if (campaignId) maps = loadMapsByCampaign(campaignId);
-        }
+        updateMap(id, (m) => {
+            m.name = name;
+        });
+        if (campaignId) maps = loadMapsByCampaign(campaignId);
     }
 
     function deleteMap(e: CustomEvent<{ id: string }>) {
         const { id } = e.detail;
-        const all = loadMaps().filter((m) => m.id !== id);
-        saveMaps(all);
+        removeMap(id);
         if (currentMapId === id) {
             currentMapId = null;
             saveActiveMapId(null);
@@ -329,15 +316,12 @@
         if (campaignId) maps = loadMapsByCampaign(campaignId);
     }
 
-    function updateMap(e: CustomEvent<{ id: string; changes: Partial<MapEntity> }>) {
+    function doUpdateMap(e: CustomEvent<{ id: string; changes: Partial<MapEntity> }>) {
         const { id, changes } = e.detail;
-        const all = loadMaps();
-        const idx = all.findIndex((m) => m.id === id);
-        if (idx >= 0) {
-            all[idx] = { ...all[idx], ...changes, updatedAt: Date.now() };
-            saveMaps(all);
-            if (campaignId) maps = loadMapsByCampaign(campaignId);
-        }
+        updateMap(id, (m) => {
+            Object.assign(m, changes);
+        });
+        if (campaignId) maps = loadMapsByCampaign(campaignId);
     }
 
     // Editor UI state routed to floating panels
@@ -696,18 +680,10 @@
     // Handle quick stats updates from CombatPanel
     function handleQuickStatsUpdate(e: CustomEvent<{ objectId: string; quickStats: QuickStats }>) {
         if (!currentMapId) return;
-        const allMaps = loadMaps();
-        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
-        if (mapIndex < 0) return;
 
-        const map = allMaps[mapIndex];
-        const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
-        if (objIndex < 0) return;
-
-        map.objects[objIndex].quickStats = e.detail.quickStats;
-        map.updatedAt = Date.now();
-        allMaps[mapIndex] = map;
-        saveMaps(allMaps);
+        updateMapObject(currentMapId, e.detail.objectId, (obj) => {
+            obj.quickStats = e.detail.quickStats;
+        });
 
         // Refresh MapEditor's cached map data
         editorRef?.refreshMapData?.();
@@ -725,14 +701,13 @@
             (entry) => entry.objectId === e.detail.objectId
         );
         if (initIndex >= 0) {
-            const newOrder = [...initiativeOrder];
-            newOrder[initIndex] = {
-                ...newOrder[initIndex],
-                name: e.detail.quickStats.name || newOrder[initIndex].name,
-                currentHP: e.detail.quickStats.currentHitPoints ?? newOrder[initIndex].currentHP,
-                maxHP: e.detail.quickStats.maxHitPoints ?? newOrder[initIndex].maxHP,
+            initiativeOrder[initIndex] = {
+                ...initiativeOrder[initIndex],
+                name: e.detail.quickStats.name || initiativeOrder[initIndex].name,
+                currentHP:
+                    e.detail.quickStats.currentHitPoints ?? initiativeOrder[initIndex].currentHP,
+                maxHP: e.detail.quickStats.maxHitPoints ?? initiativeOrder[initIndex].maxHP,
             };
-            initiativeOrder = newOrder;
             saveCombatState();
         }
     }
@@ -765,34 +740,30 @@
         characterStore.add(newCharacter);
 
         // Update the map object to use creatureRef instead of quickStats
-        const allMaps = loadMaps();
-        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
-        if (mapIndex < 0) return;
-
-        const map = allMaps[mapIndex];
-        const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
-        if (objIndex < 0) return;
-
-        const obj = map.objects[objIndex];
-        obj.creatureRef = {
+        const instanceId = generateId(); // Generate ID once to share between map update and local state
+        const creatureRef: CreatureRef = {
             type: "character",
             id: newCharacter.id,
-            instanceId: generateId(),
+            instanceId,
             currentHitPoints: qs.currentHitPoints ?? 10,
         };
-        delete obj.quickStats; // Clear quickStats
 
-        map.updatedAt = Date.now();
-        allMaps[mapIndex] = map;
-        saveMaps(allMaps);
+        updateMap(currentMapId, (map) => {
+            const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
+            if (objIndex < 0) return;
+
+            const obj = map.objects[objIndex];
+            obj.creatureRef = { ...creatureRef };
+            delete obj.quickStats; // Clear quickStats
+        });
 
         // Refresh editor to show updated token state (e.g. might change color/border if assigned)
         editorRef?.refreshMapData?.();
 
         // Update local state to show the newly assigned character
         encounterSelectedCreature = {
-            objectId: obj.id,
-            creatureRef: obj.creatureRef,
+            objectId: e.detail.objectId,
+            creatureRef: { ...creatureRef },
         };
 
         // Update initiative order if token is in encounter
@@ -818,18 +789,9 @@
     function handleQuickStatsSave(e: CustomEvent<{ quickStats: QuickStats }>) {
         if (!currentMapId || !quickStatsModalObjectId) return;
 
-        const allMaps = loadMaps();
-        const mapIndex = allMaps.findIndex((m) => m.id === currentMapId);
-        if (mapIndex < 0) return;
-
-        const map = allMaps[mapIndex];
-        const objIndex = map.objects.findIndex((o) => o.id === quickStatsModalObjectId);
-        if (objIndex < 0) return;
-
-        map.objects[objIndex].quickStats = e.detail.quickStats;
-        map.updatedAt = Date.now();
-        allMaps[mapIndex] = map;
-        saveMaps(allMaps);
+        updateMapObject(currentMapId, quickStatsModalObjectId, (obj) => {
+            obj.quickStats = e.detail.quickStats;
+        });
 
         // Refresh MapEditor's cached map data so re-selecting the token shows updated quickStats
         editorRef?.refreshMapData?.();
@@ -1372,7 +1334,7 @@
                 on:openMap={openMap}
                 on:renameMap={renameMap}
                 on:deleteMap={deleteMap}
-                on:updateMap={updateMap} />
+                on:updateMap={doUpdateMap} />
         </div>
     {:else}
         <!-- Map View Container: uses flexbox to accommodate encounter panel -->
