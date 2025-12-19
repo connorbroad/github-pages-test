@@ -20,13 +20,20 @@
 
     // Detect if we're on mobile
     import { isMobile } from "./ui-utils";
+
+    export let disableFixed: boolean = false;
 </script>
 
 {#if show}
     <aside
-        class="bg-sidebar-bg fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0
-               z-40 flex h-[60px] w-full flex-col shadow-md
-               md:fixed md:top-[48px] md:left-20 md:h-[calc(100vh-48px)] md:w-[90px] md:flex-col md:shadow-md"
+        class="bg-sidebar-bg pointer-events-auto z-40 flex shadow-md transition-all duration-300
+               {disableFixed
+            ? 'relative h-[60px] w-full'
+            : 'fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0 h-[60px] w-full'}
+               md:flex-col
+               {disableFixed
+            ? 'md:relative md:top-auto md:left-auto md:h-fit md:w-[90px] md:shadow-none'
+            : 'md:fixed md:top-[48px] md:left-20 md:h-fit md:w-[90px]'}"
         transition:fly={{
             duration: 300,
             easing: quintOut,

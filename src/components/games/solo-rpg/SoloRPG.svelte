@@ -157,8 +157,7 @@
 
 <main
     class="box-border py-0 transition-all duration-300
-           md:ml-20
-           {currentView === 'map' ? 'md:ml-[170px]' : ''}
+           {currentView === 'map' && mapHasOpenMap ? '' : 'md:ml-20'}
            {currentView === 'characters' && showTertiarySidebar ? 'md:ml-40' : ''}"
     data-theme={$theme}
     style="--secondary-sidebar-visible: 0; --tertiary-sidebar-visible: {showTertiarySidebar

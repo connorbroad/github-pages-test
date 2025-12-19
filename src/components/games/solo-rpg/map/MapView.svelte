@@ -777,40 +777,49 @@
                 !encounterPanelDragging}
             class:panel-dragging={encounterPanelDragging}
             style="--encounter-panel-height: {encounterPanelHeight}%;">
-            <!-- Secondary Sidebar (Move/Background/Token tool toggle) - hidden in play mode -->
-            <SecondarySidebar
-                show={showSecondarySidebar && mapMode === "edit"}
-                mode="map"
-                activeTab="characters"
-                {editMode}
-                onTabChange={() => {}}
-                onEditModeChange={handleEditModeChange} />
+            <!-- Sidebars Container: Handles desktop vertical stacking and mobile fixed positioning -->
+            <div
+                class="pointer-events-none z-40
+                       md:fixed md:top-[48px] md:bottom-0 md:left-20 md:flex md:flex-col md:flex-wrap md:gap-(--sidebar-gap) md:p-2">
+                <!-- Secondary Sidebar (Move/Background/Token tool toggle) - hidden in play mode -->
+                <SecondarySidebar
+                    show={showSecondarySidebar && mapMode === "edit"}
+                    disableFixed={!$isMobile}
+                    mode="map"
+                    activeTab="characters"
+                    {editMode}
+                    onTabChange={() => {}}
+                    onEditModeChange={handleEditModeChange} />
 
-            <!-- Tertiary Sidebar (tool-specific options) -->
-            <TertiarySidebar
-                show={showTertiarySidebar}
-                mode="map"
-                hasSecondarySidebar={true}
-                {editMode}
-                {objectMode}
-                {isErasing}
-                {hasSelection}
-                {selectedCanFlip}
-                currentColor={editMode === "object" && hasSelection
-                    ? (selectedColor ?? color)
-                    : color}
-                currentTile={editMode === "object" && hasSelection ? selectedTile : selectedTileRef}
-                currentShape={editMode === "object" && hasSelection
-                    ? (selectedShape ?? currentShape)
-                    : currentShape}
-                onObjectModeChange={handleObjectModeChange}
-                onBrushModeChange={handleBrushModeChange}
-                onOpenTileModal={openTileModal}
-                onOpenColorModal={openColorModal}
-                onOpenTokenModal={openTokenModal}
-                onFlip={handleFlip}
-                onDelete={handleDelete}
-                onOpenAssignModal={openAssignModal} />
+                <!-- Tertiary Sidebar (tool-specific options) -->
+                <TertiarySidebar
+                    show={showTertiarySidebar}
+                    disableFixed={!$isMobile}
+                    mode="map"
+                    hasSecondarySidebar={true}
+                    {editMode}
+                    {objectMode}
+                    {isErasing}
+                    {hasSelection}
+                    {selectedCanFlip}
+                    currentColor={editMode === "object" && hasSelection
+                        ? (selectedColor ?? color)
+                        : color}
+                    currentTile={editMode === "object" && hasSelection
+                        ? selectedTile
+                        : selectedTileRef}
+                    currentShape={editMode === "object" && hasSelection
+                        ? (selectedShape ?? currentShape)
+                        : currentShape}
+                    onObjectModeChange={handleObjectModeChange}
+                    onBrushModeChange={handleBrushModeChange}
+                    onOpenTileModal={openTileModal}
+                    onOpenColorModal={openColorModal}
+                    onOpenTokenModal={openTokenModal}
+                    onFlip={handleFlip}
+                    onDelete={handleDelete}
+                    onOpenAssignModal={openAssignModal} />
+            </div>
 
             <!-- Floating Edit/Play Toggle (top center, only in edit mode) -->
             {#if showEditPlayToggle}
@@ -984,14 +993,14 @@
     @media (min-width: 768px) {
         .map-view-container {
             bottom: 0;
-            /* After primary (80px) + secondary (90px) sidebars */
-            left: 170px;
+            /* Sidebars now float/stack within the container, no hardcoded offset needed */
+            left: 0;
         }
 
         /* In play mode, hide secondary sidebar, only show primary (80px) */
         /* Initiative bar now floats, so no bottom reservation needed */
         .map-view-container.play-mode {
-            left: 80px; /* Only primary sidebar */
+            left: 0;
             bottom: 0; /* Initiative bar floats - no reserved space */
         }
     }

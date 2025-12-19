@@ -62,17 +62,23 @@
 
     // Detect if we're on mobile
     import { isMobile } from "./ui-utils";
+
+    export let disableFixed: boolean = false;
 </script>
 
 {#if show}
     <aside
-        class="bg-sidebar-bg fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0
-               z-30 flex h-(--tertiary-height,60px) w-full flex-col shadow-md
-               {hasSecondarySidebar || mode === 'map'
-            ? 'bottom-[calc(130px+env(safe-area-inset-bottom))]'
-            : ''}
-               md:fixed md:top-[48px] md:bottom-auto md:left-20 md:h-[calc(100vh-48px)] md:w-20 md:shadow-md
-               {hasSecondarySidebar ? 'md:left-[170px]' : ''}"
+        class="bg-sidebar-bg pointer-events-auto z-30 flex shadow-md transition-all duration-300
+               {disableFixed
+            ? 'relative h-(--tertiary-height,60px) w-full'
+            : 'fixed right-0 bottom-[calc(70px+env(safe-area-inset-bottom))] left-0 h-(--tertiary-height,60px) w-full ' +
+              (hasSecondarySidebar || mode === 'map'
+                  ? 'bottom-[calc(130px+env(safe-area-inset-bottom))]'
+                  : '')}
+               md:flex-col
+               {disableFixed
+            ? 'md:relative md:top-auto md:left-auto md:h-fit md:w-20 md:shadow-none'
+            : 'md:fixed md:top-[48px] md:bottom-auto md:left-20 md:h-fit md:w-20'}"
         style="--tertiary-height: 60px;"
         transition:fly={{
             duration: 300,

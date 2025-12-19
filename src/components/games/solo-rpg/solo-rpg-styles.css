@@ -1,6 +1,10 @@
 /* Import Theme Variables */
 @import "./theme/theme-variables.css";
 
+:root {
+    --sidebar-gap: 1rem;
+}
+
 /* ============================================
    SIDEBAR ITEM STYLES
    Consistent styling for all sidebar items
