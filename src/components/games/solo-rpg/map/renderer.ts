@@ -231,59 +231,66 @@ export function drawFgObjects(opts: {
             continue;
         }
 
-        if ((o as any).kind === "tile" && (o as any).tile) {
-            const ref = (o as any).tile;
+        ctxFg.save();
+        ctxFg.translate(o.x, o.y);
+
+        // Apply rotation if any
+        if (o.rotation) {
+            ctxFg.rotate(o.rotation);
+        }
+
+        // Apply flips
+        const fx = o.flipX ? -1 : 1;
+        const fy = o.flipY ? -1 : 1;
+        if (fx !== 1 || fy !== 1) {
+            ctxFg.scale(fx, fy);
+        }
+
+        if (o.kind === "tile" && o.tile) {
+            const ref = o.tile;
             const sprite = getCachedTileSprite(ref);
             const tint = !o.color || o.color === "clear" ? null : o.color;
             const shape = (o.type ?? "square") as "square" | "circle" | "triangle" | "star";
-            const flipX = (o as any).flipX === true;
+
             if (sprite) {
-                ctxFg.save();
-                ctxFg.translate(o.x, o.y);
-                if (flipX) ctxFg.scale(-1, 1);
                 if (shape === "square") {
                     drawTintedSprite(ctxFg, sprite as any, -o.w / 2, -o.h / 2, o.w, o.h, tint);
-                    ctxFg.strokeStyle = "#000000";
-                    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-                    ctxFg.strokeRect(-o.w / 2, -o.h / 2, o.w, o.h);
                 } else {
                     beginShapePath(ctxFg, shape, o.w, o.h);
                     ctxFg.clip();
                     drawTintedSprite(ctxFg, sprite as any, -o.w / 2, -o.h / 2, o.w, o.h, tint);
+                }
 
-                    ctxFg.restore();
-                    ctxFg.save();
-                    ctxFg.translate(o.x, o.y);
-                    if (flipX) ctxFg.scale(-1, 1);
+                // Always draw a fine black outline around everything to help it "pop"
+                ctxFg.strokeStyle = "#000000";
+                ctxFg.lineWidth = 2 / (camera.zoom * dpr);
+                if (shape === "square") {
+                    ctxFg.strokeRect(-o.w / 2, -o.h / 2, o.w, o.h);
+                } else {
                     beginShapePath(ctxFg, shape, o.w, o.h);
-                    ctxFg.strokeStyle = "#000000";
-                    ctxFg.lineWidth = 2 / (camera.zoom * dpr);
                     ctxFg.stroke();
                 }
-                ctxFg.restore();
             } else {
                 getTileSprite(ref)
                     .then(onInvalidate)
                     .catch(() => {
-                        ctxFg.save();
                         ctxFg.fillStyle = "#ff00ff";
-                        ctxFg.fillRect(o.x - o.w / 2, o.y - o.h / 2, o.w, o.h);
-                        ctxFg.restore();
+                        ctxFg.fillRect(-o.w / 2, -o.h / 2, o.w, o.h);
                     });
             }
         } else {
+            // Shape only
+            const shape = (o.type ?? "square") as any;
             ctxFg.fillStyle = o.color;
             ctxFg.strokeStyle = "#000000";
             ctxFg.lineWidth = 2 / (camera.zoom * dpr);
-            ctxFg.save();
-            ctxFg.translate(o.x, o.y);
-            if ((o as any).rotation) ctxFg.rotate((o as any).rotation);
 
-            beginShapePath(ctxFg, o.type as any, o.w, o.h);
+            beginShapePath(ctxFg, shape, o.w, o.h);
             ctxFg.fill();
             ctxFg.stroke();
-            ctxFg.restore();
         }
+
+        ctxFg.restore();
 
         // Draw turn indicator if this is the current turn object
         if (mapMode === "play" && currentTurnObjectId === o.id) {

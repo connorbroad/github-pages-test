@@ -245,6 +245,10 @@ export type MapObject = {
     creatureRef?: CreatureRef;
     /** Quick stats for unassigned tokens - mutually exclusive with creatureRef */
     quickStats?: QuickStats;
+    /** Whether the object (usually a tile) is flipped horizontally */
+    flipX?: boolean;
+    /** Whether the object is flipped vertically */
+    flipY?: boolean;
 };
 
 /** Initiative entry for combat turn order */

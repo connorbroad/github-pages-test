@@ -1,38 +1,39 @@
 <script lang="ts">
     import {
         getTileMapById,
-        loadMaps,
         type MapEntity,
         type MapObject,
         type TileRef,
     } from "../data/storage-utils";
-    import { updateMap } from "../data/map-persistence";
     import { ensureTileMapLoaded, getTileSprite } from "./tilemap-cache";
-    import { onMount, onDestroy, createEventDispatcher } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { clamp as clampNum, getCappedDpr } from "./canvas-utils";
     import LoadingOverlay from "./LoadingOverlay.svelte";
     import { generateUUID } from "./uuid";
     import { drawGrid as renderGrid, drawFgObjects as renderFg } from "./renderer";
+    import { mapState } from "./map-state.svelte";
 
-    export let mapId: string;
-    export let editMode: "move" | "background" | "object" = "move";
-    export let objectMode: "select" | "add" = "select";
-    export let currentShape: MapObject["type"] = "square";
-    export let color: string = "#2980b9";
-    export let mapMode: "edit" | "play" = "edit";
-    export let isErasing: boolean = false;
+    interface Props {
+        mapId: string;
+    }
 
-    // selected tile from tertiary sidebar
-    export let selectedTile: { tileMapId: string; tileId: string } | null = null;
-
-    // ID of the object whose turn it is (for indicator)
-    export let currentTurnObjectId: string | null = null;
-
-    const dispatch = createEventDispatcher();
+    let { mapId }: Props = $props();
 
     let camera = { x: 0, y: 0, zoom: 1 };
 
-    let map: MapEntity | null = null;
+    // Map entity is now reactive from mapState
+    let map = $derived(mapState.map);
+
+    // UI state derived from mapState
+    let editMode = $derived(mapState.editMode);
+    let objectMode = $derived(mapState.objectMode);
+    let currentShape = $derived(mapState.currentShape);
+    let color = $derived(mapState.color);
+    let mapMode = $derived(mapState.mapMode);
+    let isErasing = $derived(mapState.isErasing);
+    let selectedTile = $derived(mapState.selectedTileRef);
+    let currentTurnObjectId = $derived(mapState.currentTurnObjectId);
+
     let canvasBg: HTMLCanvasElement;
     let canvasFg: HTMLCanvasElement;
     let ctxBg: CanvasRenderingContext2D;
@@ -47,9 +48,15 @@
     function getCachedRect(): DOMRect {
         if (rectDirty || !cachedRect) {
             cachedRect = canvasFg.getBoundingClientRect();
+            if (cachedRect) {
+                // Ensure rect isn't zero-sized (can happen on initial render)
+                if (cachedRect.width === 0 || cachedRect.height === 0) {
+                    rectDirty = true;
+                }
+            }
             rectDirty = false;
         }
-        return cachedRect;
+        return cachedRect!;
     }
 
     function invalidateRect() {
@@ -78,8 +85,8 @@
     let velocity = { x: 0, y: 0 }; // world units per ms for camera
     let inertiaRaf: number | null = null;
 
-    // Object selection state for Object/Select mode
-    let selectedObject: MapObject | null = null;
+    // Object selection state is now in mapState
+    let selectedObject = $derived(mapState.selectedObject);
     let isDraggingHandle = false;
 
     // Pending selection when initial press lands on an object; will turn into a pan if moved past slop
@@ -133,44 +140,8 @@
     // Immediate save (used on destroy to ensure camera state is persisted)
     function saveMapNow() {
         if (!map) return;
-        const localMap = map;
-
-        updateMap(localMap.id, (map) => {
-            // Merge simple properties from local state
-            map.view = localMap.view;
-            map.background = localMap.background;
-            if (localMap.backgroundTiles) map.backgroundTiles = localMap.backgroundTiles;
-            if (localMap.backgroundTileTints)
-                map.backgroundTileTints = localMap.backgroundTileTints;
-
-            // Smart Merge for Objects:
-            // We rely on localMap.objects as the source of truth for POSITIONS and VISUALS (editor controlled),
-            // and source of truth for ADDITIONS/DELETIONS made in the editor.
-            // But we must preserve DATA (HP, Stats) from freshMap which might have been updated by MapView.
-            map.objects = localMap.objects.map((localObj) => {
-                const freshObj = map.objects.find((o) => o.id === localObj.id);
-                if (freshObj) {
-                    // Preservation Logic:
-                    // 1. Creature Ref HP/Stats (Synced from character store by MapView)
-                    if (
-                        localObj.creatureRef &&
-                        freshObj.creatureRef &&
-                        localObj.creatureRef.id === freshObj.creatureRef.id
-                    ) {
-                        localObj.creatureRef.currentHitPoints =
-                            freshObj.creatureRef.currentHitPoints;
-                        // localObj.creatureRef.hitPointMaximum = freshObj.creatureRef.hitPointMaximum;
-                    }
-
-                    // 2. QuickStats (Synced from CombatPanel by MapView)
-                    // If local didn't change (still has quickStats), accept update from fresh
-                    if (localObj.quickStats && freshObj.quickStats) {
-                        localObj.quickStats = freshObj.quickStats;
-                    }
-                }
-                return localObj;
-            });
-        });
+        mapState.setCamera(camera.x, camera.y, camera.zoom);
+        mapState.saveActiveMap();
     }
 
     function getDpr() {
@@ -359,85 +330,29 @@
         const { x, y } = screenToWorld(sx, sy);
         const { tx, ty } = worldToTile(x, y);
         const key = `${tx},${ty}`;
-        // Eraser mode clears the tile (same as old "clear" color behavior)
-        if (isErasing) {
-            if (map.backgroundTiles && map.backgroundTiles[key]) delete map.backgroundTiles[key];
-            if (map.backgroundTileTints && map.backgroundTileTints[key])
-                delete map.backgroundTileTints[key];
-            if (map.background[key]) delete map.background[key];
-        } else if (selectedTile) {
-            if (!map.backgroundTiles) map.backgroundTiles = {};
-            map.backgroundTiles[key] = { ...selectedTile };
-            if (map.background[key]) delete map.background[key];
-            if (!map.backgroundTileTints) map.backgroundTileTints = {};
-            map.backgroundTileTints[key] = color;
-        } else {
-            map.background[key] = color;
-            if (map.backgroundTiles && map.backgroundTiles[key]) delete map.backgroundTiles[key];
-            if (map.backgroundTileTints && map.backgroundTileTints[key])
-                delete map.backgroundTileTints[key];
-        }
-        queueSave();
-        scheduleRender();
-    }
 
-    export function setSelectedObjectColor(newColor: string) {
-        if (!selectedObject) return;
-        selectedObject.color = newColor;
-        scheduleRender();
-        queueSave();
-        emitSelection();
-    }
-
-    export function setSelectedObjectShape(newShape: MapObject["type"]) {
-        if (!selectedObject) return;
-        selectedObject.type = newShape;
-        scheduleRender();
-        queueSave();
-        emitSelection();
-    }
-
-    export function setSelectedObjectTile(newTile: { tileMapId: string; tileId: string }) {
-        if (!selectedObject || !map) return;
-        // Load the tile to get its dimensions
-        const tileMap = getTileMapById(newTile.tileMapId);
-        if (!tileMap) return;
-        const tile = tileMap.tiles.find((t) => t.id === newTile.tileId);
-        if (!tile) return;
-
-        // Set the tile reference
-        selectedObject.tile = {
-            tileMapId: newTile.tileMapId,
-            tileId: newTile.tileId,
-        };
-        // Update the kind to "tile" since it now has a tile
-        selectedObject.kind = "tile";
-        // Keep the existing object size - don't update dimensions
-
-        // Ensure the tile is loaded for rendering
-        ensureTileMapLoaded(tileMap).then(() => {
-            scheduleRender();
+        mapState.updateMapData((m) => {
+            // Eraser mode clears the tile (same as old "clear" color behavior)
+            if (isErasing) {
+                if (m.backgroundTiles && m.backgroundTiles[key]) delete m.backgroundTiles[key];
+                if (m.backgroundTileTints && m.backgroundTileTints[key])
+                    delete m.backgroundTileTints[key];
+                if (m.background[key]) delete m.background[key];
+            } else if (selectedTile) {
+                if (!m.backgroundTiles) m.backgroundTiles = {};
+                m.backgroundTiles[key] = { ...selectedTile };
+                if (m.background[key]) delete m.background[key];
+                if (!m.backgroundTileTints) m.backgroundTileTints = {};
+                m.backgroundTileTints[key] = color;
+            } else {
+                m.background[key] = color;
+                if (m.backgroundTiles && m.backgroundTiles[key]) delete m.backgroundTiles[key];
+                if (m.backgroundTileTints && m.backgroundTileTints[key])
+                    delete m.backgroundTileTints[key];
+            }
         });
 
         scheduleRender();
-        queueSave();
-        emitSelection();
-    }
-
-    export function flipSelectedObject() {
-        if (!selectedObject) return;
-        if (selectedObject.kind !== "tile") return;
-        (selectedObject as any).flipX = !(selectedObject as any).flipX;
-        scheduleRender();
-        queueSave();
-    }
-
-    export function setSelectedObjectCreature(creatureRef: MapObject["creatureRef"]) {
-        if (!selectedObject) return;
-        selectedObject.creatureRef = creatureRef;
-        scheduleRender();
-        queueSave();
-        emitSelection();
     }
 
     /**
@@ -452,15 +367,9 @@
     }
 
     export function deleteSelectedObject() {
-        if (!selectedObject || !map) return;
-        const id = selectedObject.id;
-        map.objects = map.objects.filter((o) => o.id !== id);
-        selectedObject = null;
-        invalidateBounds();
-        invalidateSortedObjects();
-        scheduleRender();
-        queueSave();
-        emitSelection();
+        if (selectedObject) {
+            mapState.deleteObject(selectedObject.id);
+        }
     }
 
     // Animation state for smooth camera transitions
@@ -597,58 +506,41 @@
             .map((obj) => obj.id);
     }
 
-    // Clear selection when not in Object mode (either Add or Select), but keep selection in play mode
-    $: if (editMode !== "object" && mapMode !== "play") {
-        if (selectedObject) {
-            selectedObject = null;
-            if (map) scheduleRender();
-            emitSelection();
-        }
-        pendingSelect = null;
-    }
+    import { untrack } from "svelte";
 
-    // Re-render when editMode or mapMode changes to update transparency/fading
-    $: if ((editMode || mapMode) && map) {
-        scheduleRender();
-    }
+    // Re-render when editMode, mapMode, or renderTrigger changes
+    $effect(() => {
+        // Access all dependencies to ensure they are tracked (avoid short-circuiting)
+        const _trigger = mapState.renderTrigger;
+        const _edit = editMode;
+        const _map = mapMode;
+
+        if (map) {
+            untrack(() => scheduleRender());
+        }
+    });
 
     // Animation loop for turn indicator
     let indicatorRaf: number | null = null;
-    $: if (mapMode === "play" && currentTurnObjectId) {
-        if (!indicatorRaf) {
-            const loop = () => {
-                scheduleRender();
-                indicatorRaf = requestAnimationFrame(loop);
-            };
-            loop();
+    $effect(() => {
+        if (mapMode === "play" && currentTurnObjectId) {
+            if (!indicatorRaf) {
+                const loop = () => {
+                    scheduleRender();
+                    indicatorRaf = requestAnimationFrame(loop);
+                };
+                loop();
+            }
+        } else {
+            if (indicatorRaf) {
+                cancelAnimationFrame(indicatorRaf);
+                indicatorRaf = null;
+            }
         }
-    } else {
-        if (indicatorRaf) {
-            cancelAnimationFrame(indicatorRaf);
-            indicatorRaf = null;
-        }
-    }
+    });
 
     function emitSelection() {
-        const obj = selectedObject;
-        dispatch(
-            "selectionChange",
-            obj
-                ? {
-                      selected: true,
-                      object: {
-                          id: obj.id,
-                          color: obj.color,
-                          shape: obj.type,
-                          tile: obj.tile
-                              ? { tileMapId: obj.tile.tileMapId, tileId: obj.tile.tileId }
-                              : null,
-                          canFlip: obj.kind === "tile",
-                          creatureRef: obj.creatureRef ?? null,
-                      },
-                  }
-                : { selected: false, object: null }
-        );
+        // Redundant with mapState but kept for back-compat if needed
     }
 
     /** Clear the current selection (exported for external use) */
@@ -700,7 +592,6 @@
         }
     }
 
-    /** Reload map data from storage (call after external changes like quickStats) */
     export function refreshMapData() {
         // If we have pending changes, save them first!
         // This ensures local moves are merged with the incoming data update
@@ -710,7 +601,7 @@
         }
 
         const selectedId = selectedObject?.id;
-        loadMap();
+        mapState.loadMap(mapId);
         invalidateSortedObjects();
         // Re-select the object if it was selected before
         if (selectedId && map) {
@@ -845,23 +736,17 @@
             const hit = objs.find((o) => isPointInObject(x, y, o));
             if (hit) {
                 // Select the object internally for visual feedback and dragging
-                selectedObject = hit;
+                mapState.selectObject(hit.id);
                 scheduleRender();
-                emitSelection();
 
-                // Dispatch for encounter panel - all tokens, not just those with creatureRef
-                dispatch("encounterCreatureSelect", {
-                    objectId: hit.id,
-                    creatureRef: hit.creatureRef, // may be undefined
-                    quickStats: hit.quickStats, // may be undefined
-                });
+                // Select for encounter panel
+                mapState.selectEncounterCreature(hit.id);
                 return;
             }
             // Clicking on empty space deselects creature
-            selectedObject = null;
+            mapState.selectObject(null);
             scheduleRender();
-            emitSelection();
-            dispatch("encounterCreatureDeselect");
+            mapState.encounterSelectedCreature = null;
             // If no creature hit, allow panning
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
@@ -875,27 +760,18 @@
             const objs = getSortedObjects();
             const hit = objs.find((o) => isPointInObject(x, y, o));
             if (hit) {
-                // Emit event to switch to Token/Select mode and select this object
-                dispatch("tokenTapInMoveMode", {
-                    objectId: hit.id,
-                    object: {
-                        id: hit.id,
-                        color: hit.color,
-                        shape: hit.type,
-                        tile: hit.tile ?? null,
-                        canFlip: !!hit.tile,
-                        creatureRef: hit.creatureRef ?? null,
-                    },
-                });
+                // Select this object and switch to token/select mode
+                mapState.selectObject(hit.id);
+                mapState.setEditMode("object");
+                mapState.objectMode = "select";
                 return;
             }
             // No object hit - just panning
-            selectedObject = null;
+            mapState.selectObject(null);
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
             scheduleRender();
-            emitSelection();
             return;
         }
 
@@ -923,17 +799,16 @@
                 return;
             }
 
-            selectedObject = null;
+            mapState.selectObject(null);
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
             scheduleRender();
-            emitSelection();
             return;
         }
 
         if (e.button === 1 || e.button === 2) {
-            selectedObject = null;
+            mapState.selectObject(null);
             isPanning = true;
             lastPan = { x: e.clientX, y: e.clientY };
             lastPanTime = e.timeStamp;
@@ -962,68 +837,53 @@
             // Add new object and auto-select it
             if (selectedTile) {
                 const id = generateUUID();
-                const ts = map.tileSize;
-                const obj: MapObject = {
-                    id,
-                    kind: "tile",
-                    type: currentShape,
-                    x: x,
-                    y: y,
-                    w: ts,
-                    h: ts,
-                    color: color,
-                    tile: { ...selectedTile },
-                    z: map.objects.reduce((m, o) => Math.max(m, o.z ?? 0), 0) + 1,
-                };
-                map.objects.push(obj);
+                const ts = map!.tileSize;
+
+                mapState.updateMapData((m) => {
+                    const obj: MapObject = {
+                        id,
+                        kind: "tile",
+                        type: currentShape,
+                        x: x,
+                        y: y,
+                        w: ts,
+                        h: ts,
+                        color: color,
+                        tile: { ...selectedTile },
+                        z: m.objects.reduce((max, o) => Math.max(max, o.z ?? 0), 0) + 1,
+                    };
+                    m.objects.push(obj);
+                });
+
                 invalidateSortedObjects();
-                if (cachedBounds && !boundsDirty) {
-                    const x1 = obj.x - obj.w / 2,
-                        y1 = obj.y - obj.h / 2;
-                    const x2 = obj.x + obj.w / 2,
-                        y2 = obj.y + obj.h / 2;
-                    cachedBounds.minX = Math.min(cachedBounds.minX, x1);
-                    cachedBounds.minY = Math.min(cachedBounds.minY, y1);
-                    cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
-                    cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
-                } else {
-                    invalidateBounds();
-                }
+                invalidateBounds();
+
                 // Auto-select the newly added object
-                selectedObject = obj;
-                queueSave();
+                mapState.selectObject(id);
                 scheduleRender();
-                emitSelection();
                 return;
             }
-            const newObj: MapObject = {
-                id: generateUUID(),
-                type: currentShape,
-                x,
-                y,
-                w: map.tileSize,
-                h: map.tileSize,
-                color,
-            };
-            map.objects.push(newObj);
+
+            const newId = generateUUID();
+            mapState.updateMapData((m) => {
+                const newObj: MapObject = {
+                    id: newId,
+                    type: currentShape,
+                    x,
+                    y,
+                    w: m.tileSize,
+                    h: m.tileSize,
+                    color,
+                };
+                m.objects.push(newObj);
+            });
+
             invalidateSortedObjects();
-            if (cachedBounds && !boundsDirty) {
-                const x1 = newObj.x - newObj.w / 2,
-                    y1 = newObj.y - newObj.h / 2;
-                const x2 = newObj.x + newObj.w / 2,
-                    y2 = newObj.y + newObj.h / 2;
-                cachedBounds.minX = Math.min(cachedBounds.minX, x1);
-                cachedBounds.minY = Math.min(cachedBounds.minY, y1);
-                cachedBounds.maxX = Math.max(cachedBounds.maxX, x2);
-                cachedBounds.maxY = Math.max(cachedBounds.maxY, y2);
-            } else {
-                invalidateBounds();
-            }
+            invalidateBounds();
+
             // Auto-select the newly added object
-            selectedObject = newObj;
-            queueSave();
+            mapState.selectObject(newId);
             scheduleRender();
-            emitSelection();
             return;
         }
     }
@@ -1101,29 +961,28 @@
                 const midX = (pts[0].x + pts[1].x) / 2;
                 const midY = (pts[0].y + pts[1].y) / 2;
                 const rect = getCachedRect();
+
                 camera.x = pinchBase.centerWorld.x - (midX - rect.left) / camera.zoom;
                 camera.y = pinchBase.centerWorld.y - (midY - rect.top) / camera.zoom;
 
                 clampCameraToBounds();
 
-                map.view.x = camera.x;
-                map.view.y = camera.y;
-                map.view.zoom = camera.zoom;
+                if (map) {
+                    map.view.x = camera.x;
+                    map.view.y = camera.y;
+                    map.view.zoom = camera.zoom;
+                }
 
                 scheduleRender();
             }
             return;
         }
 
-        if (
-            (editMode === "move" || (editMode === "object" && objectMode === "select")) &&
-            pendingSelect &&
-            e.pointerId === pendingSelect.pointerId
-        ) {
+        if (pendingSelect) {
             const dx0 = e.clientX - pendingSelect.startX;
             const dy0 = e.clientY - pendingSelect.startY;
             if (Math.hypot(dx0, dy0) > DRAG_SLOP) {
-                selectedObject = null;
+                mapState.selectObject(null);
                 isPanning = true;
                 lastPan = { x: pendingSelect.startX, y: pendingSelect.startY };
                 lastPanTime = e.timeStamp;
@@ -1165,19 +1024,19 @@
 
     function onPointerUp(e?: PointerEvent) {
         if (isLoading) return;
+
+        // Normal pointer up: finalize selection or deselect
+        if (pendingSelect) {
+            mapState.selectObject(pendingSelect.obj.id);
+            scheduleRender();
+            pendingSelect = null;
+        }
+
         if (e) {
             const target = e.currentTarget as HTMLElement;
             if (target.hasPointerCapture(e.pointerId)) target.releasePointerCapture(e.pointerId);
             pointers.delete(e.pointerId);
         }
-
-        if (pendingSelect && e && e.pointerId === pendingSelect.pointerId) {
-            selectedObject = pendingSelect.obj;
-            scheduleRender();
-            emitSelection();
-            pendingSelect = null;
-        }
-
         if (manualZoomActive && e && manualZoomPointerId === e.pointerId) {
             const dt = e.timeStamp - manualZoomStartTime;
             if (!manualZoomMoved && dt <= DOUBLE_TAP_DELAY) {
@@ -1221,9 +1080,9 @@
     }
 
     // Loading state and progress
-    let isLoading = true;
-    let loadTotal = 0;
-    let loadDone = 0;
+    let isLoading = $state(true);
+    let loadTotal = $state(0);
+    let loadDone = $state(0);
 
     function collectAllTileRefs(m: MapEntity): TileRef[] {
         const set = new Map<string, TileRef>();
@@ -1301,11 +1160,28 @@
         }
     }
 
+    // Reactively handle camera focus requests from mapState
+    $effect(() => {
+        if (mapState.pendingCameraFocus) {
+            const { objectId, offsetX, offsetY, animate } = mapState.pendingCameraFocus;
+            untrack(() => {
+                centerOnObject(objectId, offsetX, offsetY, animate);
+                mapState.pendingCameraFocus = null;
+            });
+        }
+    });
+
     onMount(() => {
         ctxBg = canvasBg.getContext("2d")!;
         ctxFg = canvasFg.getContext("2d")!;
 
-        loadMap();
+        // Initial camera setup from map State
+        if (map?.view) {
+            camera.x = map.view.x;
+            camera.y = map.view.y;
+            camera.zoom = map.view.zoom;
+        }
+
         if (map) preloadMapAssets(map);
 
         window.addEventListener("resize", resizeCanvas, { passive: true });
@@ -1322,66 +1198,6 @@
         resizeCanvas();
     });
 
-    function loadMap() {
-        const allMaps = loadMaps();
-        map = allMaps.find((m) => m.id === mapId) || null;
-
-        if (map) {
-            // Restore camera state from saved view, with defaults
-            if (map.view) {
-                camera.x = map.view.x ?? 0;
-                camera.y = map.view.y ?? 0;
-                camera.zoom = clampNum(map.view.zoom ?? 1, MIN_ZOOM, MAX_ZOOM);
-            } else {
-                camera.x = 0;
-                camera.y = 0;
-                camera.zoom = 1;
-            }
-
-            const refByMapId = new Map<string, boolean>();
-            if (map.backgroundTiles) {
-                for (const key in map.backgroundTiles) {
-                    const ref = map.backgroundTiles[key];
-                    if (ref) refByMapId.set(ref.tileMapId, true);
-                }
-            }
-            for (const o of map.objects) {
-                if (o.kind === "tile" && o.tile) refByMapId.set(o.tile.tileMapId, true);
-            }
-
-            const missingTileMaps: string[] = [];
-            for (const id of refByMapId.keys()) {
-                if (!getTileMapById(id)) missingTileMaps.push(id);
-            }
-            if (missingTileMaps.length) {
-                alert("A tilemap used by this map is missing. Tile references will be removed.");
-                if (map.backgroundTiles) {
-                    for (const key in map.backgroundTiles) {
-                        const ref = map.backgroundTiles[key];
-                        if (ref && missingTileMaps.includes(ref.tileMapId))
-                            delete map.backgroundTiles[key];
-                    }
-                }
-                map.objects = map.objects.filter(
-                    (o) =>
-                        !(o.kind === "tile" && o.tile && missingTileMaps.includes(o.tile.tileMapId))
-                );
-                invalidateSortedObjects();
-            }
-
-            // Perform bounds check after loading to ensure camera is in valid location
-            // This needs to happen after canvas is ready, so we defer it
-            requestAnimationFrame(() => {
-                if (map) {
-                    invalidateBounds(); // Ensure bounds are recalculated for this map
-                    clampCameraToBounds();
-                    // Sync camera back to map view after clamping
-                    map.view = { x: camera.x, y: camera.y, zoom: camera.zoom };
-                }
-            });
-        }
-    }
-
     onDestroy(() => {
         window.removeEventListener("resize", resizeCanvas);
         if (resizeObserver) {
@@ -1395,8 +1211,6 @@
         // Clear any pending debounced save
         clearTimeout(saveTimer);
         if (map) {
-            // Persist camera state immediately on destroy
-            map.view = { x: camera.x, y: camera.y, zoom: camera.zoom };
             saveMapNow();
         }
     });
@@ -1435,36 +1249,6 @@
         const rect = getCachedRect();
         return { vw: rect.width / zoom, vh: rect.height / zoom };
     }
-
-    if (map) {
-        const refByMapId = new Map<string, boolean>();
-        if (map.backgroundTiles) {
-            for (const key in map.backgroundTiles) {
-                const ref = map.backgroundTiles[key];
-                if (ref) refByMapId.set(ref.tileMapId, true);
-            }
-        }
-        for (const o of map.objects) {
-            if (o.kind === "tile" && o.tile) refByMapId.set(o.tile.tileMapId, true);
-        }
-        const missing: string[] = [];
-        for (const id of refByMapId.keys()) {
-            if (!getTileMapById(id)) missing.push(id);
-        }
-        if (missing.length) {
-            alert("A tilemap used by this map is missing. Tile references will be removed.");
-            if (map.backgroundTiles) {
-                for (const key in map.backgroundTiles) {
-                    const ref = map.backgroundTiles[key];
-                    if (ref && missing.includes(ref.tileMapId)) delete map.backgroundTiles[key];
-                }
-            }
-            map.objects = map.objects.filter(
-                (o) => !(o.kind === "tile" && o.tile && missing.includes(o.tile.tileMapId))
-            );
-            invalidateSortedObjects();
-        }
-    }
 </script>
 
 <div class="relative flex h-full w-full flex-col">
@@ -1481,7 +1265,7 @@
             <!-- Back button - in normal flow to define header height -->
             <button
                 class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg relative z-10 flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-center text-base font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                on:click={() => dispatch("close")}
+                onclick={() => mapState.closeMap()}
                 aria-label="Back to maps">
                 ←
             </button>
@@ -1491,12 +1275,12 @@
         class="absolute inset-0 touch-none overflow-hidden"
         role="button"
         tabindex="0"
-        on:pointerdown={onPointerDown}
-        on:pointermove={onPointerMove}
-        on:pointerup={onPointerUp}
-        on:pointercancel={onPointerUp}
-        on:wheel={onWheel}
-        on:contextmenu|preventDefault>
+        onpointerdown={onPointerDown}
+        onpointermove={onPointerMove}
+        onpointerup={onPointerUp}
+        onpointercancel={onPointerUp}
+        onwheel={onWheel}
+        oncontextmenu={(e) => e.preventDefault()}>
         <canvas
             bind:this={canvasBg}
             class="layer-bg absolute inset-0 h-full w-full [image-rendering:pixelated]">

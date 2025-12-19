@@ -48,6 +48,7 @@
     } from "../data/map-persistence";
     import { characterStore } from "../data/character-store";
     import "../solo-rpg-styles.css";
+    import { mapState } from "./map-state.svelte";
 
     // Event callback props
     interface Props {
@@ -64,14 +65,16 @@
         onMapClosed = () => {},
     }: Props = $props();
 
-    let currentMapId = $state<string | null>(null);
-    let maps = $state<MapEntity[]>([]);
-
-    // Initiative state (persisted per map)
-    let initiativeOrder = $state<InitiativeEntry[]>([]);
-    let currentTurnIndex = $state(0);
-    let hasActiveEncounter = $state(false);
-    let pendingNextObjectId = $state<string | undefined>(undefined);
+    // Derived state from mapState
+    let maps = $derived(mapState.maps);
+    let currentMapId = $derived(mapState.map?.id ?? null);
+    let mapMode = $derived(mapState.mapMode);
+    let initiativeOrder = $derived(mapState.initiativeOrder);
+    let currentTurnIndex = $derived(mapState.currentTurnIndex);
+    let hasActiveEncounter = $derived(mapState.hasActiveEncounter);
+    let currentTurnObjectId = $derived(mapState.currentTurnObjectId);
+    let encounterSelectedCreature = $derived(mapState.encounterSelectedCreature);
+    let pendingNextObjectId = $derived(mapState.pendingNextObjectId);
 
     // Encounter setup modal state
     let showEncounterSetup = $state(false);
@@ -86,13 +89,6 @@
         modifier: number;
         rollType: "normal" | "advantage" | "disadvantage";
     } | null>(null);
-
-    // Derived state for current turn indicator
-    let currentTurnObjectId = $derived(
-        hasActiveEncounter && initiativeOrder.length > 0
-            ? initiativeOrder[currentTurnIndex]?.objectId
-            : null
-    );
 
     // Quick stats modal state
     let showQuickStatsModal = $state(false);
@@ -109,145 +105,31 @@
     let hasInitialized = $state(false);
 
     // Initialize map view when campaign is available
-    // Using $effect ensures this runs even if campaignId isn't ready during onMount
     $effect(() => {
         if (campaignId && !hasInitialized) {
             hasInitialized = true;
-            maps = loadMapsByCampaign(campaignId);
+            mapState.init(campaignId);
             const activeMapId = loadActiveMapId();
-            // Validate that the active map belongs to the current campaign
-            if (activeMapId && maps.some((m) => m.id === activeMapId)) {
-                currentMapId = activeMapId;
-                // Load combat state for this map
-                loadCombatState(activeMapId);
-                // Load the persisted map mode (edit/play)
-                mapMode = loadMapMode();
+            if (activeMapId) {
+                mapState.loadMap(activeMapId);
                 onMapOpened();
-
-                // If in play mode with an active encounter, restore selection to the current turn creature
-                if (mapMode === "play" && hasActiveEncounter && initiativeOrder.length > 0) {
-                    const currentEntry = initiativeOrder[currentTurnIndex];
-                    if (currentEntry) {
-                        selectCreatureByObjectId(currentEntry.objectId);
-                    }
-                }
-            } else {
-                currentMapId = null;
-                saveActiveMapId(null);
             }
         }
     });
 
-    // Load combat state from map entity
-    function loadCombatState(mapId: string) {
-        // Always read fresh from localStorage to avoid any stale data
-        const allMaps = loadMaps();
-        const map = allMaps.find((m) => m.id === mapId);
-        if (map?.combatState) {
-            // Create new array/object references to ensure reactivity
-            initiativeOrder = [...map.combatState.initiativeOrder];
-            currentTurnIndex = map.combatState.currentTurnIndex;
-            hasActiveEncounter = map.combatState.hasActiveEncounter ?? false;
-            pendingNextObjectId = map.combatState.pendingNextObjectId;
-        } else {
-            initiativeOrder = [];
-            currentTurnIndex = 0;
-            hasActiveEncounter = false;
-            pendingNextObjectId = undefined;
-        }
-    }
-
-    // Save combat state to map entity
-    function saveCombatState() {
-        if (!currentMapId) return;
-
-        // Create deep copies to ensure we're saving the current state values
-        const combatStateToSave = {
-            initiativeOrder: initiativeOrder.map((e) => ({ ...e })),
-            currentTurnIndex,
-            hasActiveEncounter,
-            pendingNextObjectId,
-        };
-
-        persistCombatState(currentMapId, combatStateToSave);
-    }
-
-    // Refresh maps when campaign changes and validate active map
+    // Refresh maps when campaign changes
     $effect(() => {
         if (campaignId) {
-            const newMaps = loadMapsByCampaign(campaignId);
-            maps = newMaps;
-            // If there's a current map open, verify it belongs to this campaign
-            if (currentMapId) {
-                const mapBelongsToCampaign = newMaps.some((m) => m.id === currentMapId);
-                if (!mapBelongsToCampaign) {
-                    currentMapId = null;
-                    saveActiveMapId(null);
-                }
-            }
+            mapState.init(campaignId);
         }
     });
 
-    // Sync map objects with character store updates
-    // This ensures that if HP changes on the character sheet, it updates on the map token
+    // Character sync is now handled by mapState
     $effect(() => {
         if (currentMapId && $characterStore.length > 0) {
-            untrack(() => syncMapWithCharacters());
+            untrack(() => mapState.syncMapWithCharacters($characterStore));
         }
     });
-
-    function syncMapWithCharacters() {
-        if (!currentMapId) return;
-
-        updateMap(currentMapId, (map) => {
-            let mapChanged = false;
-            map.objects.forEach((obj) => {
-                if (obj.creatureRef && obj.creatureRef.type === "character") {
-                    const character = $characterStore.find((c) => c.id === obj.creatureRef!.id);
-                    if (character) {
-                        // Sync HP if different
-                        const charHp =
-                            character.currentHitPoints ?? character.hitPointMaximum ?? 10;
-                        if (obj.creatureRef.currentHitPoints !== charHp) {
-                            obj.creatureRef.currentHitPoints = charHp;
-                            mapChanged = true;
-
-                            // If this creature is currently selected in encounter, update local state
-                            if (encounterSelectedCreature?.objectId === obj.id) {
-                                encounterSelectedCreature = {
-                                    ...encounterSelectedCreature,
-                                    creatureRef: { ...obj.creatureRef },
-                                };
-                            }
-
-                            // Update initiative order if present
-                            const initIndex = initiativeOrder.findIndex(
-                                (e) => e.objectId === obj.id
-                            );
-                            if (initIndex >= 0) {
-                                initiativeOrder[initIndex] = {
-                                    ...initiativeOrder[initIndex],
-                                    currentHP: charHp,
-                                    maxHP: character.hitPointMaximum ?? 10,
-                                };
-                            }
-                        }
-                    }
-                }
-            });
-
-            // If map changed, the 'map' object is already mutated in place, updateMap will save it.
-            // But we also need to update the combat state on the map object if we modified initiativeOrder
-            if (mapChanged) {
-                // Sync local initiative changes back to map's combat state to be safe
-                if (map.combatState) {
-                    map.combatState.initiativeOrder = initiativeOrder.map((e) => ({ ...e }));
-                }
-                // Refresh editor
-                setTimeout(() => editorRef?.refreshMapData?.(), 0);
-            }
-        });
-    }
 
     function createMap(e: CustomEvent<{ name: string }>) {
         if (!campaignId) return;
@@ -266,35 +148,16 @@
             view: { x: 0, y: 0, zoom: 1 },
         };
         addMap(newMap);
-        maps = loadMapsByCampaign(campaignId);
+        mapState.init(campaignId);
     }
 
     function openMap(e: CustomEvent<{ id: string }>) {
-        currentMapId = e.detail.id;
-        saveActiveMapId(currentMapId);
-        // Load combat state for this map
-        loadCombatState(e.detail.id);
+        mapState.loadMap(e.detail.id);
         onMapOpened();
     }
 
     function closeMap() {
-        currentMapId = null;
-        saveActiveMapId(null);
-        // Reset initiative state
-        initiativeOrder = [];
-        currentTurnIndex = 0;
-        hasActiveEncounter = false;
-        pendingNextObjectId = undefined;
-        showEncounterSetup = false;
-        // Clear encounter and edit selection state
-        encounterSelectedCreature = null;
-        hasSelection = false;
-        selectedColor = null;
-        selectedShape = null;
-        selectedTile = null;
-        selectedCanFlip = false;
-        selectedCreatureRef = null;
-        selectedObjectId = null;
+        mapState.closeMap();
         onMapClosed();
     }
 
@@ -325,19 +188,12 @@
     }
 
     // Editor UI state routed to floating panels
-    // editMode: "move" (pan/zoom), "background" (paint background tiles), "object" (add/select tokens)
-    let editMode = $state<"move" | "background" | "object">("move");
-    // objectMode: "select" (select/edit existing tokens) or "add" (place new tokens)
-    let objectMode = $state<"select" | "add">("add");
-    let currentShape = $state<"square" | "circle" | "triangle" | "star">("square");
-    let color = $state("#2980b9");
-    // Selected tile reference for map tools
-    let selectedTileRef = $state<{ tileMapId: string; tileId: string } | null>(null);
-    // Eraser mode for background painting (clears tiles)
-    let isErasing = $state(false);
-
-    // Map mode: edit (normal editing) or play (battle/encounter mode)
-    let mapMode = $state<"edit" | "play">("edit");
+    let editMode = $derived(mapState.editMode);
+    let objectMode = $derived(mapState.objectMode);
+    let currentShape = $derived(mapState.currentShape);
+    let color = $derived(mapState.color);
+    let selectedTileRef = $derived(mapState.selectedTileRef);
+    let isErasing = $derived(mapState.isErasing);
 
     // Track sidebar visibility for smooth animations
     let showSecondarySidebar = $state(false);
@@ -361,181 +217,87 @@
         }
     });
 
-    // Editor selection state for Object/Select mode controls
-    let hasSelection = $state(false);
-    let selectedColor = $state<string | null>(null);
-    let selectedShape = $state<"square" | "circle" | "triangle" | "star" | null>(null);
-    let selectedTile = $state<{ tileMapId: string; tileId: string } | null>(null);
-    let selectedCanFlip = $state(false);
-    let selectedCreatureRef = $state<CreatureRef | null>(null);
-    let selectedObjectId = $state<string | null>(null);
+    // Selected properties
+    let selectedObjectId = $derived(mapState.selectedObjectId);
+    let hasSelection = $derived(!!mapState.selectedObjectId);
+    let selectedColor = $derived(mapState.selectedObject?.color ?? null);
+    let selectedShape = $derived(mapState.selectedObject?.type ?? null);
+    let selectedTile = $derived(mapState.selectedObject?.tile ?? null);
+    let selectedCanFlip = $derived(
+        mapState.selectedObject ? mapState.selectedObject.type !== "circle" : false
+    );
+    let selectedCreatureRef = $derived(mapState.selectedObject?.creatureRef ?? null);
 
     // Reference to MapEditor to call exported methods
     let editorRef = $state<any>();
 
-    function handleEditorSelectionChange(
-        e: CustomEvent<{
-            selected: boolean;
-            object: {
-                id: string;
-                color: string;
-                shape: "square" | "circle" | "triangle" | "star";
-                tile: { tileMapId: string; tileId: string } | null;
-                canFlip: boolean;
-                creatureRef: CreatureRef | null;
-            } | null;
-        }>
-    ) {
-        hasSelection = !!e.detail?.selected;
-        selectedColor = e.detail?.object?.color ?? null;
-        selectedShape = e.detail?.object?.shape ?? null;
-        selectedTile = e.detail?.object?.tile ?? null;
-        selectedCanFlip = !!e.detail?.object?.canFlip;
-        selectedCreatureRef = e.detail?.object?.creatureRef ?? null;
-        selectedObjectId = e.detail?.object?.id ?? null;
-
-        // Sync paint props to selected object's values so next added token matches
-        // This ensures SHAPE/TILE/COLOR only changes via manual edits or selection
-        if (e.detail?.selected && e.detail.object) {
-            color = e.detail.object.color;
-            currentShape = e.detail.object.shape;
-            selectedTileRef = e.detail.object.tile;
-        }
+    function handleEditorSelectionChange(e: CustomEvent<any>) {
+        mapState.selectObject(e.detail?.selected ? e.detail.object.id : null);
     }
 
-    // Handle token tap in Move mode - switch to Token/Select mode and select the token
-    function handleTokenTapInMoveMode(
-        e: CustomEvent<{
-            objectId: string;
-            object: {
-                id: string;
-                color: string;
-                shape: "square" | "circle" | "triangle" | "star";
-                tile: { tileMapId: string; tileId: string } | null;
-                canFlip: boolean;
-                creatureRef: CreatureRef | null;
-            };
-        }>
-    ) {
-        // Switch to Token/Select mode
-        editMode = "object";
-        objectMode = "select";
-
-        // Update selection state
-        hasSelection = true;
-        selectedColor = e.detail.object.color;
-        selectedShape = e.detail.object.shape;
-        selectedTile = e.detail.object.tile;
-        selectedCanFlip = e.detail.object.canFlip;
-        selectedCreatureRef = e.detail.object.creatureRef;
-        selectedObjectId = e.detail.object.id;
-
-        // Sync paint props
-        color = e.detail.object.color;
-        currentShape = e.detail.object.shape;
-        selectedTileRef = e.detail.object.tile;
-
-        // Tell MapEditor to select this object
-        editorRef?.selectObjectById?.(e.detail.objectId);
+    function handleTokenTapInMoveMode(e: CustomEvent<{ objectId: string }>) {
+        mapState.setEditMode("object");
+        mapState.objectMode = "select";
+        mapState.selectObject(e.detail.objectId);
     }
 
     function handleColorChange(e: CustomEvent<string>) {
-        if (editMode === "object" && hasSelection) {
-            // In object mode with selection, update the selected object's color
-            editorRef?.setSelectedObjectColor?.(e.detail);
-            selectedColor = e.detail;
-            // Also update paint color so next added token uses same color
-            color = e.detail;
-        } else {
-            // No selection or background mode, update the paint color
-            color = e.detail;
+        if (editMode === "object" && hasSelection && selectedObjectId) {
+            mapState.updateObject(selectedObjectId, { color: e.detail });
         }
+        mapState.color = e.detail;
     }
 
     function handleShapeChange(e: CustomEvent<"square" | "circle" | "triangle" | "star">) {
-        if (editMode === "object" && hasSelection) {
-            // In object mode with selection, update the selected object's shape
-            editorRef?.setSelectedObjectShape?.(e.detail);
-            selectedShape = e.detail;
-            // Also update paint shape so next added token uses same shape
-            currentShape = e.detail;
-        } else {
-            // No selection, update the paint shape
-            currentShape = e.detail;
+        if (editMode === "object" && hasSelection && selectedObjectId) {
+            mapState.updateObject(selectedObjectId, { type: e.detail });
         }
+        mapState.currentShape = e.detail;
     }
 
     function handleTileSelect(e: CustomEvent<{ tileMapId: string; tileId: string }>) {
-        if (editMode === "object" && hasSelection) {
-            // In object mode with selection, update the selected object's tile
-            editorRef?.setSelectedObjectTile?.(e.detail);
-            selectedTile = e.detail;
-            // Also update paint tile so next added token uses same tile
-            selectedTileRef = e.detail;
-        } else {
-            // No selection or background mode, update the selected tile for painting
-            selectedTileRef = e.detail;
+        if (editMode === "object" && hasSelection && selectedObjectId) {
+            mapState.updateObject(selectedObjectId, {
+                tile: e.detail,
+                kind: "tile",
+            });
         }
+        mapState.selectedTileRef = e.detail;
     }
 
     function handleFlip() {
-        editorRef?.flipSelectedObject?.();
+        if (selectedObjectId && selectedCanFlip) {
+            const obj = mapState.selectedObject;
+            if (obj) {
+                mapState.updateObject(selectedObjectId, { flipX: !obj.flipX });
+            }
+        }
     }
     function handleDelete() {
-        editorRef?.deleteSelectedObject?.();
+        if (selectedObjectId) {
+            mapState.deleteObject(selectedObjectId);
+        }
     }
     function handleCreatureAssign(e: CustomEvent<CreatureRef | null>) {
-        editorRef?.setSelectedObjectCreature?.(e.detail);
-        selectedCreatureRef = e.detail;
-    }
-
-    // Clear selection when leaving Object mode entirely (preserve selection within Object mode)
-    function clearSelectionIfNeeded(
-        newEditMode: "move" | "background" | "object",
-        newObjectMode?: "select" | "add"
-    ) {
-        const wasInObjectMode = editMode === "object";
-        const willBeInObjectMode = newEditMode === "object";
-
-        // Only clear selection when leaving Object mode entirely
-        if (wasInObjectMode && !willBeInObjectMode) {
-            editorRef?.clearSelection?.();
-            hasSelection = false;
-            selectedColor = null;
-            selectedShape = null;
-            selectedTile = null;
-            selectedCanFlip = false;
-            selectedCreatureRef = null;
-            selectedObjectId = null;
+        if (selectedObjectId) {
+            mapState.updateObject(selectedObjectId, { creatureRef: e.detail });
         }
     }
 
     function handleEditModeChange(newMode: "move" | "background" | "object") {
-        clearSelectionIfNeeded(newMode);
-        editMode = newMode;
-        // Default to 'select' mode if tokens exist, otherwise 'add' mode
+        mapState.setEditMode(newMode);
         if (newMode === "object") {
-            const allMaps = loadMaps();
-            const map = allMaps.find((m) => m.id === currentMapId);
-            if (map && map.objects.length > 0) {
-                objectMode = "select";
-            } else {
-                objectMode = "add";
-            }
-        }
-        // Reset eraser when leaving background mode
-        if (newMode !== "background") {
-            isErasing = false;
+            mapState.objectMode = (mapState.map?.objects.length ?? 0) > 0 ? "select" : "add";
         }
     }
 
     function handleObjectModeChange(newMode: "select" | "add") {
-        clearSelectionIfNeeded(editMode, newMode);
-        objectMode = newMode;
+        if (newMode === "add") mapState.selectObject(null);
+        mapState.objectMode = newMode;
     }
 
     function handleBrushModeChange(erasing: boolean) {
-        isErasing = erasing;
+        mapState.isErasing = erasing;
     }
 
     // Modal state for paint options (tile, color, shape)
@@ -586,7 +348,7 @@
     }
 
     // Handle token selector modal confirm
-    function handleTokenConfirm(
+    function handleTokenUpdate(
         e: CustomEvent<{
             shape: "square" | "circle" | "triangle" | "star";
             color: string;
@@ -595,199 +357,149 @@
     ) {
         const { shape, color: newColor, tile } = e.detail;
 
-        if (editMode === "object" && hasSelection) {
+        if (editMode === "object" && hasSelection && mapState.selectedObjectId) {
             // Update selected object
-            editorRef?.setSelectedObjectShape?.(shape);
-            editorRef?.setSelectedObjectColor?.(newColor);
-            editorRef?.setSelectedObjectTile?.(tile);
-            selectedShape = shape;
-            selectedColor = newColor;
-            selectedTile = tile;
+            mapState.updateObject(mapState.selectedObjectId, {
+                type: shape,
+                color: newColor,
+                tile: tile || undefined,
+                kind: tile ? "tile" : "shape",
+            });
         }
 
         // Update current paint options for new tokens
-        currentShape = shape;
-        color = newColor;
-        selectedTileRef = tile;
+        mapState.currentShape = shape;
+        mapState.color = newColor;
+        mapState.selectedTileRef = tile;
 
         showTokenModal = false;
     }
 
-    // Show floating Edit/Play toggle when a map is open (visible in both edit and play modes)
-    let showEditPlayToggle = $derived(currentMapId);
-    // Show tertiary sidebar when in background or object mode (not move)
-    let showTertiarySidebar = $derived(currentMapId && mapMode === "edit" && editMode !== "move");
+    // ====== Camera & Layout Helpers ======
 
-    // Determine paint options context
-    let paintOptionsContext = $derived(
-        editMode === "background" ? ("background" as const) : ("object" as const)
-    );
-    // Paint options disabled when erasing or in select mode with no selection
-    let paintOptionsDisabled = $derived(
-        (editMode === "background" && isErasing) ||
-            (editMode === "object" && objectMode === "select" && !hasSelection)
-    );
+    // Constants for combat panel dimensions (must match CombatPanel.svelte CSS)
+    const DESKTOP_PANEL_WIDTH = 320;
+    const DESKTOP_COLLAPSED_WIDTH = 80;
+    const MOBILE_COLLAPSED_HEIGHT_PERCENT = 15;
 
-    // Handle modeChange from FloatingEditPlayToggle
+    // Encounter panel height for mobile layout
+    let encounterPanelHeight = $state(50);
+    let encounterPanelDragging = $state(false);
+
+    function handlePanelHeightChanged(e: CustomEvent<{ heightPercent: number }>) {
+        encounterPanelHeight = e.detail.heightPercent;
+    }
+
+    function handlePanelDragStateChanged(e: CustomEvent<{ isDragging: boolean }>) {
+        encounterPanelDragging = e.detail.isDragging;
+    }
+
+    /**
+     * Calculate focus offset to account for overlaying combat panel.
+     */
+    function getFocusOffset(forceExpanded: boolean = false): { x: number; y: number } {
+        if (mapMode !== "play") return { x: 0, y: 0 };
+
+        const isCollapsed = forceExpanded
+            ? false
+            : !encounterSelectedCreature && !encounterPanelDragging;
+
+        if (isMobile) {
+            const panelPercent = isCollapsed
+                ? MOBILE_COLLAPSED_HEIGHT_PERCENT
+                : encounterPanelHeight;
+            const panelHeightPx = (window.innerHeight * panelPercent) / 100;
+            return { x: 0, y: panelHeightPx / 2.4 };
+        } else {
+            const panelWidth = isCollapsed ? DESKTOP_COLLAPSED_WIDTH : DESKTOP_PANEL_WIDTH;
+            return { x: panelWidth / 2, y: 0 };
+        }
+    }
+
+    function centerOnPortalCreature(
+        objectId: string,
+        animate: boolean = false,
+        forceExpanded: boolean = false
+    ) {
+        const offset = getFocusOffset(forceExpanded);
+        mapState.centerOnObject(objectId, offset.x, offset.y, animate);
+    }
+
+    // Exported methods
+    export function returnToLanding() {
+        if (currentMapId) {
+            closeMap();
+        }
+    }
+
     function handleMapModeChange(mode: "edit" | "play") {
-        setMapMode(mode);
+        mapState.setMapMode(mode);
     }
 
-    // Encounter mode state - supports both assigned characters and unassigned tokens
-    let encounterSelectedCreature = $state<{
-        objectId: string;
-        creatureRef?: CreatureRef;
-        quickStats?: QuickStats;
-    } | null>(null);
-
-    function handleEncounterCreatureSelect(
-        e: CustomEvent<{ objectId: string; creatureRef?: CreatureRef; quickStats?: QuickStats }>
-    ) {
-        // In play mode, clicking a creature in the map updates the combat panel
-        // but does NOT change the initiative order turn - only the initiative bar controls that
-        const wasCollapsed = !encounterSelectedCreature;
-        encounterSelectedCreature = e.detail;
-
-        // Center on the selected creature with animation (mobile only)
-        // On desktop, auto-focusing is annoying; on mobile, it helps with limited screen space
-        if ($isMobile) {
-            // Use forceExpanded=true if panel was collapsed, so we account for where it's animating to
-            centerOnCreature(e.detail.objectId, true, wasCollapsed);
+    function handleTurnChanged(e: CustomEvent<{ turnIndex: number; order: InitiativeEntry[] }>) {
+        const turnActuallyChanged = mapState.currentTurnIndex !== e.detail.turnIndex;
+        if (turnActuallyChanged) {
+            mapState.currentTurnIndex = e.detail.turnIndex;
+            mapState.initiativeOrder = e.detail.order;
+            mapState.saveCombatState();
+            const currentEntry = mapState.initiativeOrder[mapState.currentTurnIndex];
+            if (currentEntry) {
+                mapState.selectEncounterCreature(currentEntry.objectId);
+                centerOnPortalCreature(currentEntry.objectId);
+            }
         }
     }
 
-    function handleEncounterCreatureDeselect() {
-        // Clicking on empty map space deselects the creature
-        encounterSelectedCreature = null;
-    }
-
-    function handleEncounterSelectCreature(
-        e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
-    ) {
-        // Switch which creature is displayed in the encounter panel
-        const wasCollapsed = !encounterSelectedCreature;
-        encounterSelectedCreature = e.detail;
-
-        // Center on creature with animation, accounting for panel expansion
-        centerOnCreature(e.detail.objectId, true, wasCollapsed);
-    }
-
-    function handleEncounterFocusCreature(e: CustomEvent<{ objectId: string }>) {
-        // Center map on the creature's object
-        centerOnCreature(e.detail.objectId);
-    }
-
-    // Handle quick stats updates from CombatPanel
     function handleQuickStatsUpdate(e: CustomEvent<{ objectId: string; quickStats: QuickStats }>) {
-        if (!currentMapId) return;
-
-        updateMapObject(currentMapId, e.detail.objectId, (obj) => {
-            obj.quickStats = e.detail.quickStats;
-        });
-
-        // Update local editor state to avoid overwrite
-        editorRef?.updateLocalObjectData?.(e.detail.objectId, {
-            quickStats: e.detail.quickStats,
-        });
-
-        // Refresh MapEditor's cached map data
-        editorRef?.refreshMapData?.();
-
-        // Update local state
-        if (encounterSelectedCreature?.objectId === e.detail.objectId) {
-            encounterSelectedCreature = {
-                ...encounterSelectedCreature,
-                quickStats: e.detail.quickStats,
-            };
-        }
-
-        // Update initiative order if token is in encounter
-        const initIndex = initiativeOrder.findIndex(
-            (entry) => entry.objectId === e.detail.objectId
+        mapState.updateObject(e.detail.objectId, { quickStats: e.detail.quickStats });
+        // Update initiative if present
+        const initIndex = mapState.initiativeOrder.findIndex(
+            (en) => en.objectId === e.detail.objectId
         );
         if (initIndex >= 0) {
-            initiativeOrder[initIndex] = {
-                ...initiativeOrder[initIndex],
-                name: e.detail.quickStats.name || initiativeOrder[initIndex].name,
-                currentHP:
-                    e.detail.quickStats.currentHitPoints ?? initiativeOrder[initIndex].currentHP,
-                maxHP: e.detail.quickStats.maxHitPoints ?? initiativeOrder[initIndex].maxHP,
+            const entry = mapState.initiativeOrder[initIndex];
+            mapState.initiativeOrder[initIndex] = {
+                ...entry,
+                name: e.detail.quickStats.name || entry.name,
+                currentHP: e.detail.quickStats.currentHitPoints ?? entry.currentHP,
+                maxHP: e.detail.quickStats.maxHitPoints ?? entry.maxHP,
             };
-            saveCombatState();
+            mapState.saveCombatState();
         }
     }
 
-    // Handle converting quick stats token to a full character
     function handleConvertToCharacter(
         e: CustomEvent<{ objectId: string; quickStats: QuickStats }>
     ) {
-        if (!currentMapId || !campaignId) return;
-        const qs = e.detail.quickStats;
-        if (!qs.name) return; // Name is required
-
-        // Create new character
-        const now = Date.now();
-        const newCharacter: Character = {
-            id: generateId(),
+        if (!campaignId) return;
+        const characterId = generateId();
+        const character: Character = {
+            id: characterId,
             campaignId,
-            name: qs.name,
-            hitPointMaximum: qs.maxHitPoints ?? 10,
-            currentHitPoints: qs.currentHitPoints ?? 10,
-            abilities: [], // Initialize with empty abilities array
+            name: e.detail.quickStats.name,
+            currentHitPoints: e.detail.quickStats.currentHitPoints,
+            hitPointMaximum: e.detail.quickStats.maxHitPoints,
+            abilities: [],
             skills: [],
-            // Enable all common sections by default so the user sees a "full" sheet
             visibleSections: ["information", "health", "abilities", "skills", "items", "combat"],
-            createdAt: now,
-            updatedAt: now,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
         };
+        characterStore.add(character);
 
-        // Save the new character using the store
-        characterStore.add(newCharacter);
-
-        // Update the map object to use creatureRef instead of quickStats
-        const instanceId = generateId(); // Generate ID once to share between map update and local state
-        const creatureRef: CreatureRef = {
-            type: "character",
-            id: newCharacter.id,
-            instanceId,
-            currentHitPoints: qs.currentHitPoints ?? 10,
-        };
-
-        updateMap(currentMapId, (map) => {
-            const objIndex = map.objects.findIndex((o) => o.id === e.detail.objectId);
-            if (objIndex < 0) return;
-
-            const obj = map.objects[objIndex];
-            obj.creatureRef = { ...creatureRef };
-            delete obj.quickStats; // Clear quickStats
-        });
-
-        // Update local editor state directly so pending/subsequent saves don't overwrite our atomic update
-        editorRef?.updateLocalObjectData?.(e.detail.objectId, {
-            creatureRef: { ...creatureRef },
+        mapState.updateObject(e.detail.objectId, {
+            creatureRef: {
+                type: "character",
+                id: characterId,
+                instanceId: generateId(),
+                currentHitPoints: character.currentHitPoints,
+            },
             quickStats: undefined,
         });
 
-        // Refresh editor to show updated token state (e.g. might change color/border if assigned)
-        editorRef?.refreshMapData?.();
-
-        // Update local state to show the newly assigned character
-        encounterSelectedCreature = {
-            objectId: e.detail.objectId,
-            creatureRef: { ...creatureRef },
-        };
-
-        // Update initiative order if token is in encounter
-        const initIndex = initiativeOrder.findIndex(
-            (entry) => entry.objectId === e.detail.objectId
-        );
-        if (initIndex >= 0) {
-            // Name and HP stay the same, the token just now has a character backing it
-            saveCombatState();
-        }
+        mapState.selectEncounterCreature(e.detail.objectId);
     }
 
-    // Handle opening the quick stats modal from CombatPanel
     function handleOpenQuickStatsModal(
         e: CustomEvent<{ objectId: string; existingStats: QuickStats | null }>
     ) {
@@ -796,159 +508,119 @@
         showQuickStatsModal = true;
     }
 
-    // Handle saving quick stats from the modal
     function handleQuickStatsSave(e: CustomEvent<{ quickStats: QuickStats }>) {
-        if (!currentMapId || !quickStatsModalObjectId) return;
-
-        updateMapObject(currentMapId, quickStatsModalObjectId, (obj) => {
-            obj.quickStats = e.detail.quickStats;
-        });
-
-        // Update local editor state directly so pending/subsequent saves don't overwrite our atomic update
-        editorRef?.updateLocalObjectData?.(quickStatsModalObjectId, {
-            quickStats: e.detail.quickStats,
-        });
-
-        // Refresh MapEditor's cached map data so re-selecting the token shows updated quickStats
-        editorRef?.refreshMapData?.();
-
-        // Update local state
-        if (encounterSelectedCreature?.objectId === quickStatsModalObjectId) {
-            encounterSelectedCreature = {
-                ...encounterSelectedCreature,
-                quickStats: e.detail.quickStats,
-            };
-        }
-
-        // Update initiative order if token is in encounter
-        const initIndex = initiativeOrder.findIndex(
-            (entry) => entry.objectId === quickStatsModalObjectId
+        if (!quickStatsModalObjectId) return;
+        handleQuickStatsUpdate(
+            new CustomEvent("update", {
+                detail: { objectId: quickStatsModalObjectId, quickStats: e.detail.quickStats },
+            })
         );
-        if (initIndex >= 0) {
-            const newOrder = [...initiativeOrder];
-            newOrder[initIndex] = {
-                ...newOrder[initIndex],
-                name: e.detail.quickStats.name || newOrder[initIndex].name,
-                currentHP: e.detail.quickStats.currentHitPoints ?? newOrder[initIndex].currentHP,
-                maxHP: e.detail.quickStats.maxHitPoints ?? newOrder[initIndex].maxHP,
-            };
-            initiativeOrder = newOrder;
-            saveCombatState();
-        }
-
-        // Close the modal
         showQuickStatsModal = false;
-        quickStatsModalObjectId = null;
-        quickStatsModalExistingStats = null;
     }
 
-    // Handle closing the quick stats modal
-    function handleQuickStatsClose() {
-        showQuickStatsModal = false;
-        quickStatsModalObjectId = null;
-        quickStatsModalExistingStats = null;
-    }
-
-    // Handle roll check from CombatPanel
     function handleCombatPanelRollCheck(detail: {
         checkName: string;
         diceFormula: string;
         modifier: number;
-        resultOption: "Sum" | "Maximum" | "Minimum";
+        resultOption: string;
     }) {
-        if (!campaignId || !encounterSelectedCreature?.creatureRef) return;
+        if (!encounterSelectedCreature?.creatureRef) return;
+        const ref = encounterSelectedCreature.creatureRef;
+        if (ref.type !== "character") return;
+        const char = $characterStore.find((c) => c.id === ref.id);
+        if (!char) return;
 
-        const creatureRef = encounterSelectedCreature.creatureRef;
-        if (creatureRef.type !== "character") return;
-
-        const character = $characterStore.find((c) => c.id === creatureRef.id);
-        if (!character) return;
-
-        const { checkName, diceFormula, modifier, resultOption } = detail;
-        const match = diceFormula.match(/^(\d+)d(\d+)$/i);
-        if (!match) {
-            console.error("Invalid dice formula:", diceFormula);
-            return;
-        }
-
-        const numDice = parseInt(match[1], 10);
-        const numSides = parseInt(match[2], 10);
-        let rollType: "normal" | "advantage" | "disadvantage" = "normal";
-        if (resultOption === "Maximum") rollType = "advantage";
-        else if (resultOption === "Minimum") rollType = "disadvantage";
+        const match = detail.diceFormula.match(/^(\d+)d(\d+)$/i);
+        if (!match) return;
 
         mapDiceRollPreset = {
-            characterId: character.id,
-            characterName: character.name,
-            checkName,
-            numDice,
-            numSides,
-            modifier,
-            rollType,
+            characterId: char.id,
+            characterName: char.name,
+            checkName: detail.checkName,
+            numDice: parseInt(match[1]),
+            numSides: parseInt(match[2]),
+            modifier: detail.modifier,
+            rollType:
+                detail.resultOption === "Maximum"
+                    ? "advantage"
+                    : detail.resultOption === "Minimum"
+                      ? "disadvantage"
+                      : "normal",
         };
     }
 
-    function handleNavigateToChronicle() {
-        onNavigateToStory();
+    function handleRerollInitiative() {
+        if (!currentMapId || !campaignId) return;
+        // Simplified: just call begin encounter again with existing IDs
+        const ids = initiativeOrder.map((e) => e.objectId);
+        handleBeginEncounter(new CustomEvent("begin", { detail: { selectedObjectIds: ids } }));
     }
 
-    function handleInitiativeRolled(
-        e: CustomEvent<{ order: InitiativeEntry[]; turnIndex: number }>
+    function handleNextTurn() {
+        if (initiativeOrder.length === 0) return;
+        let newIndex = getNextTurnIndex(currentTurnIndex, initiativeOrder.length);
+        if (mapState.pendingNextObjectId) {
+            const pIdx = initiativeOrder.findIndex(
+                (e) => e.objectId === mapState.pendingNextObjectId
+            );
+            if (pIdx >= 0) newIndex = pIdx;
+            mapState.pendingNextObjectId = undefined;
+        }
+        mapState.setInitiative(
+            initiativeOrder.map((e, i) => ({ ...e, isActive: i === newIndex })),
+            newIndex
+        );
+        const entry = mapState.initiativeOrder[newIndex];
+        if (entry) {
+            mapState.selectEncounterCreature(entry.objectId);
+            centerOnPortalCreature(entry.objectId, true);
+        }
+    }
+
+    function handlePrevTurn() {
+        if (initiativeOrder.length === 0) return;
+        mapState.pendingNextObjectId = undefined;
+        const newIndex = getPrevTurnIndex(currentTurnIndex, initiativeOrder.length);
+        mapState.setInitiative(
+            initiativeOrder.map((e, i) => ({ ...e, isActive: i === newIndex })),
+            newIndex
+        );
+        const entry = mapState.initiativeOrder[newIndex];
+        if (entry) {
+            mapState.selectEncounterCreature(entry.objectId);
+            centerOnPortalCreature(entry.objectId, true);
+        }
+    }
+
+    function handleInitiativeBarSelectCreature(
+        e: CustomEvent<{ objectId: string; index: number }>
     ) {
-        initiativeOrder = e.detail.order;
-        currentTurnIndex = e.detail.turnIndex;
-        saveCombatState();
-
-        // Auto-select the first creature in initiative order and focus on them
-        if (e.detail.order.length > 0) {
-            const firstEntry = e.detail.order[e.detail.turnIndex];
-            selectCreatureByObjectId(firstEntry.objectId);
-            // Center the map on the first creature
-            centerOnCreature(firstEntry.objectId);
-        }
+        mapState.pendingNextObjectId = undefined;
+        mapState.setInitiative(
+            initiativeOrder.map((entry, i) => ({ ...entry, isActive: i === e.detail.index })),
+            e.detail.index
+        );
+        mapState.selectEncounterCreature(e.detail.objectId);
+        centerOnPortalCreature(e.detail.objectId, true);
     }
 
-    function selectCreatureByObjectId(objectId: string) {
-        const allMaps = loadMaps();
-        const map = allMaps.find((m) => m.id === currentMapId);
-        if (!map) return;
-
-        const obj = map.objects.find((o) => o.id === objectId);
-        if (obj) {
-            encounterSelectedCreature = {
-                objectId: obj.id,
-                creatureRef: obj.creatureRef,
-                quickStats: obj.quickStats,
-            };
-        }
-
-        // Also update editor selection for visual feedback in play mode
-        if (mapMode === "play") {
-            editorRef?.selectObjectById?.(objectId);
-        }
+    function handleEncounterSelectCreature(
+        e: CustomEvent<{ objectId: string; creatureRef: CreatureRef }>
+    ) {
+        mapState.selectEncounterCreature(e.detail.objectId);
+        centerOnPortalCreature(e.detail.objectId, true, true);
     }
 
-    function handleTurnChanged(e: CustomEvent<{ turnIndex: number; order: InitiativeEntry[] }>) {
-        const turnActuallyChanged = currentTurnIndex !== e.detail.turnIndex;
-        currentTurnIndex = e.detail.turnIndex;
-        initiativeOrder = e.detail.order;
-        saveCombatState();
-
-        // Only auto-select and focus if the turn actually changed (not just HP updates)
-        if (turnActuallyChanged) {
-            const currentEntry = initiativeOrder[currentTurnIndex];
-            if (currentEntry) {
-                selectCreatureByObjectId(currentEntry.objectId);
-                // Center the map on this creature
-                centerOnCreature(currentEntry.objectId);
-            }
-        }
+    function handleEncounterFocusCreature(e: CustomEvent<{ objectId: string }>) {
+        centerOnPortalCreature(e.detail.objectId);
     }
-
-    // ====== Initiative Bar Event Handlers ======
 
     function handleOpenEncounterSetup() {
         showEncounterSetup = true;
+    }
+
+    function handleEndEncounter() {
+        mapState.endEncounter();
     }
 
     function handleBeginEncounter(e: CustomEvent<{ selectedObjectIds: string[] }>) {
@@ -961,13 +633,11 @@
 
         const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
 
-        // Build creature inputs for selected objects (supports both creatureRef and quickStats)
         const creatureInputs: CreatureInitiativeInput[] = [];
         for (const objectId of e.detail.selectedObjectIds) {
             const obj = map.objects.find((o) => o.id === objectId);
             if (!obj) continue;
 
-            // Handle assigned characters
             if (obj.creatureRef) {
                 const ref = obj.creatureRef;
                 if (ref.type === "character") {
@@ -983,14 +653,12 @@
                         });
                     }
                 }
-            }
-            // Handle quick stats tokens
-            else if (obj.quickStats) {
+            } else if (obj.quickStats) {
                 const qs = obj.quickStats;
                 creatureInputs.push({
                     objectId: obj.id,
                     name: qs.name || "Unknown",
-                    initMod: 0, // No initiative modifier for quick stats tokens
+                    initMod: 0,
                     hp: qs.currentHitPoints ?? 10,
                     maxHp: qs.maxHitPoints ?? 10,
                 });
@@ -999,177 +667,17 @@
 
         if (creatureInputs.length === 0) return;
 
-        // Roll initiative and sort
-        const entries = rollInitiativeForCreatures(creatureInputs);
-
-        // Set first creature as active
-        if (entries.length > 0) {
-            entries[0].isActive = true;
-        }
-
-        initiativeOrder = entries;
-        currentTurnIndex = 0;
-        hasActiveEncounter = true;
-        pendingNextObjectId = undefined;
-        saveCombatState();
-
-        // Focus on first creature
-        if (entries.length > 0) {
-            selectCreatureByObjectId(entries[0].objectId);
-            centerOnCreature(entries[0].objectId);
-        }
-    }
-
-    function handleEndEncounter() {
-        initiativeOrder = [];
-        currentTurnIndex = 0;
-        hasActiveEncounter = false;
-        pendingNextObjectId = undefined;
-        encounterSelectedCreature = null;
-        saveCombatState();
-    }
-
-    function handleRerollInitiative() {
-        if (!currentMapId || !campaignId || initiativeOrder.length === 0) return;
-
-        const allMaps = loadMaps();
-        const map = allMaps.find((m) => m.id === currentMapId);
-        if (!map) return;
-
-        const chars = loadCharacters().filter((c) => c.campaignId === campaignId);
-
-        // Rebuild creature inputs from current initiative order
-        const creatureInputs: CreatureInitiativeInput[] = [];
-        for (const entry of initiativeOrder) {
-            const obj = map.objects.find((o) => o.id === entry.objectId);
-            if (!obj) continue;
-
-            // Handle assigned characters
-            if (obj.creatureRef) {
-                const ref = obj.creatureRef;
-                if (ref.type === "character") {
-                    const char = chars.find((c) => c.id === ref.id);
-                    if (char) {
-                        creatureInputs.push({
-                            objectId: obj.id,
-                            name: entry.name,
-                            initMod: char.initiative ?? 0,
-                            hp: entry.currentHP,
-                            maxHp: entry.maxHP,
-                        });
-                    }
-                }
-            }
-            // Handle quick stats tokens
-            else if (obj.quickStats) {
-                creatureInputs.push({
-                    objectId: obj.id,
-                    name: entry.name,
-                    initMod: 0, // No initiative modifier for quick stats tokens
-                    hp: entry.currentHP,
-                    maxHp: entry.maxHP,
-                });
-            }
-        }
-
-        if (creatureInputs.length === 0) return;
-
         const entries = rollInitiativeForCreatures(creatureInputs);
         if (entries.length > 0) {
             entries[0].isActive = true;
         }
 
-        initiativeOrder = entries;
-        currentTurnIndex = 0;
-        pendingNextObjectId = undefined;
-        saveCombatState();
+        mapState.setInitiative(entries, 0);
 
-        // Focus on first creature
         if (entries.length > 0) {
-            selectCreatureByObjectId(entries[0].objectId);
-            centerOnCreature(entries[0].objectId);
+            mapState.selectEncounterCreature(entries[0].objectId);
+            centerOnPortalCreature(entries[0].objectId);
         }
-    }
-
-    function handleNextTurn() {
-        if (initiativeOrder.length === 0) return;
-
-        let newIndex: number;
-
-        // If there's a pending next, jump to that creature
-        if (pendingNextObjectId) {
-            const pendingIndex = initiativeOrder.findIndex(
-                (e) => e.objectId === pendingNextObjectId
-            );
-            if (pendingIndex >= 0) {
-                newIndex = pendingIndex;
-            } else {
-                newIndex = getNextTurnIndex(currentTurnIndex, initiativeOrder.length);
-            }
-            pendingNextObjectId = undefined;
-        } else {
-            newIndex = getNextTurnIndex(currentTurnIndex, initiativeOrder.length);
-        }
-
-        const newOrder = initiativeOrder.map((e, i) => ({
-            ...e,
-            isActive: i === newIndex,
-        }));
-
-        currentTurnIndex = newIndex;
-        initiativeOrder = newOrder;
-        saveCombatState();
-
-        // Focus on new creature with animation
-        const entry = newOrder[newIndex];
-        if (entry) {
-            selectCreatureByObjectId(entry.objectId);
-            centerOnCreature(entry.objectId, true);
-        }
-    }
-
-    function handlePrevTurn() {
-        if (initiativeOrder.length === 0) return;
-
-        // Clear pending next on manual navigation
-        pendingNextObjectId = undefined;
-
-        const newIndex = getPrevTurnIndex(currentTurnIndex, initiativeOrder.length);
-        const newOrder = initiativeOrder.map((e, i) => ({
-            ...e,
-            isActive: i === newIndex,
-        }));
-
-        currentTurnIndex = newIndex;
-        initiativeOrder = newOrder;
-        saveCombatState();
-
-        // Focus on new creature with animation
-        const entry = newOrder[newIndex];
-        if (entry) {
-            selectCreatureByObjectId(entry.objectId);
-            centerOnCreature(entry.objectId, true);
-        }
-    }
-
-    function handleInitiativeBarSelectCreature(
-        e: CustomEvent<{ objectId: string; index: number }>
-    ) {
-        // Clear pending next when user manually selects a creature
-        pendingNextObjectId = undefined;
-
-        const { objectId, index } = e.detail;
-        const newOrder = initiativeOrder.map((entry, i) => ({
-            ...entry,
-            isActive: i === index,
-        }));
-
-        currentTurnIndex = index;
-        initiativeOrder = newOrder;
-        saveCombatState();
-
-        selectCreatureByObjectId(objectId);
-        centerOnCreature(objectId, true);
     }
 
     function handleAddToEncounter(e: CustomEvent<{ entry: InitiativeEntry }>) {
@@ -1177,166 +685,73 @@
 
         const { entry: newEntry } = e.detail;
 
-        // Store current active creature as pending next
         if (initiativeOrder.length > 0 && currentTurnIndex < initiativeOrder.length) {
-            pendingNextObjectId = initiativeOrder[currentTurnIndex].objectId;
+            mapState.pendingNextObjectId = initiativeOrder[currentTurnIndex].objectId;
         }
 
-        // Insert at current index (new creature becomes active immediately)
         const newOrder = insertCreatureAtIndex(initiativeOrder, newEntry, currentTurnIndex);
 
-        // Update active states
-        initiativeOrder = newOrder.map((entry, i) => ({
-            ...entry,
-            isActive: i === currentTurnIndex,
-        }));
+        mapState.setInitiative(
+            newOrder.map((entry, i) => ({
+                ...entry,
+                isActive: i === currentTurnIndex,
+            })),
+            currentTurnIndex
+        );
 
-        saveCombatState();
-
-        // Select and focus on new creature
-        selectCreatureByObjectId(newEntry.objectId);
-        centerOnCreature(newEntry.objectId);
+        mapState.selectEncounterCreature(newEntry.objectId);
+        centerOnPortalCreature(newEntry.objectId);
     }
 
-    // Get visible creature IDs from MapEditor (for EncounterSetupModal)
+    function handleEncounterCreatureSelect(
+        e: CustomEvent<{ objectId: string; creatureRef?: CreatureRef; quickStats?: QuickStats }>
+    ) {
+        mapState.selectEncounterCreature(e.detail.objectId);
+        if ($isMobile) {
+            centerOnPortalCreature(e.detail.objectId, true, true);
+        }
+    }
+
+    function handleEncounterCreatureDeselect() {
+        mapState.encounterSelectedCreature = null;
+    }
+
+    function handleQuickStatsClose() {
+        showQuickStatsModal = false;
+        quickStatsModalObjectId = null;
+        quickStatsModalExistingStats = null;
+    }
+
+    function handleInitiativeRolled(
+        e: CustomEvent<{ order: InitiativeEntry[]; turnIndex: number }>
+    ) {
+        mapState.setInitiative(e.detail.order, e.detail.turnIndex);
+        if (e.detail.order.length > 0) {
+            const firstEntry = e.detail.order[e.detail.turnIndex];
+            mapState.selectEncounterCreature(firstEntry.objectId);
+            centerOnPortalCreature(firstEntry.objectId);
+        }
+    }
+
     function getVisibleCreatureIds(): string[] {
         return editorRef?.getVisibleCreatureIds?.() ?? [];
     }
 
-    // Constants for combat panel dimensions (must match CombatPanel.svelte CSS)
-    const DESKTOP_PANEL_WIDTH = 320;
-    const DESKTOP_COLLAPSED_WIDTH = 80;
-    const MOBILE_COLLAPSED_HEIGHT_PERCENT = 15;
-
-    /**
-     * Calculate focus offset to account for overlaying combat panel.
-     * Returns offset in screen pixels - positive X shifts focus right, positive Y shifts focus down.
-     * This ensures the focused creature appears in the visible (non-obscured) center of the map.
-     * @param forceExpanded - If true, calculate offset as if panel will be expanded (for predictive focusing)
-     */
-    function getFocusOffset(forceExpanded: boolean = false): { x: number; y: number } {
-        // Only apply offset when in play mode with panel visible
-        if (!showEncounterPanel) return { x: 0, y: 0 };
-
-        const isCollapsed = forceExpanded
-            ? false
-            : !encounterSelectedCreature && !encounterPanelDragging;
-
-        if (isMobile) {
-            // Mobile: panel at bottom, shift creature UP on screen (into visible area)
-            const panelPercent = isCollapsed
-                ? MOBILE_COLLAPSED_HEIGHT_PERCENT
-                : encounterPanelHeight;
-            // Panel height is a percentage of viewport (window.innerHeight)
-            const panelHeightPx = (window.innerHeight * panelPercent) / 100;
-            // To shift creature UP on screen, camera needs to move DOWN (positive Y)
-            // Shift by full panel height to center creature in visible area above panel
-            const yOffset = 2.4;
-            return { x: 0, y: panelHeightPx / yOffset };
-        } else {
-            // Desktop: panel on left, shift focus RIGHT by half of panel width
-            const panelWidth = isCollapsed ? DESKTOP_COLLAPSED_WIDTH : DESKTOP_PANEL_WIDTH;
-            // Positive X to shift focus point rightward (camera moves left)
-            return { x: panelWidth / 2, y: 0 };
-        }
+    function handleNavigateToChronicle() {
+        onNavigateToStory();
     }
 
-    /**
-     * Center map on a creature with offset to account for overlay panel.
-     * @param objectId - The ID of the object to center on
-     * @param animate - Whether to animate the camera movement
-     * @param forceExpanded - Calculate offset as if panel will be expanded
-     */
-    function centerOnCreature(
-        objectId: string,
-        animate: boolean = false,
-        forceExpanded: boolean = false
-    ) {
-        const offset = getFocusOffset(forceExpanded);
-        editorRef?.centerOnObject?.(objectId, offset.x, offset.y, animate);
-    }
-
-    // Encounter panel height for mobile layout (CSS variable)
-    let encounterPanelHeight = $state(50);
-    let encounterPanelDragging = $state(false);
-
-    function handlePanelHeightChanged(e: CustomEvent<{ heightPercent: number }>) {
-        encounterPanelHeight = e.detail.heightPercent;
-    }
-
-    function handlePanelDragStateChanged(e: CustomEvent<{ isDragging: boolean }>) {
-        encounterPanelDragging = e.detail.isDragging;
-    }
-
-    function setMapMode(mode: "edit" | "play") {
-        const previousMode = mapMode;
-        mapMode = mode;
-        // Persist the map mode so it survives tab switches
-        saveMapMode(mode);
-
-        if (mode === "edit") {
-            // Transfer play mode selection to edit mode
-            const previousEncounterObjectId = encounterSelectedCreature?.objectId ?? null;
-            encounterSelectedCreature = null;
-
-            // If we had a creature selected in play mode, switch to object/select mode
-            // Otherwise reset to move mode (per redesign spec)
-            if (previousMode === "play" && previousEncounterObjectId) {
-                editMode = "object";
-                objectMode = "select";
-                // Use tick to ensure mode change is processed first
-                setTimeout(() => {
-                    editorRef?.selectObjectById?.(previousEncounterObjectId);
-                }, 0);
-            } else {
-                editMode = "move";
-                objectMode = "add";
-            }
-        } else if (mode === "play") {
-            // Transfer edit mode selection to play mode
-            const previousEditObjectId = selectedObjectId;
-
-            // Clear edit-mode selection state in MapView (but not in editor - we'll set it below)
-            hasSelection = false;
-            selectedColor = null;
-            selectedShape = null;
-            selectedTile = null;
-            selectedCanFlip = false;
-            selectedCreatureRef = null;
-            selectedObjectId = null;
-            // Reset editMode to "move" in play mode
-            editMode = "move";
-
-            // If we had an object selected in edit mode, keep it selected in play mode
-            if (previousMode === "edit" && previousEditObjectId) {
-                // Set encounter panel selection
-                selectCreatureByObjectId(previousEditObjectId);
-                // Focus on the selected creature so combat panel doesn't hide it
-                centerOnCreature(previousEditObjectId, true, true);
-            } else if (initiativeOrder.length > 0) {
-                // Otherwise, select the first creature in initiative if available
-                const currentEntry = initiativeOrder[currentTurnIndex];
-                if (currentEntry) {
-                    selectCreatureByObjectId(currentEntry.objectId);
-                    // Select in editor for visual feedback
-                    editorRef?.selectObjectById?.(currentEntry.objectId);
-                }
-            } else {
-                // No selection to transfer and no initiative - clear editor selection
-                editorRef?.clearSelection?.();
-            }
-        }
-    }
-
-    // Public method to close the current map and return to landing
-    export function returnToLanding() {
-        if (currentMapId) {
-            closeMap();
-        }
-    }
-
-    // Check if we should show encounter panel (play mode is active)
+    // Derived state
     let showEncounterPanel = $derived(mapMode === "play");
+    let showEditPlayToggle = $derived(!!currentMapId);
+    let showTertiarySidebar = $derived(currentMapId && mapMode === "edit" && editMode !== "move");
+    let paintOptionsContext = $derived<"background" | "object">(
+        editMode === "background" ? "background" : "object"
+    );
+    let paintOptionsDisabled = $derived(
+        (editMode === "background" && isErasing) ||
+            (editMode === "object" && objectMode === "select" && !hasSelection)
+    );
 </script>
 
 <NoCampaignOverlay show={!$activeCampaign} on:navigateHome={handleNavigateHome} />
@@ -1366,8 +781,8 @@
             <SecondarySidebar
                 show={showSecondarySidebar && mapMode === "edit"}
                 mode="map"
-                {editMode}
                 activeTab="characters"
+                {editMode}
                 onTabChange={() => {}}
                 onEditModeChange={handleEditModeChange} />
 
@@ -1444,7 +859,7 @@
                     ? (selectedColor ?? color)
                     : color}
                 currentTile={editMode === "object" && hasSelection ? selectedTile : selectedTileRef}
-                on:confirm={handleTokenConfirm}
+                on:confirm={handleTokenUpdate}
                 on:close={() => (showTokenModal = false)} />
 
             <!-- Creature Assignment Modal -->
@@ -1461,14 +876,12 @@
                                 id: detail.id,
                                 instanceId: generateUUID(),
                             };
-                            editorRef?.setSelectedObjectCreature?.(ref);
-                            selectedCreatureRef = ref;
+                            mapState.updateObject(selectedObjectId!, { creatureRef: ref });
                             showAssignModal = false;
                         });
                     }}
                     onClear={() => {
-                        editorRef?.setSelectedObjectCreature?.(null);
-                        selectedCreatureRef = null;
+                        mapState.updateObject(selectedObjectId!, { creatureRef: null });
                         showAssignModal = false;
                     }}
                     onClose={() => (showAssignModal = false)} />
@@ -1540,22 +953,7 @@
             <div class="map-main-area">
                 <!-- Map Editor Canvas -->
                 <div class="map-editor-wrapper">
-                    <MapEditor
-                        bind:this={editorRef}
-                        mapId={currentMapId}
-                        {editMode}
-                        {objectMode}
-                        {currentShape}
-                        {color}
-                        {isErasing}
-                        selectedTile={selectedTileRef}
-                        {mapMode}
-                        {currentTurnObjectId}
-                        on:selectionChange={handleEditorSelectionChange}
-                        on:tokenTapInMoveMode={handleTokenTapInMoveMode}
-                        on:encounterCreatureSelect={handleEncounterCreatureSelect}
-                        on:encounterCreatureDeselect={handleEncounterCreatureDeselect}
-                        on:close={closeMap} />
+                    <MapEditor bind:this={editorRef} mapId={currentMapId} />
                 </div>
             </div>
         </div>
