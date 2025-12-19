@@ -858,8 +858,9 @@
                 invalidateSortedObjects();
                 invalidateBounds();
 
-                // Auto-select the newly added object
+                // Auto-select the newly added object and switch to select mode
                 mapState.selectObject(id);
+                mapState.objectMode = "select";
                 scheduleRender();
                 return;
             }
@@ -881,8 +882,9 @@
             invalidateSortedObjects();
             invalidateBounds();
 
-            // Auto-select the newly added object
+            // Auto-select the newly added object and switch to select mode
             mapState.selectObject(newId);
+            mapState.objectMode = "select";
             scheduleRender();
             return;
         }
