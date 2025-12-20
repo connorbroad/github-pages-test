@@ -919,7 +919,6 @@
             <!-- Encounter Panel (left side on desktop, bottom on mobile) -->
             {#if showEncounterPanel}
                 <CombatPanel
-                    {campaignId}
                     mapId={currentMapId}
                     selectedCreature={encounterSelectedCreature}
                     {initiativeOrder}
