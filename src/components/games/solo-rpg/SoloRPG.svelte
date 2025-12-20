@@ -4,7 +4,6 @@
     import TertiarySidebar from "./TertiarySidebar.svelte";
     import Chronicle from "./lore/chronicle/Chronicle.svelte";
     import CharacterManager from "./lore/characters/CharacterManager.svelte";
-    import FloatingOracleButton from "./shared/FloatingOracleButton.svelte";
     import NoCampaignOverlay from "./NoCampaignOverlay.svelte";
     import MapView from "./map/MapView.svelte";
     import { type Campaign } from "./data/storage-utils";
@@ -36,6 +35,9 @@
 
     // Track if views have nested state that can be "returned" from
     let mapHasOpenMap: boolean = false;
+
+    // Map-specific state for Oracle
+    let mapCurrentCharacterId: string | null = null;
 
     let characterManagerComponent: any;
     let mapViewComponent: any;
@@ -139,13 +141,29 @@
     function handleMapClosed() {
         mapHasOpenMap = false;
     }
+
+    function handleMapDicePresetChange(preset: typeof diceRollPreset) {
+        diceRollPreset = preset;
+    }
+
+    function handleMapCurrentCharacterChange(characterId: string | null) {
+        mapCurrentCharacterId = characterId;
+    }
+
+    // Compute the effective current character ID based on view
+    $: effectiveCharacterId =
+        currentView === "map" ? mapCurrentCharacterId : selectedCharacterId;
 </script>
 
 <Sidebar
     {currentView}
     onNavigate={handleNavigate}
     canReturnFromCharacters={currentView === "characters" && selectedCharacterId !== null}
-    canReturnFromMap={currentView === "map" && mapHasOpenMap} />
+    canReturnFromMap={currentView === "map" && mapHasOpenMap}
+    {diceRollPreset}
+    currentCharacterId={effectiveCharacterId}
+    onNavigateToStory={handleNavigateToChronicle}
+    onClearPreset={() => (diceRollPreset = null)} />
 
 <TertiarySidebar
     show={showTertiarySidebar}
@@ -202,18 +220,11 @@
             onNavigateHome={() => handleNavigate("home")}
             onNavigateToStory={handleNavigateToChronicle}
             onMapOpened={handleMapOpened}
-            onMapClosed={handleMapClosed} />
+            onMapClosed={handleMapClosed}
+            onDicePresetChange={handleMapDicePresetChange}
+            onCurrentCharacterChange={handleMapCurrentCharacterChange} />
     {:else if currentView === "settings"}
         <SettingsView />
     {/if}
 
-    {#if $activeCampaign && currentView === "characters"}
-        <FloatingOracleButton
-            hasSecondarySidebar={false}
-            hasTertiarySidebar={currentView === "characters" && showTertiarySidebar}
-            {diceRollPreset}
-            onClearPreset={() => (diceRollPreset = null)}
-            onNavigateToStory={handleNavigateToChronicle}
-            currentCharacterId={selectedCharacterId} />
-    {/if}
 </main>

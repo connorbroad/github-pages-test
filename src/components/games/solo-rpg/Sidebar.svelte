@@ -1,4 +1,6 @@
 <script lang="ts">
+    import GameOracle from "./oracle/GameOracle.svelte";
+
     export let currentView:
         | "home"
         | "tools"
@@ -23,6 +25,38 @@
     // Indicates if tapping the button again will "return" to a list/landing state
     export let canReturnFromCharacters: boolean = false;
     export let canReturnFromMap: boolean = false;
+
+    // Oracle props
+    export let diceRollPreset: any = null;
+    export let currentCharacterId: string | null = null;
+    export let onNavigateToStory: () => void = () => {};
+    export let onClearPreset: () => void = () => {};
+
+    let showOracle = false;
+    let lastPreset: any = null;
+
+    // Automatically open oracle when preset is provided and changed
+    $: if (diceRollPreset && diceRollPreset !== lastPreset) {
+        showOracle = true;
+        lastPreset = diceRollPreset;
+    }
+
+    function toggleOracle() {
+        showOracle = !showOracle;
+    }
+
+    function closeOracle() {
+        showOracle = false;
+    }
+
+    function handleNavigateToStory() {
+        showOracle = false;
+        onNavigateToStory();
+    }
+
+    function handleClearPreset() {
+        onClearPreset();
+    }
 </script>
 
 <aside
@@ -119,6 +153,27 @@
                 <span class="sidebar-label"></span>
             </button>
 
+            <!-- Oracle Button - Mystical Orb (centered in mobile nav) -->
+            <div class="oracle-container">
+                <button
+                    class="oracle-orb"
+                    class:active={showOracle}
+                    class:has-preset={diceRollPreset !== null}
+                    on:click={toggleOracle}
+                    aria-label="Oracle">
+                    <div class="orb-glow"></div>
+                    <div class="orb-inner-glow"></div>
+                    <div class="orb-surface"></div>
+                    <!-- D20 dice icon (from Chronicle) -->
+                    <svg viewBox="0 0 512 512" class="oracle-icon">
+                        <path
+                            fill="currentColor"
+                            d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z"
+                        />
+                    </svg>
+                </button>
+            </div>
+
             <button
                 class="srpg-sidebar-item"
                 class:active={currentView === "map"}
@@ -197,3 +252,340 @@
         </div>
     </nav>
 </aside>
+
+{#if showOracle}
+    <GameOracle
+        {diceRollPreset}
+        onClose={closeOracle}
+        onNavigateToStory={handleNavigateToStory}
+        onClearPreset={handleClearPreset}
+        preselectedCharacterId={diceRollPreset?.characterId || currentCharacterId} />
+{/if}
+
+<style>
+    /* ============================================
+       ORACLE ORB - MYSTICAL CRYSTAL BALL
+       A round glowing orb embedded in the sidebar
+       ============================================ */
+
+    /* Container to hold the orb and take up sidebar slot space */
+    .oracle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+        padding: 0.25rem;
+    }
+
+    @media (min-width: 769px) {
+        .oracle-container {
+            flex: none;
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    /* The orb itself - a perfect circle */
+    .oracle-orb {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        aspect-ratio: 1 / 1;
+
+        /* Center the icon */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        /* Base orb appearance - glass-like sphere */
+        background:
+            radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%,
+                #7c3aed 0%,
+                #6d28d9 30%,
+                #5b21b6 60%,
+                #4c1d95 100%
+            );
+
+        /* 3D sphere effect with shadows */
+        box-shadow:
+            inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+            inset 0 4px 8px rgba(255, 255, 255, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.5),
+            0 0 20px rgba(139, 92, 246, 0.3);
+
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    @media (min-width: 769px) {
+        .oracle-orb {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            min-height: 52px;
+        }
+    }
+
+    /* Outer glow that rotates */
+    .orb-glow {
+        position: absolute;
+        inset: -8px;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            rgba(168, 85, 247, 0.6) 45deg,
+            rgba(236, 72, 153, 0.4) 90deg,
+            transparent 135deg,
+            rgba(99, 102, 241, 0.5) 180deg,
+            rgba(139, 92, 246, 0.4) 225deg,
+            transparent 270deg,
+            rgba(168, 85, 247, 0.5) 315deg,
+            transparent 360deg
+        );
+        animation: orb-rotate 10s linear infinite;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .oracle-orb:hover .orb-glow {
+        opacity: 1;
+        animation-duration: 4s;
+        inset: -12px;
+    }
+
+    .oracle-orb.active .orb-glow {
+        opacity: 1;
+        animation-duration: 3s;
+        inset: -16px;
+    }
+
+    @keyframes orb-rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Inner glow pulse */
+    .orb-inner-glow {
+        position: absolute;
+        inset: 2px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center,
+            rgba(196, 181, 253, 0.3) 0%,
+            transparent 60%
+        );
+        opacity: 0.5;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .oracle-orb:hover .orb-inner-glow {
+        opacity: 0.8;
+        background: radial-gradient(circle at center,
+            rgba(233, 213, 255, 0.5) 0%,
+            transparent 70%
+        );
+    }
+
+    .oracle-orb.active .orb-inner-glow {
+        opacity: 1;
+        animation: inner-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes inner-pulse {
+        0%, 100% {
+            background: radial-gradient(circle at center,
+                rgba(233, 213, 255, 0.5) 0%,
+                transparent 60%
+            );
+        }
+        50% {
+            background: radial-gradient(circle at center,
+                rgba(253, 244, 255, 0.7) 0%,
+                rgba(192, 132, 252, 0.3) 40%,
+                transparent 70%
+            );
+        }
+    }
+
+    /* Glass highlight on the orb surface */
+    .orb-surface {
+        position: absolute;
+        top: 4px;
+        left: 8px;
+        width: 35%;
+        height: 25%;
+        border-radius: 50%;
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 100%
+        );
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .oracle-orb:hover .orb-surface {
+        opacity: 0.8;
+    }
+
+    /* Dice icon inside the orb */
+    .oracle-icon {
+        position: relative;
+        width: 22px;
+        height: 22px;
+        color: #e9d5ff;
+        filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.8));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 2;
+    }
+
+    @media (min-width: 769px) {
+        .oracle-icon {
+            width: 26px;
+            height: 26px;
+        }
+    }
+
+    .oracle-orb:hover .oracle-icon {
+        color: #faf5ff;
+        filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.9));
+        transform: scale(1.1);
+    }
+
+    .oracle-orb.active .oracle-icon {
+        color: #ffffff;
+        filter: drop-shadow(0 0 8px rgba(253, 244, 255, 1));
+        animation: dice-float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes dice-float {
+        0%, 100% { transform: translateY(0) scale(1.05); }
+        50% { transform: translateY(-1px) scale(1.1) rotate(3deg); }
+    }
+
+    /* Hover state - orb lifts and glows */
+    .oracle-orb:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow:
+            inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+            inset 0 4px 8px rgba(255, 255, 255, 0.15),
+            0 4px 16px rgba(0, 0, 0, 0.4),
+            0 0 30px rgba(168, 85, 247, 0.5),
+            0 0 50px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Active state - orb is open, maximum glow */
+    .oracle-orb.active {
+        transform: translateY(-2px) scale(1.08);
+        background:
+            radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 40%),
+            radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%,
+                #a78bfa 0%,
+                #8b5cf6 25%,
+                #7c3aed 50%,
+                #6d28d9 100%
+            );
+        box-shadow:
+            inset 0 -4px 8px rgba(0, 0, 0, 0.3),
+            inset 0 4px 8px rgba(255, 255, 255, 0.2),
+            0 4px 20px rgba(0, 0, 0, 0.3),
+            0 0 40px rgba(168, 85, 247, 0.7),
+            0 0 70px rgba(139, 92, 246, 0.4),
+            0 0 100px rgba(124, 58, 237, 0.2);
+    }
+
+    /* Has preset - pulsing urgency effect */
+    .oracle-orb.has-preset {
+        animation: orb-urgency 1.5s ease-in-out infinite;
+    }
+
+    .oracle-orb.has-preset .orb-glow {
+        animation-duration: 2s;
+        opacity: 1;
+        inset: -14px;
+    }
+
+    @keyframes orb-urgency {
+        0%, 100% {
+            box-shadow:
+                inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+                inset 0 4px 8px rgba(255, 255, 255, 0.1),
+                0 2px 8px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(236, 72, 153, 0.5),
+                0 0 40px rgba(168, 85, 247, 0.4);
+        }
+        50% {
+            box-shadow:
+                inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+                inset 0 4px 8px rgba(255, 255, 255, 0.15),
+                0 2px 12px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(236, 72, 153, 0.7),
+                0 0 60px rgba(168, 85, 247, 0.5),
+                0 0 80px rgba(192, 132, 252, 0.3);
+        }
+    }
+
+    /* Preset notification dot */
+    .oracle-orb.has-preset::after {
+        content: "";
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%,
+            #fdf4ff 0%,
+            #f0abfc 25%,
+            #e879f9 50%,
+            #c026d3 100%
+        );
+        border: 2px solid var(--sidebar-bg);
+        box-shadow:
+            0 0 8px rgba(236, 72, 153, 1),
+            0 0 16px rgba(192, 132, 252, 0.8);
+        animation: dot-pulse 1s ease-in-out infinite;
+        z-index: 10;
+    }
+
+    @keyframes dot-pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+    }
+
+    /* Sparkle effect when active */
+    .oracle-orb.active::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background-image:
+            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.9) 0%, transparent 3%),
+            radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.7) 0%, transparent 2%),
+            radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.6) 0%, transparent 2%);
+        animation: sparkle 1.5s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    @keyframes sparkle {
+        0%, 100% { opacity: 0.2; }
+        25% { opacity: 0.7; }
+        50% { opacity: 0.3; }
+        75% { opacity: 0.8; }
+    }
+</style>

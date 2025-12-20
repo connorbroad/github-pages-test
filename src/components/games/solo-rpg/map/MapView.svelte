@@ -24,7 +24,6 @@
     import EncounterSetupModal from "./EncounterSetupModal.svelte";
     import SecondarySidebar from "../SecondarySidebar.svelte";
     import TertiarySidebar from "../TertiarySidebar.svelte";
-    import FloatingOracleButton from "../shared/FloatingOracleButton.svelte";
     // Floating panels
     import FloatingEditPlayToggle from "./FloatingEditPlayToggle.svelte";
     import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
@@ -50,12 +49,25 @@
     import "../solo-rpg-styles.css";
     import { mapState } from "./map-state.svelte";
 
+    // Dice roll preset type
+    type DiceRollPreset = {
+        characterId: string;
+        characterName: string;
+        checkName: string;
+        numDice: number;
+        numSides: number;
+        modifier: number;
+        rollType: "normal" | "advantage" | "disadvantage";
+    };
+
     // Event callback props
     interface Props {
         onNavigateHome?: () => void;
         onNavigateToStory?: () => void;
         onMapOpened?: () => void;
         onMapClosed?: () => void;
+        onDicePresetChange?: (preset: DiceRollPreset | null) => void;
+        onCurrentCharacterChange?: (characterId: string | null) => void;
     }
 
     let {
@@ -63,6 +75,8 @@
         onNavigateToStory = () => {},
         onMapOpened = () => {},
         onMapClosed = () => {},
+        onDicePresetChange = () => {},
+        onCurrentCharacterChange = () => {},
     }: Props = $props();
 
     // Derived state from mapState
@@ -79,16 +93,22 @@
     // Encounter setup modal state
     let showEncounterSetup = $state(false);
 
-    // Dice roll preset for ability/skill checks
-    let mapDiceRollPreset = $state<{
-        characterId: string;
-        characterName: string;
-        checkName: string;
-        numDice: number;
-        numSides: number;
-        modifier: number;
-        rollType: "normal" | "advantage" | "disadvantage";
-    } | null>(null);
+    // Dice roll preset for ability/skill checks - notify parent when changed
+    let mapDiceRollPreset = $state<DiceRollPreset | null>(null);
+
+    // Notify parent of dice preset changes
+    $effect(() => {
+        onDicePresetChange(mapDiceRollPreset);
+    });
+
+    // Notify parent of current character changes (from encounter selection)
+    $effect(() => {
+        const charId =
+            encounterSelectedCreature?.creatureRef?.type === "character"
+                ? encounterSelectedCreature.creatureRef.id
+                : null;
+        onCurrentCharacterChange(charId);
+    });
 
     // Quick stats modal state
     let showQuickStatsModal = $state(false);
@@ -946,17 +966,6 @@
                     on:save={handleQuickStatsSave}
                     on:close={handleQuickStatsClose} />
             {/if}<!-- End showEncounterPanel -->
-
-            <!-- Floating Oracle Button - always visible in edit and play mode -->
-            <FloatingOracleButton
-                hasSecondarySidebar={mapMode === "edit" ? showSecondarySidebar : hasActiveEncounter}
-                hasTertiarySidebar={showTertiarySidebar}
-                diceRollPreset={mapDiceRollPreset}
-                currentCharacterId={encounterSelectedCreature?.creatureRef?.type === "character"
-                    ? encounterSelectedCreature.creatureRef.id
-                    : null}
-                onClearPreset={() => (mapDiceRollPreset = null)}
-                onNavigateToStory={handleNavigateToChronicle} />
 
             <!-- Main Map Area -->
             <div class="map-main-area">

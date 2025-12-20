@@ -87,7 +87,7 @@
             y: $isMobile ? 60 : 0,
         }}>
         {#if mode === "story"}
-            <div class="md:[&_.section-filter]:static md:[&_.section-filter-icons]:flex-col">
+            <div class="flex w-full md:[&_.section-filter]:static md:[&_.section-filter-icons]:flex-col">
                 <CharacterSheetControls
                     {visibleSections}
                     {selectedSections}

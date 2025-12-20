@@ -24,9 +24,9 @@
 </script>
 
 <div
-    class="bg-sidebar-bg mb-0 flex flex-col gap-0 overflow-hidden rounded-none shadow-[0_-2px_5px_rgba(0,0,0,0.1)] md:relative md:top-0 md:right-0 md:bottom-auto md:left-auto md:m-0 md:items-stretch md:justify-start md:border-t-0 md:bg-transparent md:p-0 md:shadow-none">
+    class="bg-sidebar-bg mb-0 flex w-full flex-col gap-0 overflow-hidden rounded-none shadow-[0_-2px_5px_rgba(0,0,0,0.1)] md:relative md:top-0 md:right-0 md:bottom-auto md:left-auto md:m-0 md:w-full md:items-stretch md:justify-start md:border-t-0 md:bg-transparent md:p-0 md:shadow-none">
     <div
-        class="border-sidebar-border bg-sidebar-bg flex h-[60px] flex-wrap justify-center gap-0 border-t p-0 max-[380px]:h-[55px] md:h-auto md:flex-col md:flex-nowrap md:border-none md:bg-transparent md:shadow-none">
+        class="border-sidebar-border bg-sidebar-bg flex h-[60px] w-full flex-row flex-nowrap justify-around gap-0 border-t p-0 max-[380px]:h-[55px] md:h-auto md:w-full md:flex-col md:justify-start md:border-none md:bg-transparent md:shadow-none">
         <!-- In edit mode, show all sections. In view mode, show only visible sections -->
         {#each availableSections as section}
             {#if isEditingSections || visibleSections.includes(section.id)}

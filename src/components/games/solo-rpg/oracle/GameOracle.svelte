@@ -11,6 +11,7 @@
         loadChronicleEntries,
         saveChronicleEntries,
     } from "../data/storage-utils";
+    import { chronicleEvents } from "../lore/chronicle/chronicle-store";
     import type { FortuneResultData } from "../data/storage-utils";
     import { activeCampaign } from "../game-management/campaign-store";
     import { onMount } from "svelte";
@@ -173,6 +174,9 @@
         chronicleEntries.push(newEntry);
         saveChronicleEntries(chronicleEntries);
 
+        // Notify chronicle to animate new entries
+        chronicleEvents.notifyEntriesAdded(Date.now() - 1000);
+
         showFate = false;
         selectedFortune = null;
 
@@ -217,6 +221,9 @@
         chronicleEntries.push(newEntry);
         saveChronicleEntries(chronicleEntries);
 
+        // Notify chronicle to animate new entries
+        chronicleEvents.notifyEntriesAdded(Date.now() - 1000);
+
         // Navigate to story page
         onNavigateToStory();
     }
@@ -245,6 +252,9 @@
 
         chronicleEntries.push(newEntry);
         saveChronicleEntries(chronicleEntries);
+
+        // Notify chronicle to animate new entries
+        chronicleEvents.notifyEntriesAdded(Date.now() - 1000);
 
         // Navigate to story page
         onNavigateToStory();

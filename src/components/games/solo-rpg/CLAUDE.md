@@ -68,9 +68,19 @@ solo-rpg/
 Hybrid approach:
 - **Tailwind** for layout, spacing, responsive
 - **CSS custom properties** in `theme-variables.css` for colors
-- **`.srpg-*` classes** in `solo-rpg-styles.css` for component patterns
+- **`.srpg-*` classes** in `solo-rpg-styles.css` for **reusable** component patterns only
+- **Component `<style>` blocks** for component-specific styles
 
-Common patterns: `.srpg-list`, `.srpg-empty-state`, `.srpg-modal-*`, `.srpg-button-*`
+### solo-rpg-styles.css Guidelines
+
+This file should **only** contain styles that are:
+- Used by multiple components (e.g., `.srpg-list-item`, `.srpg-modal`, `.srpg-sidebar-item`)
+- Generic patterns that don't reference specific features
+- Theme-aware using CSS custom properties
+
+**Do NOT add** component-specific styles here. Instead, use a `<style>` block within the component itself.
+
+Common patterns: `.srpg-list`, `.srpg-empty-state`, `.srpg-modal-*`, `.srpg-button-*`, `.srpg-sidebar-item`
 
 ## Testing
 

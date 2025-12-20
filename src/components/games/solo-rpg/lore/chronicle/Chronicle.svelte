@@ -19,6 +19,7 @@
     import { fly } from "svelte/transition";
     import { flip } from "svelte/animate";
     import { shouldShowDateSeparator } from "./chronicle-utils";
+    import { chronicleEvents } from "./chronicle-store";
 
     const dispatch = createEventDispatcher();
 
@@ -60,6 +61,13 @@
         loadEntries();
         loadCampaignChapters();
         loadCampaignCharacters();
+    }
+
+    // Subscribe to chronicle events from external sources (e.g., Sidebar oracle)
+    $: if ($chronicleEvents !== null) {
+        animateEntriesAfter = $chronicleEvents;
+        loadEntries();
+        chronicleEvents.clear();
     }
 
     function loadEntries() {

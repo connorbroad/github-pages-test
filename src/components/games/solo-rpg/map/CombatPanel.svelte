@@ -19,7 +19,6 @@
     import SkillCard from "./SkillCard.svelte";
     import { adjustDiceRollForAdvantageOrDisadvantage } from "../lore/characters/character-sheet/dice-utils";
 
-    export let campaignId: string;
     export let mapId: string;
 
     // Selected creature (can be null if none selected yet)
