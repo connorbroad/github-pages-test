@@ -168,8 +168,7 @@
                     <svg viewBox="0 0 512 512" class="oracle-icon">
                         <path
                             fill="currentColor"
-                            d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z"
-                        />
+                            d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z" />
                     </svg>
                 </button>
             </div>
@@ -307,19 +306,14 @@
         background:
             radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
             radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%,
-                #7c3aed 0%,
-                #6d28d9 30%,
-                #5b21b6 60%,
-                #4c1d95 100%
-            );
+            radial-gradient(circle at 50% 50%, #2563eb 0%, #1d4ed8 30%, #1e40af 60%, #1e3a8a 100%);
 
         /* 3D sphere effect with shadows */
         box-shadow:
             inset 0 -4px 8px rgba(0, 0, 0, 0.4),
             inset 0 4px 8px rgba(255, 255, 255, 0.1),
             0 2px 8px rgba(0, 0, 0, 0.5),
-            0 0 20px rgba(139, 92, 246, 0.3);
+            0 0 20px rgba(59, 130, 246, 0.3);
 
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
@@ -342,13 +336,13 @@
         background: conic-gradient(
             from 0deg,
             transparent 0deg,
-            rgba(168, 85, 247, 0.6) 45deg,
-            rgba(236, 72, 153, 0.4) 90deg,
+            rgba(59, 130, 246, 0.6) 45deg,
+            rgba(6, 182, 212, 0.4) 90deg,
             transparent 135deg,
-            rgba(99, 102, 241, 0.5) 180deg,
-            rgba(139, 92, 246, 0.4) 225deg,
+            rgba(37, 99, 235, 0.5) 180deg,
+            rgba(59, 130, 246, 0.4) 225deg,
             transparent 270deg,
-            rgba(168, 85, 247, 0.5) 315deg,
+            rgba(96, 165, 250, 0.5) 315deg,
             transparent 360deg
         );
         animation: orb-rotate 10s linear infinite;
@@ -369,8 +363,12 @@
     }
 
     @keyframes orb-rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     /* Inner glow pulse */
@@ -378,10 +376,7 @@
         position: absolute;
         inset: 2px;
         border-radius: 50%;
-        background: radial-gradient(circle at center,
-            rgba(196, 181, 253, 0.3) 0%,
-            transparent 60%
-        );
+        background: radial-gradient(circle at center, rgba(147, 197, 253, 0.3) 0%, transparent 60%);
         opacity: 0.5;
         pointer-events: none;
         transition: all 0.3s ease;
@@ -389,10 +384,7 @@
 
     .oracle-orb:hover .orb-inner-glow {
         opacity: 0.8;
-        background: radial-gradient(circle at center,
-            rgba(233, 213, 255, 0.5) 0%,
-            transparent 70%
-        );
+        background: radial-gradient(circle at center, rgba(191, 219, 254, 0.5) 0%, transparent 70%);
     }
 
     .oracle-orb.active .orb-inner-glow {
@@ -401,16 +393,19 @@
     }
 
     @keyframes inner-pulse {
-        0%, 100% {
-            background: radial-gradient(circle at center,
-                rgba(233, 213, 255, 0.5) 0%,
+        0%,
+        100% {
+            background: radial-gradient(
+                circle at center,
+                rgba(191, 219, 254, 0.5) 0%,
                 transparent 60%
             );
         }
         50% {
-            background: radial-gradient(circle at center,
-                rgba(253, 244, 255, 0.7) 0%,
-                rgba(192, 132, 252, 0.3) 40%,
+            background: radial-gradient(
+                circle at center,
+                rgba(224, 242, 254, 0.7) 0%,
+                rgba(96, 165, 250, 0.3) 40%,
                 transparent 70%
             );
         }
@@ -424,7 +419,8 @@
         width: 35%;
         height: 25%;
         border-radius: 50%;
-        background: linear-gradient(135deg,
+        background: linear-gradient(
+            135deg,
             rgba(255, 255, 255, 0.5) 0%,
             rgba(255, 255, 255, 0.1) 50%,
             transparent 100%
@@ -442,8 +438,8 @@
         position: relative;
         width: 22px;
         height: 22px;
-        color: #e9d5ff;
-        filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.8));
+        color: #bfdbfe;
+        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.8));
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 2;
     }
@@ -456,20 +452,25 @@
     }
 
     .oracle-orb:hover .oracle-icon {
-        color: #faf5ff;
-        filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.9));
+        color: #eff6ff;
+        filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.9));
         transform: scale(1.1);
     }
 
     .oracle-orb.active .oracle-icon {
         color: #ffffff;
-        filter: drop-shadow(0 0 8px rgba(253, 244, 255, 1));
+        filter: drop-shadow(0 0 8px rgba(224, 242, 254, 1));
         animation: dice-float 2.5s ease-in-out infinite;
     }
 
     @keyframes dice-float {
-        0%, 100% { transform: translateY(0) scale(1.05); }
-        50% { transform: translateY(-1px) scale(1.1) rotate(3deg); }
+        0%,
+        100% {
+            transform: translateY(0) scale(1.05);
+        }
+        50% {
+            transform: translateY(-1px) scale(1.1) rotate(3deg);
+        }
     }
 
     /* Hover state - orb lifts and glows */
@@ -479,8 +480,8 @@
             inset 0 -4px 8px rgba(0, 0, 0, 0.4),
             inset 0 4px 8px rgba(255, 255, 255, 0.15),
             0 4px 16px rgba(0, 0, 0, 0.4),
-            0 0 30px rgba(168, 85, 247, 0.5),
-            0 0 50px rgba(139, 92, 246, 0.3);
+            0 0 30px rgba(59, 130, 246, 0.5),
+            0 0 50px rgba(37, 99, 235, 0.3);
     }
 
     /* Active state - orb is open, maximum glow */
@@ -489,19 +490,14 @@
         background:
             radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 40%),
             radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%,
-                #a78bfa 0%,
-                #8b5cf6 25%,
-                #7c3aed 50%,
-                #6d28d9 100%
-            );
+            radial-gradient(circle at 50% 50%, #60a5fa 0%, #3b82f6 25%, #2563eb 50%, #1d4ed8 100%);
         box-shadow:
             inset 0 -4px 8px rgba(0, 0, 0, 0.3),
             inset 0 4px 8px rgba(255, 255, 255, 0.2),
             0 4px 20px rgba(0, 0, 0, 0.3),
-            0 0 40px rgba(168, 85, 247, 0.7),
-            0 0 70px rgba(139, 92, 246, 0.4),
-            0 0 100px rgba(124, 58, 237, 0.2);
+            0 0 40px rgba(59, 130, 246, 0.7),
+            0 0 70px rgba(37, 99, 235, 0.4),
+            0 0 100px rgba(29, 78, 216, 0.2);
     }
 
     /* Has preset - pulsing urgency effect */
@@ -516,22 +512,23 @@
     }
 
     @keyframes orb-urgency {
-        0%, 100% {
+        0%,
+        100% {
             box-shadow:
                 inset 0 -4px 8px rgba(0, 0, 0, 0.4),
                 inset 0 4px 8px rgba(255, 255, 255, 0.1),
                 0 2px 8px rgba(0, 0, 0, 0.5),
-                0 0 25px rgba(236, 72, 153, 0.5),
-                0 0 40px rgba(168, 85, 247, 0.4);
+                0 0 25px rgba(6, 182, 212, 0.5),
+                0 0 40px rgba(59, 130, 246, 0.4);
         }
         50% {
             box-shadow:
                 inset 0 -4px 8px rgba(0, 0, 0, 0.4),
                 inset 0 4px 8px rgba(255, 255, 255, 0.15),
                 0 2px 12px rgba(0, 0, 0, 0.4),
-                0 0 40px rgba(236, 72, 153, 0.7),
-                0 0 60px rgba(168, 85, 247, 0.5),
-                0 0 80px rgba(192, 132, 252, 0.3);
+                0 0 40px rgba(6, 182, 212, 0.7),
+                0 0 60px rgba(59, 130, 246, 0.5),
+                0 0 80px rgba(96, 165, 250, 0.3);
         }
     }
 
@@ -544,22 +541,24 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%,
-            #fdf4ff 0%,
-            #f0abfc 25%,
-            #e879f9 50%,
-            #c026d3 100%
+        background: radial-gradient(
+            circle at 30% 30%,
+            #ecfeff 0%,
+            #67e8f9 25%,
+            #22d3ee 50%,
+            #0891b2 100%
         );
         border: 2px solid var(--sidebar-bg);
         box-shadow:
-            0 0 8px rgba(236, 72, 153, 1),
-            0 0 16px rgba(192, 132, 252, 0.8);
+            0 0 8px rgba(6, 182, 212, 1),
+            0 0 16px rgba(96, 165, 250, 0.8);
         animation: dot-pulse 1s ease-in-out infinite;
         z-index: 10;
     }
 
     @keyframes dot-pulse {
-        0%, 100% {
+        0%,
+        100% {
             transform: scale(1);
         }
         50% {
@@ -583,9 +582,18 @@
     }
 
     @keyframes sparkle {
-        0%, 100% { opacity: 0.2; }
-        25% { opacity: 0.7; }
-        50% { opacity: 0.3; }
-        75% { opacity: 0.8; }
+        0%,
+        100% {
+            opacity: 0.2;
+        }
+        25% {
+            opacity: 0.7;
+        }
+        50% {
+            opacity: 0.3;
+        }
+        75% {
+            opacity: 0.8;
+        }
     }
 </style>
