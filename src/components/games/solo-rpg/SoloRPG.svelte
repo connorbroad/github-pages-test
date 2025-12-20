@@ -85,7 +85,7 @@
         tertiaryVisibleSections = visibleSections;
         tertiarySelectedSections = selectedSections;
         tertiaryIsEditingSections = isEditingSections;
-        showTertiarySidebar = character?.visibleSections?.length > 1;
+        showTertiarySidebar = false;
     }
 
     function handleCharacterDeselected() {
@@ -151,8 +151,7 @@
     }
 
     // Compute the effective current character ID based on view
-    $: effectiveCharacterId =
-        currentView === "map" ? mapCurrentCharacterId : selectedCharacterId;
+    $: effectiveCharacterId = currentView === "map" ? mapCurrentCharacterId : selectedCharacterId;
 </script>
 
 <Sidebar
@@ -226,5 +225,4 @@
     {:else if currentView === "settings"}
         <SettingsView />
     {/if}
-
 </main>

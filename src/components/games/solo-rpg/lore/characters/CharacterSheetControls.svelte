@@ -3,6 +3,7 @@
     export let selectedSections: Set<string> = new Set();
     export let isEditingSections: boolean = false;
     export let onToggleSection: (section: string) => void = () => {};
+    export let variant: "fixed-strip" | "sticky-sidebar" = "fixed-strip";
 
     // Available sections that can be added to a character sheet
     const availableSections: Array<{
@@ -23,10 +24,8 @@
     }
 </script>
 
-<div
-    class="bg-sidebar-bg mb-0 flex w-full flex-col gap-0 overflow-hidden rounded-none shadow-[0_-2px_5px_rgba(0,0,0,0.1)] md:relative md:top-0 md:right-0 md:bottom-auto md:left-auto md:m-0 md:w-full md:items-stretch md:justify-start md:border-t-0 md:bg-transparent md:p-0 md:shadow-none">
-    <div
-        class="border-sidebar-border bg-sidebar-bg flex h-[60px] w-full flex-row flex-nowrap justify-around gap-0 border-t p-0 max-[380px]:h-[55px] md:h-auto md:w-full md:flex-col md:justify-start md:border-none md:bg-transparent md:shadow-none">
+<div class="character-sheet-controls {variant}" class:is-mobile={variant === "fixed-strip"}>
+    <div class="controls-container">
         <!-- In edit mode, show all sections. In view mode, show only visible sections -->
         {#each availableSections as section}
             {#if isEditingSections || visibleSections.includes(section.id)}
@@ -140,3 +139,100 @@
         {/each}
     </div>
 </div>
+
+<style>
+    .character-sheet-controls {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .controls-container {
+        display: flex;
+        width: 100%;
+    }
+
+    /* Fixed Strip Variant (Mobile style) */
+    .fixed-strip .controls-container {
+        background: var(--sidebar-bg);
+        height: 60px;
+        flex-direction: row;
+        justify-content: space-around;
+        border-top: 1px solid var(--sidebar-border);
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 380px) {
+        .fixed-strip .controls-container {
+            height: 55px;
+        }
+    }
+
+    /* Sticky Sidebar Variant (Desktop style) */
+    .sticky-sidebar {
+        position: sticky;
+        top: 0;
+        height: fit-content;
+        width: 48px;
+        padding: 0.5rem 0;
+        margin-right: 0.5rem;
+    }
+
+    .sticky-sidebar .controls-container {
+        flex-direction: column;
+        gap: 0.25rem;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    /* Subtle redesign for desktop sidebar */
+    .sticky-sidebar :global(.srpg-sidebar-item) {
+        border-radius: 8px;
+        height: 48px;
+        width: 48px;
+        margin-left: 0;
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+
+    .sticky-sidebar :global(.srpg-sidebar-item:hover) {
+        background: var(--bg-tertiary);
+    }
+
+    .sticky-sidebar :global(.srpg-sidebar-item.selected) {
+        background: var(--bg-secondary);
+        box-shadow: var(--shadow-sm);
+        border-left: 3px solid var(--accent-primary);
+        border-top: none; /* Override the default top border on mobile */
+    }
+
+    /* Adjust the icon size for more subtlety on desktop */
+    .sticky-sidebar :global(.sidebar-icon) {
+        font-size: 1.1rem;
+        opacity: 0.7;
+    }
+
+    .sticky-sidebar :global(.srpg-sidebar-item.selected .sidebar-icon) {
+        opacity: 1;
+        color: var(--accent-primary);
+    }
+
+    /* Visual separator for desktop */
+    .sticky-sidebar::after {
+        content: "";
+        position: absolute;
+        right: -0.25rem;
+        top: 1rem;
+        bottom: 1rem;
+        width: 1px;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            var(--border-primary),
+            var(--border-primary),
+            transparent
+        );
+        opacity: 0.5;
+    }
+</style>

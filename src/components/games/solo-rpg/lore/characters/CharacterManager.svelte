@@ -213,9 +213,7 @@
         onCharacterDeselected();
     }
 
-    function handleToggleSection(event: CustomEvent<string>) {
-        const section = event.detail;
-
+    function handleToggleSection(section: string) {
         if (isEditingSections) {
             // In edit mode, toggle the section's inclusion in the character sheet
             toggleSectionInclusion(section);
@@ -244,7 +242,7 @@
 
     // Expose method to be called from parent
     export function toggleSectionFromExternal(section: string) {
-        handleToggleSection({ detail: section } as CustomEvent<string>);
+        handleToggleSection(section);
     }
 
     // Expose method to reset view back to character list
@@ -641,7 +639,8 @@
             {selectedSections}
             onSave={saveCharacter}
             on:cancel={cancelEdit}
-            onRollCheck={handleRollCheck} />
+            onRollCheck={handleRollCheck}
+            onToggleSection={handleToggleSection} />
     {:else if filteredCharacters.length > 0}
         <div
             class="{isCompactView
