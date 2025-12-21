@@ -41,6 +41,7 @@
 
     let characterManagerComponent: any;
     let mapViewComponent: any;
+    let codexComponent: any;
 
     // Dice roll preset data for ability/skill checks
     let diceRollPreset: {
@@ -152,6 +153,10 @@
 
     // Compute the effective current character ID based on view
     $: effectiveCharacterId = currentView === "map" ? mapCurrentCharacterId : selectedCharacterId;
+
+    function handleResetStoryFilters() {
+        codexComponent?.resetFilters?.();
+    }
 </script>
 
 <Sidebar
@@ -162,7 +167,8 @@
     {diceRollPreset}
     currentCharacterId={effectiveCharacterId}
     onNavigateToStory={handleNavigateToChronicle}
-    onClearPreset={() => (diceRollPreset = null)} />
+    onClearPreset={() => (diceRollPreset = null)}
+    onResetStoryFilters={handleResetStoryFilters} />
 
 <TertiarySidebar
     show={showTertiarySidebar}
@@ -208,7 +214,7 @@
         <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={() => handleNavigate("home")} />
 
         {#if $activeCampaign}
-            <Codex />
+            <Codex bind:this={codexComponent} />
         {:else}
             <h1 class="mb-6 text-center text-4xl font-bold">No Active Campaign</h1>
             <em class="block text-center">Select or create a campaign to use this page.</em>

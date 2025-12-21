@@ -354,6 +354,14 @@
         return GROUP_ICONS[group] || DEFAULT_ICON;
     }
 
+    // Public method to reset filters (called from parent via bind:this)
+    export function resetFilters() {
+        searchQuery = "";
+        selectedGroup = null;
+        selectedSubGroup = null;
+        selectedNote = null;
+    }
+
     //export default {};
 </script>
 

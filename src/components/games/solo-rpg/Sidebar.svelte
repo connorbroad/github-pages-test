@@ -21,6 +21,7 @@
             | "chronicle"
             | "characters"
     ) => void = () => {};
+    export let onResetStoryFilters: () => void = () => {};
 
     // Indicates if tapping the button again will "return" to a list/landing state
     export let canReturnFromCharacters: boolean = false;
@@ -107,7 +108,10 @@
             <button
                 class="srpg-sidebar-item"
                 class:active={currentView === "story"}
-                on:click={() => onNavigate("story")}
+                on:click={() => {
+                    onResetStoryFilters();
+                    onNavigate("story");
+                }}
                 aria-label="Lore">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="sidebar-icon">
                     <g
