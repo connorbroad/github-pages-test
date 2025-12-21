@@ -366,8 +366,8 @@
 </script>
 
 <div class="codex-dashboard">
-    <!-- Sidebar Navigation -->
-    <aside class="codex-sidebar">
+    <!-- Sidebar Navigation (top on desktop, bottom on mobile) -->
+    <aside class="codex-sidebar desktop-only">
         <div class="sidebar-header">
             <h2 class="sidebar-title">Categories</h2>
             <button class="add-note-btn" on:click={openCreateModal} title="New Note">
@@ -446,6 +446,76 @@
                                 {/each}
                             </div>
                         {/if}
+                    </div>
+                {/if}
+            {/each}
+        </nav>
+    </aside>
+
+    <!-- Mobile Bottom Navigation -->
+    <aside class="codex-sidebar mobile-only">
+        <div class="mobile-nav-row">
+            <div class="search-box">
+                <svg
+                    class="search-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Search notes..." bind:value={searchQuery} />
+            </div>
+            <button class="add-note-btn-mobile" on:click={openCreateModal} title="New Note" aria-label="New Note">
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item" class:active={!selectedGroup} on:click={() => setFilter(null)}>
+                <span class="nav-icon">
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                </span>
+                <span class="nav-label">Overview</span>
+            </button>
+
+            {#each availableGroups as group}
+                {@const count = groupCounts[group]}
+                {#if count > 0 || DEFAULT_GROUPS.includes(group)}
+                    <div class="nav-group-wrapper" class:expanded={expandedGroups.has(group)}>
+                        <button
+                            class="nav-item"
+                            class:active={selectedGroup === group}
+                            on:click={() => {
+                                setFilter(group);
+                                toggleGroup(group);
+                            }}>
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d={getGroupIconData(group).path} />
+                                </svg>
+                            </span>
+                            <span class="nav-label">{group}</span>
+                        </button>
                     </div>
                 {/if}
             {/each}
@@ -1456,6 +1526,46 @@
         font-weight: normal;
     }
 
+    /* Desktop/Mobile visibility */
+    .mobile-only {
+        display: none;
+    }
+
+    .desktop-only {
+        display: flex;
+    }
+
+    .mobile-nav-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .mobile-nav-row .search-box {
+        flex: 1;
+    }
+
+    .add-note-btn-mobile {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--accent-primary);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb, 59, 130, 246), 0.3);
+        flex-shrink: 0;
+    }
+
+    .add-note-btn-mobile:hover {
+        transform: scale(1.05);
+        background: var(--accent-hover);
+    }
+
     @media (max-width: 768px) {
         .codex-dashboard {
             flex-direction: column;
@@ -1463,68 +1573,62 @@
             height: calc(100dvh - 70px - env(safe-area-inset-bottom));
         }
 
-        .codex-sidebar {
+        .desktop-only {
+            display: none;
+        }
+
+        .mobile-only {
+            display: flex;
+            order: 2; /* Push to bottom */
             width: 100%;
             height: auto;
             border-right: none;
-            border-bottom: 1px solid var(--border-primary);
+            border-top: 1px solid var(--border-primary);
             padding: 0.75rem;
-            gap: 0.75rem;
-            background: var(--bg-primary);
+            gap: 0.5rem;
+            background: var(--bg-secondary);
             z-index: 10;
+            flex-shrink: 0;
         }
 
-        .sidebar-header {
-            display: none; /* Hide header on mobile to save space */
+        .codex-main {
+            order: 1; /* Main content above bottom nav */
+            flex: 1;
+            min-height: 0;
         }
 
-        .search-box {
-            margin-bottom: 0.25rem;
-        }
-
-        .sidebar-nav {
+        .mobile-only .sidebar-nav {
             flex-direction: row;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 0.25rem 0.125rem 0.5rem;
+            padding: 0.25rem 0.125rem;
             gap: 0.5rem;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
 
-        .sidebar-nav::-webkit-scrollbar {
+        .mobile-only .sidebar-nav::-webkit-scrollbar {
             display: none;
         }
 
-        .nav-item {
+        .mobile-only .nav-item {
             width: auto;
             white-space: nowrap;
-            padding: 0.5rem 0.875rem;
-            background: var(--bg-secondary);
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-primary);
             flex-shrink: 0;
+            font-size: 0.8rem;
         }
 
-        .nav-item.active {
+        .mobile-only .nav-item.active {
             background: var(--bg-tertiary);
             border-color: var(--accent-primary);
         }
 
-        .nav-group-wrapper {
+        .mobile-only .nav-group-wrapper {
             flex-direction: row;
             flex-shrink: 0;
-        }
-
-        .nav-subgroups {
-            display: none; /* Subgroups are too deep for mobile horizontal nav */
-        }
-
-        .nav-count {
-            display: none; /* Hide count on mobile chips to keep them small */
-        }
-
-        .codex-main {
-            height: calc(100% - 130px); /* Account for mobile sidebar height */
         }
 
         .note-view-container {
