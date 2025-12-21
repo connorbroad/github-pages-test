@@ -370,7 +370,11 @@
     <aside class="codex-sidebar desktop-only">
         <div class="sidebar-header">
             <h2 class="sidebar-title">Categories</h2>
-            <button class="add-note-btn" on:click={openCreateModal} title="New Note">
+            <button
+                class="add-note-btn"
+                on:click={openCreateModal}
+                title="New Note"
+                aria-label="New Note">
                 <svg
                     viewBox="0 0 24 24"
                     width="20"
@@ -467,7 +471,11 @@
                 </svg>
                 <input type="text" placeholder="Search notes..." bind:value={searchQuery} />
             </div>
-            <button class="add-note-btn-mobile" on:click={openCreateModal} title="New Note" aria-label="New Note">
+            <button
+                class="add-note-btn-mobile"
+                on:click={openCreateModal}
+                title="New Note"
+                aria-label="New Note">
                 <svg
                     viewBox="0 0 24 24"
                     width="18"
@@ -542,12 +550,17 @@
                             Codex
                         </button>
                         <span class="breadcrumb-separator">/</span>
-                        <button class="breadcrumb-item" on:click={() => setFilter(selectedNote.noteGroup)}>
+                        <button
+                            class="breadcrumb-item"
+                            on:click={() => setFilter(selectedNote.noteGroup)}>
                             {selectedNote.noteGroup}
                         </button>
                         {#if selectedNote.subNoteGroup}
                             <span class="breadcrumb-separator">/</span>
-                            <button class="breadcrumb-item" on:click={() => setFilter(selectedNote.noteGroup, selectedNote.subNoteGroup)}>
+                            <button
+                                class="breadcrumb-item"
+                                on:click={() =>
+                                    setFilter(selectedNote.noteGroup, selectedNote.subNoteGroup)}>
                                 {selectedNote.subNoteGroup}
                             </button>
                         {/if}
@@ -567,7 +580,11 @@
 
                         <div class="note-actions">
                             {#if isEditing}
-                                <button class="action-btn save" on:click={saveNote} title="Save">
+                                <button
+                                    class="action-btn save"
+                                    on:click={saveNote}
+                                    title="Save"
+                                    aria-label="Save">
                                     <svg
                                         viewBox="0 0 24 24"
                                         width="18"
@@ -581,7 +598,8 @@
                                 <button
                                     class="action-btn cancel"
                                     on:click={cancelEdit}
-                                    title="Cancel">
+                                    title="Cancel"
+                                    aria-label="Cancel">
                                     <svg
                                         viewBox="0 0 24 24"
                                         width="18"
@@ -593,7 +611,11 @@
                                     </svg>
                                 </button>
                             {:else}
-                                <button class="action-btn edit" on:click={editNote} title="Edit">
+                                <button
+                                    class="action-btn edit"
+                                    on:click={editNote}
+                                    title="Edit"
+                                    aria-label="Edit">
                                     <svg
                                         viewBox="0 0 24 24"
                                         width="18"
@@ -611,7 +633,8 @@
                                     <button
                                         class="action-btn delete"
                                         on:click={deleteNote}
-                                        title="Delete">
+                                        title="Delete"
+                                        aria-label="Delete">
                                         <svg
                                             viewBox="0 0 24 24"
                                             width="18"
@@ -1356,6 +1379,7 @@
         color: var(--text-secondary);
         overflow: hidden;
         display: -webkit-box;
+        line-clamp: 3;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         line-height: 1.5;
