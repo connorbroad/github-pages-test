@@ -794,7 +794,11 @@
 </div>
 
 <!-- Create Note Modal -->
-<SrpgModal bind:show={showCreateModal} maxWidth="600px" onClose={() => (showCreateModal = false)} showCloseButton={false}>
+<SrpgModal
+    bind:show={showCreateModal}
+    maxWidth="600px"
+    onClose={() => (showCreateModal = false)}
+    showCloseButton={false}>
     <div class="srpg-modal-container">
         <header class="srpg-modal-header">
             <div class="srpg-modal-header-icon create">
@@ -1336,6 +1340,7 @@
         align-items: center;
         gap: 0.75rem;
         margin: 0;
+        padding-bottom: 0.5em;
     }
 
     .heading-sub {
