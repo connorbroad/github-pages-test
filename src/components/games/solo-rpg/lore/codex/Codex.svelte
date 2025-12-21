@@ -179,10 +179,24 @@
     function openCreateModal() {
         newNoteTitle = "";
         newNoteContent = "";
-        newNoteGroup = "";
-        newNoteSubGroup = "";
         showCustomGroupInput = false;
         customGroupInput = "";
+
+        // Pre-populate category/subcategory based on current context
+        if (selectedNote) {
+            // If viewing a note, use its category/subcategory
+            newNoteGroup = selectedNote.noteGroup || "";
+            newNoteSubGroup = selectedNote.subNoteGroup || "";
+        } else if (selectedGroup) {
+            // If filtering by category/subcategory, use those
+            newNoteGroup = selectedGroup;
+            newNoteSubGroup = selectedSubGroup || "";
+        } else {
+            // Otherwise, start fresh
+            newNoteGroup = "";
+            newNoteSubGroup = "";
+        }
+
         showCreateModal = true;
     }
 
@@ -780,7 +794,7 @@
 </div>
 
 <!-- Create Note Modal -->
-<SrpgModal bind:show={showCreateModal} maxWidth="600px" on:close={() => (showCreateModal = false)}>
+<SrpgModal bind:show={showCreateModal} maxWidth="600px" onClose={() => (showCreateModal = false)} showCloseButton={false}>
     <div class="srpg-modal-container">
         <header class="srpg-modal-header">
             <div class="srpg-modal-header-icon create">
@@ -816,14 +830,74 @@
 
                 <div class="srpg-form-field">
                     <label for="noteGroup">Category</label>
-                    <div class="srpg-input-wrapper">
-                        <select id="noteGroup" bind:value={newNoteGroup} class="srpg-select">
-                            <option value="">Select Category</option>
-                            {#each availableGroups as group}
-                                <option value={group}>{group}</option>
-                            {/each}
-                        </select>
+                    <div class="category-input-row">
+                        <div class="srpg-input-wrapper">
+                            <select id="noteGroup" bind:value={newNoteGroup} class="srpg-select">
+                                <option value="">Select Category</option>
+                                {#each availableGroups as group}
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        {#if !showCustomGroupInput}
+                            <button
+                                class="srpg-b srpg-b-simple srpg-b-sm new-category-btn"
+                                on:click={toggleCustomGroupInput}
+                                title="Create New Category"
+                                aria-label="Create New Category">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    height="14"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                        {/if}
                     </div>
+                    {#if showCustomGroupInput}
+                        <div class="custom-group-inline">
+                            <input
+                                id="customGroupInput"
+                                type="text"
+                                bind:value={customGroupInput}
+                                placeholder="New category name..."
+                                on:keydown={(e) => e.key === "Enter" && addCustomGroup()} />
+                            <button
+                                class="srpg-b srpg-b-create srpg-b-sm icon-btn"
+                                on:click={addCustomGroup}
+                                title="Add Category"
+                                aria-label="Add Category">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                            </button>
+                            <button
+                                class="srpg-b srpg-b-simple srpg-b-sm icon-btn"
+                                on:click={toggleCustomGroupInput}
+                                title="Cancel"
+                                aria-label="Cancel">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    {/if}
                 </div>
 
                 <div class="srpg-form-field">
@@ -838,48 +912,6 @@
                             placeholder="e.g. Regions, Notable NPCs..." />
                     </div>
                 </div>
-
-                {#if !showCustomGroupInput}
-                    <div class="srpg-form-field full-width">
-                        <button
-                            class="srpg-b srpg-b-simple srpg-b-sm srpg-b-w-full"
-                            on:click={toggleCustomGroupInput}>
-                            <svg
-                                viewBox="0 0 24 24"
-                                width="14"
-                                height="14"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2.5">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Create New Category
-                        </button>
-                    </div>
-                {:else}
-                    <div class="srpg-form-field full-width custom-group-section">
-                        <label for="customGroupInput">New Category Name</label>
-                        <div class="srpg-input-group">
-                            <input
-                                id="customGroupInput"
-                                type="text"
-                                bind:value={customGroupInput}
-                                placeholder="Enter category name..."
-                                on:keydown={(e) => e.key === "Enter" && addCustomGroup()} />
-                            <button
-                                class="srpg-b srpg-b-create srpg-b-sm"
-                                on:click={addCustomGroup}>
-                                Add
-                            </button>
-                            <button
-                                class="srpg-b srpg-b-simple srpg-b-sm"
-                                on:click={toggleCustomGroupInput}>
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                {/if}
 
                 <div class="srpg-form-field full-width">
                     <label for="noteContent">Notes & Lore</label>
@@ -1464,17 +1496,16 @@
     .srpg-modal-header {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        padding: 1.5rem 2rem;
-        border-bottom: 2px solid var(--border-primary);
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-primary);
         background: var(--modal-bg);
-        border-radius: 20px 20px 0 0;
     }
 
     .srpg-modal-header-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1484,32 +1515,31 @@
     }
 
     .srpg-modal-title {
-        font-size: 1.375rem;
-        font-weight: 800;
+        font-size: 1.125rem;
+        font-weight: 700;
         margin: 0;
         line-height: 1.2;
     }
 
     .srpg-modal-subtitle {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        margin: 0.25rem 0 0;
+        margin: 0.125rem 0 0;
     }
 
     .srpg-modal-body {
-        padding: 2rem;
+        padding: 1.25rem;
         overflow-y: auto;
         flex: 1;
     }
 
     .srpg-modal-footer {
-        padding: 1.5rem 2rem;
+        padding: 1rem 1.25rem;
         display: flex;
         justify-content: flex-end;
-        gap: 1rem;
-        border-top: 2px solid var(--border-primary);
+        gap: 0.75rem;
+        border-top: 1px solid var(--border-primary);
         background: var(--bg-secondary);
-        border-radius: 0 0 20px 20px;
     }
 
     .srpg-form-grid {
@@ -1522,26 +1552,52 @@
         grid-column: span 2;
     }
 
-    .custom-group-section {
-        background: rgba(var(--accent-primary-rgb, 59, 130, 246), 0.05);
-        padding: 1rem;
-        border-radius: 12px;
-        border: 1px dashed var(--accent-primary);
+    .category-input-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-start;
     }
 
-    .srpg-input-group {
+    .category-input-row .srpg-input-wrapper {
+        flex: 1;
+    }
+
+    .new-category-btn,
+    .icon-btn {
+        flex-shrink: 0;
+        width: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .custom-group-inline {
         display: flex;
         gap: 0.5rem;
         margin-top: 0.5rem;
+        align-items: center;
     }
 
-    .srpg-input-group input {
+    .custom-group-inline input {
         flex: 1;
         background: var(--input-bg);
         border: 1px solid var(--border-primary);
         color: var(--text-primary);
         padding: 0.5rem 0.75rem;
         border-radius: 8px;
+        font-size: 0.875rem;
+    }
+
+    .custom-group-inline input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
     }
 
     .optional {
@@ -1681,15 +1737,15 @@
         }
 
         .srpg-modal-header {
-            padding: 1.25rem 1.5rem;
+            padding: 0.875rem 1rem;
         }
 
         .srpg-modal-body {
-            padding: 1.5rem;
+            padding: 1rem;
         }
 
         .srpg-modal-footer {
-            padding: 1.125rem 1.25rem;
+            padding: 0.875rem 1rem;
         }
 
         .srpg-form-grid {
@@ -1698,6 +1754,16 @@
 
         .full-width {
             grid-column: span 1;
+        }
+
+        .new-category-btn,
+        .icon-btn {
+            width: 44px !important;
+            min-width: 44px !important;
+            max-width: 44px !important;
+            height: 44px !important;
+            min-height: 44px !important;
+            max-height: 44px !important;
         }
 
         .section-header {
