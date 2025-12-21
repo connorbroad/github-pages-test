@@ -254,6 +254,19 @@
     color: var(--accent-success);
 }
 
+/* Larger icon variant for icons that need more visual weight */
+.srpg-sidebar-item .sidebar-icon-lg {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+@media (min-width: 769px) {
+    .srpg-sidebar-item .sidebar-icon-lg {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+}
+
 /* Icon wrapper for return badge positioning */
 .srpg-sidebar-item .sidebar-icon-wrapper {
     position: relative;

@@ -166,7 +166,20 @@
         if (!item) return [];
         const details: ItemDetail[] = [];
         if (item.weight) details.push({ icon: "weight", text: `${item.weight} wt` });
-        if (item.cost) details.push({ icon: "coin", text: `${item.cost} gp` });
+        if (item.cost) {
+            const gpTotal = item.cost;
+            const gp = Math.floor(gpTotal);
+            const remainder = (gpTotal - gp) * 10;
+            const sp = Math.floor(remainder + 0.01);
+            const cp = Math.round((remainder - sp) * 10);
+
+            const parts = [];
+            if (gp > 0) parts.push(`${gp}g`);
+            if (sp > 0) parts.push(`${sp}s`);
+            if (cp > 0) parts.push(`${cp}c`);
+            const costText = parts.length > 0 ? parts.join(" ") : "0g";
+            details.push({ icon: "coin", text: costText });
+        }
 
         if (item.type === "weapon") {
             if (item.range) details.push({ icon: "range", text: item.range });
@@ -199,303 +212,250 @@
     }
 </script>
 
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <div class="flex flex-col gap-1">
-        <h4 class="m-0 mb-2">Money</h4>
-        {#if isEditable}
-            <div class="flex gap-2">
-                <input
-                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                    id="currency-gp"
-                    type="number"
-                    min="0"
-                    bind:value={editedCharacter.currency.gp}
-                    placeholder="G"
-                    aria-label="Gold Pieces" />
-                <input
-                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                    type="number"
-                    min="0"
-                    bind:value={editedCharacter.currency.sp}
-                    placeholder="S"
-                    aria-label="Silver Pieces" />
-                <input
-                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-full rounded border p-2 focus:outline-none"
-                    type="number"
-                    min="0"
-                    bind:value={editedCharacter.currency.cp}
-                    placeholder="C"
-                    aria-label="Copper Pieces" />
-            </div>
-        {:else}
-            <div class="flex gap-2">
-                <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
-                    {editedCharacter.currency.gp} G
-                </span>
-                <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
-                    {editedCharacter.currency.sp} S
-                </span>
-                <span
-                    class="from-accent-info to-accent-info-hover text-text-inverse rounded-md bg-linear-to-br px-2 py-1 text-xs font-semibold tracking-wide shadow-sm">
-                    {editedCharacter.currency.cp} C
-                </span>
-            </div>
-        {/if}
-    </div>
-
-    <div class="flex flex-col gap-1">
-        <h4 class="m-0 mb-2">Carry Weight</h4>
-        <div class="flex items-center gap-3 max-md:flex-col max-md:items-start max-md:gap-2">
-            <div
-                class="text-text-primary flex items-center gap-1.5 text-base font-semibold transition-colors duration-200"
-                class:text-red-500={isOverWeight}>
-                <svg class="h-5 w-5 shrink-0 opacity-80" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l7.5 3.75v7.34L12 19.02l-7.5-3.75V7.93L12 4.18z" />
-                </svg>
-                <span class="tabular-nums">{totalWeight.toFixed(1)}</span>
-                {#if maxCarryWeight > 0}
-                    <span class="mx-0.5 opacity-50">/</span>
-                    <span class="tabular-nums opacity-70">{maxCarryWeight}</span>
+<div class="inventory-section">
+    <div class="stats-header">
+        <div class="stat-group money-group">
+            <h4 class="stat-label">Currency</h4>
+            <div class="currency-chips">
+                {#if isEditable}
+                    <div class="currency-inputs">
+                        <div class="curr-input gold">
+                            <svg class="coin-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z" />
+                            </svg>
+                            <input
+                                type="number"
+                                bind:value={editedCharacter.currency.gp}
+                                aria-label="Gold" />
+                        </div>
+                        <div class="curr-input silver">
+                            <svg class="coin-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                            </svg>
+                            <input
+                                type="number"
+                                bind:value={editedCharacter.currency.sp}
+                                aria-label="Silver" />
+                        </div>
+                        <div class="curr-input copper">
+                            <svg class="coin-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                            </svg>
+                            <input
+                                type="number"
+                                bind:value={editedCharacter.currency.cp}
+                                aria-label="Copper" />
+                        </div>
+                    </div>
+                {:else}
+                    <div class="currency-badges">
+                        <div class="curr-badge gold">
+                            <span class="curr-value">G</span>
+                            <span class="curr-num">{editedCharacter.currency.gp}</span>
+                        </div>
+                        <div class="curr-badge silver">
+                            <span class="curr-value">S</span>
+                            <span class="curr-num">{editedCharacter.currency.sp}</span>
+                        </div>
+                        <div class="curr-badge copper">
+                            <span class="curr-value">C</span>
+                            <span class="curr-num">{editedCharacter.currency.cp}</span>
+                        </div>
+                    </div>
                 {/if}
             </div>
-            {#if isEditable}
-                <input
-                    class="border-input-border bg-input-bg text-input-text focus:border-input-border-focus w-20 rounded border p-1 px-2 text-sm focus:outline-none max-md:w-full"
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    bind:value={editedCharacter.maxCarryWeight}
-                    placeholder="Max"
-                    aria-label="Maximum Carry Weight" />
-            {/if}
+        </div>
+
+        <div class="stat-group weight-group" class:over-capacity={isOverWeight}>
+            <h4 class="stat-label">Carry Weight</h4>
+            <div class="weight-display">
+                <div class="weight-main">
+                    <svg class="weight-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l7.5 3.75v7.34L12 19.02l-7.5-3.75V7.93L12 4.18z" />
+                    </svg>
+                    <span class="weight-current">{totalWeight.toFixed(1)}</span>
+                    {#if maxCarryWeight > 0}
+                        <span class="weight-sep">/</span>
+                        {#if isEditable}
+                            <input
+                                class="weight-limit-input"
+                                type="number"
+                                bind:value={editedCharacter.maxCarryWeight} />
+                        {:else}
+                            <span class="weight-max">{maxCarryWeight}</span>
+                        {/if}
+                    {/if}
+                </div>
+                {#if isOverWeight}
+                    <span class="overweight-tag">Encumbered</span>
+                {/if}
+            </div>
         </div>
     </div>
-</div>
 
-<div class="mt-6">
-    <div class="mb-2 flex items-center justify-between">
+    <div class="inventory-actions">
+        <button class="srpg-b srpg-b-secondary lib-btn" on:click={handleItemLibraryClick}>
+            <svg viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="currentColor">
+                <path
+                    d="M12 9c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2s-2-.9-2-2s.9-2 2-2m0 8.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55c2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55m7 5.58c-2.53.34-4.93 1.3-7 2.82a15.2 15.2 0 0 0-7-2.83v-6.95c2.1.38 4.05 1.35 5.64 2.83L12 14.28l1.36-1.27A11.2 11.2 0 0 1 19 10.18z" />
+            </svg>
+            Library
+        </button>
         <button
-            class="border-border-primary bg-accent-success hover:bg-accent-success-hover active:bg-accent-success-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-            aria-label="Add Item"
-            title="Add Item"
+            class="srpg-b srpg-b-create add-btn"
             on:click={handleAddItemClick}
             disabled={campaignItems.length === 0}>
             <svg
-                class="h-5 w-5"
                 viewBox="0 0 24 24"
+                width="1.2em"
+                height="1.2em"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2">
+                stroke-width="2.5">
                 <path d="M12 5v14M5 12h14" />
             </svg>
             Add Item
         </button>
-        <button
-            class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-            aria-label="Item Library"
-            title="Item Library"
-            on:click={handleItemLibraryClick}>
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="1.5em"
-                height="1.5em">
-                <path
-                    fill="currentColor"
-                    d="M12 9c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-6c1.1 0 2 .9 2 2s-.9 2-2 2s-2-.9-2-2s.9-2 2-2m0 8.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55c2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55m7 5.58c-2.53.34-4.93 1.3-7 2.82a15.2 15.2 0 0 0-7-2.83v-6.95c2.1.38 4.05 1.35 5.64 2.83L12 14.28l1.36-1.27A11.2 11.2 0 0 1 19 10.18z" />
-            </svg>
-            Item Library
-        </button>
     </div>
 
-    {#if editedCharacter.inventory && editedCharacter.inventory.length > 0}
-        <div class="flex flex-col gap-2">
+    <div class="inventory-list">
+        {#if (editedCharacter.inventory || []).length === 0}
+            <div class="empty-state">
+                <p>Your inventory is empty.</p>
+                <button class="srpg-b srpg-b-simple" on:click={handleAddItemClick}>
+                    Add your first item
+                </button>
+            </div>
+        {:else}
             {#if weaponItems.length > 0}
-                <h3 class="mt-4 mb-2">Weapons</h3>
-                {#each weaponItems as row}
-                    <div class="border-divider flex items-start gap-4 border-b py-2 max-md:gap-3">
-                        <button
-                            class="border-button-icon-border bg-button-icon-bg text-button-icon-text hover:bg-button-icon-hover-bg hover:border-button-icon-hover-border active:bg-button-icon-bg flex cursor-pointer items-center justify-center rounded-md border p-2 text-center text-sm font-medium shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md active:translate-y-0 active:shadow-sm"
-                            aria-label={row.invItem.equipped
-                                ? `Unequip ${row.item.type}`
-                                : `Equip ${row.item.type}`}
-                            title={row.invItem.equipped
-                                ? `Unequip ${row.item.type}`
-                                : `Equip ${row.item.type}`}
-                            on:click={() => toggleEquip(row)}>
-                            {#if row.invItem.equipped}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="1em"
-                                    height="1em">
-                                    <g fill="none" fill-rule="evenodd">
-                                        <path
-                                            d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
-                                        <path
-                                            fill="currentColor"
-                                            d="M19.071 3.929a1 1 0 0 1 1 1v5.657a1 1 0 0 1-.405.804l-7.198 5.32l.946.947a1 1 0 0 1 0 1.414L12 20.485a1 1 0 0 1-1.154.187l-2.184-1.091l-1.612 1.611a1 1 0 0 1-1.414 0l-2.828-2.828a1 1 0 0 1 0-1.414l1.611-1.612l-1.091-2.184A1 1 0 0 1 3.515 12l1.414-1.414a1 1 0 0 1 1.414 0l.947.946l5.32-7.198a1 1 0 0 1 .804-.405z" />
-                                    </g>
-                                </svg>
-                            {:else}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="1em"
-                                    height="1em">
-                                    <g fill="none" fill-rule="evenodd">
-                                        <path
-                                            d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
-                                        <path
-                                            fill="currentColor"
-                                            d="M19.071 3.93a1 1 0 0 1 .993.883l.007.116v5.657a1 1 0 0 1-.315.729l-.09.075l-7.198 5.32l.946.947a1 1 0 0 1 .084 1.32l-.084.094L12 20.485a1 1 0 0 1-1.036.238l-.118-.05l-2.184-1.092l-1.612 1.612a1 1 0 0 1-1.32.083l-.094-.083l-2.828-2.829a1 1 0 0 1-.083-1.32l.083-.094l1.611-1.612l-1.091-2.183a1 1 0 0 1 .102-1.059L3.515 12l1.414-1.414a1 1 0 0 1 1.32-.083l.094.083l.947.947l5.32-7.198a1 1 0 0 1 .687-.399l.117-.007h5.657ZM5.636 12.706l-.197.198l1.092 2.184a1 1 0 0 1-.188 1.154L4.93 17.657l1.414 1.414l1.415-1.414a1 1 0 0 1 1.154-.187l2.184 1.092l.197-.198l-5.657-5.657ZM18.071 5.93H13.92l-5.2 7.033l2.318 2.317l7.033-5.198z" />
-                                    </g>
-                                </svg>
-                            {/if}
-                        </button>
-                        <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div
-                                class="text-text-primary leading-tight font-semibold wrap-break-word">
-                                {row.item?.name || row.invItem.itemId}
-                            </div>
-                            {#if row.item && formatItemDetails(row.item).length > 0}
-                                <div
-                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
-                                    {#each formatItemDetails(row.item) as detail}
-                                        <span
-                                            class="inline-flex items-center gap-1 whitespace-nowrap">
-                                            <svg
-                                                class="h-3.5 w-3.5 shrink-0 opacity-75 max-md:h-3 max-md:w-3"
-                                                viewBox="0 0 24 24"
-                                                fill="currentColor">
-                                                <path d={getIconSvg(detail.icon)} />
-                                            </svg>
-                                            <span class="leading-none">{detail.text}</span>
-                                        </span>
-                                    {/each}
-                                </div>
-                            {/if}
-                        </div>
-                        <span class="ml-auto self-center whitespace-nowrap">
-                            {row.invItem.quantity}
-                        </span>
+                <div class="inventory-group">
+                    <div class="srpg-group-header">
+                        <span class="srpg-group-title">Weapons</span>
+                        <span class="srpg-group-count">{weaponItems.length}</span>
                     </div>
-                {/each}
+                    <div class="category-grid">
+                        {#each weaponItems as row}
+                            <div class="inventory-card" class:equipped={row.invItem.equipped}>
+                                <div class="card-left">
+                                    <button
+                                        class="equip-toggle"
+                                        class:is-equipped={row.invItem.equipped}
+                                        on:click={() => toggleEquip(row)}>
+                                        {row.invItem.equipped ? "EQUIPPED" : "EQUIP"}
+                                    </button>
+                                </div>
+                                <div class="card-main">
+                                    <div class="item-header">
+                                        <span class="item-name">
+                                            {row.item?.name || row.invItem.itemId}
+                                        </span>
+                                        <span class="item-qty">x{row.invItem.quantity}</span>
+                                    </div>
+                                    <div class="item-details">
+                                        {#each formatItemDetails(row.item) as detail}
+                                            <div class="detail-tag">
+                                                <svg
+                                                    class="detail-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor">
+                                                    <path d={getIconSvg(detail.icon)} />
+                                                </svg>
+                                                {detail.text}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
             {/if}
 
             {#if armorItems.length > 0}
-                <h3 class="mt-4 mb-2">Armor</h3>
-                {#each armorItems as row}
-                    <div class="border-divider flex items-start gap-4 border-b py-2 max-md:gap-3">
-                        <button
-                            class="border-button-icon-border bg-button-icon-bg text-button-icon-text hover:bg-button-icon-hover-bg hover:border-button-icon-hover-border active:bg-button-icon-bg flex cursor-pointer items-center justify-center rounded-md border p-2 text-center text-sm font-medium shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md active:translate-y-0 active:shadow-sm"
-                            aria-label={row.invItem.equipped
-                                ? `Unequip ${row.item.type}`
-                                : `Equip ${row.item.type}`}
-                            title={row.invItem.equipped
-                                ? `Unequip ${row.item.type}`
-                                : `Equip ${row.item.type}`}
-                            on:click={() => toggleEquip(row)}>
-                            {#if row.invItem.equipped}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="1em"
-                                    height="1em">
-                                    <g fill="none" fill-rule="evenodd">
-                                        <path
-                                            d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
-                                        <path
-                                            fill="currentColor"
-                                            d="M5.707 3.879A3 3 0 0 1 7.828 3c.79 0 1.948-.22 2.302.711a2.001 2.001 0 0 0 3.74 0c.354-.93 1.513-.71 2.302-.71a3 3 0 0 1 2.12.878L22 7.586a2 2 0 0 1 0 2.828l-1.478 1.478c-.52.52-1.246.689-1.9.526l.272 5.432A3 3 0 0 1 15.898 21H8.102a3 3 0 0 1-2.996-3.15l.272-5.432a2 2 0 0 1-1.9-.526L2 10.414a2 2 0 0 1 0-2.828z" />
-                                    </g>
-                                </svg>
-                            {:else}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="1em"
-                                    height="1em">
-                                    <g fill="none" fill-rule="evenodd">
-                                        <path
-                                            d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
-                                        <path
-                                            fill="currentColor"
-                                            d="M7.121 5.293L3.414 9l1.478 1.478l.788-1.052c.598-.797 1.867-.339 1.817.657l-.393 7.867A1 1 0 0 0 8.102 19h7.796a1 1 0 0 0 .998-1.05l-.393-7.867c-.05-.996 1.219-1.454 1.817-.657l.788 1.052L20.586 9l-3.707-3.707C16.5 4.915 15.95 5 15.465 5A4 4 0 0 1 12 7a4 4 0 0 1-3.465-2c-.486 0-1.036-.085-1.414.293M5.707 3.879A3 3 0 0 1 7.828 3H9.1c.472 0 .872.297 1.03.71a2.001 2.001 0 0 0 3.74 0c.158-.413.558-.71 1.03-.71h1.272a3 3 0 0 1 2.12.879L22 7.586a2 2 0 0 1 0 2.828l-1.478 1.478c-.52.52-1.246.689-1.9.526l.272 5.432A3 3 0 0 1 15.898 21H8.102a3 3 0 0 1-2.996-3.15l.272-5.432a2 2 0 0 1-1.9-.526L2 10.414a2 2 0 0 1 0-2.828z" />
-                                    </g>
-                                </svg>
-                            {/if}
-                        </button>
-                        <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div
-                                class="text-text-primary leading-tight font-semibold wrap-break-word">
-                                {row.item?.name || row.invItem.itemId}
-                            </div>
-                            {#if row.item && formatItemDetails(row.item).length > 0}
-                                <div
-                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
-                                    {#each formatItemDetails(row.item) as detail}
-                                        <span
-                                            class="inline-flex items-center gap-1 whitespace-nowrap">
-                                            <svg
-                                                class="h-3.5 w-3.5 shrink-0 opacity-75 max-md:h-3 max-md:w-3"
-                                                viewBox="0 0 24 24"
-                                                fill="currentColor">
-                                                <path d={getIconSvg(detail.icon)} />
-                                            </svg>
-                                            <span class="leading-none">{detail.text}</span>
-                                        </span>
-                                    {/each}
-                                </div>
-                            {/if}
-                        </div>
-                        <span class="ml-auto self-center whitespace-nowrap">
-                            {row.invItem.quantity}
-                        </span>
+                <div class="inventory-group">
+                    <div class="srpg-group-header">
+                        <span class="srpg-group-title">Armor</span>
+                        <span class="srpg-group-count">{armorItems.length}</span>
                     </div>
-                {/each}
+                    <div class="category-grid">
+                        {#each armorItems as row}
+                            <div
+                                class="inventory-card armor-card"
+                                class:equipped={row.invItem.equipped}>
+                                <div class="card-left">
+                                    <button
+                                        class="equip-toggle"
+                                        class:is-equipped={row.invItem.equipped}
+                                        on:click={() => toggleEquip(row)}>
+                                        {row.invItem.equipped ? "EQUIPPED" : "EQUIP"}
+                                    </button>
+                                </div>
+                                <div class="card-main">
+                                    <div class="item-header">
+                                        <span class="item-name">
+                                            {row.item?.name || row.invItem.itemId}
+                                        </span>
+                                        <span class="item-qty">x{row.invItem.quantity}</span>
+                                    </div>
+                                    <div class="item-details">
+                                        {#each formatItemDetails(row.item) as detail}
+                                            <div class="detail-tag">
+                                                <svg
+                                                    class="detail-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor">
+                                                    <path d={getIconSvg(detail.icon)} />
+                                                </svg>
+                                                {detail.text}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
             {/if}
 
             {#if generalItems.length > 0}
-                <h3 class="mt-4 mb-2">Other items</h3>
-                {#each generalItems as row}
-                    <div class="border-divider flex items-start gap-4 border-b py-2 max-md:gap-3">
-                        <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div
-                                class="text-text-primary leading-tight font-semibold wrap-break-word">
-                                {row.item?.name || row.invItem.itemId}
-                            </div>
-                            {#if row.item && formatItemDetails(row.item).length > 0}
-                                <div
-                                    class="flex flex-wrap gap-x-2.5 gap-y-1.5 text-sm leading-snug max-md:gap-x-2 max-md:gap-y-1.5 max-md:text-[0.8rem]">
-                                    {#each formatItemDetails(row.item) as detail}
-                                        <span
-                                            class="inline-flex items-center gap-1 whitespace-nowrap">
-                                            <svg
-                                                class="h-3.5 w-3.5 shrink-0 opacity-75 max-md:h-3 max-md:w-3"
-                                                viewBox="0 0 24 24"
-                                                fill="currentColor">
-                                                <path d={getIconSvg(detail.icon)} />
-                                            </svg>
-                                            <span class="leading-none">{detail.text}</span>
-                                        </span>
-                                    {/each}
-                                </div>
-                            {/if}
-                        </div>
-                        <span class="ml-auto self-center whitespace-nowrap">
-                            {row.invItem.quantity}
-                        </span>
+                <div class="inventory-group">
+                    <div class="srpg-group-header">
+                        <span class="srpg-group-title">Other Items</span>
+                        <span class="srpg-group-count">{generalItems.length}</span>
                     </div>
-                {/each}
+                    <div class="category-grid">
+                        {#each generalItems as row}
+                            <div class="inventory-card simple-card">
+                                <div class="card-main">
+                                    <div class="item-header">
+                                        <span class="item-name">
+                                            {row.item?.name || row.invItem.itemId}
+                                        </span>
+                                        <span class="item-qty">x{row.invItem.quantity}</span>
+                                    </div>
+                                    <div class="item-details">
+                                        {#each formatItemDetails(row.item) as detail}
+                                            <div class="detail-tag">
+                                                <svg
+                                                    class="detail-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor">
+                                                    <path d={getIconSvg(detail.icon)} />
+                                                </svg>
+                                                {detail.text}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
             {/if}
-        </div>
-    {:else}
-        <p class="px-4 py-8 text-center text-base">No items in inventory.</p>
-    {/if}
+        {/if}
+    </div>
 </div>
 
 <ItemLibraryModal
@@ -511,3 +471,347 @@
     {campaignItems}
     onSave={handleAddInventoryItemSave}
     onClose={handleAddInventoryItemClose} />
+
+<style>
+    .inventory-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .stats-header {
+        display: flex;
+        gap: 2rem;
+        padding: 1.25rem;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        border: 1px solid var(--border-primary);
+    }
+
+    .stat-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .stat-label {
+        margin: 0;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+    }
+
+    /* Currency Styling */
+    .currency-badges,
+    .currency-inputs {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .curr-badge,
+    .curr-input {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .curr-badge {
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
+        box-shadow: 0 2px 4px var(--shadow-sm);
+    }
+
+    .curr-input {
+        background: var(--input-bg);
+        border: 1px solid var(--border-primary);
+        padding: 0.25rem 0.5rem;
+    }
+
+    .curr-input input {
+        width: 3rem;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-align: right;
+    }
+
+    .curr-input input:focus {
+        outline: none;
+    }
+
+    .gold {
+        color: #facc15;
+        border-color: rgba(250, 204, 21, 0.3);
+    }
+    .silver {
+        color: #94a3b8;
+        border-color: rgba(148, 163, 184, 0.3);
+    }
+    .copper {
+        color: #b45309;
+        border-color: rgba(180, 83, 9, 0.3);
+    }
+
+    .coin-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+    .curr-value {
+        font-size: 0.65rem;
+        opacity: 0.6;
+    }
+
+    /* Weight Styling */
+    .weight-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .weight-main {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--text-primary);
+    }
+
+    .weight-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: var(--text-muted);
+    }
+    .weight-sep {
+        opacity: 0.3;
+        font-weight: 400;
+    }
+    .weight-max {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .weight-limit-input {
+        width: 4rem;
+        background: var(--input-bg);
+        border: 1px solid var(--border-primary);
+        border-radius: 4px;
+        padding: 0.125rem 0.375rem;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        font-weight: 700;
+    }
+
+    .over-capacity .weight-main {
+        color: var(--accent-danger);
+    }
+    .overweight-tag {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        background: var(--accent-danger);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    /* Actions */
+    .inventory-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .inventory-actions button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 700;
+    }
+
+    /* List & Cards */
+    .inventory-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .inventory-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .category-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .inventory-card {
+        display: flex;
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .inventory-card:hover {
+        border-color: var(--border-secondary);
+    }
+    .inventory-card.equipped {
+        border-color: var(--accent-success);
+        box-shadow:
+            0 0 0 1px var(--accent-success),
+            0 4px 12px rgba(34, 197, 94, 0.1);
+        background: rgba(34, 197, 94, 0.02);
+    }
+
+    .card-left {
+        display: flex;
+        align-items: center;
+        padding: 0 0.75rem;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border-primary);
+    }
+
+    .card-main {
+        flex: 1;
+        padding: 0.875rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .item-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .item-qty {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: var(--bg-tertiary);
+        padding: 0.125rem 0.5rem;
+        border-radius: 99px;
+        color: var(--text-secondary);
+    }
+
+    .item-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .detail-tag {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .detail-icon {
+        width: 0.875rem;
+        height: 0.875rem;
+        opacity: 0.6;
+    }
+
+    /* Equip Toggle Button */
+    .equip-toggle {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        border-radius: 6px;
+        border: 1px solid var(--border-primary);
+        background: var(--modal-bg);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 80px;
+    }
+
+    .equip-toggle:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--text-secondary);
+        color: var(--text-primary);
+    }
+
+    .equip-toggle.is-equipped {
+        background: var(--accent-success);
+        color: white;
+        border-color: var(--accent-success);
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+    }
+
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        background: var(--bg-secondary);
+        border: 1px dashed var(--border-primary);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 640px) {
+        .stats-header {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .inventory-card {
+            flex-direction: column;
+        }
+
+        .card-left {
+            border-right: none;
+            border-bottom: 1px solid var(--border-primary);
+            padding: 0.5rem;
+            justify-content: center;
+        }
+
+        .equip-toggle {
+            width: 100%;
+        }
+    }
+</style>

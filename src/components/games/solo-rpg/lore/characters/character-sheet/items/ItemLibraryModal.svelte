@@ -13,10 +13,20 @@
     let showCreateItemModal = false;
     let expandedGroups: Set<string> = new Set(["simple", "weapon", "armor"]);
 
+    let searchQuery = "";
+
+    $: filteredItems = campaignItems.filter((item) => {
+        const matchesSearch =
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.tags &&
+                item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())));
+        return matchesSearch;
+    });
+
     $: groupedItems = {
-        simple: campaignItems.filter((item) => item.type === "simple"),
-        weapon: campaignItems.filter((item) => item.type === "weapon"),
-        armor: campaignItems.filter((item) => item.type === "armor"),
+        simple: filteredItems.filter((item) => item.type === "simple"),
+        weapon: filteredItems.filter((item) => item.type === "weapon"),
+        armor: filteredItems.filter((item) => item.type === "armor"),
     };
 
     function toggleGroup(group: string) {
@@ -68,7 +78,20 @@
         const details: ItemDetail[] = [];
 
         if (item.weight) details.push({ icon: "weight", text: `${item.weight} wt` });
-        if (item.cost) details.push({ icon: "coin", text: `${item.cost} gp` });
+        if (item.cost) {
+            const gpTotal = item.cost;
+            const gp = Math.floor(gpTotal);
+            const remainder = (gpTotal - gp) * 10;
+            const sp = Math.floor(remainder + 0.01);
+            const cp = Math.round((remainder - sp) * 10);
+
+            const parts = [];
+            if (gp > 0) parts.push(`${gp}g`);
+            if (sp > 0) parts.push(`${sp}s`);
+            if (cp > 0) parts.push(`${cp}c`);
+            const costText = parts.length > 0 ? parts.join(" ") : "0g";
+            details.push({ icon: "coin", text: costText });
+        }
 
         if (item.type === "weapon") {
             if (item.range) details.push({ icon: "range", text: item.range });
@@ -106,32 +129,59 @@
 <SrpgModal bind:show maxWidth="600px" ariaLabel="Item Library" onClose={close}>
     <div class="modal-content">
         <div class="modal-header-sticky">
-            <h2 class="srpg-modal-heading">Item Library</h2>
+            <div class="header-main">
+                <h2 class="srpg-modal-heading">Item Library</h2>
+                <div class="header-actions">
+                    <button class="srpg-b srpg-b-create srpg-b-sm" on:click={handleCreateItemClick}>
+                        <svg
+                            class="srpg-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        <span>Create</span>
+                    </button>
+                    {#if campaignItems.length > 0}
+                        <span class="item-count-badge">
+                            {campaignItems.length} items
+                        </span>
+                    {/if}
+                </div>
+            </div>
 
-            <div class="library-header">
-                <button class="srpg-b srpg-b-create srpg-b-sm" on:click={handleCreateItemClick}>
-                    <svg
-                        class="srpg-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M12 5v14M5 12h14" />
-                    </svg>
-                    <span class="button-text">Create</span>
-                </button>
-                {#if campaignItems.length > 0}
-                    <span class="item-count-badge">
-                        {campaignItems.length}
-                        {campaignItems.length === 1 ? "item" : "items"}
-                    </span>
-                {/if}
+            <div class="search-bar">
+                <svg
+                    class="search-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                    type="text"
+                    placeholder="Search items by name or tags..."
+                    bind:value={searchQuery}
+                    class="search-input" />
             </div>
         </div>
 
         <div class="library-content">
             {#if campaignItems.length === 0}
-                <p class="srpg-empty-message">No items in library. Create your first item!</p>
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <p class="srpg-empty-message">No items in library. Create your first item!</p>
+                </div>
+            {:else if filteredItems.length === 0}
+                <div class="empty-state">
+                    <p class="srpg-empty-message">No items match your search.</p>
+                    <button class="srpg-b srpg-b-simple" on:click={() => (searchQuery = "")}>
+                        Clear Search
+                    </button>
+                </div>
             {:else}
                 {#each ["simple", "weapon", "armor"] as itemType}
                     {@const items = groupedItems[itemType]}
@@ -153,58 +203,53 @@
                             </button>
 
                             {#if expandedGroups.has(itemType)}
-                                <div class="item-list">
+                                <div class="item-grid">
                                     {#each items as item (item.id)}
-                                        <div class="item-row">
-                                            <div class="item-info">
-                                                <div class="item-header-row">
-                                                    <div class="item-name">{item.name}</div>
-                                                    <button
-                                                        class="srpg-b srpg-b-icon delete-icon"
-                                                        on:click={() => handleDeleteItem(item.id)}
-                                                        aria-label="Delete {item.name}"
-                                                        title="Delete {item.name}">
-                                                        <svg
-                                                            class="srpg-icon"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            stroke-width="2">
-                                                            <path
-                                                                d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                                {#if formatItemDetails(item).length > 0}
-                                                    <div class="item-details">
-                                                        {#each formatItemDetails(item) as detail}
-                                                            <span class="item-detail">
-                                                                <svg
-                                                                    class="detail-icon"
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="currentColor">
-                                                                    <path
-                                                                        d={getIconSvg(
-                                                                            detail.icon
-                                                                        )} />
-                                                                </svg>
-                                                                <span class="detail-text">
-                                                                    {detail.text}
-                                                                </span>
-                                                            </span>
-                                                        {/each}
-                                                    </div>
-                                                {/if}
-                                                {#if item.tags && item.tags.length > 0}
-                                                    <div class="item-tags">
-                                                        {#each item.tags as tag}
-                                                            <span class="srpg-badge srpg-badge-sm">
-                                                                {tag}
-                                                            </span>
-                                                        {/each}
-                                                    </div>
-                                                {/if}
+                                        <div
+                                            class="item-card"
+                                            class:weapon-card={item.type === "weapon"}
+                                            class:armor-card={item.type === "armor"}>
+                                            <div class="item-card-header">
+                                                <div class="item-name">{item.name}</div>
+                                                <button
+                                                    class="delete-btn"
+                                                    on:click={() => handleDeleteItem(item.id)}
+                                                    aria-label="Delete {item.name}"
+                                                    title="Delete {item.name}">
+                                                    <svg
+                                                        class="srpg-icon"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2">
+                                                        <path d="M18 6L6 18M6 6l12 12" />
+                                                    </svg>
+                                                </button>
                                             </div>
+
+                                            <div class="item-card-details">
+                                                {#each formatItemDetails(item) as detail}
+                                                    <div class="card-detail">
+                                                        <svg
+                                                            class="detail-icon"
+                                                            viewBox="0 0 24 24"
+                                                            fill="currentColor">
+                                                            <path d={getIconSvg(detail.icon)} />
+                                                        </svg>
+                                                        <span class="detail-text">
+                                                            {detail.text}
+                                                        </span>
+                                                    </div>
+                                                {/each}
+                                            </div>
+
+                                            {#if item.tags && item.tags.length > 0}
+                                                <div class="item-card-tags">
+                                                    {#each item.tags as tag}
+                                                        <span class="item-tag">{tag}</span>
+                                                    {/each}
+                                                </div>
+                                            {/if}
                                         </div>
                                     {/each}
                                 </div>
@@ -226,3 +271,269 @@
     {campaignId}
     onSave={handleCreateItemSave}
     onClose={handleCreateItemClose} />
+
+<style>
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        text-align: left;
+    }
+
+    .modal-header-sticky {
+        position: sticky;
+        top: 0;
+        background: var(--modal-bg);
+        z-index: 10;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-primary);
+        margin-bottom: 1rem;
+    }
+
+    .header-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .item-count-badge {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        background: var(--bg-secondary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 99px;
+        font-weight: 500;
+    }
+
+    .search-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 0.75rem;
+        width: 1rem;
+        height: 1rem;
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.625rem 0.75rem 0.625rem 2.25rem;
+        background: var(--input-bg);
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--srpg-focus-ring);
+    }
+
+    .library-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        color: var(--text-muted);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .item-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .srpg-group-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--border-secondary);
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+
+    .srpg-group-header:hover {
+        color: var(--accent-primary);
+    }
+
+    .srpg-group-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .srpg-expand-icon {
+        font-size: 0.7rem;
+        transition: transform 0.2s;
+        display: inline-block;
+        width: 1rem;
+        text-align: center;
+    }
+
+    .srpg-expand-icon.expanded {
+        transform: rotate(90deg);
+    }
+
+    .srpg-group-count {
+        margin-left: 0.5rem;
+        opacity: 0.5;
+        font-weight: normal;
+        font-size: 0.8rem;
+    }
+
+    .item-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 0.25rem;
+    }
+
+    .item-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-primary);
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px var(--shadow-sm);
+    }
+
+    .item-card:hover {
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-md);
+    }
+
+    .weapon-card {
+        border-left: 3px solid var(--accent-danger);
+    }
+
+    .armor-card {
+        border-left: 3px solid var(--accent-info);
+    }
+
+    .item-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .item-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+    .delete-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+        opacity: 0.3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .item-card:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .delete-btn:hover {
+        color: var(--accent-danger);
+        background: var(--bg-secondary);
+    }
+
+    .item-card-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .card-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .detail-icon {
+        width: 0.875rem;
+        height: 0.875rem;
+        opacity: 0.7;
+    }
+
+    .item-card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-top: auto;
+    }
+
+    .item-tag {
+        font-size: 0.65rem;
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        border: 1px solid var(--border-secondary);
+    }
+
+    .modal-actions {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-primary);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 480px) {
+        .item-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
