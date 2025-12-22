@@ -960,7 +960,6 @@
         display: flex;
         height: 100vh;
         height: 100dvh;
-        background: var(--bg-primary);
         overflow: hidden;
     }
 
@@ -969,7 +968,6 @@
         width: 280px;
         display: flex;
         flex-direction: column;
-        background: var(--bg-secondary);
         border-right: 1px solid var(--border-primary);
         padding: 1.25rem;
         gap: 1.25rem;
@@ -1148,7 +1146,6 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        background: var(--modal-bg);
         overflow: hidden;
         min-height: 0;
     }
@@ -1164,6 +1161,7 @@
         width: 100%;
         overflow-y: auto;
         min-height: 0;
+        background: var(--bg-secondary);
     }
 
     .note-header {
@@ -1565,17 +1563,33 @@
 
     .category-input-row .srpg-input-wrapper {
         flex: 1;
+        display: flex;
     }
 
-    .new-category-btn,
+    .category-input-row .srpg-select {
+        flex: 1;
+        height: 2.625rem; /* Match text input height (42px) */
+    }
+
+    .new-category-btn {
+        flex-shrink: 0;
+        width: 2.625rem !important;
+        min-width: 2.625rem !important;
+        max-width: 2.625rem !important;
+        height: 2.625rem !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
     .icon-btn {
         flex-shrink: 0;
         width: 36px !important;
         min-width: 36px !important;
         max-width: 36px !important;
         height: 36px !important;
-        min-height: 36px !important;
-        max-height: 36px !important;
         padding: 0 !important;
         display: flex;
         align-items: center;
@@ -1671,7 +1685,6 @@
             border-top: 1px solid var(--border-primary);
             padding: 0.75rem;
             gap: 0.5rem;
-            background: var(--bg-secondary);
             z-index: 10;
             flex-shrink: 0;
         }
@@ -1761,14 +1774,22 @@
             grid-column: span 1;
         }
 
-        .new-category-btn,
+        .category-input-row .srpg-select {
+            height: 44px;
+        }
+
+        .new-category-btn {
+            width: 44px !important;
+            min-width: 44px !important;
+            max-width: 44px !important;
+            height: 44px !important;
+        }
+
         .icon-btn {
             width: 44px !important;
             min-width: 44px !important;
             max-width: 44px !important;
             height: 44px !important;
-            min-height: 44px !important;
-            max-height: 44px !important;
         }
 
         .section-header {
