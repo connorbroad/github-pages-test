@@ -586,6 +586,16 @@
     background: var(--bg-secondary);
 }
 
+/* Square icon button modifier - works with any button variant */
+.srpg-b-icon-sq {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .srpg-b-overview {
     background: var(--card-bg);
     border: 2px solid var(--border-primary);
@@ -906,6 +916,11 @@
     .srpg-b-sm {
         min-height: 44px;
         padding: 0.625rem 1rem;
+    }
+
+    .srpg-b-icon-sq {
+        width: 2.75rem;
+        height: 2.75rem;
     }
 }
 
