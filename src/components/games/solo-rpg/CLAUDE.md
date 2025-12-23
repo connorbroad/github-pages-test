@@ -121,6 +121,45 @@ Pattern: Extract logic to `.ts` utility files (not Svelte components) for testab
 - Prefer Svelte stores for cross-component state
 - Mobile-first responsive design (bottom nav on mobile, left sidebar on desktop)
 
+### Svelte 5 Component Events
+
+**IMPORTANT**: This project uses **Svelte 5.25+**. The `on:eventname` directive for custom component events is **deprecated**. Use callback props instead.
+
+**❌ DON'T** (Svelte 4 pattern - will not work):
+```svelte
+<!-- Parent -->
+<MyModal on:close={handleClose} on:save={handleSave} />
+
+<!-- Child -->
+<script>
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
+    dispatch("close");
+</script>
+```
+
+**✅ DO** (Svelte 5 pattern):
+```svelte
+<!-- Parent -->
+<MyModal onClose={handleClose} onSave={handleSave} />
+
+<!-- Child -->
+<script lang="ts">
+    export let onClose: () => void = () => {};
+    export let onSave: (data: MyData) => void = () => {};
+
+    function handleClose() {
+        onClose();
+    }
+</script>
+```
+
+**Notes:**
+- Use `onEventName` naming convention (camelCase with `on` prefix)
+- Provide default empty functions for optional callbacks
+- Type callback parameters explicitly
+- `on:click` and other DOM events still work on HTML elements
+
 ## Known Large Components
 
 These components are complex and may benefit from refactoring:
