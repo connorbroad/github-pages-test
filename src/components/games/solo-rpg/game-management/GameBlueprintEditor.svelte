@@ -5,14 +5,13 @@
      */
     import type { GameBlueprint, Fortune } from "../oracle/scripts/oracleTypes";
     import { generateId } from "../oracle/scripts/oracleTypes";
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
     import FortuneEditor from "../oracle/components/FortuneEditor.svelte";
 
     export let show = false;
     export let blueprint: GameBlueprint;
-
-    const dispatch = createEventDispatcher();
+    export let onClose: () => void = () => {};
+    export let onSave: (blueprint: GameBlueprint) => void = () => {};
 
     $: isEditing = blueprint.id && blueprint.title !== "";
 
@@ -26,11 +25,11 @@
     let editingFortuneIndex: number = -1;
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleSave() {
-        dispatch("save", blueprint);
+        onSave(blueprint);
     }
 
     function openCreateFortune() {
@@ -49,8 +48,7 @@
         showFortuneEditor = true;
     }
 
-    function saveFortune(event: CustomEvent<Fortune>) {
-        const fortune = event.detail;
+    function saveFortune(fortune: Fortune) {
         if (editingFortuneIndex >= 0) {
             blueprint.defaultFortunes[editingFortuneIndex] = fortune;
         } else {
@@ -67,7 +65,7 @@
 </script>
 
 {#if show}
-    <SrpgModal {show} ariaLabel="Close game blueprint modal" on:close={handleClose}>
+    <SrpgModal {show} ariaLabel="Close game blueprint modal" onClose={handleClose}>
         <h2 class="mt-0 text-(--text-primary)">{isEditing ? "Edit Game" : "Create Game"}</h2>
 
         <div class="mb-6 text-left">
@@ -96,16 +94,37 @@
                                     {fortune.title || "Untitled"}
                                 </strong>
                             </div>
-                            <div class="flex gap-2 max-[600px]:justify-stretch">
+                            <div class="flex gap-2">
                                 <button
-                                    class="srpg-b srpg-b-normal srpg-b-sm max-[600px]:flex-1"
-                                    on:click={() => openEditFortune(index)}>
-                                    Edit
+                                    class="action-btn edit"
+                                    on:click={() => openEditFortune(index)}
+                                    title="Edit"
+                                    aria-label="Edit Fortune">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
                                 <button
-                                    class="srpg-b srpg-b-danger srpg-b-sm max-[600px]:flex-1"
-                                    on:click={() => deleteFortune(index)}>
-                                    Delete
+                                    class="action-btn delete"
+                                    on:click={() => deleteFortune(index)}
+                                    title="Delete"
+                                    aria-label="Delete Fortune">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -130,5 +149,32 @@
     fortune={editingFortune}
     campaigns={[blueprint.title]}
     showCampaignField={false}
-    on:close={() => (showFortuneEditor = false)}
-    on:save={saveFortune} />
+    onClose={() => (showFortuneEditor = false)}
+    onSave={saveFortune} />
+
+<style>
+    .action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-primary);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .action-btn.delete:hover {
+        color: var(--accent-danger);
+        border-color: var(--accent-danger);
+    }
+</style>

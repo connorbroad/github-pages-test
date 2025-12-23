@@ -123,8 +123,7 @@
         characterManagerComponent?.toggleSectionFromExternal?.(section);
     }
 
-    function handleHomeLoadCampaign(event: CustomEvent<Campaign>) {
-        const campaign = event.detail;
+    function handleHomeLoadCampaign(campaign: Campaign) {
         activeCampaign.load(campaign);
         currentView = "chronicle";
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -187,7 +186,7 @@
         ? 1
         : 0};">
     {#if currentView === "home"}
-        <HomeView on:loadCampaign={handleHomeLoadCampaign} />
+        <HomeView onLoadCampaign={handleHomeLoadCampaign} />
     {:else if currentView === "chronicle"}
         <NoCampaignOverlay show={!$activeCampaign} onNavigateHome={() => handleNavigate("home")} />
         {#if $activeCampaign}

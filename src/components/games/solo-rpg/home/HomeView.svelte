@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, createEventDispatcher } from "svelte";
+    import { onMount } from "svelte";
     import { activeCampaign } from "../game-management/campaign-store";
     import CampaignLoadConfirm from "../game-management/CampaignLoadConfirm.svelte";
     import CampaignCreator from "../game-management/CampaignCreator.svelte";
@@ -15,9 +15,7 @@
     import { generateId } from "../oracle/scripts/oracleTypes";
     import SrpgListPage from "../shared/layout/SrpgListPage.svelte";
 
-    const dispatch = createEventDispatcher<{
-        loadCampaign: Campaign;
-    }>();
+    export let onLoadCampaign: (campaign: Campaign) => void = () => {};
 
     let showBlueprintEditor = false;
     let showCampaignCreator = false;
@@ -67,8 +65,7 @@
         showBlueprintEditor = true;
     }
 
-    function saveBlueprint(event: CustomEvent<GameBlueprint>) {
-        const blueprint = event.detail;
+    function saveBlueprint(blueprint: GameBlueprint) {
         const existingIndex = gameBlueprints.findIndex((b) => b.id === blueprint.id);
 
         if (existingIndex >= 0) {
@@ -86,10 +83,8 @@
         showCampaignCreator = true;
     }
 
-    function createCampaign(event: CustomEvent<string>) {
+    function createCampaign(campaignTitle: string) {
         if (!selectedBlueprint) return;
-
-        const campaignTitle = event.detail;
         const newCampaign: Campaign = {
             id: generateId(),
             title: campaignTitle,
@@ -132,10 +127,9 @@
         showCampaignLoadConfirm = true;
     }
 
-    function handleLoadCampaign(event: CustomEvent<Campaign>) {
-        const campaign = event.detail;
+    function handleLoadCampaign(campaign: Campaign) {
         // Delegate actual loading/navigation to parent
-        dispatch("loadCampaign", campaign);
+        onLoadCampaign(campaign);
         showCampaignLoadConfirm = false;
         selectedCampaignForLoad = null;
     }
@@ -193,7 +187,7 @@
                                 </button>
                                 <div class="flex items-center gap-2">
                                     <button
-                                        class="srpg-b srpg-b-normal srpg-b-sm"
+                                        class="srpg-b srpg-b-normal srpg-b-icon-sq"
                                         on:click={() => openEditBlueprint(blueprint)}
                                         title="Edit blueprint"
                                         aria-label="Edit blueprint">
@@ -208,7 +202,7 @@
                                         </svg>
                                     </button>
                                     <button
-                                        class="srpg-b srpg-b-create srpg-b-sm"
+                                        class="srpg-b srpg-b-create srpg-b-icon-sq"
                                         on:click={() => openCampaignCreator(blueprint)}
                                         title="Create new campaign">
                                         +
@@ -291,17 +285,17 @@
 <CampaignLoadConfirm
     bind:show={showCampaignLoadConfirm}
     campaign={selectedCampaignForLoad}
-    on:load={handleLoadCampaign}
-    on:close={() => (showCampaignLoadConfirm = false)} />
+    onLoad={handleLoadCampaign}
+    onClose={() => (showCampaignLoadConfirm = false)} />
 
 <GameBlueprintEditor
     bind:show={showBlueprintEditor}
     blueprint={editingBlueprint}
-    on:save={saveBlueprint}
-    on:close={() => (showBlueprintEditor = false)} />
+    onSave={saveBlueprint}
+    onClose={() => (showBlueprintEditor = false)} />
 
 <CampaignCreator
     bind:show={showCampaignCreator}
     blueprint={selectedBlueprint}
-    on:create={createCampaign}
-    on:close={() => (showCampaignCreator = false)} />
+    onCreate={createCampaign}
+    onClose={() => (showCampaignCreator = false)} />

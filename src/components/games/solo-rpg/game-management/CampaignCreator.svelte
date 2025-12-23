@@ -4,23 +4,22 @@
      * Modal for creating a new campaign from a game blueprint
      */
     import type { Campaign, GameBlueprint } from "../data/storage-utils";
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
 
     export let show = false;
     export let blueprint: GameBlueprint | null = null;
     export let campaignTitle = "";
-
-    const dispatch = createEventDispatcher();
+    export let onClose: () => void = () => {};
+    export let onCreate: (title: string) => void = () => {};
 
     function handleClose() {
         campaignTitle = "";
-        dispatch("close");
+        onClose();
     }
 
     function handleCreate() {
         if (campaignTitle.trim()) {
-            dispatch("create", campaignTitle.trim());
+            onCreate(campaignTitle.trim());
             campaignTitle = "";
         }
     }
@@ -33,7 +32,7 @@
 </script>
 
 {#if show && blueprint}
-    <SrpgModal {show} ariaLabel="Close campaign creator" on:close={handleClose}>
+    <SrpgModal {show} ariaLabel="Close campaign creator" onClose={handleClose}>
         <h2 class="mt-0 mb-2 text-(--text-primary)">New Campaign</h2>
         <p class="mb-6 text-[0.95rem] text-(--text-secondary)">
             Using: <strong class="text-(--accent-primary)">{blueprint.title}</strong>

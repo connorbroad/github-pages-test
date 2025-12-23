@@ -4,21 +4,20 @@
      * Modal for confirming campaign load
      */
     import type { Campaign } from "../data/storage-utils";
-    import { createEventDispatcher } from "svelte";
     import SrpgModal from "../shared/modal/SrpgModal.svelte";
 
     export let show = false;
     export let campaign: Campaign | null = null;
-
-    const dispatch = createEventDispatcher();
+    export let onClose: () => void = () => {};
+    export let onLoad: (campaign: Campaign) => void = () => {};
 
     function handleClose() {
-        dispatch("close");
+        onClose();
     }
 
     function handleLoad() {
         if (campaign) {
-            dispatch("load", campaign);
+            onLoad(campaign);
         }
     }
 
@@ -33,7 +32,7 @@
 </script>
 
 {#if show && campaign}
-    <SrpgModal {show} ariaLabel="Close campaign load dialog" on:close={handleClose}>
+    <SrpgModal {show} ariaLabel="Close campaign load dialog" onClose={handleClose}>
         <h2 class="mt-0 text-(--text-primary)">Campaign Info</h2>
 
         <div class="mb-6 rounded-md bg-(--bg-secondary) p-5 text-left">
