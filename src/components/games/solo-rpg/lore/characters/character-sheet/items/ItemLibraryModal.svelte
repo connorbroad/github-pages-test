@@ -12,6 +12,7 @@
 
     let showCreateItemModal = false;
     let expandedGroups: Set<string> = new Set(["simple", "weapon", "armor"]);
+    let expandedItems: Set<string> = new Set();
 
     let searchQuery = "";
 
@@ -36,6 +37,15 @@
             expandedGroups.add(group);
         }
         expandedGroups = expandedGroups;
+    }
+
+    function toggleItemExpansion(itemId: string) {
+        if (expandedItems.has(itemId)) {
+            expandedItems.delete(itemId);
+        } else {
+            expandedItems.add(itemId);
+        }
+        expandedItems = expandedItems;
     }
 
     function handleCreateItemClick() {
@@ -124,6 +134,31 @@
         };
         return icons[iconType] || icons.weight;
     }
+
+    function getItemSummary(item: CampaignItem): string {
+        if (item.type === "weapon") {
+            if (item.attacks?.length) {
+                const firstAttack = item.attacks[0];
+                return `${firstAttack.dice} ${firstAttack.kind}`;
+            }
+            return "Weapon";
+        }
+        if (item.type === "armor" && item.armorClass !== undefined) {
+            return `AC ${item.armorClass}`;
+        }
+        if (item.cost) {
+            const gp = Math.floor(item.cost);
+            const remainder = (item.cost - gp) * 10;
+            const sp = Math.floor(remainder + 0.01);
+            const cp = Math.round((remainder - sp) * 10);
+            const parts = [];
+            if (gp > 0) parts.push(`${gp}g`);
+            if (sp > 0) parts.push(`${sp}s`);
+            if (cp > 0) parts.push(`${cp}c`);
+            return parts.length > 0 ? parts.join(" ") : "0g";
+        }
+        return "";
+    }
 </script>
 
 <SrpgModal bind:show maxWidth="600px" ariaLabel="Item Library" onClose={close}>
@@ -205,12 +240,29 @@
                             {#if expandedGroups.has(itemType)}
                                 <div class="item-grid">
                                     {#each items as item (item.id)}
+                                        {@const isExpanded = expandedItems.has(item.id)}
+                                        {@const summary = getItemSummary(item)}
                                         <div
                                             class="item-card"
                                             class:weapon-card={item.type === "weapon"}
-                                            class:armor-card={item.type === "armor"}>
+                                            class:armor-card={item.type === "armor"}
+                                            class:expanded={isExpanded}>
                                             <div class="item-card-header">
-                                                <div class="item-name">{item.name}</div>
+                                                <button
+                                                    class="item-header-button"
+                                                    on:click={() => toggleItemExpansion(item.id)}
+                                                    aria-label="Toggle details for {item.name}"
+                                                    aria-expanded={isExpanded}>
+                                                    <span
+                                                        class="expand-chevron"
+                                                        class:expanded={isExpanded}>
+                                                        ▶
+                                                    </span>
+                                                    <div class="item-name">{item.name}</div>
+                                                    {#if summary && !isExpanded}
+                                                        <span class="summary-badge">{summary}</span>
+                                                    {/if}
+                                                </button>
                                                 <button
                                                     class="delete-btn"
                                                     on:click={() => handleDeleteItem(item.id)}
@@ -227,28 +279,30 @@
                                                 </button>
                                             </div>
 
-                                            <div class="item-card-details">
-                                                {#each formatItemDetails(item) as detail}
-                                                    <div class="card-detail">
-                                                        <svg
-                                                            class="detail-icon"
-                                                            viewBox="0 0 24 24"
-                                                            fill="currentColor">
-                                                            <path d={getIconSvg(detail.icon)} />
-                                                        </svg>
-                                                        <span class="detail-text">
-                                                            {detail.text}
-                                                        </span>
-                                                    </div>
-                                                {/each}
-                                            </div>
-
-                                            {#if item.tags && item.tags.length > 0}
-                                                <div class="item-card-tags">
-                                                    {#each item.tags as tag}
-                                                        <span class="item-tag">{tag}</span>
+                                            {#if isExpanded}
+                                                <div class="item-card-details">
+                                                    {#each formatItemDetails(item) as detail}
+                                                        <div class="card-detail">
+                                                            <svg
+                                                                class="detail-icon"
+                                                                viewBox="0 0 24 24"
+                                                                fill="currentColor">
+                                                                <path d={getIconSvg(detail.icon)} />
+                                                            </svg>
+                                                            <span class="detail-text">
+                                                                {detail.text}
+                                                            </span>
+                                                        </div>
                                                     {/each}
                                                 </div>
+
+                                                {#if item.tags && item.tags.length > 0}
+                                                    <div class="item-card-tags">
+                                                        {#each item.tags as tag}
+                                                            <span class="item-tag">{tag}</span>
+                                                        {/each}
+                                                    </div>
+                                                {/if}
                                             {/if}
                                         </div>
                                     {/each}
@@ -427,7 +481,7 @@
         background: var(--card-bg);
         border: 1px solid var(--border-primary);
         border-radius: 10px;
-        padding: 1rem;
+        padding: 0.75rem;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
@@ -438,8 +492,12 @@
 
     .item-card:hover {
         border-color: var(--accent-primary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px var(--shadow-md);
+        box-shadow: 0 4px 8px var(--shadow-md);
+    }
+
+    .item-card.expanded {
+        padding: 1rem;
+        box-shadow: 0 6px 16px var(--shadow-md);
     }
 
     .weapon-card {
@@ -457,11 +515,54 @@
         gap: 0.5rem;
     }
 
+    .item-header-button {
+        flex: 1;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+        transition: color 0.2s;
+    }
+
+    .item-header-button:hover {
+        color: var(--accent-primary);
+    }
+
+    .expand-chevron {
+        font-size: 0.65rem;
+        transition: transform 0.2s ease;
+        display: inline-block;
+        width: 0.875rem;
+        flex-shrink: 0;
+        color: var(--text-muted);
+    }
+
+    .expand-chevron.expanded {
+        transform: rotate(90deg);
+    }
+
     .item-name {
         font-weight: 700;
-        font-size: 1rem;
-        color: var(--text-primary);
-        line-height: 1.2;
+        font-size: 0.95rem;
+        color: inherit;
+        line-height: 1.3;
+        flex: 1;
+    }
+
+    .summary-badge {
+        font-size: 0.75rem;
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+        padding: 0.25rem 0.5rem;
+        border-radius: 99px;
+        font-weight: 500;
+        border: 1px solid var(--border-secondary);
+        white-space: nowrap;
     }
 
     .delete-btn {
@@ -476,6 +577,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
     .item-card:hover .delete-btn {
