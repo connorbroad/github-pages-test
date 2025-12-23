@@ -153,126 +153,127 @@
 
 {#if equippedWeapons.length > 0}
     <div class="mt-5">
-        <h3>Weapon Attacks</h3>
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <h3 class="text-text-primary m-0 mb-4 text-xl font-semibold md:text-2xl">Weapon Attacks</h3>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each equippedWeapons as weapon}
-                <div class="bg-bg-secondary border-border-primary rounded-[10px] border p-3">
-                    <div class="mb-2 flex items-center justify-between gap-2">
-                        <h4 class="m-0 text-base font-semibold">{weapon.name}</h4>
-                        {#if weapon.range}
-                            <span class="text-[0.8125rem]">{weapon.range}</span>
-                        {/if}
-                    </div>
-
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-text-secondary font-semibold">To Hit:</span>
-                            <span class="text-text-primary">{weapon.toHit || "1d20"}</span>
+                <div
+                    class="from-card-bg to-bg-secondary border-border-primary before:from-accent-danger before:via-accent-warning before:to-accent-warning hover:border-border-secondary relative flex flex-col overflow-hidden rounded-xl border bg-linear-to-br shadow-[0_1px_3px_var(--shadow-sm)] transition-all duration-300 ease-in-out before:absolute before:top-0 before:right-0 before:left-0 before:h-[3px] before:bg-linear-to-r before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_var(--shadow-md)] hover:before:opacity-100">
+                    <div class="flex flex-col p-5 pb-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-col gap-0.5">
+                                <h4 class="text-text-primary m-0 text-lg font-bold tracking-tight">
+                                    {weapon.name}
+                                </h4>
+                                {#if weapon.range}
+                                    <p
+                                        class="text-text-tertiary m-0 text-xs font-bold tracking-wider uppercase">
+                                        {weapon.range}
+                                    </p>
+                                {/if}
+                            </div>
+                            <!-- Weapon icon -->
+                            <svg
+                                class="text-text-tertiary/50 h-6 w-6 flex-none"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
+                                <path d="M13 19l6-6" />
+                                <path d="M16 16l4 4" />
+                                <path d="M19 21l2-2" />
+                            </svg>
                         </div>
-                        <div class="flex gap-1.5">
-                            {#if (weapon.toHit || "1d20").startsWith("1d")}
-                                <button
-                                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                                    on:click={(e) => {
-                                        e.stopPropagation();
-                                        e.stopPropagation();
-                                        onRollCheck({
-                                            checkName: `${weapon.name} to hit`,
-                                            diceFormula: adjustDiceRollForAdvantageOrDisadvantage(
-                                                parseDiceAndModifier(weapon.toHit || "1d20").dice,
-                                                "Maximum"
-                                            ),
-                                            modifier: parseDiceAndModifier(weapon.toHit || "1d20")
-                                                .modifier,
-                                            resultOption: "Maximum",
-                                        });
-                                    }}
-                                    title="Roll with advantage">
-                                    <span class="inline-block">
-                                        <ResultOptionIcon option="Maximum" size="1.5em" />
-                                    </span>
-                                </button>
-                            {/if}
-                            <button
-                                class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
-                                on:click={(e) => {
-                                    e.stopPropagation();
-                                    rollToHit(weapon, "Sum");
-                                }}
-                                title={`Roll ${weapon.name} to hit`}>
-                                <svg
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2">
-                                    <rect x="4" y="4" width="16" height="16" rx="3" />
-                                    <circle cx="9" cy="9" r="1.5" fill="currentColor" />
-                                    <circle cx="15" cy="15" r="1.5" fill="currentColor" />
-                                </svg>
-                                Roll
-                            </button>
-                            {#if (weapon.toHit || "1d20").startsWith("1d")}
-                                <button
-                                    class="border-button-simple-border bg-button-simple-bg text-button-simple-text hover:bg-button-simple-hover-bg hover:border-button-simple-hover-border active:bg-button-simple-bg flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-sm"
-                                    on:click={(e) => {
-                                        e.stopPropagation();
-                                        e.stopPropagation();
-                                        onRollCheck({
-                                            checkName: `${weapon.name} to hit`,
-                                            diceFormula: adjustDiceRollForAdvantageOrDisadvantage(
-                                                parseDiceAndModifier(weapon.toHit || "1d20").dice,
-                                                "Minimum"
-                                            ),
-                                            modifier: parseDiceAndModifier(weapon.toHit || "1d20")
-                                                .modifier,
-                                            resultOption: "Minimum",
-                                        });
-                                    }}
-                                    title="Roll with disadvantage">
-                                    <span class="inline-block">
-                                        <ResultOptionIcon option="Minimum" size="1.5em" />
-                                    </span>
-                                </button>
-                            {/if}
-                        </div>
-                    </div>
 
-                    {#if weapon.attacks && weapon.attacks.length > 0}
-                        <div class="mt-2 flex flex-col gap-2">
-                            {#each weapon.attacks as attack}
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-text-secondary font-semibold">
-                                            {attack.name || "Attack"}:
-                                        </span>
-                                        <span class="text-text-primary">
-                                            {attack.dice}{attack.kind ? ` ${attack.kind}` : ""}
-                                        </span>
-                                    </div>
+                        {#if weapon.attacks && weapon.attacks.length > 0}
+                            <div class="mt-3 flex flex-col gap-2">
+                                {#each weapon.attacks as attack}
                                     <button
-                                        class="border-border-primary bg-accent-primary hover:bg-accent-primary-hover active:bg-accent-primary-active flex cursor-pointer items-center justify-center gap-2 rounded-md border px-2 py-1 text-center text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-md"
+                                        class="bg-bg-secondary/50 hover:bg-bg-secondary active:bg-bg-tertiary group flex cursor-pointer items-center justify-between gap-2 rounded-lg border-none px-3 py-2.5 transition-colors duration-200"
                                         on:click={(e) => {
                                             e.stopPropagation();
                                             rollDamage(weapon, attack);
                                         }}
-                                        title={`Roll ${attack.name || "damage"}`}>
-                                        <svg
-                                            class="h-4 w-4"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2">
-                                            <rect x="4" y="4" width="16" height="16" rx="3" />
-                                            <circle cx="9" cy="9" r="1.5" fill="currentColor" />
-                                            <circle cx="15" cy="15" r="1.5" fill="currentColor" />
-                                        </svg>
-                                        Roll
+                                        title={`Roll ${attack.name || "damage"}`}
+                                        aria-label={`Roll ${attack.name || "damage"} for ${weapon.name}`}>
+                                        <span class="text-text-secondary text-sm font-medium">
+                                            {attack.name || "Damage"}
+                                        </span>
+                                        <div class="flex items-center gap-2">
+                                            {#if attack.kind}
+                                                <span
+                                                    class="text-text-tertiary bg-bg-tertiary rounded px-1.5 py-0.5 text-[0.65rem] font-bold tracking-wider uppercase">
+                                                    {attack.kind}
+                                                </span>
+                                            {/if}
+                                            <span
+                                                class="text-text-secondary from-bg-tertiary to-bg-secondary border-border-secondary min-w-14 rounded-lg border bg-linear-to-br px-2 py-1 text-center text-lg font-bold tracking-tight shadow-[0_1px_2px_var(--shadow-sm)]">
+                                                {attack.dice}
+                                            </span>
+                                            <svg
+                                                class="text-text-tertiary group-hover:text-accent-primary h-5 w-5 transition-colors duration-200"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                                <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+                                                <circle cx="15" cy="15" r="1.5" fill="currentColor" />
+                                            </svg>
+                                        </div>
                                     </button>
-                                </div>
-                            {/each}
-                        </div>
-                    {/if}
+                                {/each}
+                            </div>
+                        {/if}
+                    </div>
+
+                    <!-- Roll footer matching ability/skill cards -->
+                    <div
+                        class="border-border-primary bg-bg-secondary/30 divide-border-primary mt-auto flex w-full divide-x border-t">
+                        {#if (weapon.toHit || "1d20").startsWith("1d")}
+                            <button
+                                class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
+                                on:click={(e) => {
+                                    e.stopPropagation();
+                                    rollToHit(weapon, "Maximum");
+                                }}
+                                title="Roll to hit with advantage">
+                                <ResultOptionIcon option="Maximum" size="1.25em" />
+                            </button>
+                        {/if}
+                        <button
+                            class="text-text-primary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex flex-1 cursor-pointer items-center justify-center gap-2 py-3 text-sm font-bold tracking-wide uppercase transition-colors duration-200"
+                            on:click={(e) => {
+                                e.stopPropagation();
+                                rollToHit(weapon, "Sum");
+                            }}
+                            title={`Roll ${weapon.name} to hit`}>
+                            <svg
+                                class="h-4 w-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5">
+                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+                                <circle cx="15" cy="15" r="1.5" fill="currentColor" />
+                            </svg>
+                            Hit
+                        </button>
+                        {#if (weapon.toHit || "1d20").startsWith("1d")}
+                            <button
+                                class="text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10 flex w-12 flex-none cursor-pointer items-center justify-center py-3 transition-colors duration-200"
+                                on:click={(e) => {
+                                    e.stopPropagation();
+                                    rollToHit(weapon, "Minimum");
+                                }}
+                                title="Roll to hit with disadvantage">
+                                <ResultOptionIcon option="Minimum" size="1.25em" />
+                            </button>
+                        {/if}
+                    </div>
                 </div>
             {/each}
         </div>
