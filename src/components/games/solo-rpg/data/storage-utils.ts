@@ -271,6 +271,22 @@ export type CombatState = {
     pendingNextObjectId?: string;
 };
 
+/** Map display settings - persists per map */
+export type MapSettings = {
+    /** Use theme background color (follows light/dark mode). Default true. */
+    useThemeBackground?: boolean;
+    /** Custom background color when useThemeBackground is false */
+    customBackgroundColor?: string;
+    /** Custom grid line color. null = use theme default */
+    gridColor?: string;
+    /** Grid line thickness multiplier (0.5 to 3). Default 1 */
+    gridThickness?: number;
+    /** Grid opacity (0 to 1). Default 1 */
+    gridOpacity?: number;
+    /** Background tile opacity (0 to 1). Default 1 */
+    backgroundTileOpacity?: number;
+};
+
 export type MapEntity = {
     id: string;
     campaignId: string;
@@ -290,6 +306,8 @@ export type MapEntity = {
     isFavorite?: boolean;
     /** Combat state - persists initiative order across creature/map switches */
     combatState?: CombatState;
+    /** Map display settings */
+    settings?: MapSettings;
 };
 
 /**

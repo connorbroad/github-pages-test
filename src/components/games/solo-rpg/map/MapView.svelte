@@ -26,11 +26,14 @@
     import TertiarySidebar from "../TertiarySidebar.svelte";
     // Floating panels
     import FloatingEditPlayToggle from "./FloatingEditPlayToggle.svelte";
+    import FloatingSettingsButton from "./FloatingSettingsButton.svelte";
     import FloatingPaintOptions from "./FloatingPaintOptions.svelte";
     import ShapeModal from "./ShapeModal.svelte";
     import TokenSelectorModal from "./TokenSelectorModal.svelte";
     import CreatureAssignmentModal from "./CreatureAssignmentModal.svelte";
     import QuickStatsModal from "./QuickStatsModal.svelte";
+    import MapSettingsModal from "./MapSettingsModal.svelte";
+    import type { MapSettings } from "../data/storage-utils";
     import {
         rollInitiativeForCreatures,
         getNextTurnIndex,
@@ -326,6 +329,10 @@
     let showShapeModal = $state(false);
     let showTokenModal = $state(false);
     let showAssignModal = $state(false);
+    let showSettingsModal = $state(false);
+
+    // Current map settings derived from mapState
+    let currentMapSettings = $derived(mapState.map?.settings);
 
     function openTileModal() {
         showTileModal = true;
@@ -365,6 +372,20 @@
         showShapeModal = false;
         showTokenModal = false;
         showAssignModal = false;
+        showSettingsModal = false;
+    }
+
+    function openSettingsModal() {
+        showSettingsModal = true;
+    }
+
+    function handleSettingsSave(settings: MapSettings) {
+        mapState.updateSettings(settings);
+        showSettingsModal = false;
+    }
+
+    function handleSettingsClose() {
+        showSettingsModal = false;
     }
 
     // Handle token selector modal confirm
@@ -845,6 +866,18 @@
             {#if showEditPlayToggle}
                 <FloatingEditPlayToggle {mapMode} onModeChange={handleMapModeChange} />
             {/if}
+
+            <!-- Floating Settings Button (top right, always visible when map is open) -->
+            {#if currentMapId}
+                <FloatingSettingsButton onOpenSettings={openSettingsModal} />
+            {/if}
+
+            <!-- Map Settings Modal -->
+            <MapSettingsModal
+                show={showSettingsModal}
+                currentSettings={currentMapSettings}
+                onSave={handleSettingsSave}
+                onClose={handleSettingsClose} />
 
             <!-- Paint Options Modal (Tile/Color selection) -->
             {#if showTileModal || showColorModal}

@@ -33,6 +33,7 @@
     let isErasing = $derived(mapState.isErasing);
     let selectedTile = $derived(mapState.selectedTileRef);
     let currentTurnObjectId = $derived(mapState.currentTurnObjectId);
+    let mapSettings = $derived(map?.settings);
 
     let canvasBg: HTMLCanvasElement;
     let canvasFg: HTMLCanvasElement;
@@ -279,6 +280,7 @@
             viewRect: getCachedRect(),
             editMode,
             mapMode,
+            mapSettings,
         });
     }
 

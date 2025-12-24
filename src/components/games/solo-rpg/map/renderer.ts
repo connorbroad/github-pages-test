@@ -1,6 +1,6 @@
 import { getCachedTileSprite, getTileSprite } from "./tilemap-cache";
 import { beginShapePath, clearCanvas, drawTintedSprite } from "./canvas-utils";
-import type { MapEntity, MapObject } from "../data/storage-utils";
+import type { MapEntity, MapObject, MapSettings } from "../data/storage-utils";
 
 export type Camera = { x: number; y: number; zoom: number };
 
@@ -17,6 +17,7 @@ export function drawGrid(opts: {
     viewRect?: DOMRect;
     editMode?: "move" | "background" | "object";
     mapMode?: "edit" | "play";
+    mapSettings?: MapSettings;
 }) {
     const {
         ctxBg,
@@ -31,6 +32,7 @@ export function drawGrid(opts: {
         viewRect,
         editMode,
         mapMode,
+        mapSettings,
     } = opts;
     if (!ctxBg) return;
 
@@ -39,10 +41,21 @@ export function drawGrid(opts: {
     const shouldFade = mapMode === "edit" && editMode === "object";
     const fadeAlpha = shouldFade ? 0.4 : 1.0;
 
-    const bgFill =
-        bgColor ||
-        getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") ||
-        "#111";
+    // Determine background color: use settings if custom, otherwise theme or fallback
+    const useThemeBg = mapSettings?.useThemeBackground !== false;
+    const bgFill = useThemeBg
+        ? bgColor ||
+          getComputedStyle(document.documentElement).getPropertyValue("--bg-primary") ||
+          "#111"
+        : mapSettings?.customBackgroundColor || "#111";
+
+    // Determine grid color, thickness, and opacity from settings
+    const effectiveGridColor = mapSettings?.gridColor || gridColor || "rgba(255,255,255,0.1)";
+    const gridThickness = mapSettings?.gridThickness ?? 1;
+    const gridOpacity = mapSettings?.gridOpacity ?? 1;
+
+    // Background tile opacity from settings (default 1)
+    const bgTileOpacity = mapSettings?.backgroundTileOpacity ?? 1;
 
     if (isLoading) {
         clearCanvas(ctxBg, canvasBg, bgFill);
@@ -66,8 +79,8 @@ export function drawGrid(opts: {
     ctxBg.translate(-camera.x, -camera.y);
     ctxBg.imageSmoothingEnabled = false;
     ctxBg.globalAlpha = fadeAlpha;
-    ctxBg.strokeStyle = gridColor || "rgba(255,255,255,0.1)";
-    ctxBg.lineWidth = 1 / (camera.zoom * dpr);
+    ctxBg.strokeStyle = effectiveGridColor;
+    ctxBg.lineWidth = gridThickness / (camera.zoom * dpr);
 
     const left = startTx * ts;
     const right = endTx * ts;
@@ -80,9 +93,12 @@ export function drawGrid(opts: {
     else if (camera.zoom < 0.5) gridStep = 4;
     else if (camera.zoom < 0.75) gridStep = 2;
 
-    if (gridStep > 0) {
+    if (gridStep > 0 && gridOpacity > 0) {
         const gridStartTx = Math.floor(startTx / gridStep) * gridStep;
         const gridStartTy = Math.floor(startTy / gridStep) * gridStep;
+
+        // Apply grid opacity (combined with fade alpha)
+        ctxBg.globalAlpha = fadeAlpha * gridOpacity;
 
         ctxBg.beginPath();
         for (let tx = gridStartTx; tx <= endTx; tx += gridStep) {
@@ -96,6 +112,9 @@ export function drawGrid(opts: {
             ctxBg.lineTo(right, gy);
         }
         ctxBg.stroke();
+
+        // Restore fade alpha for subsequent drawing
+        ctxBg.globalAlpha = fadeAlpha;
     }
 
     for (const key in map.background) {
@@ -107,6 +126,10 @@ export function drawGrid(opts: {
     }
 
     if (map.backgroundTiles) {
+        // Apply background tile opacity setting (combined with existing fade alpha)
+        const tileAlpha = fadeAlpha * bgTileOpacity;
+        ctxBg.globalAlpha = tileAlpha;
+
         const dict = map.backgroundTiles;
         const total = Object.keys(dict).length;
         const visibleCount = (endTx - startTx + 1) * (endTy - startTy + 1);

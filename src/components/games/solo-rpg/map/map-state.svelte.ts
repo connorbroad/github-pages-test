@@ -2,6 +2,7 @@ import { untrack } from "svelte";
 import {
     type MapEntity,
     type MapObject,
+    type MapSettings,
     type CreatureRef,
     type InitiativeEntry,
     type QuickStats,
@@ -193,8 +194,26 @@ export class MapState {
             if (this.map!.backgroundTileTints) {
                 m.backgroundTileTints = { ...this.map!.backgroundTileTints };
             }
+            if (this.map!.settings) {
+                m.settings = { ...this.map!.settings };
+            }
             m.updatedAt = Date.now();
         });
+    }
+
+    /**
+     * Updates map display settings and persists to storage.
+     */
+    updateSettings(settings: MapSettings) {
+        if (!this.map) return;
+
+        this.map.settings = { ...settings };
+
+        updateMap(this.map.id, (m) => {
+            m.settings = { ...settings };
+        });
+
+        this.renderTrigger++;
     }
 
     selectEncounterCreature(objectId: string) {
