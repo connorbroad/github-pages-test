@@ -64,19 +64,6 @@
     class="bg-sidebar-bg fixed right-0 bottom-0 left-0
               z-50 flex h-[calc(70px+env(safe-area-inset-bottom))] w-full flex-col pb-[env(safe-area-inset-bottom)] shadow-md
               md:fixed md:top-0 md:left-0 md:h-screen md:w-20 md:flex-col md:pb-0 md:shadow-md">
-    <div class="border-sidebar-border hidden items-center justify-center border-b py-6 md:flex">
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class="stroke-accent-primary h-9 w-9">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
-        </svg>
-    </div>
-
     <nav
         class="flex h-full w-full flex-row p-0
                 md:w-auto md:flex-1 md:flex-col md:justify-between md:p-0">
@@ -88,19 +75,52 @@
                 class:active={currentView === "home"}
                 on:click={() => onNavigate("home")}
                 aria-label="Home">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="sidebar-icon">
-                    <g
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        color="currentColor">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 512 512"
+                    width="2.5em"
+                    height="2.5em">
+                    <path
+                        fill="currentColor"
+                        d="M269.4 2.9C265.2 1 260.7 0 256 0s-9.2 1-13.4 2.9L54.3 82.8c-22 9.3-38.4 31-38.3 57.2c.5 99.2 41.3 280.7 213.6 363.2c16.7 8 36.1 8 52.8 0C454.7 420.7 495.5 239.2 496 140c.1-26.2-16.3-47.9-38.3-57.2zM160 154.4c0-5.8 4.7-10.4 10.4-10.4h.2c3.4 0 6.5 1.6 8.5 4.3l40 53.3c3 4 7.8 6.4 12.8 6.4h48c5 0 9.8-2.4 12.8-6.4l40-53.3c2-2.7 5.2-4.3 8.5-4.3h.2c5.8 0 10.4 4.7 10.4 10.4L352 272c0 53-43 96-96 96s-96-43-96-96zM216 288a16 16 0 1 0 0-32a16 16 0 1 0 0 32m96-16a16 16 0 1 0-32 0a16 16 0 1 0 32 0" />
+                </svg>
+                <span class="sidebar-label"></span>
+            </button>
+
+            <!-- Oracle Button - Mystical Orb (centered in mobile nav) -->
+            <div class="oracle-container">
+                <button
+                    class="oracle-orb"
+                    class:active={showOracle}
+                    class:has-preset={diceRollPreset !== null}
+                    on:click={toggleOracle}
+                    aria-label="Oracle">
+                    <div class="orb-glow"></div>
+                    <div class="orb-inner-glow"></div>
+                    <div class="orb-surface"></div>
+                    <!-- D20 dice icon (from Chronicle) -->
+                    <svg viewBox="0 0 512 512" class="oracle-icon">
                         <path
-                            d="M16 2h-4c-2.828 0-4.243 0-5.121.946C6 3.893 6 5.416 6 8.462v1.076c0 3.047 0 4.57.879 5.516C7.757 16 9.172 16 12 16h4c2.828 0 4.243 0 5.121-.946c.879-.947.879-2.47.879-5.516V8.462c0-3.046 0-4.57-.879-5.516C20.243 2 18.828 2 16 2" />
-                        <path
-                            d="M18 16.608c-.012 2.346-.109 3.616-.877 4.444c-.879.948-2.293.948-5.122.948h-4c-2.83 0-4.243 0-5.122-.948C2 20.106 2 18.58 2 15.53v-1.078c0-3.05 0-4.576.879-5.523C3.52 8.237 4.447 8.05 6 8" />
-                    </g>
+                            fill="currentColor"
+                            d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z" />
+                    </svg>
+                </button>
+            </div>
+
+            <button
+                class="srpg-sidebar-item"
+                class:active={currentView === "chronicle"}
+                on:click={() => onNavigate("chronicle")}
+                aria-label="Journey">
+                <svg
+                    class="sidebar-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
                 </svg>
                 <span class="sidebar-label"></span>
             </button>
@@ -160,44 +180,6 @@
                         </span>
                     {/if}
                 </div>
-                <span class="sidebar-label"></span>
-            </button>
-
-            <!-- Oracle Button - Mystical Orb (centered in mobile nav) -->
-            <div class="oracle-container">
-                <button
-                    class="oracle-orb"
-                    class:active={showOracle}
-                    class:has-preset={diceRollPreset !== null}
-                    on:click={toggleOracle}
-                    aria-label="Oracle">
-                    <div class="orb-glow"></div>
-                    <div class="orb-inner-glow"></div>
-                    <div class="orb-surface"></div>
-                    <!-- D20 dice icon (from Chronicle) -->
-                    <svg viewBox="0 0 512 512" class="oracle-icon">
-                        <path
-                            fill="currentColor"
-                            d="M510.923 324.993L325.507 509.894c-.515.515-1.545.515-3.091.515L69.529 442.938c-.515 0-1.545-.515-2.06-2.06L-.002 188.507c0-.515 0-2.06.515-3.09L185.929.517c.515-.515 1.545-.515 3.09-.515l252.887 67.986c.515 0 1.545.515 2.06 2.06l67.471 252.371c1.03 1.03.515 2.06-.515 2.575zM263.188 124.126L14.937 191.082q-.773 0 0 1.545l181.81 181.811c.515.515.515 0 1.545 0l66.955-247.736c-1.03-2.575-2.06-2.575-2.06-2.575z" />
-                    </svg>
-                </button>
-            </div>
-
-            <button
-                class="srpg-sidebar-item"
-                class:active={currentView === "chronicle"}
-                on:click={() => onNavigate("chronicle")}
-                aria-label="Journey">
-                <svg
-                    class="sidebar-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                    <path d="M2 17l10 5 10-5"></path>
-                    <path d="M2 12l10 5 10-5"></path>
-                </svg>
                 <span class="sidebar-label"></span>
             </button>
 
