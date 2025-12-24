@@ -24,7 +24,7 @@
         invItem,
         item: getItem(invItem.itemId),
     }));
-    $: generalItems = invWithItem.filter((x: any) => x.item?.type === "simple");
+    $: generalItems = invWithItem.filter((x: any) => x.item?.type === "general");
     $: weaponItems = invWithItem.filter((x: any) => x.item?.type === "weapon");
     $: armorItems = invWithItem.filter((x: any) => x.item?.type === "armor");
 
@@ -316,7 +316,7 @@
                 stroke-width="2.5">
                 <path d="M12 5v14M5 12h14" />
             </svg>
-            Add Item
+            Get Item
         </button>
     </div>
 

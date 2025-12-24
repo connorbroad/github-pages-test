@@ -10,7 +10,7 @@
     let selectedItemId = "";
     let quantity = 1;
     let searchQuery = "";
-    let filterType: "all" | "weapon" | "armor" | "simple" = "all";
+    let filterType: "all" | "weapon" | "armor" | "general" = "all";
 
     $: filteredItems = campaignItems.filter((item) => {
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -69,7 +69,7 @@
             </div>
 
             <div class="filter-chips">
-                {#each ["all", "weapon", "armor", "simple"] as type}
+                {#each ["all", "weapon", "armor", "general"] as type}
                     <button
                         class="filter-chip"
                         class:active={filterType === type}

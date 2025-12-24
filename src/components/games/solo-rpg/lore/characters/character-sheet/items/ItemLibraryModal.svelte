@@ -11,7 +11,7 @@
     export let onClose: () => void = () => {};
 
     let showCreateItemModal = false;
-    let expandedGroups: Set<string> = new Set(["simple", "weapon", "armor"]);
+    let expandedGroups: Set<string> = new Set(["general", "weapon", "armor"]);
     let expandedItems: Set<string> = new Set();
 
     let searchQuery = "";
@@ -25,7 +25,7 @@
     });
 
     $: groupedItems = {
-        simple: filteredItems.filter((item) => item.type === "simple"),
+        general: filteredItems.filter((item) => item.type === "general"),
         weapon: filteredItems.filter((item) => item.type === "weapon"),
         armor: filteredItems.filter((item) => item.type === "armor"),
     };
@@ -72,7 +72,7 @@
 
     function getItemTypeLabel(type: string): string {
         const labels: Record<string, string> = {
-            simple: "General Items",
+            general: "General Items",
             weapon: "Weapons",
             armor: "Armor",
         };
@@ -218,7 +218,7 @@
                     </button>
                 </div>
             {:else}
-                {#each ["simple", "weapon", "armor"] as itemType}
+                {#each ["general", "weapon", "armor"] as itemType}
                     {@const items = groupedItems[itemType]}
                     {#if items.length > 0}
                         <div class="item-group">

@@ -8,7 +8,7 @@
     export let onClose: () => void = () => {};
 
     let name = "";
-    let type: ItemType = "simple";
+    let type: ItemType = "general";
     let weight: number | null = null;
     let gp: number | null = null;
     let sp: number | null = null;
@@ -64,7 +64,7 @@
         } else {
             item = {
                 ...base,
-                type: "simple",
+                type: "general",
             };
         }
 
@@ -79,7 +79,7 @@
 
     function resetAndClose() {
         name = "";
-        type = "simple";
+        type = "general";
         weight = null;
         gp = null;
         sp = null;
@@ -109,9 +109,9 @@
             <div class="type-selector" role="group" aria-label="Item Type">
                 <button
                     class="type-btn"
-                    class:active={type === "simple"}
-                    on:click={() => setType("simple")}>
-                    Simple
+                    class:active={type === "general"}
+                    on:click={() => setType("general")}>
+                    General
                 </button>
                 <button
                     class="type-btn"

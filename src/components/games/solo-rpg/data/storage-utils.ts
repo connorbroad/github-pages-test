@@ -330,7 +330,7 @@ export type TileMap = {
  */
 export type Currency = { gp: number; sp: number; cp: number };
 
-export type ItemType = "simple" | "weapon" | "armor";
+export type ItemType = "general" | "weapon" | "armor";
 
 export type AttackSpec = {
     id: string;
@@ -360,11 +360,11 @@ export type ArmorItem = ItemBase & {
     armorClass: number; // DC override
 };
 
-export type SimpleItem = ItemBase & {
-    type: "simple";
+export type GeneralItem = ItemBase & {
+    type: "general";
 };
 
-export type CampaignItem = (WeaponItem | ArmorItem | SimpleItem) & {
+export type CampaignItem = (WeaponItem | ArmorItem | GeneralItem) & {
     campaignId: string;
     createdAt: number;
     updatedAt: number;
@@ -844,6 +844,182 @@ export function importBlueprints(
  */
 function generateBlueprintId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+/**
+ * Export campaign items to JSON string
+ * Strips IDs, campaignId, and timestamps - these are regenerated on import
+ */
+export function exportItems(items: CampaignItem[]): string {
+    const exportData = {
+        version: "1.0",
+        type: "solo-rpg-items",
+        exportedAt: new Date().toISOString(),
+        items: items.map((item) => {
+            // Strip internal fields - they'll be regenerated on import
+            const { id, campaignId, createdAt, updatedAt, ...exportItem } = item;
+
+            // For weapons, strip attack IDs as well
+            if (exportItem.type === "weapon" && "attacks" in exportItem) {
+                const weaponItem = exportItem as { attacks: AttackSpec[] } & typeof exportItem;
+                return {
+                    ...exportItem,
+                    attacks: weaponItem.attacks.map(({ id: attackId, ...attack }) => attack),
+                };
+            }
+
+            return exportItem;
+        }),
+    };
+    return JSON.stringify(exportData, null, 2);
+}
+
+/**
+ * Download campaign items as a file
+ */
+export function downloadItemsFile(items: CampaignItem[], campaignTitle?: string): void {
+    const data = exportItems(items);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeTitle = campaignTitle
+        ? campaignTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase()
+        : "campaign";
+    a.download = `items-${safeTitle}-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Type for exported item (without IDs, campaignId, or timestamps)
+ */
+type ExportedAttack = Omit<AttackSpec, "id">;
+type ExportedItem = Omit<CampaignItem, "id" | "campaignId" | "createdAt" | "updatedAt"> & {
+    attacks?: ExportedAttack[];
+};
+
+/**
+ * Validate and parse imported items data
+ * Returns the items if valid, or null if invalid
+ */
+export function parseImportedItems(jsonString: string): { items: ExportedItem[] } | null {
+    try {
+        const data = JSON.parse(jsonString);
+
+        // Check for items format
+        if (data.type === "solo-rpg-items" && Array.isArray(data.items)) {
+            const items = data.items as ExportedItem[];
+            if (items.every(validateExportedItem)) {
+                return { items };
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Failed to parse items data:", error);
+        return null;
+    }
+}
+
+/**
+ * Validate that an object is a valid exported Item (without IDs/timestamps)
+ */
+function validateExportedItem(obj: unknown): obj is ExportedItem {
+    if (!obj || typeof obj !== "object") return false;
+    const item = obj as Record<string, unknown>;
+
+    // Core required fields
+    if (typeof item.name !== "string") return false;
+    if (item.type !== "general" && item.type !== "weapon" && item.type !== "armor") return false;
+
+    // Validate weapon-specific fields
+    if (item.type === "weapon") {
+        if (!Array.isArray(item.attacks)) return false;
+        // Validate each attack has required fields (but not id)
+        for (const attack of item.attacks) {
+            if (typeof attack !== "object" || !attack) return false;
+            const atk = attack as Record<string, unknown>;
+            if (typeof atk.dice !== "string") return false;
+            if (atk.kind !== "B" && atk.kind !== "P" && atk.kind !== "S") return false;
+        }
+    }
+
+    // Validate armor-specific fields
+    if (item.type === "armor") {
+        if (typeof item.armorClass !== "number") return false;
+    }
+
+    return true;
+}
+
+/**
+ * Generate a unique ID for items
+ */
+export function generateItemId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+/**
+ * Import items into a campaign
+ * @param items - Exported items (without IDs/timestamps)
+ * @param campaignId - Target campaign ID
+ * @param mode - "add" to add to existing items, "replace" to replace all items in campaign
+ * @returns Number of items imported
+ */
+export function importItems(
+    items: ExportedItem[],
+    campaignId: string,
+    mode: "add" | "replace"
+): number {
+    const allItems = loadCampaignItems();
+    const existingCampaignItems = allItems.filter((i) => i.campaignId === campaignId);
+    const otherCampaignItems = allItems.filter((i) => i.campaignId !== campaignId);
+
+    const now = Date.now();
+    const newItems: CampaignItem[] = [];
+
+    for (const item of items) {
+        // Generate fresh IDs and timestamps
+        let newItem: CampaignItem;
+
+        if (item.type === "weapon" && item.attacks) {
+            // Regenerate attack IDs for weapons
+            newItem = {
+                ...item,
+                id: generateItemId(),
+                campaignId: campaignId,
+                createdAt: now,
+                updatedAt: now,
+                attacks: item.attacks.map((attack) => ({
+                    ...attack,
+                    id: generateItemId(),
+                })),
+            } as CampaignItem;
+        } else {
+            newItem = {
+                ...item,
+                id: generateItemId(),
+                campaignId: campaignId,
+                createdAt: now,
+                updatedAt: now,
+            } as CampaignItem;
+        }
+
+        newItems.push(newItem);
+    }
+
+    if (mode === "replace") {
+        // Replace all campaign items: keep other campaigns, use only new items for this campaign
+        saveCampaignItems([...otherCampaignItems, ...newItems]);
+    } else {
+        // Add mode: keep existing items for this campaign, add new ones
+        saveCampaignItems([...otherCampaignItems, ...existingCampaignItems, ...newItems]);
+    }
+
+    return newItems.length;
 }
 
 /**
