@@ -143,19 +143,17 @@
 </script>
 
 {#if show}
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
     <div
         class="modal-backdrop"
-        on:click={handleBackdropClick}
-        on:keydown={handleKeydown}
+        onclick={handleBackdropClick}
+        onkeydown={handleKeydown}
         role="dialog"
         aria-modal="true"
         tabindex="-1">
-        <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
-        <div class="modal" on:click|stopPropagation role="document">
+        <div class="modal" role="document">
             <div class="modal-header">
                 <h3>Map Settings</h3>
-                <button class="modal-close" on:click={handleCancel} aria-label="Close">
+                <button class="modal-close" onclick={handleCancel} aria-label="Close">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 6L6 18M6 6l12 12" />
                     </svg>
@@ -165,29 +163,34 @@
             <div class="modal-content">
                 <!-- Background Color -->
                 <div class="form-group">
-                    <label class="form-label">Background</label>
+                    <span class="form-label" id="background-label">Background</span>
                     <div class="radio-group">
                         <label class="radio-option">
                             <input
                                 type="radio"
                                 name="bgMode"
+                                id="bgMode-theme"
+                                aria-labelledby="background-label"
                                 checked={useThemeBackground}
-                                on:change={() => handleBackgroundModeChange(true)} />
+                                onchange={() => handleBackgroundModeChange(true)} />
                             <span>Theme</span>
                         </label>
                         <label class="radio-option">
                             <input
                                 type="radio"
                                 name="bgMode"
+                                id="bgMode-custom"
+                                aria-labelledby="background-label"
                                 checked={!useThemeBackground}
-                                on:change={() => handleBackgroundModeChange(false)} />
+                                onchange={() => handleBackgroundModeChange(false)} />
                             <span>Custom</span>
                         </label>
                         {#if !useThemeBackground}
                             <button
                                 class="color-swatch-btn"
-                                on:click={() => (showBgColorPicker = !showBgColorPicker)}
-                                aria-label="Select background color">
+                                onclick={() => (showBgColorPicker = !showBgColorPicker)}
+                                aria-label="Select background color"
+                                type="button">
                                 <div
                                     class="color-swatch"
                                     style="background: {customBackgroundColor}">
@@ -202,8 +205,9 @@
                                     class="picker-swatch"
                                     class:active={customBackgroundColor === color}
                                     style="background: {color}"
-                                    on:click={() => handleBgColorSelect(color)}
-                                    aria-label={color}>
+                                    onclick={() => handleBgColorSelect(color)}
+                                    aria-label={color}
+                                    type="button">
                                 </button>
                             {/each}
                         </div>
@@ -212,30 +216,32 @@
 
                 <!-- Background Tile Opacity -->
                 <div class="form-group">
-                    <label class="form-label">
+                    <label class="form-label" for="background-tile-opacity">
                         Background Tile Opacity
                         <span class="value-display">
                             {Math.round(backgroundTileOpacity * 100)}%
                         </span>
                     </label>
                     <input
+                        id="background-tile-opacity"
                         type="range"
                         min="0"
                         max="1"
                         step="0.01"
                         value={backgroundTileOpacity}
-                        on:input={handleOpacityChange}
+                        oninput={handleOpacityChange}
                         class="slider" />
                 </div>
 
                 <!-- Grid Color -->
                 <div class="form-group">
-                    <label class="form-label">Grid Color</label>
+                    <span class="form-label" id="grid-color-label">Grid Color</span>
                     <div class="color-row">
                         <button
                             class="color-swatch-btn"
-                            on:click={() => (showGridColorPicker = !showGridColorPicker)}
-                            aria-label="Select grid color">
+                            onclick={() => (showGridColorPicker = !showGridColorPicker)}
+                            aria-label="Select grid color"
+                            type="button">
                             <div
                                 class="color-swatch"
                                 class:default={!gridColor}
@@ -244,7 +250,9 @@
                         </button>
                         <span class="color-label">{gridColor || "Default"}</span>
                         {#if gridColor}
-                            <button class="reset-btn" on:click={handleClearGridColor}>Reset</button>
+                            <button class="reset-btn" onclick={handleClearGridColor} type="button">
+                                Reset
+                            </button>
                         {/if}
                     </div>
                     {#if showGridColorPicker}
@@ -254,8 +262,9 @@
                                     class="picker-swatch"
                                     class:active={gridColor === color}
                                     style="background: {color}"
-                                    on:click={() => handleGridColorSelect(color)}
-                                    aria-label={color}>
+                                    onclick={() => handleGridColorSelect(color)}
+                                    aria-label={color}
+                                    type="button">
                                 </button>
                             {/each}
                         </div>
@@ -264,40 +273,44 @@
 
                 <!-- Grid Thickness -->
                 <div class="form-group">
-                    <label class="form-label">
+                    <label class="form-label" for="grid-thickness">
                         Grid Thickness
                         <span class="value-display">{gridThickness.toFixed(1)}</span>
                     </label>
                     <input
+                        id="grid-thickness"
                         type="range"
                         min="0.5"
                         max="60"
                         step="0.1"
                         value={gridThickness}
-                        on:input={handleThicknessChange}
+                        oninput={handleThicknessChange}
                         class="slider" />
                 </div>
 
                 <!-- Grid Opacity -->
                 <div class="form-group">
-                    <label class="form-label">
+                    <label class="form-label" for="grid-opacity">
                         Grid Opacity
                         <span class="value-display">{Math.round(gridOpacity * 100)}%</span>
                     </label>
                     <input
+                        id="grid-opacity"
                         type="range"
                         min="0"
                         max="1"
                         step="0.01"
                         value={gridOpacity}
-                        on:input={handleGridOpacityChange}
+                        oninput={handleGridOpacityChange}
                         class="slider" />
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" on:click={handleCancel}>Cancel</button>
-                <button class="btn btn-primary" on:click={handleSave}>Save</button>
+                <button class="btn btn-secondary" onclick={handleCancel} type="button">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick={handleSave} type="button">Save</button>
             </div>
         </div>
     </div>
