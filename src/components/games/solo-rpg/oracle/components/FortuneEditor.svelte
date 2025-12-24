@@ -16,6 +16,7 @@
     export let show = false;
     export let fortune: Fortune;
     export let campaigns: string[] = [];
+    export let showCampaignField = true;
     export let onClose: () => void = () => {};
     export let onSave: (fortune: Fortune) => void = () => {};
 
@@ -138,7 +139,19 @@
         onClose={handleClose}
         onBack={handleBackToMain}>
         {#if viewMode === "main"}
-            <h2 class="text-text-primary mt-0">Create Fortune</h2>
+            <header class="modal-header">
+                <div class="modal-header-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="modal-title">Create Fortune</h2>
+                    <p class="modal-subtitle">Define dice rolls and card draws</p>
+                </div>
+            </header>
 
             {#if showCampaignField}
                 <div class="mb-4 text-left">
@@ -280,14 +293,14 @@
                         </p>
                         <div class="flex flex-col gap-2">
                             <div
-                                class="bg-bg-secondary text-text-secondary grid grid-cols-[80px_1fr] gap-3 rounded p-2 text-sm font-semibold">
+                                class="bg-bg-secondary text-text-secondary grid grid-cols-[60px_1fr] gap-3 rounded p-2 text-sm font-semibold">
                                 <span class="text-center">Die #</span>
                                 <span class="text-left">Label</span>
                             </div>
                             {#each diceSignificanceArray as significance}
-                                <div class="grid grid-cols-[80px_1fr] items-center gap-3 p-1">
+                                <div class="grid grid-cols-[60px_1fr] items-center gap-3 p-1">
                                     <span
-                                        class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1.1rem] font-semibold">
+                                        class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1rem] font-semibold">
                                         Die {significance.index}
                                     </span>
                                     <input
@@ -305,14 +318,14 @@
                     <h3 class="text-accent-primary mb-3 text-[1.2rem]">Dice Result Mappings</h3>
                     <div class="flex flex-col gap-2">
                         <div
-                            class="bg-bg-secondary text-text-secondary grid grid-cols-[80px_1fr] gap-3 rounded p-2 text-sm font-semibold">
+                            class="bg-bg-secondary text-text-secondary grid grid-cols-[60px_1fr] gap-3 rounded p-2 text-sm font-semibold">
                             <span class="text-center">Result</span>
                             <span class="text-left">Outcome Description</span>
                         </div>
                         {#each diceMappingArray as mapping}
-                            <div class="grid grid-cols-[80px_1fr] items-center gap-3 p-1">
+                            <div class="grid grid-cols-[60px_1fr] items-center gap-3 p-1">
                                 <span
-                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1.1rem] font-semibold">
+                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1rem] font-semibold">
                                     {mapping.value}
                                 </span>
                                 <input
@@ -331,14 +344,14 @@
                     <h3 class="text-accent-primary mb-3 text-[1.2rem]">Suit Mappings</h3>
                     <div class="flex flex-col gap-2">
                         <div
-                            class="bg-bg-secondary text-text-secondary grid grid-cols-[80px_1fr] gap-3 rounded p-2 text-sm font-semibold">
+                            class="bg-bg-secondary text-text-secondary grid grid-cols-[60px_1fr] gap-3 rounded p-2 text-sm font-semibold">
                             <span class="text-center">Suit</span>
                             <span class="text-left">Outcome Description</span>
                         </div>
                         {#each suitMappingArray as mapping}
-                            <div class="grid grid-cols-[80px_1fr] items-center gap-3 p-1">
+                            <div class="grid grid-cols-[60px_1fr] items-center gap-3 p-1">
                                 <span
-                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-2xl text-[1.1rem] font-semibold"
+                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-xl font-semibold"
                                     style="color: {isRedSuit(mapping.suit) ? 'red' : 'inherit'}">
                                     {mapping.suit}
                                 </span>
@@ -356,14 +369,14 @@
                     <h3 class="text-accent-primary mb-3 text-[1.2rem]">Rank Mappings</h3>
                     <div class="flex flex-col gap-2">
                         <div
-                            class="bg-bg-secondary text-text-secondary grid grid-cols-[80px_1fr] gap-3 rounded p-2 text-sm font-semibold">
+                            class="bg-bg-secondary text-text-secondary grid grid-cols-[60px_1fr] gap-3 rounded p-2 text-sm font-semibold">
                             <span class="text-center">Rank</span>
                             <span class="text-left">Outcome Description</span>
                         </div>
                         {#each rankMappingArray as mapping}
-                            <div class="grid grid-cols-[80px_1fr] items-center gap-3 p-1">
+                            <div class="grid grid-cols-[60px_1fr] items-center gap-3 p-1">
                                 <span
-                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1.1rem] font-semibold">
+                                    class="bg-bg-secondary text-text-primary rounded p-2 text-center text-[1rem] font-semibold">
                                     {mapping.rank}
                                 </span>
                                 <input
@@ -385,3 +398,38 @@
         {/if}
     </SrpgModal>
 {/if}
+
+<style>
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(var(--accent-primary-rgb, 59, 130, 246), 0.1);
+        color: var(--accent-primary);
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+        color: var(--text-primary);
+    }
+
+    .modal-subtitle {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 0.125rem 0 0;
+    }
+</style>
