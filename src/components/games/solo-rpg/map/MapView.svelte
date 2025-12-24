@@ -821,7 +821,7 @@
             <!-- Sidebars Container: Handles desktop vertical stacking and mobile fixed positioning -->
             <div
                 class="pointer-events-none z-40
-                       md:fixed md:top-[48px] md:bottom-0 md:left-20 md:flex md:flex-col md:flex-wrap md:gap-(--sidebar-gap) md:p-2">
+                       md:fixed md:top-12 md:bottom-0 md:left-20 md:flex md:flex-col md:flex-wrap md:gap-(--sidebar-gap) md:p-2">
                 <!-- Secondary Sidebar (Move/Background/Token tool toggle) - hidden in play mode -->
                 <SecondarySidebar
                     show={showSecondarySidebar && mapMode === "edit"}

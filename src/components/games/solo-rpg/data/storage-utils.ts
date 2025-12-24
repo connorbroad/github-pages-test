@@ -348,13 +348,34 @@ export type TileMap = {
  */
 export type Currency = { gp: number; sp: number; cp: number };
 
-export type ItemType = "general" | "weapon" | "armor";
+export type ItemType = "general" | "weapon" | "armor" | "consumable";
 
 export type AttackSpec = {
     id: string;
     name?: string;
     dice: string; // e.g. "1d8+2"
     kind: "B" | "P" | "S";
+};
+
+/** Target trait for consumable effects */
+export type ConsumableTargetTrait =
+    | { type: "hp" } // Current HP
+    | { type: "tempHp" } // Temporary HP
+    | { type: "hpMax" } // HP Maximum
+    | { type: "ability"; abilityId: string } // Ability score
+    | { type: "skill"; skillId: string } // Skill bonus
+    | { type: "custom"; customName: string }; // Custom named value
+
+/** Effect specification - either a fixed value or dice roll */
+export type ConsumableEffect =
+    | { kind: "set"; value: number } // Set to specific value
+    | { kind: "dice"; formula: string }; // Roll dice (e.g., "2d4+2")
+
+/** Action that a consumable performs when used */
+export type ConsumableAction = {
+    name: string; // e.g., "Heal", "Buff Strength"
+    target?: ConsumableTargetTrait; // What trait to modify (optional for flavor-only consumables)
+    effect: ConsumableEffect; // The effect to apply
 };
 
 export type ItemBase = {
@@ -382,7 +403,12 @@ export type GeneralItem = ItemBase & {
     type: "general";
 };
 
-export type CampaignItem = (WeaponItem | ArmorItem | GeneralItem) & {
+export type ConsumableItem = ItemBase & {
+    type: "consumable";
+    action: ConsumableAction;
+};
+
+export type CampaignItem = (WeaponItem | ArmorItem | GeneralItem | ConsumableItem) & {
     campaignId: string;
     createdAt: number;
     updatedAt: number;
@@ -951,7 +977,13 @@ function validateExportedItem(obj: unknown): obj is ExportedItem {
 
     // Core required fields
     if (typeof item.name !== "string") return false;
-    if (item.type !== "general" && item.type !== "weapon" && item.type !== "armor") return false;
+    if (
+        item.type !== "general" &&
+        item.type !== "weapon" &&
+        item.type !== "armor" &&
+        item.type !== "consumable"
+    )
+        return false;
 
     // Validate weapon-specific fields
     if (item.type === "weapon") {
@@ -968,6 +1000,18 @@ function validateExportedItem(obj: unknown): obj is ExportedItem {
     // Validate armor-specific fields
     if (item.type === "armor") {
         if (typeof item.armorClass !== "number") return false;
+    }
+
+    // Validate consumable-specific fields
+    if (item.type === "consumable") {
+        if (!item.action || typeof item.action !== "object") return false;
+        const action = item.action as Record<string, unknown>;
+        if (typeof action.name !== "string") return false;
+        if (!action.effect || typeof action.effect !== "object") return false;
+        const effect = action.effect as Record<string, unknown>;
+        if (effect.kind !== "set" && effect.kind !== "dice") return false;
+        if (effect.kind === "set" && typeof effect.value !== "number") return false;
+        if (effect.kind === "dice" && typeof effect.formula !== "string") return false;
     }
 
     return true;

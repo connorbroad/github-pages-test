@@ -190,7 +190,8 @@
                             {character}
                             {editedCharacter}
                             isEditable={isItemsEditable}
-                            {saveSection} />
+                            {saveSection}
+                            {onRollCheck} />
                     </CharacterSheetSection>
                 {/if}
 

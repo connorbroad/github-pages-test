@@ -333,7 +333,6 @@
 
 <SrpgListPage className="character-manager">
     <div slot="header">
-        <h1 class="srpg-page-header text-center">Characters</h1>
         {#if selectedCharacter && !isEditing}
             <div
                 class="mb-2 flex w-full shrink-0 flex-row flex-wrap items-center justify-between gap-4">
@@ -382,7 +381,7 @@
             </div>
         {:else}
             {#if availableTags.length > 1}
-                <section class="srpg-collapsible-section mb-6 max-[480px]:mb-2">
+                <section class="srpg-collapsible-section mt-2 mb-6 max-[480px]:mb-2">
                     <button
                         class="srpg-collapsible-header"
                         class:expanded={isTagFilterExpanded}

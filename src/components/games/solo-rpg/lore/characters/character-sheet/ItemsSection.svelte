@@ -1,13 +1,15 @@
 <script lang="ts">
-    import type { Character } from "../../../data/storage-utils";
+    import type { Character, ConsumableItem } from "../../../data/storage-utils";
     import { loadCampaignItems, saveCampaignItems } from "../../../data/storage-utils";
     import ItemLibraryModal from "./items/ItemLibraryModal.svelte";
     import AddInventoryItemModal from "./items/AddInventoryItemModal.svelte";
+    import UseConsumableModal from "./items/UseConsumableModal.svelte";
 
     export let character: Character;
     export let editedCharacter: Character;
     export let isEditable: boolean;
     export let saveSection: () => void; // callback to trigger parent save
+    export let onRollCheck: (detail: any) => void = () => {}; // callback for dice rolls
 
     let showItemLibraryModal = false;
     let showAddInventoryItemModal = false;
@@ -27,6 +29,11 @@
     $: generalItems = invWithItem.filter((x: any) => x.item?.type === "general");
     $: weaponItems = invWithItem.filter((x: any) => x.item?.type === "weapon");
     $: armorItems = invWithItem.filter((x: any) => x.item?.type === "armor");
+    $: consumableItems = invWithItem.filter((x: any) => x.item?.type === "consumable");
+
+    // Consumable use modal state
+    let showUseConsumableModal = false;
+    let consumableToUse: { invItem: any; item: ConsumableItem } | null = null;
 
     // Keep invItem.equipped in sync with editedCharacter.equipped arrays
     $: {
@@ -160,6 +167,35 @@
         saveSection();
     }
 
+    // ----- Consumable handlers -----
+    function openUseConsumable(entry: { invItem: any; item: ConsumableItem }) {
+        consumableToUse = entry;
+        showUseConsumableModal = true;
+    }
+
+    function handleConsumableUsed(result: { consumed: boolean; rollResult?: number }) {
+        if (result.consumed && consumableToUse) {
+            const invItem = consumableToUse.invItem;
+            invItem.quantity -= 1;
+
+            if (invItem.quantity <= 0) {
+                // Remove from inventory
+                editedCharacter.inventory = editedCharacter.inventory?.filter(
+                    (i) => i.itemId !== invItem.itemId
+                );
+            }
+
+            saveSection();
+        }
+        showUseConsumableModal = false;
+        consumableToUse = null;
+    }
+
+    function handleUseConsumableClose() {
+        showUseConsumableModal = false;
+        consumableToUse = null;
+    }
+
     // ----- Item details + icons (shared with ItemLibraryModal pattern) -----
     type ItemDetail = { icon: string; text: string };
     function formatItemDetails(item: any): ItemDetail[] {
@@ -196,6 +232,14 @@
         if (item.type === "armor" && item.armorClass !== undefined) {
             details.push({ icon: "shield", text: `AC: ${item.armorClass}` });
         }
+        if (item.type === "consumable" && item.action) {
+            details.push({ icon: "action", text: item.action.name });
+            if (item.action.effect.kind === "dice") {
+                details.push({ icon: "dice", text: item.action.effect.formula });
+            } else {
+                details.push({ icon: "value", text: `+${item.action.effect.value}` });
+            }
+        }
         return details;
     }
 
@@ -207,6 +251,9 @@
             target: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z",
             sword: "M7.116 16.5v-1h7.134q-.85-.617-1.255-1.406t-.472-1.594H8.885v-1h3.638q.106-.844.51-1.633q.406-.788 1.217-1.367H3.5v-1H17q1.868 0 3.184 1.316Q21.5 10.13 21.5 11.997t-1.316 3.185T17 16.5zm9.884-1q1.442 0 2.471-1.029T20.5 12t-1.029-2.471T17 8.5t-2.471 1.029T13.5 12t1.029 2.471T17 15.5m-14.5-3v-1h5.385v1zm1 4v-1h2.616v1z",
             shield: "M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm6 9.09c0 4-2.55 7.7-6 8.83-3.45-1.13-6-4.82-6-8.83V6.31l6-2.12 6 2.12v4.78z",
+            action: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+            dice: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z",
+            value: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2v-4H8v-2h4V7h2v4h4v2h-4v4z",
         };
         return icons[iconType] || icons.weight;
     }
@@ -454,6 +501,50 @@
                     </div>
                 </div>
             {/if}
+
+            {#if consumableItems.length > 0}
+                <div class="inventory-group">
+                    <div class="srpg-group-header">
+                        <span class="srpg-group-title">Consumables</span>
+                        <span class="srpg-group-count">{consumableItems.length}</span>
+                    </div>
+                    <div class="category-grid">
+                        {#each consumableItems as row}
+                            <div class="inventory-card consumable-card">
+                                <div class="card-left">
+                                    <button
+                                        class="use-btn"
+                                        on:click={() => openUseConsumable(row)}
+                                        disabled={row.invItem.quantity <= 0}>
+                                        USE
+                                    </button>
+                                </div>
+                                <div class="card-main">
+                                    <div class="item-header">
+                                        <span class="item-name">
+                                            {row.item?.name || row.invItem.itemId}
+                                        </span>
+                                        <span class="item-qty">x{row.invItem.quantity}</span>
+                                    </div>
+                                    <div class="item-details">
+                                        {#each formatItemDetails(row.item) as detail}
+                                            <div class="detail-tag">
+                                                <svg
+                                                    class="detail-icon"
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor">
+                                                    <path d={getIconSvg(detail.icon)} />
+                                                </svg>
+                                                {detail.text}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
         {/if}
     </div>
 </div>
@@ -471,6 +562,14 @@
     {campaignItems}
     onSave={handleAddInventoryItemSave}
     onClose={handleAddInventoryItemClose} />
+
+<UseConsumableModal
+    bind:show={showUseConsumableModal}
+    consumable={consumableToUse?.item || null}
+    character={editedCharacter}
+    onUse={handleConsumableUsed}
+    onClose={handleUseConsumableClose}
+    {onRollCheck} />
 
 <style>
     .inventory-section {
@@ -778,6 +877,34 @@
         color: white;
         border-color: var(--accent-success);
         box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+    }
+
+    /* Consumable cards & Use Button */
+    .consumable-card {
+        border-left: 3px solid var(--accent-success);
+    }
+
+    .use-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        border-radius: 6px;
+        border: 1px solid var(--accent-success);
+        background: var(--accent-success);
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 60px;
+    }
+
+    .use-btn:hover:not(:disabled) {
+        filter: brightness(1.1);
+    }
+
+    .use-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .empty-state {

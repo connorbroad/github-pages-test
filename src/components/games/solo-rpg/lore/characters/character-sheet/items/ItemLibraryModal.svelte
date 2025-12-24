@@ -11,7 +11,7 @@
     export let onClose: () => void = () => {};
 
     let showCreateItemModal = false;
-    let expandedGroups: Set<string> = new Set(["general", "weapon", "armor"]);
+    let expandedGroups: Set<string> = new Set(["general", "weapon", "armor", "consumable"]);
     let expandedItems: Set<string> = new Set();
 
     let searchQuery = "";
@@ -28,6 +28,7 @@
         general: filteredItems.filter((item) => item.type === "general"),
         weapon: filteredItems.filter((item) => item.type === "weapon"),
         armor: filteredItems.filter((item) => item.type === "armor"),
+        consumable: filteredItems.filter((item) => item.type === "consumable"),
     };
 
     function toggleGroup(group: string) {
@@ -75,6 +76,7 @@
             general: "General Items",
             weapon: "Weapons",
             armor: "Armor",
+            consumable: "Consumables",
         };
         return labels[type] || type;
     }
@@ -120,6 +122,29 @@
             details.push({ icon: "shield", text: `AC: ${item.armorClass}` });
         }
 
+        if (item.type === "consumable" && item.action) {
+            details.push({ icon: "action", text: item.action.name });
+            if (item.action.effect.kind === "dice") {
+                details.push({ icon: "dice", text: item.action.effect.formula });
+            } else {
+                details.push({ icon: "value", text: `+${item.action.effect.value}` });
+            }
+            if (item.action.target) {
+                const targetLabels: Record<string, string> = {
+                    hp: "Current HP",
+                    tempHp: "Temp HP",
+                    hpMax: "HP Max",
+                    ability: `Ability: ${item.action.target.type === "ability" ? item.action.target.abilityId : ""}`,
+                    skill: `Skill: ${item.action.target.type === "skill" ? item.action.target.skillId : ""}`,
+                    custom: item.action.target.type === "custom" ? item.action.target.customName : "",
+                };
+                const targetLabel = targetLabels[item.action.target.type] || "";
+                if (targetLabel) {
+                    details.push({ icon: "target", text: `Target: ${targetLabel}` });
+                }
+            }
+        }
+
         return details;
     }
 
@@ -131,6 +156,9 @@
             target: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z",
             sword: "M7.116 16.5v-1h7.134q-.85-.617-1.255-1.406t-.472-1.594H8.885v-1h3.638q.106-.844.51-1.633q.406-.788 1.217-1.367H3.5v-1H17q1.868 0 3.184 1.316Q21.5 10.13 21.5 11.997t-1.316 3.185T17 16.5zm9.884-1q1.442 0 2.471-1.029T20.5 12t-1.029-2.471T17 8.5t-2.471 1.029T13.5 12t1.029 2.471T17 15.5m-14.5-3v-1h5.385v1zm1 4v-1h2.616v1z",
             shield: "M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm6 9.09c0 4-2.55 7.7-6 8.83-3.45-1.13-6-4.82-6-8.83V6.31l6-2.12 6 2.12v4.78z",
+            action: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+            dice: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z",
+            value: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2v-4H8v-2h4V7h2v4h4v2h-4v4z",
         };
         return icons[iconType] || icons.weight;
     }
@@ -145,6 +173,12 @@
         }
         if (item.type === "armor" && item.armorClass !== undefined) {
             return `AC ${item.armorClass}`;
+        }
+        if (item.type === "consumable" && item.action) {
+            if (item.action.effect.kind === "dice") {
+                return item.action.effect.formula;
+            }
+            return `+${item.action.effect.value}`;
         }
         if (item.cost) {
             const gp = Math.floor(item.cost);
@@ -218,7 +252,7 @@
                     </button>
                 </div>
             {:else}
-                {#each ["general", "weapon", "armor"] as itemType}
+                {#each ["general", "weapon", "armor", "consumable"] as itemType}
                     {@const items = groupedItems[itemType]}
                     {#if items.length > 0}
                         <div class="item-group">
@@ -246,6 +280,7 @@
                                             class="item-card"
                                             class:weapon-card={item.type === "weapon"}
                                             class:armor-card={item.type === "armor"}
+                                            class:consumable-card={item.type === "consumable"}
                                             class:expanded={isExpanded}>
                                             <div class="item-card-header">
                                                 <button
@@ -506,6 +541,10 @@
 
     .armor-card {
         border-left: 3px solid var(--accent-info);
+    }
+
+    .consumable-card {
+        border-left: 3px solid var(--accent-success);
     }
 
     .item-card-header {

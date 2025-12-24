@@ -1,6 +1,12 @@
 <script lang="ts">
     import SrpgModal from "../../../../shared/modal/SrpgModal.svelte";
-    import type { CampaignItem, ItemType, AttackSpec } from "../../../../data/storage-utils";
+    import type {
+        CampaignItem,
+        ItemType,
+        AttackSpec,
+        ConsumableTargetTrait,
+        ConsumableEffect,
+    } from "../../../../data/storage-utils";
 
     export let show = false;
     export let campaignId: string;
@@ -22,6 +28,16 @@
 
     // Armor fields
     let armorClass: number | null = null;
+
+    // Consumable fields
+    let actionName = "";
+    let targetType: "none" | "hp" | "tempHp" | "hpMax" | "ability" | "skill" | "custom" = "none";
+    let targetAbilityId = "";
+    let targetSkillId = "";
+    let customTargetName = "";
+    let effectKind: "set" | "dice" = "dice";
+    let effectValue: number | null = null;
+    let effectDice = "1d4";
 
     function addAttack() {
         attacks = [...attacks, { id: `attack-${Date.now()}`, name: "", dice: "", kind: "B" }];
@@ -61,6 +77,34 @@
                 type: "armor",
                 armorClass: armorClass ?? 10,
             };
+        } else if (type === "consumable") {
+            // Build target trait
+            let target: ConsumableTargetTrait | undefined;
+            if (targetType === "hp") target = { type: "hp" };
+            else if (targetType === "tempHp") target = { type: "tempHp" };
+            else if (targetType === "hpMax") target = { type: "hpMax" };
+            else if (targetType === "ability" && targetAbilityId.trim())
+                target = { type: "ability", abilityId: targetAbilityId.trim() };
+            else if (targetType === "skill" && targetSkillId.trim())
+                target = { type: "skill", skillId: targetSkillId.trim() };
+            else if (targetType === "custom" && customTargetName.trim())
+                target = { type: "custom", customName: customTargetName.trim() };
+
+            // Build effect
+            const effect: ConsumableEffect =
+                effectKind === "dice"
+                    ? { kind: "dice", formula: effectDice || "1d4" }
+                    : { kind: "set", value: effectValue ?? 0 };
+
+            item = {
+                ...base,
+                type: "consumable",
+                action: {
+                    name: actionName || "Use",
+                    target,
+                    effect,
+                },
+            };
         } else {
             item = {
                 ...base,
@@ -89,6 +133,15 @@
         toHit = "1d20+0";
         attacks = [];
         armorClass = null;
+        // Reset consumable fields
+        actionName = "";
+        targetType = "none";
+        targetAbilityId = "";
+        targetSkillId = "";
+        customTargetName = "";
+        effectKind = "dice";
+        effectValue = null;
+        effectDice = "1d4";
         show = false;
     }
 
@@ -101,7 +154,8 @@
     <div
         class="modal-content"
         class:type-weapon={type === "weapon"}
-        class:type-armor={type === "armor"}>
+        class:type-armor={type === "armor"}
+        class:type-consumable={type === "consumable"}>
         <h2 class="srpg-modal-heading">Create New Item</h2>
 
         <div class="form-section">
@@ -124,6 +178,12 @@
                     class:active={type === "armor"}
                     on:click={() => setType("armor")}>
                     Armor
+                </button>
+                <button
+                    class="type-btn"
+                    class:active={type === "consumable"}
+                    on:click={() => setType("consumable")}>
+                    Consumable
                 </button>
             </div>
         </div>
@@ -289,6 +349,99 @@
                             placeholder="10" />
                     </div>
                 </div>
+            {:else if type === "consumable"}
+                <div class="form-group special-group consumable-group">
+                    <h3 class="group-title">Consumable Action</h3>
+
+                    <div class="srpg-form-field">
+                        <label for="action-name">Action Name</label>
+                        <input
+                            id="action-name"
+                            type="text"
+                            bind:value={actionName}
+                            placeholder="e.g., Heal, Restore Energy" />
+                    </div>
+
+                    <div class="srpg-form-field">
+                        <label for="target-type">Target Trait</label>
+                        <select id="target-type" bind:value={targetType}>
+                            <option value="none">None (flavor only)</option>
+                            <option value="hp">Current HP</option>
+                            <option value="tempHp">Temporary HP</option>
+                            <option value="hpMax">HP Maximum</option>
+                            <option value="ability">Ability Score</option>
+                            <option value="skill">Skill Bonus</option>
+                            <option value="custom">Custom Value</option>
+                        </select>
+                    </div>
+
+                    {#if targetType === "ability"}
+                        <div class="srpg-form-field">
+                            <label for="target-ability">Target Ability</label>
+                            <input
+                                id="target-ability"
+                                type="text"
+                                bind:value={targetAbilityId}
+                                placeholder="e.g., strength, dexterity" />
+                        </div>
+                    {:else if targetType === "skill"}
+                        <div class="srpg-form-field">
+                            <label for="target-skill">Target Skill</label>
+                            <input
+                                id="target-skill"
+                                type="text"
+                                bind:value={targetSkillId}
+                                placeholder="e.g., perception, stealth" />
+                        </div>
+                    {:else if targetType === "custom"}
+                        <div class="srpg-form-field">
+                            <label for="custom-target">Custom Target Name</label>
+                            <input
+                                id="custom-target"
+                                type="text"
+                                bind:value={customTargetName}
+                                placeholder="e.g., Mana, Stamina" />
+                        </div>
+                    {/if}
+
+                    <div class="srpg-form-field">
+                        <label for="effect-type-toggle">Effect Type</label>
+                        <div class="effect-toggle" id="effect-type-toggle" role="group" aria-label="Effect Type">
+                            <button
+                                type="button"
+                                class:active={effectKind === "dice"}
+                                on:click={() => (effectKind = "dice")}>
+                                Dice Roll
+                            </button>
+                            <button
+                                type="button"
+                                class:active={effectKind === "set"}
+                                on:click={() => (effectKind = "set")}>
+                                Set Value
+                            </button>
+                        </div>
+                    </div>
+
+                    {#if effectKind === "dice"}
+                        <div class="srpg-form-field">
+                            <label for="effect-dice">Dice Formula</label>
+                            <input
+                                id="effect-dice"
+                                type="text"
+                                bind:value={effectDice}
+                                placeholder="e.g., 2d4+2, 1d8" />
+                        </div>
+                    {:else}
+                        <div class="srpg-form-field">
+                            <label for="effect-value">Value</label>
+                            <input
+                                id="effect-value"
+                                type="number"
+                                bind:value={effectValue}
+                                placeholder="0" />
+                        </div>
+                    {/if}
+                </div>
             {/if}
         </div>
 
@@ -369,6 +522,10 @@
         color: var(--accent-info);
     }
 
+    .type-consumable .type-btn.active {
+        color: var(--accent-success);
+    }
+
     .form-scroll-area {
         flex: 1;
         overflow-y: auto;
@@ -399,6 +556,11 @@
     .armor-group {
         border-color: var(--accent-info);
         background: rgba(var(--info-rgb, 59, 130, 246), 0.03);
+    }
+
+    .consumable-group {
+        border-color: var(--accent-success);
+        background: rgba(var(--success-rgb, 34, 197, 94), 0.03);
     }
 
     .group-title {
@@ -447,6 +609,51 @@
         outline: none;
         border-color: var(--accent-primary);
         box-shadow: 0 0 0 2px var(--srpg-focus-ring);
+    }
+
+    .srpg-form-field select {
+        padding: 0.625rem 0.75rem;
+        background: var(--input-bg);
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .srpg-form-field select:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--srpg-focus-ring);
+    }
+
+    .effect-toggle {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .effect-toggle button {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid var(--border-primary);
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+
+    .effect-toggle button:hover:not(.active) {
+        background: var(--bg-tertiary);
+    }
+
+    .effect-toggle button.active {
+        background: var(--accent-success);
+        color: white;
+        border-color: var(--accent-success);
     }
 
     .grid-fields {
