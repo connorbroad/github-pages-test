@@ -699,6 +699,154 @@ export function downloadDataFile(): void {
 }
 
 /**
+ * Export a single game blueprint to JSON string
+ */
+export function exportBlueprint(blueprint: GameBlueprint): string {
+    const exportData = {
+        version: "1.0",
+        type: "solo-rpg-blueprint",
+        exportedAt: new Date().toISOString(),
+        blueprint: blueprint,
+    };
+    return JSON.stringify(exportData, null, 2);
+}
+
+/**
+ * Export multiple game blueprints to JSON string
+ */
+export function exportBlueprints(blueprints: GameBlueprint[]): string {
+    const exportData = {
+        version: "1.0",
+        type: "solo-rpg-blueprints",
+        exportedAt: new Date().toISOString(),
+        blueprints: blueprints,
+    };
+    return JSON.stringify(exportData, null, 2);
+}
+
+/**
+ * Download a single blueprint as a file
+ */
+export function downloadBlueprintFile(blueprint: GameBlueprint): void {
+    const data = exportBlueprint(blueprint);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeTitle = blueprint.title.replace(/[^a-z0-9]/gi, "-").toLowerCase();
+    a.download = `blueprint-${safeTitle}-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Download all blueprints as a single file
+ */
+export function downloadAllBlueprintsFile(): void {
+    const blueprints = loadGameBlueprints();
+    const data = exportBlueprints(blueprints);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `all-blueprints-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Validate and parse imported blueprint data
+ * Returns the blueprints if valid, or null if invalid
+ */
+export function parseImportedBlueprints(
+    jsonString: string
+): { blueprints: GameBlueprint[]; isSingle: boolean } | null {
+    try {
+        const data = JSON.parse(jsonString);
+
+        // Check for single blueprint format
+        if (data.type === "solo-rpg-blueprint" && data.blueprint) {
+            const blueprint = data.blueprint as GameBlueprint;
+            if (validateBlueprint(blueprint)) {
+                return { blueprints: [blueprint], isSingle: true };
+            }
+        }
+
+        // Check for multiple blueprints format
+        if (data.type === "solo-rpg-blueprints" && Array.isArray(data.blueprints)) {
+            const blueprints = data.blueprints as GameBlueprint[];
+            if (blueprints.every(validateBlueprint)) {
+                return { blueprints, isSingle: false };
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Failed to parse blueprint data:", error);
+        return null;
+    }
+}
+
+/**
+ * Validate that an object is a valid GameBlueprint
+ */
+function validateBlueprint(obj: unknown): obj is GameBlueprint {
+    if (!obj || typeof obj !== "object") return false;
+    const blueprint = obj as Record<string, unknown>;
+
+    return (
+        typeof blueprint.id === "string" &&
+        typeof blueprint.title === "string" &&
+        Array.isArray(blueprint.defaultFortunes)
+    );
+}
+
+/**
+ * Import blueprints, optionally generating new IDs to avoid conflicts
+ * Returns the number of blueprints imported
+ */
+export function importBlueprints(
+    blueprints: GameBlueprint[],
+    generateNewIds: boolean = true
+): number {
+    const existingBlueprints = loadGameBlueprints();
+    const existingIds = new Set(existingBlueprints.map((b) => b.id));
+
+    const newBlueprints: GameBlueprint[] = [];
+
+    for (const blueprint of blueprints) {
+        // Generate new ID if requested or if ID already exists
+        let newBlueprint = { ...blueprint };
+        if (generateNewIds || existingIds.has(blueprint.id)) {
+            const newId = generateBlueprintId();
+            newBlueprint = {
+                ...blueprint,
+                id: newId,
+                defaultFortunes: blueprint.defaultFortunes.map((f) => ({
+                    ...f,
+                    id: generateBlueprintId(), // Also generate new fortune IDs
+                })),
+            };
+        }
+        newBlueprints.push(newBlueprint);
+    }
+
+    saveGameBlueprints([...existingBlueprints, ...newBlueprints]);
+    return newBlueprints.length;
+}
+
+/**
+ * Generate a unique ID for blueprints/fortunes
+ */
+function generateBlueprintId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+/**
  * Load characters from storage
  */
 export function loadCharacters(): Character[] {
