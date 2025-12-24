@@ -8,7 +8,7 @@
 
 <div class="w-full">
     <div
-        class="bg-card-bg text-text-primary border-card-border mx-auto w-full max-w-[500px] rounded-lg border p-0 shadow-md">
+        class="bg-card-bg text-text-primary border-card-border mx-auto w-full max-w-[600px] rounded-lg border p-0 shadow-md">
         <div class="border-border-primary flex items-center justify-between border-b p-6">
             <h2 class="text-text-primary m-0 text-2xl">Theme</h2>
         </div>
