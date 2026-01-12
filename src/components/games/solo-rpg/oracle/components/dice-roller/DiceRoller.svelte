@@ -179,23 +179,6 @@
                     class="border-border-primary bg-bg-secondary flex flex-row justify-between gap-0 overflow-hidden rounded-xl border">
                     <label
                         class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
-                        aria-label="Sum">
-                        <input
-                            class="pointer-events-none absolute opacity-0"
-                            type="radio"
-                            name="resultOption"
-                            value="Sum"
-                            disabled={(diceResults.length == 0 && numDice == 1) ||
-                                (numDice == 1 && diceResults.length == 1)}
-                            bind:group={resultOption}
-                            on:change={recalculateResult} />
-                        <span
-                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
-                            <ResultOptionIcon option="Sum" size="1em" />
-                        </span>
-                    </label>
-                    <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Maximum">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -213,6 +196,23 @@
                     </label>
                     <label
                         class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
+                        aria-label="Sum">
+                        <input
+                            class="pointer-events-none absolute opacity-0"
+                            type="radio"
+                            name="resultOption"
+                            value="Sum"
+                            disabled={(diceResults.length == 0 && numDice == 1) ||
+                                (numDice == 1 && diceResults.length == 1)}
+                            bind:group={resultOption}
+                            on:change={recalculateResult} />
+                        <span
+                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
+                            <ResultOptionIcon option="Sum" size="1em" />
+                        </span>
+                    </label>
+                    <label
+                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
                         aria-label="Minimum">
                         <input
                             class="pointer-events-none absolute opacity-0"
@@ -226,23 +226,6 @@
                         <span
                             class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
                             <ResultOptionIcon option="Minimum" size="1em" />
-                        </span>
-                    </label>
-                    <label
-                        class="text-text-primary has-checked:bg-accent-primary has-checked:text-text-inverse has-disabled:bg-bg-tertiary has-disabled:text-text-primary group relative m-0 flex grow cursor-pointer flex-col items-center justify-center bg-transparent px-[0.6rem] py-[0.45rem] text-[1.2rem] shadow-none transition-all duration-200 has-disabled:cursor-not-allowed"
-                        aria-label="Subtract">
-                        <input
-                            class="pointer-events-none absolute opacity-0"
-                            type="radio"
-                            name="resultOption"
-                            value="Subtract"
-                            disabled={(diceResults.length == 0 && numDice == 1) ||
-                                (numDice == 1 && diceResults.length == 1)}
-                            bind:group={resultOption}
-                            on:change={recalculateResult} />
-                        <span
-                            class="m-0 flex h-[30px] items-center justify-center text-[1.4rem] group-has-disabled:opacity-60">
-                            <ResultOptionIcon option="Subtract" size="1em" />
                         </span>
                     </label>
                 </div>
