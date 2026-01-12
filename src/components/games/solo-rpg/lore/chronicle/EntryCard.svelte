@@ -18,7 +18,6 @@
         currentText: string;
     }) => void = () => {};
     export let onDelete: (entryId: string) => void = () => {};
-    export let onSave: (detail: { entryId: string; isManual: boolean }) => void = () => {};
     export let onCancelEdit: () => void = () => {};
 
     $: isEditing = editingEntryId === entry.id;
@@ -42,13 +41,6 @@
         onDelete(entryId);
     }
 
-    function handleSave(event: CustomEvent) {
-        onSave({
-            entryId: event.detail.entryId,
-            isManual: typeConfig.editField === "content",
-        });
-    }
-
     function handleCancelEdit() {
         onCancelEdit();
     }
@@ -65,28 +57,23 @@
         </span>
     </div>
 
-    <!-- Render type-specific content -->
     {#if !isEditing}
         <svelte:component this={typeConfig.contentComponent} {entry} />
 
-        <!-- Show notes if they exist (for types that support notes) -->
         {#if hasNotes}
             <EntryNotes notes={entry.userNotes} />
         {/if}
     {/if}
 
-    <!-- Show editor when editing -->
     {#if isEditing}
         <EntryEditor
             entryId={entry.id}
             bind:value={editText}
             placeholder={typeConfig.editPlaceholder}
             compact={typeConfig.compact}
-            onSave={handleSave}
             onCancel={handleCancelEdit} />
     {/if}
 
-    <!-- Actions (always shown) -->
     <EntryActions
         entryId={entry.id}
         characterId={entry.characterId}

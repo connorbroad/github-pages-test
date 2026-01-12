@@ -38,18 +38,11 @@ export interface EntryTypeConfig {
 }
 
 const NON_MANUAL_CARD_STYLES =
-    "border-l-4 border-t-1 border-[var(--accent-primary)] rounded-xl p-3 my-1 shadow-md hover:shadow-lg transition-shadow";
+    "border-l-4 border-[var(--accent-primary)] rounded-xl p-3 my-1 shadow-md hover:shadow-lg transition-shadow";
 
 const MANUAL_CARD_STYLES =
     "border border-[var(--border-primary)] bg-(--card-bg) rounded-sm p-5 my-1 shadow-md hover:shadow-lg transition-shadow";
 
-/**
- * Registry of all entry types
- * To add a new entry type:
- * 1. Create a new content component in this directory
- * 2. Add a new configuration object here
- * 3. That's it! Everything else is handled automatically
- */
 export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
     fortune: {
         type: "fortune",
@@ -61,7 +54,7 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
         editButtonLabel: (entry) => (entry.userNotes ? "Edit notes" : "Add notes"),
         editField: "userNotes",
         editPlaceholder: "Add your interpretation...",
-        hasEditableContent: () => true, // Fortunes can always have notes added
+        hasEditableContent: () => true,
     },
 
     dice: {
@@ -104,10 +97,6 @@ export const ENTRY_TYPE_CONFIGS: Record<string, EntryTypeConfig> = {
     },
 };
 
-/**
- * Get the configuration for an entry type
- * Falls back to manual if type is unknown
- */
 export function getEntryTypeConfig(entry: ChronicleEntry): EntryTypeConfig {
     const config = ENTRY_TYPE_CONFIGS[entry.type];
     if (!config) {
