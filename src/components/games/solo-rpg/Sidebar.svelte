@@ -66,23 +66,78 @@
               md:fixed md:top-0 md:left-0 md:h-screen md:w-20 md:flex-col md:pb-0 md:shadow-md">
     <nav
         class="flex h-full w-full flex-row p-0
-                md:w-auto md:flex-1 md:flex-col md:justify-between md:p-0">
+                md:w-auto md:flex-1 md:flex-col md:p-0">
+        <!-- Mobile: Single row with all items equally spaced -->
+        <!-- Desktop: Three groups - Home at top, middle items centered, Settings at bottom -->
+        
+        <!-- Group 1: Home Button (always at top on desktop) -->
         <div
-            class="flex flex-5 flex-row
-                    md:flex-none md:flex-col md:gap-0">
+            class="flex flex-1 flex-row
+                    md:flex-none md:flex-col">
             <button
-                class="srpg-sidebar-item"
+                class="srpg-sidebar-item flex-1"
                 class:active={currentView === "home"}
                 on:click={() => onNavigate("home")}
                 aria-label="Home">
                 <svg
+                    class="sidebar-icon"
                     xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                    width="2.5em"
-                    height="2.5em">
+                    viewBox="0 0 14 14"
+                    width="1em"
+                    height="1em">
                     <path
-                        fill="currentColor"
-                        d="M269.4 2.9C265.2 1 260.7 0 256 0s-9.2 1-13.4 2.9L54.3 82.8c-22 9.3-38.4 31-38.3 57.2c.5 99.2 41.3 280.7 213.6 363.2c16.7 8 36.1 8 52.8 0C454.7 420.7 495.5 239.2 496 140c.1-26.2-16.3-47.9-38.3-57.2zM160 154.4c0-5.8 4.7-10.4 10.4-10.4h.2c3.4 0 6.5 1.6 8.5 4.3l40 53.3c3 4 7.8 6.4 12.8 6.4h48c5 0 9.8-2.4 12.8-6.4l40-53.3c2-2.7 5.2-4.3 8.5-4.3h.2c5.8 0 10.4 4.7 10.4 10.4L352 272c0 53-43 96-96 96s-96-43-96-96zM216 288a16 16 0 1 0 0-32a16 16 0 1 0 0 32m96-16a16 16 0 1 0-32 0a16 16 0 1 0 32 0" />
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M.5 7L7 .5L13.5 7m-11 1.5v5h9v-5" />
+                </svg>
+                <span class="sidebar-label"></span>
+            </button>
+        </div>
+
+        <!-- Group 2: Middle navigation items (vertically centered on desktop) -->
+        <div
+            class="flex flex-5 flex-row
+                    md:flex-1 md:flex-col md:justify-center md:gap-0">
+            <button
+                class="srpg-sidebar-item flex-1"
+                class:active={currentView === "chronicle"}
+                on:click={() => onNavigate("chronicle")}
+                aria-label="Journey">
+                <svg
+                    class="sidebar-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="sidebar-label"></span>
+            </button>
+
+            <button
+                class="srpg-sidebar-item flex-1"
+                class:active={currentView === "story"}
+                on:click={() => {
+                    onResetStoryFilters();
+                    onNavigate("story");
+                }}
+                aria-label="Lore">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="sidebar-icon">
+                    <g
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2">
+                        <path
+                            d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4M2 6h4m-4 4h4m-4 4h4m-4 4h4" />
+                        <path
+                            d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                    </g>
                 </svg>
                 <span class="sidebar-label"></span>
             </button>
@@ -108,49 +163,7 @@
             </div>
 
             <button
-                class="srpg-sidebar-item"
-                class:active={currentView === "chronicle"}
-                on:click={() => onNavigate("chronicle")}
-                aria-label="Journey">
-                <svg
-                    class="sidebar-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                    <path d="M2 17l10 5 10-5"></path>
-                    <path d="M2 12l10 5 10-5"></path>
-                </svg>
-                <span class="sidebar-label"></span>
-            </button>
-
-            <button
-                class="srpg-sidebar-item"
-                class:active={currentView === "story"}
-                on:click={() => {
-                    onResetStoryFilters();
-                    onNavigate("story");
-                }}
-                aria-label="Lore">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="sidebar-icon">
-                    <g
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2">
-                        <path
-                            d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4M2 6h4m-4 4h4m-4 4h4m-4 4h4" />
-                        <path
-                            d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
-                    </g>
-                </svg>
-                <span class="sidebar-label"></span>
-            </button>
-
-            <button
-                class="srpg-sidebar-item"
+                class="srpg-sidebar-item flex-1"
                 class:active={currentView === "characters"}
                 class:can-return={currentView === "characters" && canReturnFromCharacters}
                 on:click={() => onNavigate("characters")}
@@ -184,7 +197,7 @@
             </button>
 
             <button
-                class="srpg-sidebar-item"
+                class="srpg-sidebar-item flex-1"
                 class:active={currentView === "map"}
                 class:can-return={currentView === "map" && canReturnFromMap}
                 on:click={() => onNavigate("map")}
@@ -217,11 +230,12 @@
             </button>
         </div>
 
+        <!-- Group 3: Settings Button (always at bottom on desktop) -->
         <div
             class="flex flex-1 flex-row
-                    md:mt-auto md:flex-none md:flex-col">
+                    md:flex-none md:flex-col">
             <button
-                class="srpg-sidebar-item"
+                class="srpg-sidebar-item flex-1"
                 class:active={currentView === "settings"}
                 on:click={() => onNavigate("settings")}
                 aria-label="Settings">
