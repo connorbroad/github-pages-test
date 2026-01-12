@@ -129,8 +129,6 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
     function handleNavigateToChronicle() {
-        // Simply navigate to chronicle view
-        // Animation only works for entries added directly on the Chronicle page
         handleNavigate("chronicle");
     }
 
