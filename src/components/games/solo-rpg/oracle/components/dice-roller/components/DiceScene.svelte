@@ -93,7 +93,7 @@
 
         // Physics World
         world = new CANNON.World();
-        world.gravity.set(0, -20, 0); // Stronger gravity for snappier rolls
+        world.gravity.set(0, -30, 0); // Stronger gravity for snappier rolls
 
         // Floor
         const floorShape = new CANNON.Plane();
@@ -538,6 +538,6 @@
 </script>
 
 <div
-    class="h-[200px] w-full touch-none overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
+    class="h-[200px] w-full touch-none overflow-hidden rounded-xl border-2 border-[#666] bg-[radial-gradient(circle_at_center,var(--bg-secondary)_0%,var(--bg-primary)_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]"
     bind:this={container}>
 </div>
